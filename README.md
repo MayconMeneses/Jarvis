@@ -2,7 +2,30 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 7 (parceira de desenvolvimento)
+## Estado atual: Fase 8 (instalador)
+
+**Instalar:** rode `dist\SuperJarvis-Setup-0.8.0.exe` (131 MB).
+- Instala só para o seu usuário, em `%LOCALAPPDATA%\Programs\SuperJarvis`, sem pedir administrador.
+- Cria atalho no menu Iniciar. O atalho na área de trabalho e o "Abrir a Jarvis quando o Windows iniciar" são opcionais.
+- Avisa se o Claude Code não estiver instalado.
+- Desinstale em Configurações > Aplicativos. Suas configurações, chaves e notas no Obsidian **são mantidas**.
+- Só uma Jarvis abre por vez. Abrir de novo apenas avisa que ela já está na bandeja.
+
+Dois executáveis na pasta do programa:
+- `Jarvis.exe`: janela, bandeja e voz.
+- `jarvis-cli.exe`: terminal. Use `jarvis-cli.exe --conectar gmail` e `jarvis-cli.exe --chave gemini` no lugar de `python -m jarvis ...`. Também é o servidor MCP usado pelo Claude.
+
+**Gerar uma nova versão do instalador** (desenvolvimento):
+
+```bash
+C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\jarvis.spec --noconfirm --distpath dist --workpath build
+```
+
+```bash
+"%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" packaging\installer.iss
+```
+
+## Fase 7 (parceira de desenvolvimento)
 
 - Cadastre projetos por voz ou texto: "Jarvis, meu projeto Comandiva fica em C:\...\pasta". Eles ficam em `projetos` no `config.json`.
 - **Estado rápido** (sem IA): branch, arquivos alterados e últimos commits.

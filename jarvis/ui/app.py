@@ -147,7 +147,30 @@ def build_task_worker(cfg: Config, api: Api, window):
     return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
 
 
+_ERROR_ALREADY_EXISTS = 183
+
+
+def claim_single_instance(name: str = "Local\\SuperJarvis"):
+    """Mutex nomeado do Windows. Retorna o handle, ou None se outra Jarvis já está aberta."""
+    import ctypes
+
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.CreateMutexW(None, False, name)
+    if kernel32.GetLastError() == _ERROR_ALREADY_EXISTS:
+        kernel32.CloseHandle(handle)
+        return None
+    return handle
+
+
 def run(cfg: Config, conversation: Conversation) -> int:
+    instance = claim_single_instance()
+    if instance is None:
+        import ctypes
+
+        ctypes.windll.user32.MessageBoxW(
+            None, "A Jarvis já está aberta. Procure o ícone dela na bandeja, perto do relógio.", "Jarvis", 0x40
+        )
+        return 0
     api = Api(cfg, conversation)
     window = webview.create_window(
         "Jarvis",

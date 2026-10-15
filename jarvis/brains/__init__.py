@@ -10,17 +10,24 @@ from jarvis.config import Config, data_dir
 from jarvis.keys import get_key
 
 
-def console_python() -> str:
-    """python.exe ao lado do interpretador atual (o servidor MCP usa stdio)."""
+def mcp_server_command() -> tuple[str, list[str]]:
+    """Como iniciar o servidor MCP (stdio): precisa de um executável de console.
+
+    Instalado (PyInstaller): jarvis-cli.exe --mcp-server, na mesma pasta do Jarvis.exe.
+    Em desenvolvimento: python.exe -m jarvis.mcp_server.
+    """
     exe = Path(sys.executable)
+    if getattr(sys, "frozen", False):
+        return str(exe.with_name("jarvis-cli.exe")), ["--mcp-server"]
     candidate = exe.with_name("python.exe")
-    return str(candidate if candidate.exists() else exe)
+    return str(candidate if candidate.exists() else exe), ["-m", "jarvis.mcp_server"]
 
 
 def write_mcp_config(path: Path | None = None) -> Path:
     path = path or data_dir() / "mcp.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    config = {"mcpServers": {"jarvis": {"command": console_python(), "args": ["-m", "jarvis.mcp_server"]}}}
+    command, args = mcp_server_command()
+    config = {"mcpServers": {"jarvis": {"command": command, "args": args}}}
     path.write_text(json.dumps(config, indent=2), encoding="utf-8")
     return path
 
