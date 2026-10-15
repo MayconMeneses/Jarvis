@@ -115,7 +115,7 @@ class Api:
         if not escolha:
             return {"cancelado": True}
         try:
-            path = dashboard.build(config.load(), escolha[0])
+            path = dashboard.build(escolha[0])
         except (ValueError, OSError) as exc:
             return {"error": f"Não foi possível criar o dashboard: {exc}"}
         dashboard.open_in_browser(path)
