@@ -185,10 +185,15 @@ def build_task_worker(cfg: Config, api: Api, window):
     def notify(run) -> None:
         label = runs.LABELS[run.modo]
         ok = run.status == "concluida"
-        head = f"{'✅' if ok else '⚠️'} {label} do projeto {run.projeto} {'concluída' if ok else 'falhou'}"
-        body = f"{head}:\n{run.resultado}"
-        if run.alteracoes:
-            body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+        mark, state = ("✅", "concluída") if ok else ("⚠️", "falhou")
+        if run.modo == "pesquisar":
+            head = f"{mark} {run.projeto} {state}: {run.tarefa[:80]}"
+            body = f"{head}\n({run.alteracoes})\n\n{run.resultado}" if run.alteracoes else f"{head}\n\n{run.resultado}"
+        else:
+            head = f"{mark} {label} do projeto {run.projeto} {state}"
+            body = f"{head}:\n{run.resultado}"
+            if run.alteracoes:
+                body += f"\n\nArquivos alterados:\n{run.alteracoes}"
         api._conversation.note(f"{head}. Pedido: {run.tarefa[:200]}. Resultado: {run.resultado[:2000]}")
         api._diary(f"{head}: {run.tarefa[:120]}")
         try:

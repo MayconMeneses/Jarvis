@@ -182,12 +182,29 @@ def save_output(name: str, content: str, folder: Path | None = None) -> Path:
         name += ".md"
     if Path(name).suffix.lower() not in TEXT_EXT:
         raise ValueError("a Jarvis só cria arquivos de texto/código (ex.: .md, .txt, .py, .html)")
-    folder = folder or output_dir()
+    path = _free_path(folder or output_dir(), name)
+    path.write_text(content, encoding="utf-8")
+    return path
+
+
+DOCUMENT_EXT = {".docx", ".pdf", ".xlsx", ".pptx"}
+
+
+def save_output_bytes(name: str, data: bytes, folder: Path | None = None) -> Path:
+    """Documentos binários criados pela Jarvis (Word, PDF, Excel, PowerPoint)."""
+    name = safe_name(name)
+    if Path(name).suffix.lower() not in DOCUMENT_EXT:
+        raise ValueError("tipo de documento não permitido")
+    path = _free_path(folder or output_dir(), name)
+    path.write_bytes(data)
+    return path
+
+
+def _free_path(folder: Path, name: str) -> Path:
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / name
     counter = 2
     while path.exists():  # nunca sobrescreve
         path = folder / f"{Path(name).stem} ({counter}){Path(name).suffix}"
         counter += 1
-    path.write_text(content, encoding="utf-8")
     return path

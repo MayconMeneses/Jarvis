@@ -21,6 +21,8 @@ dependencies = [
     "pypdf>=4",
     "python-docx>=1.1",
     "openpyxl>=3.1",
+    "python-pptx>=1.0",
+    "fpdf2>=2.8",
 ]
 
 [project.optional-dependencies]

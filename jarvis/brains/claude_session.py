@@ -27,6 +27,7 @@ from jarvis.config import ClaudeConfig, data_dir
 
 log = logging.getLogger(__name__)
 _EOF = object()
+WEB_TOOLS = "WebSearch,WebFetch"
 
 
 def render_new(new: list[Message]) -> str:
@@ -61,14 +62,19 @@ class ClaudeSession:
         cmd = [
             exe, "-p",
             "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
-            "--tools", "",
+            # Só pesquisa e leitura de sites; nada de Bash/Edit na conversa.
+            "--tools", WEB_TOOLS if self.cfg.web else "",
             "--strict-mcp-config",
             "--setting-sources", "project",
             "--no-session-persistence",
             "--system-prompt", system,
         ]
+        allowed = [WEB_TOOLS] if self.cfg.web else []
         if self.mcp_config:
-            cmd += ["--mcp-config", str(self.mcp_config), "--allowedTools", "mcp__jarvis"]
+            cmd += ["--mcp-config", str(self.mcp_config)]
+            allowed.append("mcp__jarvis")
+        if allowed:
+            cmd += ["--allowedTools", ",".join(allowed)]
         if self.cfg.model:
             cmd += ["--model", self.cfg.model]
         return cmd

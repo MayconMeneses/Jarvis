@@ -2,6 +2,26 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
+## Pesquisa na internet e criação de documentos
+
+- **Pesquisa em níveis** (pela sua assinatura do Claude, sem custo extra):
+
+  | Nível | Sites | Onde roda |
+  |---|---|---|
+  | **simples** | ~3 | Na própria conversa, em segundos |
+  | **média** | ~15 | Em segundo plano, alguns minutos |
+  | **difícil** | ~35 | Em segundo plano |
+  | **extra difícil** | 50 ou mais | Em segundo plano, gasta bastante do limite |
+
+  - A Jarvis escolhe o nível sozinha, ou use o que você pedir ("Jarvis, pesquisa difícil sobre...").
+  - O relatório traz a resposta direta, as categorias, as opções com prós e contras, as divergências entre as fontes e a lista de fontes. Ele é salvo em `Jarvis/Pesquisas` no Obsidian.
+  - As pesquisas em segundo plano rodam isoladas: só buscam e leem sites, sem acesso às ferramentas do PC.
+  - Medido: uma pesquisa média citou 31 sites em 2,7 min.
+- **Criar documentos** em `Documentos\Jarvis`, sem sobrescrever:
+  - **Word** e **PDF**, a partir de Markdown (títulos, listas, tabelas, negrito);
+  - **Excel**, com números e fórmulas;
+  - **PowerPoint**, com capa, tópicos e notas.
+
 ## Anexos (ler, analisar e criar arquivos)
 
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).
