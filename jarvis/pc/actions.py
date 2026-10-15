@@ -21,7 +21,7 @@ from jarvis.config import data_dir
 from jarvis.pc import startup
 
 KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails",
-         "executar_tarefa")
+         "executar_tarefa", "criar_projeto")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -176,6 +176,20 @@ def propose_dev_task(store: ActionStore, cfg, projeto: str, tarefa: str, motivo:
     ))
 
 
+def propose_new_project(store: ActionStore, cfg, nome: str, pasta_pai: str, descricao: str,
+                        motivo: str) -> Action:
+    from jarvis.dev import projects
+
+    target = projects.plan_new(cfg, nome, pasta_pai)
+    return store.save(Action(
+        "criar_projeto",
+        {"nome": nome.strip()[:60], "pasta_pai": str(target.parent), "descricao": descricao.strip()[:1500]},
+        f"Criar o projeto '{nome.strip()}' na pasta nova {target} (README.md + git init, sem commit) "
+        "e cadastrá-lo na Jarvis. Nada existente é alterado.",
+        motivo,
+    ))
+
+
 # ── executar (só depois da aprovação do usuário) ──────────────────────────
 
 def execute(action: Action, temp: Path | None = None, reg=None, folders=None, mail_accounts=None) -> str:
@@ -220,6 +234,19 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
         run = runs.enqueue(runs.RunStore(), config.load(), action.params["projeto"], "executar",
                            action.params["tarefa"])
         return f"Tarefa na fila do Claude Code (projeto {run.projeto}). Aviso quando terminar."
+
+    if action.kind == "criar_projeto":
+        from jarvis import config, memory
+        from jarvis.dev import projects
+
+        cfg = config.load()
+        p = action.params
+        target = projects.create(cfg, p["nome"], p["pasta_pai"], p["descricao"])
+        config.save(cfg)
+        vault = memory.open_vault(cfg.obsidian_vault)
+        if vault is not None and p["descricao"]:
+            projects.add_info(cfg, vault, p["nome"], p["descricao"], "Descrição")
+        return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")
 

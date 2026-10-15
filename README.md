@@ -5,6 +5,9 @@ Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.m
 ## Estado atual: Fase 7 (parceira de desenvolvimento)
 
 - Cadastre projetos por voz ou texto: "Jarvis, meu projeto Comandiva fica em C:\...\pasta". Eles ficam em `projetos` no `config.json`.
+- **Ficha do projeto**: conte à Jarvis o que é o projeto, a stack, objetivos, decisões e pendências ("Jarvis, anota no Comandiva que decidimos usar Postgres"). Ela grava em `Jarvis/Projetos/<projeto>/Sobre.md` no Obsidian (Descrição substitui; as outras seções acumulam com data; suas edições na nota são mantidas) e manda essa ficha como contexto em toda análise, plano ou execução do Claude Code.
+- **Projeto novo**: "Jarvis, cria um projeto Loja Virtual em C:\...\Projetos". Aparece um cartão; só depois que você aprova ela cria a pasta com `README.md`, roda `git init` (sem commit), cadastra o projeto e abre a ficha. Ela nunca usa uma pasta que já existe. Depois, peça para o Claude Code montar a estrutura (cartão de execução).
+- **Esquecer projeto**: tira da lista da Jarvis, sem apagar pasta nem ficha.
 - **Estado rápido** (sem IA): branch, arquivos alterados e últimos commits.
 - **Analisar** e **planejar**: o Claude Code lê o projeto (somente Read/Glob/Grep, modo `dontAsk`) e responde ou monta um plano com arquivos, passos, riscos e testes.
 - **Executar**: o Claude Code pode editar arquivos **só depois que você aprova o cartão**, só em projetos git, sem commit/push e sem Bash irrestrito (apenas `git status`/`git diff`). Ao final, você recebe o `git diff --stat` para revisar.
