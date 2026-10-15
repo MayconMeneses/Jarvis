@@ -95,6 +95,8 @@ class Config:
     nvidia: ProviderConfig = field(default_factory=_nvidia)
     email: EmailConfig = field(default_factory=EmailConfig)
     voz: VoiceConfig = field(default_factory=VoiceConfig)
+    # Projetos de código que a Jarvis pode analisar: {"nome": "C:\\caminho\\da\\pasta"}
+    projetos: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, raw: dict) -> "Config":

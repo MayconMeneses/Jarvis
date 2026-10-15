@@ -20,7 +20,8 @@ import psutil
 from jarvis.config import data_dir
 from jarvis.pc import startup
 
-KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails")
+KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails",
+         "executar_tarefa")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -158,6 +159,23 @@ def propose_organize_emails(store: ActionStore, items: list[dict], motivo: str, 
     ))
 
 
+def propose_dev_task(store: ActionStore, cfg, projeto: str, tarefa: str, motivo: str) -> Action:
+    from jarvis.dev import projects
+
+    name, path = projects.resolve(cfg, projeto)
+    if not projects.is_git_repo(path):
+        raise ValueError(f"'{name}' não é um repositório git; sem git não dá para revisar e desfazer as mudanças")
+    tarefa = tarefa.strip()
+    if not tarefa:
+        raise ValueError("descreva a tarefa")
+    return store.save(Action(
+        "executar_tarefa", {"projeto": name, "tarefa": tarefa[:4000]},
+        f"Deixar o Claude Code ALTERAR arquivos do projeto '{name}' para: {tarefa[:300]}. "
+        "Sem commit nem push; você revisa com git diff depois.",
+        motivo,
+    ))
+
+
 # ── executar (só depois da aprovação do usuário) ──────────────────────────
 
 def execute(action: Action, temp: Path | None = None, reg=None, folders=None, mail_accounts=None) -> str:
@@ -194,6 +212,14 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
         from jarvis import config, mail
 
         return mail.organize(config.load(), action.params["itens"], found=mail_accounts)
+
+    if action.kind == "executar_tarefa":
+        from jarvis import config
+        from jarvis.dev import runs
+
+        run = runs.enqueue(runs.RunStore(), config.load(), action.params["projeto"], "executar",
+                           action.params["tarefa"])
+        return f"Tarefa na fila do Claude Code (projeto {run.projeto}). Aviso quando terminar."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")
 

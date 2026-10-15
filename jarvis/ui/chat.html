@@ -217,6 +217,7 @@
     }
     if (ev.user) add("user", ev.user, "por voz");
     if (ev.answer) showResult(ev.answer);
+    if (ev.task) add("jarvis", ev.task, "tarefa do Claude Code");
   };
   mic.addEventListener("click", () => window.pywebview.api.listen_now());
 

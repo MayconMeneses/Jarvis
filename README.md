@@ -2,7 +2,16 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 6 (vagas de emprego)
+## Estado atual: Fase 7 (parceira de desenvolvimento)
+
+- Cadastre projetos por voz ou texto: "Jarvis, meu projeto Comandiva fica em C:\...\pasta". Eles ficam em `projetos` no `config.json`.
+- **Estado rápido** (sem IA): branch, arquivos alterados e últimos commits.
+- **Analisar** e **planejar**: o Claude Code lê o projeto (somente Read/Glob/Grep, modo `dontAsk`) e responde ou monta um plano com arquivos, passos, riscos e testes.
+- **Executar**: o Claude Code pode editar arquivos **só depois que você aprova o cartão**, só em projetos git, sem commit/push e sem Bash irrestrito (apenas `git status`/`git diff`). Ao final, você recebe o `git diff --stat` para revisar.
+- As tarefas rodam em segundo plano na janela, uma por vez. Ao terminar, a Jarvis avisa em texto e voz e salva o resultado em `Jarvis/Projetos/<projeto>/` no Obsidian.
+- Tudo usa a sua assinatura do Claude (sem chave de API), então conta nos limites do plano Pro.
+
+## Fase 6 (vagas de emprego)
 
 - Fontes legais e gratuitas: repositórios de vagas da comunidade no GitHub (frontendbr, backend-br, react-brasil) e Remotive (remotas). Cache de 6 h para respeitar os termos da Remotive, que pede no máximo cerca de 4 consultas por dia, link para a vaga e a fonte citada. LinkedIn e outros sites que proíbem robôs não são usados.
 - **Perfil** em `Jarvis/Perfil Profissional.md` no Obsidian (criado vazio no primeiro uso): stack, nível, modalidade, cidade, o que evitar e inglês. Preencha no Obsidian ou diga, por exemplo, "Jarvis, minha stack é Python e React".

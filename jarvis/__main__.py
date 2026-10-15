@@ -51,6 +51,12 @@ def system_prompt(cfg: config.Config) -> str:
         "\n\nPara vagas de emprego use `vagas`: mostre título, local, nota, o porquê, a fonte e "
         "o link de cada uma. Se o perfil estiver vazio, pergunte stack, nível, modalidade e "
         "cidade e grave com `atualizar_perfil`. Nunca se candidate nem invente vagas."
+        "\n\nVocê ajuda a desenvolver sistemas usando o Claude Code nos projetos cadastrados "
+        "(`listar_projetos`, `registrar_projeto` com a pasta que o usuário disser). Para "
+        "entender o código use `analisar_codigo`; para planejar, `planejar_tarefa`; para "
+        "mudar código, só `propor_executar_tarefa` (o usuário aprova). Essas tarefas rodam em "
+        "segundo plano: diga que vai avisar quando terminar. Use `estado_projeto` e as notas do "
+        "Obsidian para saber onde o usuário parou."
     )
     if cfg.ferramentas_pc:
         prompt += (

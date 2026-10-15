@@ -11,6 +11,7 @@ from __future__ import annotations
 from mcp.server.mcpserver import MCPServer
 
 from jarvis import config, mail, memory
+from jarvis.dev import projects, runs
 from jarvis.info import jobs, news, weather
 from jarvis.pc import actions, startup, system
 
@@ -219,6 +220,75 @@ def atualizar_perfil(campo: str, valor: str) -> str:
     except ValueError as exc:
         return str(exc)
     return f"Perfil atualizado: {campo} = {valor}."
+
+
+@server.tool()
+def listar_projetos() -> dict:
+    """Projetos de código cadastrados (nome → pasta)."""
+    return config.load().projetos
+
+
+@server.tool()
+def registrar_projeto(nome: str, pasta: str) -> str:
+    """Cadastra um projeto de código pela pasta que o usuário informou (caminho completo)."""
+    cfg = config.load()
+    try:
+        path = projects.register(cfg, nome, pasta)
+    except ValueError as exc:
+        return str(exc)
+    config.save(cfg)
+    return f"Projeto '{nome}' cadastrado em {path}."
+
+
+@server.tool()
+def estado_projeto(projeto: str) -> dict | str:
+    """Resumo rápido do projeto sem IA: branch, arquivos alterados e últimos commits."""
+    try:
+        return projects.status(config.load(), projeto)
+    except (ValueError, RuntimeError) as exc:
+        return str(exc)
+
+
+def _enqueue(projeto: str, modo: str, tarefa: str) -> str:
+    try:
+        run = runs.enqueue(runs.RunStore(), config.load(), projeto, modo, tarefa)
+    except ValueError as exc:
+        return f"Não foi possível: {exc}"
+    return (f"{runs.LABELS[modo]} do projeto {run.projeto} entrou na fila do Claude Code (id {run.id}). "
+            "Leva alguns minutos; o resultado aparece na janela da Jarvis e no Obsidian.")
+
+
+@server.tool()
+def analisar_codigo(projeto: str, pergunta: str) -> str:
+    """Pede ao Claude Code para LER o projeto e responder a uma pergunta. Somente leitura; roda em segundo plano."""
+    return _enqueue(projeto, "analisar", pergunta)
+
+
+@server.tool()
+def planejar_tarefa(projeto: str, tarefa: str) -> str:
+    """Pede ao Claude Code um plano de implementação (arquivos, passos, riscos, testes). Somente leitura."""
+    return _enqueue(projeto, "planejar", tarefa)
+
+
+@server.tool()
+def propor_executar_tarefa(projeto: str, tarefa: str, motivo: str) -> str:
+    """Propõe deixar o Claude Code ALTERAR o código do projeto. Só roda se o usuário aprovar na janela.
+
+    Exige projeto git. Não faz commit nem push. Prefira planejar_tarefa antes, e descreva a
+    tarefa de forma completa (de preferência com o plano aprovado).
+    """
+    try:
+        return _proposal(actions.propose_dev_task(store, config.load(), projeto, tarefa, motivo))
+    except ValueError as exc:
+        return f"Não é possível propor: {exc}"
+
+
+@server.tool()
+def tarefas_de_codigo(limite: int = 5) -> list[dict]:
+    """Últimas tarefas do Claude Code (status e começo do resultado)."""
+    recent = runs.RunStore().all()[-max(1, min(limite, 20)):]
+    return [{"id": r.id, "projeto": r.projeto, "modo": r.modo, "status": r.status,
+             "tarefa": r.tarefa[:150], "resultado": r.resultado[:600]} for r in reversed(recent)]
 
 
 if __name__ == "__main__":
