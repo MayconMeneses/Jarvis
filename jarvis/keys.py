@@ -11,7 +11,7 @@ import os
 import keyring
 
 SERVICE = "SuperJarvis"
-ENV_NAMES = {"gemini": "GEMINI_API_KEY", "nvidia": "NVIDIA_API_KEY"}
+ENV_NAMES = {"gemini": "GEMINI_API_KEY", "nvidia": "NVIDIA_API_KEY", "brave": "BRAVE_API_KEY"}
 
 
 def get_key(provider: str) -> str | None:

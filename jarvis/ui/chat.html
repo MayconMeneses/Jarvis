@@ -300,6 +300,26 @@
       <button type="button" class="ghost linklike" data-remove="nvidia">Remover chave</button>
     </section>
 
+    <section class="brain" data-provider="local">
+      <h3>Modo independente <small class="on-ok">● sempre ativo</small></h3>
+      <p>Sem IA: abre programas e sites, mostra o estado do PC, clima, notícias, vagas, hora e data, e pesquisa
+        na internet resumindo com frases dos próprios sites. Responde na hora os comandos diretos e assume
+        quando nenhuma IA está disponível.</p>
+    </section>
+
+    <section class="brain" data-provider="brave">
+      <h3>Brave Search <small id="st-brave"></small></h3>
+      <p>Buscador (não é IA): deixa a pesquisa do modo independente com a web completa. Grátis, ~2.000
+        buscas/mês. Sem ela, usa Wikipedia e DuckDuckGo. <button type="button" class="ghost linklike" data-link="https://brave.com/search/api/">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-brave" class="sr-only">Chave da Brave Search API</label>
+        <input id="key-brave" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Brave">
+        <button type="button" class="primary" data-save="brave">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-brave" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="brave">Remover chave</button>
+    </section>
+
     <div class="dialog-actions"><button type="button" id="close-brains">Fechar</button></div>
   </dialog>
 
@@ -716,6 +736,7 @@
     setStatus("st-claude", s.claude, "● conectado", "● não encontrado");
     setStatus("st-gemini", s.gemini, "● chave ok", "● sem chave");
     setStatus("st-nvidia", s.nvidia, "● chave ok", "● sem chave");
+    setStatus("st-brave", s.brave, "● chave ok", "● opcional");
     document.querySelectorAll('input[name="uso"]').forEach((r) => { r.checked = r.value === s.uso_gemini; });
   }
 

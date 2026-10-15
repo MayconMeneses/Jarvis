@@ -414,4 +414,7 @@ def olhar_tela() -> str | Image:
 
 
 if __name__ == "__main__":
+    from jarvis import log
+
+    log.setup()  # só arquivo: a saída padrão é o canal do MCP
     server.run("stdio")

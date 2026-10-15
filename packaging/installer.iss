@@ -6,7 +6,7 @@
 ; programa, mas mantém configurações, chaves e as notas da Jarvis no Obsidian.
 
 #define AppName "Super Jarvis"
-#define AppVersion "0.12.0"
+#define AppVersion "0.13.0"
 #define AppExe "Jarvis.exe"
 
 [Setup]

@@ -176,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
     if argv[:1] == ["--mcp-server"]:  # usado pelo claude -p na versão instalada
         from jarvis.mcp_server import server
 
+        log.setup()  # só arquivo: a saída padrão é o canal do MCP
         server.run("stdio")
         return 0
 

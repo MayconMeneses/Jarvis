@@ -97,6 +97,8 @@ class Config:
     # Quando usar o Gemini: "reserva" (só se o Claude falhar) ou "simples" (conversa curta
     # sem ferramentas vai para o Gemini). Pedir "Gemini, ..." funciona nos dois modos.
     uso_gemini: str = "reserva"
+    # Motor local sem IA: comandos diretos na hora e reserva final quando nenhuma IA responde.
+    modo_independente: bool = True
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)
@@ -153,5 +155,19 @@ def detect_obsidian_vault(obsidian_json: Path | None = None) -> str:
 def save(cfg: Config, path: Path | None = None) -> None:
     path = path or config_dir() / "config.json"
     path.parent.mkdir(parents=True, exist_ok=True)
+    new = asdict(cfg)
+    try:
+        old = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        old = {}
+    changed = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k))
+    if changed:
+        import logging
+        import sys
+
+        # Registro para rastrear quem altera a configuração (ex.: cidade apagada sem querer).
+        logging.getLogger(__name__).info(
+            "config.json alterado por pid %s (%s): %s", os.getpid(), " ".join(sys.argv[:2])[-80:],
+            ", ".join(f"{k}: {old.get(k)!r:.40} -> {new.get(k)!r:.40}" for k in changed if k not in ("claude",)))
     # ensure_ascii: acentos viram á etc., então o arquivo nunca fica com texto corrompido.
-    path.write_text(json.dumps(asdict(cfg), ensure_ascii=True, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(new, ensure_ascii=True, indent=2), encoding="utf-8")

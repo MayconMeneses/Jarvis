@@ -43,10 +43,18 @@ def build_router(cfg: Config) -> Router:
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }
     brains = [available[name]() for name in cfg.brains if name in available]
+    local = None
+    if cfg.modo_independente:
+        from jarvis.local.engine import LocalEngine
+
+        local = LocalEngine()
+        brains.append(local)  # último cérebro: a Jarvis nunca fica sem resposta
 
     def prefer(text: str) -> str | None:
         from jarvis import config
 
+        if local is not None and local.is_direct_command(text):
+            return "local"  # comando direto: na hora, sem gastar limite de nenhuma IA
         return policy.preferred(text, config.load().uso_gemini)  # lido a cada pedido: muda na hora
 
     return Router(brains, prefer=prefer)

@@ -2,6 +2,20 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
+## Modo independente (sem IA)
+
+A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem IA generativa, fica sempre como o último cérebro.
+
+- **Comandos diretos** são atendidos na hora, sem gastar limite de nenhuma IA: abrir programas, sites, pastas e projetos; estado do PC e programas pesados; clima; notícias; vagas; hora e data.
+- **Pesquisa na internet sem IA** usando fontes oficiais:
+  - a Wikipedia (pt/en), com checagem de relevância;
+  - a API oficial do DuckDuckGo;
+  - opcionalmente, a **Brave Search API**, um buscador (não é IA), gratuito até cerca de 2.000 buscas por mês, cadastrado no painel ⚙.
+
+  A resposta é um **resumo extrativo**: só frases que estão nos sites, cada uma com a fonte [n]. Nada é inventado.
+- **Respeito aos sites:** User-Agent identificado, cache de 1 dia e intervalo entre pedidos. Não raspa buscadores nem contorna a verificação anti-robô.
+- **Limites honestos:** sem IA, ela não conversa livremente, não escreve textos novos e não analisa imagens. Para isso continuam o Claude, o Gemini e a NVIDIA.
+
 ## Abrir coisas, revisar mudanças, olhar a tela e cérebros
 
 - **Abrir por voz ou texto**: programas do Menu Iniciar (WhatsApp, VS Code, Obsidian, calculadora...), sites (só `http(s)`), pastas (Documentos, Downloads, Área de Trabalho...) e projetos cadastrados (VS Code e, se você pedir, o Terminal).
