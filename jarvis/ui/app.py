@@ -166,8 +166,90 @@ class Api:
                                 f"pelo usuário. {message}")
         return {"status": run.revisao, "resultado": message}
 
+    # ── cérebros (Claude, Gemini, NVIDIA) ─────────────────────────────────
+    def brains_status(self) -> dict:
+        import shutil
+
+        from jarvis import keys
+
+        cfg = config.load()
+        return {
+            "claude": bool(shutil.which(cfg.claude.executable)),
+            "gemini": bool(keys.get_key("gemini")),
+            "nvidia": bool(keys.get_key("nvidia")),
+            "uso_gemini": cfg.uso_gemini,
+            "modelo_gemini": cfg.gemini.model,
+        }
+
+    def save_key(self, provider: str, key: str) -> dict:
+        """Testa a chave com uma pergunta mínima e só guarda se funcionar (nunca devolve a chave)."""
+        from jarvis import keys
+        from jarvis.brains.base import BrainUnavailable
+        from jarvis.brains.openai_compat import OpenAICompat
+
+        provider, key = str(provider), str(key).strip()
+        if provider not in keys.ENV_NAMES:
+            return {"ok": False, "mensagem": "provedor inválido"}
+        if len(key) < 20 or " " in key:
+            return {"ok": False, "mensagem": "isso não parece uma chave de API"}
+        cfg = config.load()
+        provider_cfg = getattr(cfg, provider)
+        brain = OpenAICompat(provider, provider_cfg, lambda _name: key)
+        test = [{"role": "user", "content": "Responda apenas: ok"}]
+        try:
+            brain.ask(test, "Teste de conexão.")
+        except BrainUnavailable as exc:
+            if "HTTP 40" not in str(exc) or "chave inválida" in str(exc):
+                return {"ok": False, "mensagem": f"a chave não funcionou: {exc}"}
+            # Chave aceita mas o nome do modelo não existe mais: escolhe um disponível.
+            try:
+                model = pick_model(brain.list_models(), provider)
+                provider_cfg.model = model
+                brain.ask(test, "Teste de conexão.")
+            except (BrainUnavailable, ValueError) as retry_exc:
+                return {"ok": False, "mensagem": f"a chave não funcionou: {retry_exc}"}
+            config.save(cfg)
+        keys.set_key(provider, key)
+        return {"ok": True, "mensagem": f"Chave do {provider.capitalize()} testada e guardada no cofre do "
+                                        f"Windows (modelo {provider_cfg.model})."}
+
+    def remove_key(self, provider: str) -> dict:
+        from jarvis import keys
+
+        if str(provider) in keys.ENV_NAMES:
+            keys.delete_key(str(provider))
+        return {"ok": True}
+
+    def set_gemini_mode(self, mode: str) -> dict:
+        from jarvis.brains import policy
+
+        if mode not in policy.MODES:
+            return {"ok": False}
+        cfg = config.load()
+        cfg.uso_gemini = mode
+        config.save(cfg)
+        return {"ok": True}
+
     def reset(self) -> None:
         self._conversation.reset()
+
+
+def pick_model(models: list[str], provider: str) -> str:
+    """Modelo de texto rápido mais recente da lista (Gemini: "flash"; outros: o 1º de chat)."""
+    import re
+
+    skip = ("lite", "image", "tts", "audio", "live", "embedding", "vision", "thinking", "exp")
+    if provider == "gemini":
+        candidates = [m for m in models if "gemini" in m and "flash" in m and not any(s in m for s in skip)]
+        if candidates:
+            def version(name: str) -> tuple:
+                found = re.search(r"(\d+(?:\.\d+)?)", name)
+                return (float(found.group(1)) if found else 0.0, "preview" not in name, name)
+            return max(candidates, key=version)
+    chat = [m for m in models if not any(s in m for s in skip)]
+    if not chat:
+        raise ValueError("nenhum modelo de texto disponível para esta chave")
+    return chat[0]
 
 
 def build_voice(cfg: Config, api: Api, window):

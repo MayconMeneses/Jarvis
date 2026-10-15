@@ -25,6 +25,21 @@ class OpenAICompat:
         self.cfg = cfg
         self._get_key = get_key
 
+    def list_models(self) -> list[str]:
+        """Modelos disponíveis para a chave (GET /models), sem o prefixo "models/"."""
+        key = self._get_key(self.name)
+        if not key:
+            raise BrainUnavailable("sem chave de API configurada")
+        request = urllib.request.Request(
+            self.cfg.base_url.rstrip("/") + "/models", headers={"Authorization": f"Bearer {key}"}
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.cfg.timeout_seconds) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, OSError, json.JSONDecodeError) as exc:
+            raise BrainUnavailable(f"não foi possível listar os modelos ({exc})") from exc
+        return [str(m.get("id", "")).removeprefix("models/") for m in data.get("data", []) if m.get("id")]
+
     def ask(self, messages: list[Message], system: str) -> Answer:
         key = self._get_key(self.name)
         if not key:

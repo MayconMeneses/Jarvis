@@ -5,6 +5,7 @@ from pathlib import Path
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 from jarvis.brains.claude_cli import ClaudeCLI
 from jarvis.brains.claude_session import ClaudeSession
+from jarvis.brains import policy
 from jarvis.brains.openai_compat import OpenAICompat
 from jarvis.brains.router import NoBrainAvailable, Router
 from jarvis.config import Config, data_dir
@@ -42,7 +43,13 @@ def build_router(cfg: Config) -> Router:
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }
     brains = [available[name]() for name in cfg.brains if name in available]
-    return Router(brains)
+
+    def prefer(text: str) -> str | None:
+        from jarvis import config
+
+        return policy.preferred(text, config.load().uso_gemini)  # lido a cada pedido: muda na hora
+
+    return Router(brains, prefer=prefer)
 
 
 __all__ = [
