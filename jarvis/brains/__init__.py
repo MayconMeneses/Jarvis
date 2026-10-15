@@ -4,6 +4,7 @@ from pathlib import Path
 
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 from jarvis.brains.claude_cli import ClaudeCLI
+from jarvis.brains.claude_session import ClaudeSession
 from jarvis.brains.openai_compat import OpenAICompat
 from jarvis.brains.router import NoBrainAvailable, Router
 from jarvis.config import Config, data_dir
@@ -34,8 +35,9 @@ def write_mcp_config(path: Path | None = None) -> Path:
 
 def build_router(cfg: Config) -> Router:
     mcp = write_mcp_config() if cfg.ferramentas_pc else None
+    claude_kind = ClaudeSession if cfg.claude.sessao_continua else ClaudeCLI
     available = {
-        "claude": lambda: ClaudeCLI(cfg.claude, mcp_config=mcp),
+        "claude": lambda: claude_kind(cfg.claude, mcp_config=mcp),
         "gemini": lambda: OpenAICompat("gemini", cfg.gemini, get_key),
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }

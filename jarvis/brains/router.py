@@ -20,6 +20,20 @@ class Router:
             raise ValueError("é preciso ao menos um cérebro")
         self.brains = list(brains)
 
+    def warm_up(self, system: str) -> None:
+        """Prepara os cérebros que suportam isso (ex.: abre a sessão do Claude)."""
+        for brain in self.brains:
+            if hasattr(brain, "warm_up"):
+                try:
+                    brain.warm_up(system)
+                except BrainUnavailable as exc:
+                    log.info("não foi possível preparar %s: %s", brain.name, exc)
+
+    def stop(self) -> None:
+        for brain in self.brains:
+            if hasattr(brain, "stop"):
+                brain.stop()
+
     def ask(self, messages: list[Message], system: str) -> Answer:
         failures = []
         for brain in self.brains:

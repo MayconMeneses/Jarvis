@@ -158,8 +158,13 @@ class VoiceLoop(threading.Thread):
                     self.notify({"status": "Diga “Hey Jarvis”"})
 
     def _handle_turn(self) -> None:
-        # Não descarta a fila aqui: ela já tem o começo da frase dita logo após "Hey Jarvis".
         self.notify({"status": "Ouvindo…", "listening": True})
+        if hasattr(self.speaker, "chime"):
+            try:
+                self.speaker.chime()  # avisa na hora que está ouvindo
+            except Exception:
+                log.debug("não foi possível tocar o bipe", exc_info=True)
+            self._drain()  # descarta só o próprio bipe; a pessoa fala depois dele
         recorder = Recorder(self._noise)
         empty_waits = 0
         while not self._stop.is_set():
