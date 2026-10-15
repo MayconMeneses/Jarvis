@@ -125,6 +125,28 @@ def build_voice(cfg: Config, api: Api, window):
     )
 
 
+def build_task_worker(cfg: Config, api: Api, window):
+    from jarvis.dev import runs
+
+    def notify(run) -> None:
+        label = runs.LABELS[run.modo]
+        ok = run.status == "concluida"
+        head = f"{'✅' if ok else '⚠️'} {label} do projeto {run.projeto} {'concluída' if ok else 'falhou'}"
+        body = f"{head}:\n{run.resultado}"
+        if run.alteracoes:
+            body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+        api._conversation.note(f"{head}. Pedido: {run.tarefa[:200]}. Resultado: {run.resultado[:2000]}")
+        api._diary(f"{head}: {run.tarefa[:120]}")
+        try:
+            window.evaluate_js(f"window.onVoice({json.dumps({'task': body}, ensure_ascii=False)})")
+        except Exception:
+            log.debug("janela indisponível para o aviso da tarefa", exc_info=True)
+        if api._voice is not None:
+            api._voice.speak(f"{head}. Os detalhes estão na janela.")
+
+    return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
+
+
 def run(cfg: Config, conversation: Conversation) -> int:
     api = Api(cfg, conversation)
     window = webview.create_window(
@@ -138,6 +160,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     quitting = False
     voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
     api._voice = voice
+    tasks = build_task_worker(cfg, api, window)
 
     def on_closing() -> bool:
         if quitting:
@@ -150,6 +173,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         quitting = True
         if voice is not None:
             voice.stop()
+        tasks.stop()
         icon.stop()
         window.destroy()
 
@@ -162,6 +186,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
 
     def on_started() -> None:
         icon.run_detached()
+        tasks.start()
         if voice is not None:
             voice.start()
 
