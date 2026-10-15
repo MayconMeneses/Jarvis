@@ -132,6 +132,8 @@ Projetos/                      (seu cofre)
 - Dados pessoais são removidos antes de ir para a nuvem quando possível.
 
 ### Memória própria, sem depender do Obsidian (decisão de 2026-10-15)
+**Status (2026-10-15): passos 2, 3 e 4 feitos.** `jarvis/memory_db.py` (SQLite + FTS5) é a memória de toda a Jarvis; o Obsidian só entra por importação automática única, `--importar-obsidian` e `--exportar-memoria`; a janela "◈ Memória" lista, busca, edita, apaga e exporta. A classe `Vault` e a seção "Memória ligada ao Obsidian" acima ficam como histórico. **Falta o passo 5** (empacotamento: modelo Whisper, wake word, detecção do Claude Code e do git no instalador). Trade-off assumido: a Jarvis não lê mais o resto do cofre do Obsidian, só o que foi importado de `Jarvis/`.
+
 Objetivo do dono: a Jarvis vira um aplicativo com instalador e **tudo que ela precisa vem dentro do instalador**. A memória não pode exigir Obsidian (nem qualquer outro programa).
 
 **Levantamento do que hoje depende de algo de fora** (CONFIRMADO no código):

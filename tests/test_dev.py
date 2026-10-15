@@ -4,7 +4,8 @@ import types
 
 import pytest
 
-from jarvis import memory
+from jarvis import memory_db
+from jarvis.memory_db import MemoryDB
 from jarvis.config import ClaudeConfig, Config
 from jarvis.dev import projects, runs
 from jarvis.pc import actions
@@ -98,16 +99,16 @@ def fake_runner(result="Tudo certo", code=0, is_error=False, edit=None):
 def test_execute_runs_in_project_folder_without_api_key_and_saves_report(cfg, repo, tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-nao-pode-vazar")
     store = runs.RunStore(tmp_path / "runs")
-    vault = memory.Vault(tmp_path / "cofre")
+    mem = MemoryDB(tmp_path / "m.db")
     run = runs.enqueue(store, cfg, "Comandiva Sistema", "planejar", "tela de login")
     runner = fake_runner("1. Criar rota\n2. Testar")
-    done = runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, vault=vault)
+    done = runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, mem=mem)
     cmd, kw = runner.calls[0]
     assert kw["cwd"] == str(repo) and "ANTHROPIC_API_KEY" not in kw["env"]
     assert "tela de login" in kw["input"] and "Não altere" in kw["input"]
     assert done.status == "concluida" and done.resultado.startswith("1. Criar rota")
-    [report] = (vault.home / "Projetos" / "Comandiva Sistema").glob("*Plano.md")
-    assert "tela de login" in report.read_text(encoding="utf-8")
+    [report] = [n["ref"] for n in mem.list_notes("Projetos/Comandiva Sistema/")]
+    assert report.endswith(" Plano") and "tela de login" in mem.read(report)
 
 
 def test_execute_mode_reports_changed_files(cfg, repo, tmp_path):
@@ -141,7 +142,7 @@ def test_worker_runs_one_task_and_notifies_once(cfg, tmp_path, monkeypatch):
     store = runs.RunStore(tmp_path / "runs")
     runs.enqueue(store, cfg, "Comandiva Sistema", "analisar", "a")
     runs.enqueue(store, cfg, "Comandiva Sistema", "analisar", "b")
-    monkeypatch.setattr(runs, "execute", lambda run, s, c, vault=None: (
+    monkeypatch.setattr(runs, "execute", lambda run, s, c, mem=None: (
         setattr(run, "status", "concluida"), setattr(run, "resultado", "ok"), s.save(run))[-1])
     notified = []
     worker = runs.RunWorker(store, ClaudeConfig(), notified.append)
@@ -181,14 +182,14 @@ def test_code_changes_only_enter_queue_after_approval(cfg, tmp_path, monkeypatch
 # ── ficha do projeto e projeto novo ──────────────────────────────────────
 
 def test_project_info_accumulates_and_description_replaces(cfg, tmp_path):
-    vault = memory.Vault(tmp_path / "cofre")
+    vault = MemoryDB(tmp_path / "m.db")
     projects.add_info(cfg, vault, "comandiva sistema", "Sistema de pedidos para restaurantes", "descricao")
     projects.add_info(cfg, vault, "Comandiva Sistema", "Python 3.11 e FastAPI", "Stack")
     projects.add_info(cfg, vault, "Comandiva Sistema", "Usar Postgres", "decisões")
-    path = projects.add_info(cfg, vault, "Comandiva Sistema", "Sistema de comandas", "Descrição")
+    ref = projects.add_info(cfg, vault, "Comandiva Sistema", "Sistema de comandas", "Descrição")
     projects.add_info(cfg, vault, "Comandiva Sistema", "Sem Redis por enquanto", "Decisões")
     text = projects.read_info(cfg, vault, "Comandiva Sistema")
-    assert path == vault.home / "Projetos" / "Comandiva Sistema" / "Sobre.md"
+    assert ref == "Projetos/Comandiva Sistema/Sobre" == projects.info_ref("Comandiva Sistema")
     assert "Sistema de comandas" in text and "restaurantes" not in text
     assert "Usar Postgres" in text and "Sem Redis" in text and "## Stack" in text
     assert text.index("## Descrição") < text.index("## Stack") < text.index("## Decisões")
@@ -199,21 +200,21 @@ def test_project_info_accumulates_and_description_replaces(cfg, tmp_path):
 
 
 def test_user_edits_to_the_note_are_kept(cfg, tmp_path):
-    vault = memory.Vault(tmp_path / "cofre")
-    path = projects.add_info(cfg, vault, "Comandiva Sistema", "primeira", "Pendências")
-    path.write_text(path.read_text(encoding="utf-8") + "\n## Links\n- https://exemplo.com\n", encoding="utf-8")
-    projects.add_info(cfg, vault, "Comandiva Sistema", "segunda", "Pendências")
-    text = path.read_text(encoding="utf-8")
+    mem = MemoryDB(tmp_path / "m.db")
+    ref = projects.add_info(cfg, mem, "Comandiva Sistema", "primeira", "Pendências")
+    mem.put(ref, mem.get(ref) + "\n## Links\n- https://exemplo.com\n", "projeto")  # edição pela janela
+    projects.add_info(cfg, mem, "Comandiva Sistema", "segunda", "Pendências")
+    text = mem.get(ref)
     assert "primeira" in text and "segunda" in text and "## Links" in text and "exemplo.com" in text
 
 
 def test_tasks_receive_the_project_note_as_context(cfg, tmp_path):
-    vault = memory.Vault(tmp_path / "cofre")
+    vault = MemoryDB(tmp_path / "m.db")
     projects.add_info(cfg, vault, "Comandiva Sistema", "Usa FastAPI", "Stack")
     store = runs.RunStore(tmp_path / "runs")
     run = runs.enqueue(store, cfg, "Comandiva Sistema", "analisar", "onde fica o login?")
     runner = fake_runner("em app.py")
-    runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, vault=vault)
+    runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, mem=vault)
     prompt = runner.calls[0][1]["input"]
     assert "Usa FastAPI" in prompt and "não ordem" in prompt and "onde fica o login?" in prompt
 
@@ -241,9 +242,7 @@ def test_new_project_is_only_created_after_approval(cfg, tmp_path, monkeypatch):
     acts = actions.ActionStore(tmp_path / "acoes")
     parent = tmp_path / "Projetos"
     parent.mkdir()
-    vault_dir = tmp_path / "cofre"
-    vault_dir.mkdir()
-    cfg.obsidian_vault = str(vault_dir)
+    cfg.memoria_db = str(tmp_path / "m.db")
     saved = []
     monkeypatch.setattr("jarvis.config.load", lambda: cfg)
     monkeypatch.setattr("jarvis.config.save", lambda c, path=None: saved.append(dict(c.projetos)))
@@ -256,7 +255,7 @@ def test_new_project_is_only_created_after_approval(cfg, tmp_path, monkeypatch):
     assert "Loja de roupas online" in (target / "README.md").read_text(encoding="utf-8")
     assert projects.is_git_repo(target) and projects.status(cfg, "loja virtual")["ultimos_commits"] == []
     assert saved and saved[-1]["Loja Virtual"] == str(target.resolve())
-    assert "Loja de roupas online" in projects.read_info(cfg, memory.Vault(vault_dir), "Loja Virtual")
+    assert "Loja de roupas online" in projects.read_info(cfg, memory_db.open_memory(cfg), "Loja Virtual")
 
     # recusada: nada é criado
     other = actions.propose_new_project(acts, cfg, "Outro", str(parent), "", "pedido")

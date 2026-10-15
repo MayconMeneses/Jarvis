@@ -193,6 +193,29 @@
   .linklike { padding: 0; border: 0; text-transform: none; letter-spacing: 0; font: 12.5px "Segoe UI", sans-serif; text-decoration: underline; }
   .dialog-actions { display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
 
+  /* memória da Jarvis */
+  #memory { width: min(460px, calc(100vw - 24px)); }
+  #mem-search {
+    width: 100%; padding: 8px 10px; margin-bottom: 8px; font: 13px var(--mono); color: var(--text);
+    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  #mem-search:focus-visible, #mem-text:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  #mem-list { list-style: none; margin: 0 0 10px; padding: 0; max-height: 190px; overflow: auto; border: 1px solid var(--line); }
+  #mem-list:empty::after { content: "Nada guardado ainda."; display: block; padding: 10px; color: var(--muted); font-size: 13px; }
+  #mem-list button {
+    display: block; width: 100%; text-align: left; text-transform: none; letter-spacing: 0; border: 0;
+    border-bottom: 1px solid var(--line); padding: 6px 10px; font: 12.5px "Segoe UI", system-ui, sans-serif; color: var(--text);
+  }
+  #mem-list button[aria-current="true"] { background: var(--cyan-soft); box-shadow: inset 2px 0 var(--cyan); }
+  #mem-list small { display: block; color: var(--muted); font: 11.5px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #mem-text {
+    width: 100%; min-height: 150px; max-height: 260px; resize: vertical; padding: 9px 10px; margin-bottom: 8px;
+    font: 12.5px/1.5 var(--mono); color: var(--text); background: rgba(0, 0, 0, .35); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  .mem-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .mem-actions .spacer { flex: 1; }
+  .danger { color: var(--danger); border-color: var(--danger); }
+
   /* revisão de mudanças do Claude Code */
   .review .files { margin: 4px 0 8px; padding: 0; list-style: none; font: 12px var(--mono); }
   .review .files li { padding: 1px 0; color: var(--muted); }
@@ -258,9 +281,27 @@
     <span class="label">Canal de comunicação</span>
     <span>
       <button type="button" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros</button>
+      <button type="button" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória</button>
       <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
     </span>
   </div>
+
+  <dialog id="memory" aria-labelledby="memory-title">
+    <h2 id="memory-title">Memória da Jarvis</h2>
+    <label for="mem-search" class="sr-only">Buscar na memória</label>
+    <input id="mem-search" type="search" placeholder="Buscar na memória…" autocomplete="off">
+    <ul id="mem-list" aria-label="Notas da memória"></ul>
+    <p class="feedback" id="mem-info" role="status"></p>
+    <label for="mem-text" class="sr-only">Texto da nota selecionada</label>
+    <textarea id="mem-text" hidden spellcheck="false"></textarea>
+    <div class="mem-actions">
+      <button type="button" id="mem-save" hidden>Salvar</button>
+      <button type="button" id="mem-delete" class="danger" hidden>Apagar</button>
+      <span class="spacer"></span>
+      <button type="button" id="mem-export" title="Grava uma cópia em Markdown (por exemplo, para o Obsidian)">Exportar…</button>
+      <button type="button" id="close-memory">Fechar</button>
+    </div>
+  </dialog>
 
   <dialog id="brains" aria-labelledby="brains-title">
     <h2 id="brains-title">Cérebros da Jarvis</h2>
@@ -762,6 +803,83 @@
     brainsDialog.showModal();
   });
   document.getElementById("close-brains").addEventListener("click", () => brainsDialog.close());
+
+  // ── memória da Jarvis ─────────────────────────────────────────
+  const memDialog = document.getElementById("memory");
+  const memList = document.getElementById("mem-list");
+  const memText = document.getElementById("mem-text");
+  const memInfo = document.getElementById("mem-info");
+  const memSave = document.getElementById("mem-save");
+  const memDelete = document.getElementById("mem-delete");
+  let memRef = null;
+
+  function memSay(text, ok) {
+    memInfo.textContent = text || "";
+    memInfo.className = "feedback " + (ok ? "on-ok" : "on-no");
+  }
+
+  function memSelect(ref) {
+    memRef = ref;
+    memText.hidden = memSave.hidden = memDelete.hidden = !ref;
+    memList.querySelectorAll("button").forEach((b) => b.setAttribute("aria-current", String(b.dataset.ref === ref)));
+  }
+
+  async function memRefresh() {
+    const res = await window.pywebview.api.memory_list(document.getElementById("mem-search").value);
+    if (res.error) { memSay(res.error, false); return; }
+    memList.replaceChildren(...res.notas.map((n) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.type = "button";
+      b.dataset.ref = n.ref;
+      b.append(n.ref);
+      if (n.resumo || n.atualizado) {
+        const s = document.createElement("small");
+        s.textContent = [n.atualizado, n.resumo].filter(Boolean).join(" · ");
+        b.append(s);
+      }
+      b.addEventListener("click", async () => {
+        const note = await window.pywebview.api.memory_get(n.ref);
+        if (note.error) { memSay(note.error, false); return; }
+        memText.value = note.texto;
+        memSelect(n.ref);
+        memSay("");
+      });
+      li.append(b);
+      return li;
+    }));
+    memSelect(res.notas.some((n) => n.ref === memRef) ? memRef : null);
+    if (!memRef) memText.value = "";
+    memSay(res.total + " nota(s) na memória.", true);
+  }
+
+  document.getElementById("open-memory").addEventListener("click", async () => {
+    memDialog.showModal();
+    await memRefresh();
+  });
+  document.getElementById("close-memory").addEventListener("click", () => memDialog.close());
+  let memTimer = null;
+  document.getElementById("mem-search").addEventListener("input", () => {
+    clearTimeout(memTimer);
+    memTimer = setTimeout(memRefresh, 250);
+  });
+  memSave.addEventListener("click", async () => {
+    const res = await window.pywebview.api.memory_save(memRef, memText.value);
+    memSay(res.error || "Nota salva.", !res.error);
+    if (!res.error) memRefresh();
+  });
+  memDelete.addEventListener("click", async () => {
+    if (!confirm("Apagar esta nota da memória da Jarvis?\n\n" + memRef)) return;
+    const res = await window.pywebview.api.memory_delete(memRef);
+    memRef = null;
+    await memRefresh();
+    memSay(res.error || "Nota apagada.", !res.error);
+  });
+  document.getElementById("mem-export").addEventListener("click", async () => {
+    const res = await window.pywebview.api.memory_export();
+    if (res.cancelado) return;
+    memSay(res.error || res.text, !res.error);
+  });
 
   brainsDialog.querySelectorAll("[data-save]").forEach((btn) => btn.addEventListener("click", async () => {
     const provider = btn.dataset.save;

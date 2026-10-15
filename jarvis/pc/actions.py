@@ -236,16 +236,15 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
         return f"Tarefa na fila do Claude Code (projeto {run.projeto}). Aviso quando terminar."
 
     if action.kind == "criar_projeto":
-        from jarvis import config, memory
+        from jarvis import config, memory_db
         from jarvis.dev import projects
 
         cfg = config.load()
         p = action.params
         target = projects.create(cfg, p["nome"], p["pasta_pai"], p["descricao"])
         config.save(cfg)
-        vault = memory.open_vault(cfg.obsidian_vault)
-        if vault is not None and p["descricao"]:
-            projects.add_info(cfg, vault, p["nome"], p["descricao"], "Descrição")
+        if p["descricao"]:
+            projects.add_info(cfg, memory_db.open_memory(cfg), p["nome"], p["descricao"], "Descrição")
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")

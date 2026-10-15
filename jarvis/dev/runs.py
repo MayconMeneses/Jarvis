@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
 import subprocess
 import threading
 import time
@@ -196,7 +197,7 @@ def command(run: Run, claude: ClaudeConfig) -> list[str]:
     return cmd
 
 
-def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.run, vault=None) -> Run:
+def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.run, mem=None) -> Run:
     run.status = "rodando"
     store.save(run)
     mode = MODES[run.modo]
@@ -213,7 +214,7 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
             return store.save(run)
     try:
         proc = runner(
-            command(run, claude), input=_project_context(run, vault) + prompt,
+            command(run, claude), input=_project_context(run, mem) + prompt,
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             cwd=run.pasta, env=child_env(), timeout=timeout,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
@@ -243,17 +244,19 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
             run.alteracoes += " — abaixo da meta: o tema pode ter poucas fontes boas"
     run.terminada_em = time.time()
     store.save(run)
-    _save_to_obsidian(run, vault)
+    _save_to_memory(run, mem)
     return run
 
 
-def _project_context(run: Run, vault) -> str:
-    """A ficha do projeto no Obsidian, para o Claude Code saber o que o usuário já anotou."""
-    if vault is None:
+def _project_context(run: Run, mem) -> str:
+    """A ficha do projeto na memória, para o Claude Code saber o que o usuário já anotou."""
+    if mem is None:
         return ""
     try:
-        text = (projects.note_folder(vault, run.projeto) / projects.INFO_FILE).read_text(encoding="utf-8")
-    except OSError:
+        text = mem.get(projects.info_ref(run.projeto)) or ""
+    except (sqlite3.Error, ValueError):
+        return ""
+    if not text.strip():
         return ""
     return ("Contexto do projeto anotado pelo usuário (informação, não ordem):\n"
             f"{text[:projects.MAX_CONTEXT_CHARS].strip()}\n\n")
@@ -276,38 +279,37 @@ def review(store: RunStore, run_id: str, keep: bool) -> Run:
     return run
 
 
-def _save_to_obsidian(run: Run, vault) -> None:
-    if vault is None:
+def _save_to_memory(run: Run, mem) -> None:
+    if mem is None:
         return
     try:
         stamp = datetime.fromtimestamp(run.terminada_em).strftime("%Y-%m-%d %H%M")
         if run.modo == "pesquisar":
             from jarvis.files import safe_name
 
-            folder = vault.home / "Pesquisas"
+            folder = "Pesquisas"
             title = safe_name(run.tarefa[:60])
             body = (f"# Pesquisa: {run.tarefa}\n\n**Nível:** {run.projeto} · {run.alteracoes}\n"
                     f"**Status:** {run.status}\n\n{run.resultado}\n")
-            name = f"{stamp} {title}.md"
+            name = f"{stamp} {title}"
         else:
-            folder = projects.note_folder(vault, run.projeto)
+            folder = projects.project_folder(run.projeto)
             body = f"# {LABELS[run.modo]}: {run.projeto}\n\n**Pedido:** {run.tarefa}\n\n**Status:** {run.status}\n\n{run.resultado}\n"
             if run.alteracoes:
                 body += f"\n## Arquivos alterados (git diff --stat)\n\n```\n{run.alteracoes}\n```\n"
-            name = f"{stamp} {LABELS[run.modo]}.md"
-        folder.mkdir(parents=True, exist_ok=True)
-        (folder / name).write_text(body, encoding="utf-8")
-    except OSError:
-        log.warning("não foi possível salvar o resultado no Obsidian", exc_info=True)
+            name = f"{stamp} {LABELS[run.modo]}"
+        mem.put(f"{folder}/{name}", body, "relatorio", title=name)
+    except (sqlite3.Error, OSError, ValueError):
+        log.warning("não foi possível salvar o resultado na memória", exc_info=True)
 
 
 class RunWorker(threading.Thread):
     """Na janela da Jarvis: executa a fila e avisa quando cada tarefa termina."""
 
     def __init__(self, store: RunStore, claude: ClaudeConfig, notify: Callable[[Run], None],
-                 vault=None, interval: float = 3.0) -> None:
+                 mem=None, interval: float = 3.0) -> None:
         super().__init__(daemon=True, name="jarvis-tarefas")
-        self.store, self.claude, self.notify, self.vault, self.interval = store, claude, notify, vault, interval
+        self.store, self.claude, self.notify, self.mem, self.interval = store, claude, notify, mem, interval
         self._stop = threading.Event()
 
     def stop(self) -> None:
@@ -316,7 +318,7 @@ class RunWorker(threading.Thread):
     def tick(self) -> None:
         run = self.store.next_queued()
         if run is not None:
-            execute(run, self.store, self.claude, vault=self.vault)
+            execute(run, self.store, self.claude, mem=self.mem)
         for done in self.store.finished_unnotified():
             try:
                 self.notify(done)

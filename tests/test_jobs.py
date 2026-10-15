@@ -7,6 +7,7 @@ import pytest
 
 from jarvis.info import jobs
 from jarvis.info.jobs import Job
+from jarvis.memory_db import MemoryDB
 
 ISSUES = [
     {"number": 7, "title": "[Remoto] Desenvolvedor Python Júnior na Acme", "html_url": "https://github.com/x/vagas/issues/7",
@@ -63,18 +64,20 @@ def test_collect_uses_cache_for_six_hours_and_reports_broken_sources(tmp_path):
 # ── perfil ───────────────────────────────────────────────────────────────
 
 def test_template_is_created_empty(tmp_path):
-    profile, path = jobs.load_profile(tmp_path)
-    assert path.exists() and jobs.profile_is_empty(profile)
+    mem = MemoryDB(tmp_path / "m.db")
+    profile, ref = jobs.load_profile(mem)
+    assert mem.exists(ref) and jobs.profile_is_empty(profile)
 
 
 def test_update_profile_fills_fields_and_rejects_unknown(tmp_path):
-    jobs.update_profile(tmp_path, "nivel", "Júnior")
-    jobs.update_profile(tmp_path, "Stack", "Python, React; SQL")
-    profile, path = jobs.load_profile(tmp_path)
+    mem = MemoryDB(tmp_path / "m.db")
+    jobs.update_profile(mem, "nivel", "Júnior")
+    jobs.update_profile(mem, "Stack", "Python, React; SQL")
+    profile, ref = jobs.load_profile(mem)
     assert profile["nivel"] == "junior" and profile["stack"] == ["Python", "React", "SQL"]
-    assert "Nível: Júnior" in path.read_text(encoding="utf-8")
+    assert "Nível: Júnior" in mem.get(ref)
     with pytest.raises(ValueError):
-        jobs.update_profile(tmp_path, "Salário", "10k")
+        jobs.update_profile(mem, "Salário", "10k")
 
 
 # ── pontuação ────────────────────────────────────────────────────────────
@@ -151,7 +154,7 @@ def test_briefing_includes_new_jobs(tmp_path):
     from jarvis import briefing
     from jarvis.config import Config
 
-    cfg = Config(city="", obsidian_vault=str(tmp_path))
+    cfg = Config(city="", memoria_db=str(tmp_path / "m.db"))
     result = briefing.build(cfg, datetime(2026, 10, 15, 9), tmp_path / "e.json",
                             lambda c: {}, lambda k, n: {"manchetes": []},
                             lambda c: ("\n**Vagas novas para você:**\n• Dev Python", "Encontrei 1 vagas novas."))

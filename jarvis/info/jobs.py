@@ -139,33 +139,32 @@ Evitar:
 Inglês:
 """
 PROFILE_FIELDS = ("Stack", "Nível", "Modalidade", "Cidade", "Evitar", "Inglês")
-PROFILE_NOTE = "Perfil Profissional.md"
+PROFILE_REF = "Perfil Profissional"
 
 
-def load_profile(home: Path) -> tuple[dict, Path]:
-    """Lê <cofre>/Jarvis/Perfil Profissional.md, criando o modelo vazio se não existir."""
-    path = home / PROFILE_NOTE
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(PROFILE_TEMPLATE, encoding="utf-8")
-    return parse_profile(path.read_text(encoding="utf-8")), path
+def load_profile(mem) -> tuple[dict, str]:
+    """Lê o perfil na memória da Jarvis, criando o modelo vazio se não existir."""
+    text = mem.get(PROFILE_REF)
+    if text is None:
+        text = PROFILE_TEMPLATE.split("---\n", 2)[-1]  # sem o cabeçalho de nota do Obsidian
+        mem.put(PROFILE_REF, text, "perfil")
+    return parse_profile(text), PROFILE_REF
 
 
-def update_profile(home: Path, field_name: str, value: str) -> Path:
+def update_profile(mem, field_name: str, value: str) -> str:
     match = next((f for f in PROFILE_FIELDS if _fold(f) == _fold(field_name.strip())), None)
     if match is None:
         raise ValueError(f"campo inválido; use um de: {', '.join(PROFILE_FIELDS)}")
-    _, path = load_profile(home)
+    load_profile(mem)
     value = value.replace("\n", " ").strip()[:200]
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = (mem.get(PROFILE_REF) or "").splitlines()
     for i, line in enumerate(lines):
         if _fold(line.split(":", 1)[0].strip()) == _fold(match) and ":" in line:
             lines[i] = f"{match}: {value}"
             break
     else:
         lines.append(f"{match}: {value}")
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return path
+    return mem.put(PROFILE_REF, "\n".join(lines) + "\n", "perfil")
 
 
 def profile_is_empty(profile: dict) -> bool:

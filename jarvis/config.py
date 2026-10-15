@@ -89,7 +89,8 @@ class Config:
     user_name: str = "Maycon"
     language: str = "pt-BR"
     city: str = ""
-    obsidian_vault: str = ""
+    obsidian_vault: str = ""  # opcional: só para importar/exportar a memória
+    memoria_db: str = ""  # vazio = %APPDATA%\SuperJarvis\memoria.db
     # Ordem de tentativa; quem falhar ou estiver sem chave é pulado.
     brains: list[str] = field(default_factory=lambda: ["claude", "gemini", "nvidia"])
     # Ferramentas do PC (leitura + propostas com aprovação). Só o Claude as usa.

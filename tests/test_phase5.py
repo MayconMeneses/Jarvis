@@ -5,87 +5,17 @@ from datetime import datetime
 
 import pytest
 
-from jarvis import briefing, memory
+from jarvis import briefing, memory_db
 from jarvis.__main__ import system_prompt
 from jarvis.config import Config
 from jarvis.info import news, weather
 
 
-# ── memória no Obsidian ──────────────────────────────────────────────────
-
-@pytest.fixture
-def vault(tmp_path):
-    (tmp_path / "MM System Creator").mkdir()
-    (tmp_path / "MM System Creator" / "_Next Steps.md").write_text("Falta a tela de login do MM System.", encoding="utf-8")
-    (tmp_path / ".obsidian").mkdir()
-    (tmp_path / ".obsidian" / "segredo.md").write_text("login token", encoding="utf-8")
-    return memory.Vault(tmp_path)
-
-
-def test_remember_creates_note_with_frontmatter_and_index(vault):
-    path = vault.remember("Preferência de vagas", "Prefere vagas remotas de back-end.")
-    text = path.read_text(encoding="utf-8")
-    assert text.startswith("---\ntipo: memoria\nresumo: Prefere vagas remotas")
-    assert "# Preferência de vagas" in text
-    index = (vault.home / memory.INDEX).read_text(encoding="utf-8")
-    assert "[[Preferência de vagas]]" in index
-    assert vault.index_text() == "- Preferência de vagas: Prefere vagas remotas de back-end."
-
-
-def test_remember_same_title_updates_and_keeps_creation_date(vault):
-    first = vault.remember("Stack", "Usa Python.")
-    created = first.read_text(encoding="utf-8").split("criado: ")[1][:10]
-    vault.remember("Stack", "Usa Python e TypeScript.")
-    text = first.read_text(encoding="utf-8")
-    assert "TypeScript" in text and f"criado: {created}" in text
-    assert len(vault.memories()) == 1
-
-
-def test_user_edits_and_deletions_are_reflected(vault):
-    path = vault.remember("Cidade", "Mora no Ceará.")
-    path.write_text("# Cidade\n\nMora em Fortaleza.\n", encoding="utf-8")  # editado no Obsidian, sem frontmatter
-    assert vault.index_text() == "- Cidade: Mora em Fortaleza."
-    path.unlink()
-    assert vault.index_text() == ""
-
-
-def test_titles_cannot_escape_the_memory_folder(vault):
-    path = vault.remember("../../fora", "x")
-    assert path.parent == vault.home / memory.MEMORY_DIR
-
-
-def test_search_reads_whole_vault_but_skips_obsidian_config(vault):
-    hits = vault.search("tela de login")
-    assert [h["nota"] for h in hits] == ["MM System Creator\\_Next Steps.md"] or \
-           [h["nota"] for h in hits] == ["MM System Creator/_Next Steps.md"]
-    assert "login" in hits[0]["trecho"]
-
-
-def test_search_ignores_accents(vault):
-    vault.remember("Ação", "Revisar orçamento")
-    assert vault.search("acao orcamento")
-
-
-def test_read_is_restricted_to_vault_markdown(vault):
-    assert "tela de login" in vault.read("MM System Creator/_Next Steps.md")
-    for bad in ("../fora.md", ".obsidian/segredo.md", "MM System Creator"):
-        with pytest.raises(ValueError):
-            vault.read(bad)
-
-
-def test_diary_appends_timestamped_lines(vault):
-    vault.diary("Pedido: clima\ncom quebra")
-    vault.diary("Ação executada")
-    [day] = (vault.home / "Diário").glob("*.md")
-    lines = day.read_text(encoding="utf-8").splitlines()
-    assert lines[0].startswith("# Diário")
-    assert lines[-2].endswith("Pedido: clima com quebra") and lines[-1].endswith("Ação executada")
-
+# ── memória e prompt ─────────────────────────────────────────────────────
 
 def test_system_prompt_includes_memory_date_and_city(tmp_path):
-    v = memory.Vault(tmp_path)
-    v.remember("Objetivo", "Conseguir vaga de dev pleno.")
-    cfg = Config(obsidian_vault=str(tmp_path), city="Fortaleza, Ceará")
+    cfg = Config(memoria_db=str(tmp_path / "m.db"), city="Fortaleza, Ceará")
+    memory_db.open_memory(cfg).remember("Objetivo", "Conseguir vaga de dev pleno.")
     prompt = system_prompt(cfg)
     assert "Objetivo: Conseguir vaga de dev pleno." in prompt
     assert "Fortaleza, Ceará" in prompt and "lembrar" in prompt
@@ -175,7 +105,7 @@ def fake_news(kind, limit):
 
 
 def test_first_open_of_day_has_weather_news_and_is_saved(tmp_path):
-    cfg = Config(user_name="Maycon", city="Fortaleza", obsidian_vault=str(tmp_path))
+    cfg = Config(user_name="Maycon", city="Fortaleza", memoria_db=str(tmp_path / "m.db"))
     state = tmp_path / "estado.json"
     morning = datetime(2026, 10, 14, 8, 0)
     get_w = lambda city: {**{k: 0 for k in ("agora_c", "sensacao_c", "maxima_c", "minima_c")},  # noqa: E731
@@ -185,7 +115,10 @@ def test_first_open_of_day_has_weather_news_and_is_saved(tmp_path):
     assert "Em Fortaleza agora faz 0°C, céu limpo" in first["text"]
     assert "• tecnologia 0 (F)" in first["text"]
     assert "Destaques: gerais 0. tecnologia 0." in first["speak"]
-    assert list((tmp_path / "Jarvis" / "Relatórios").glob("*Briefing.md"))
+    mem = memory_db.open_memory(cfg)
+    [report] = [n["ref"] for n in mem.list_notes("Relatórios/")]
+    assert report.endswith(" Briefing") and "Bom dia, Maycon" in mem.read(report)
+    assert "Briefing do dia apresentado." in mem.read(mem.list_notes("Diário/")[0]["ref"])
 
     later = briefing.build(cfg, datetime(2026, 10, 14, 19, 0), state, get_w, fake_news)
     assert not later["completo"] and later["text"].startswith("Boa noite")
