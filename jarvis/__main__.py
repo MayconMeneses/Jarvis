@@ -191,7 +191,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--desconectar", choices=["gmail", "outlook"], help="remove uma conta de e-mail")
     args = parser.parse_args(argv)
 
-    log.setup()
+    # Só a janela (sem argumentos) arquiva o log grande; terminal e MCP só anexam.
+    log.setup(archive=not (args.pergunta or args.texto or args.chave or args.conectar or args.desconectar))
     if args.chave:
         return store_key(args.chave)
 

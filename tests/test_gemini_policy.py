@@ -106,7 +106,7 @@ def test_unknown_model_is_replaced_by_newest_flash(api, monkeypatch):
     def ask(self, m, s):
         tried.append(self.cfg.model)
         if self.cfg.model != "gemini-3.8-flash":
-            raise BrainUnavailable("erro HTTP 404")
+            raise BrainUnavailable("modelo não encontrado (HTTP 404: models/gemini-flash-latest is not found)")
         return Answer("ok", "gemini")
 
     monkeypatch.setattr(openai_compat.OpenAICompat, "ask", ask)
@@ -132,3 +132,38 @@ def test_mode_is_saved_and_validated(api):
     assert not api.set_gemini_mode("sempre")["ok"]
     api.remove_key("gemini")
     assert api.brains_status()["gemini"] is False
+
+
+def test_invalid_key_message_from_google_is_explained():
+    import io
+    import urllib.error
+
+    from jarvis.brains.openai_compat import http_reason
+
+    body = b'[{"error": {"code": 400, "message": "Please pass a valid API key", "status": "INVALID_ARGUMENT"}}]'
+    exc = urllib.error.HTTPError("u", 400, "Bad", {}, io.BytesIO(body))
+    assert http_reason("gemini", exc) == "chave inválida (Please pass a valid API key)"
+    missing = urllib.error.HTTPError("u", 404, "NF", {}, io.BytesIO(b'{"error": {"message": "models/x is not found"}}'))
+    assert http_reason("gemini", missing).startswith("modelo não encontrado")
+    quota = urllib.error.HTTPError("u", 429, "Q", {}, io.BytesIO(b'{"error": {"message": "Quota exceeded"}}'))
+    assert http_reason("gemini", quota) == "limite de uso atingido (Quota exceeded)"
+
+
+def test_pasted_key_with_spaces_and_newlines_is_cleaned(api, monkeypatch):
+    from jarvis.brains import openai_compat
+
+    seen = []
+    monkeypatch.setattr(openai_compat.OpenAICompat, "ask",
+                        lambda self, m, s: seen.append(self._get_key(self.name)) or Answer("ok", self.name))
+    assert api.save_key("gemini", "  AIzaSy-chave-colada-123456\r\n ")["ok"]
+    assert seen == ["AIzaSy-chave-colada-123456"]
+
+
+def test_unexpected_error_never_leaves_the_button_stuck(api, monkeypatch):
+    from jarvis.brains import openai_compat
+
+    def boom(self, m, s):
+        raise RuntimeError("falha estranha")
+    monkeypatch.setattr(openai_compat.OpenAICompat, "ask", boom)
+    res = api.save_key("gemini", "AIzaSy-chave-qualquer-123456")
+    assert res == {"ok": False, "mensagem": "Erro inesperado ao salvar: falha estranha"}
