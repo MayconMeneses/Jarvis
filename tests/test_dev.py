@@ -262,3 +262,13 @@ def test_new_project_is_only_created_after_approval(cfg, tmp_path, monkeypatch):
     other = actions.propose_new_project(acts, cfg, "Outro", str(parent), "", "pedido")
     assert actions.decide(acts, other.id, False).status == "recusada"
     assert not (parent / "Outro").exists()
+
+
+def test_queue_keeps_creation_order_even_with_a_coarse_clock(cfg, tmp_path):
+    # No Windows o relógio anda de 15,6 em 15,6 ms: estas tarefas nascem no mesmo "tique".
+    store = runs.RunStore(tmp_path / "runs")
+    order = [f"t{i:02d}" for i in range(20)]
+    for tarefa in order:
+        runs.enqueue(store, cfg, "Comandiva Sistema", "analisar", tarefa)
+    assert [r.tarefa for r in store.all()] == order
+    assert store.next_queued().tarefa == "t00"

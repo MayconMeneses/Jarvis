@@ -51,6 +51,21 @@ MODES = {
 }
 LABELS = {"analisar": "Análise", "planejar": "Plano", "executar": "Execução"}
 
+_last_stamp = 0.0
+_stamp_lock = threading.Lock()
+
+
+def _created_stamp() -> float:
+    """time.time() estritamente crescente neste processo.
+
+    No Windows com Python 3.11 o relógio anda de 15,6 em 15,6 ms: duas tarefas criadas
+    em seguida teriam o mesmo criada_em, e a fila não saberia qual veio primeiro.
+    """
+    global _last_stamp
+    with _stamp_lock:
+        _last_stamp = max(time.time(), _last_stamp + 1e-6)
+        return _last_stamp
+
 
 @dataclass
 class Run:
@@ -60,7 +75,7 @@ class Run:
     tarefa: str
     id: str = field(default_factory=lambda: uuid.uuid4().hex[:10])
     status: str = "na_fila"  # na_fila | rodando | concluida | falhou
-    criada_em: float = field(default_factory=time.time)
+    criada_em: float = field(default_factory=_created_stamp)
     terminada_em: float = 0.0
     resultado: str = ""
     alteracoes: str = ""
