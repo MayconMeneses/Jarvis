@@ -58,6 +58,15 @@ class Api:
             threading.Thread(target=self._voice.speak, args=(result["speak"],), daemon=True).start()
         return result["text"]
 
+    def open_link(self, url: str) -> bool:
+        """Abre no navegador padrão. Só http(s): nada de file:, javascript: etc."""
+        url = str(url)
+        if not url.startswith(("https://", "http://")):
+            return False
+        import webbrowser
+
+        return webbrowser.open(url)
+
     def voice_available(self) -> bool:
         return self._voice is not None
 
