@@ -177,6 +177,7 @@ class Api:
             "claude": bool(shutil.which(cfg.claude.executable)),
             "gemini": bool(keys.get_key("gemini")),
             "nvidia": bool(keys.get_key("nvidia")),
+            "brave": bool(keys.get_key("brave")),
             "uso_gemini": cfg.uso_gemini,
             "modelo_gemini": cfg.gemini.model,
         }
@@ -194,6 +195,16 @@ class Api:
         if len(key) < 20:
             return {"ok": False, "mensagem": "isso não parece uma chave de API (muito curta)"}
         log.info("testando chave do %s (%d caracteres, início %s…)", provider, len(key), key[:4])
+        if provider == "brave":  # buscador (não é IA): testa uma busca
+            from jarvis.local import websearch
+
+            try:
+                websearch.brave("teste", key, limit=1)
+            except Exception as exc:
+                log.info("chave do brave recusada: %s", exc)
+                return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+            keys.set_key("brave", key)
+            return {"ok": True, "mensagem": "Chave do Brave testada e guardada: busca completa na web sem IA ativada."}
         try:
             cfg = config.load()
             provider_cfg = getattr(cfg, provider)
