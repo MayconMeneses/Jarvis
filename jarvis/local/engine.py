@@ -29,10 +29,31 @@ HELP = (
 )
 
 
+# Palavras que disparam comandos: corrigidas por semelhança se vierem com erro de digitação.
+VOCABULARY = """abre abra abrir inicia executa entra horas hora dia data hoje programas processos pesados
+consumindo computador memoria disco clima previsao chover temperatura noticias tecnologia vagas pesquise
+pesquisa procure busque ajuda comandos como esta status""".split()
+_POLITE = re.compile(r"^((por favor|pfv|pf)[\s,]+|((voce|vc)\s+)?(pode|poderia|consegue|conseguiria)\s+(me\s+)?)+")
+
+
+def _fix_typos(text: str) -> str:
+    import difflib
+
+    words = []
+    for word in text.split():
+        if len(word) >= 4 and word not in VOCABULARY:
+            close = difflib.get_close_matches(word, VOCABULARY, n=1, cutoff=0.8)
+            word = close[0] if close else word
+        words.append(word)
+    return " ".join(words)
+
+
 def clean(text: str) -> str:
     text = websearch.fold(text).strip()
     text = re.sub(r"^(ei|ok|hey|oi|ola)?[\s,]*jarvis[\s,:!.]*", "", text)
-    return re.sub(r"[?!.]+$", "", text).strip()
+    text = re.sub(r"[?!.]+$", "", text).strip()
+    text = re.sub(r"[\s,]+(por favor|pfv)$", "", _POLITE.sub("", text))
+    return _fix_typos(text)
 
 
 class LocalEngine:
@@ -47,16 +68,18 @@ class LocalEngine:
     # ── classificação ────────────────────────────────────────────────────
     PATTERNS = [
         ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
-        ("hora", r"\b(que horas|hora atual|horas sao)\b"),
+        ("hora", r"\b(que horas?|hora atual|horas sao)\b"),
         ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
         ("processos", r"\b(processos|programas)\b.*\b(pesad\w*|mais us\w*|consum\w*)\b"),
         ("pc", r"\b(como (esta|ta) (o\s+)?(meu\s+)?(pc|computador)|status do (pc|computador)|uso de (ram|cpu|memoria|disco)|"
                r"memoria ram|quanto de (ram|memoria|disco))\b"),
         ("clima", r"\b(clima|previsao do tempo|vai chover|temperatura)\b(\s+(em|de|no|na)\s+(?P<cidade>.+))?"),
         ("noticias", r"\bnoticias?\b"),
-        ("vagas", r"\bvagas?\b"),
+        # Só pedidos de vagas ("lembre que prefiro vagas remotas" não é um pedido).
+        ("vagas", r"^((tem|ha|existe\w*|quero|ver|mostr\w*|me mostr\w*|procur\w*|busc\w*|busqu\w*|lista\w*|quais)\b.{0,25}\bvagas?\b|vagas?\b)"),
         ("ajuda", r"^(ajuda|o que voce (faz|sabe fazer)|comandos|me ajuda)$"),
-        ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|me fale sobre|fale sobre)\s+(sobre\s+)?(?P<tema>.+)$"),
+        ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
+                     r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
     ]
     DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias"}
 
