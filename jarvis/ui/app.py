@@ -13,7 +13,7 @@ from pathlib import Path
 
 import webview
 
-from jarvis import briefing, config, memory
+from jarvis import briefing, config, files, memory
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
@@ -38,6 +38,8 @@ class Api:
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
         self._vault = memory.open_vault(cfg.obsidian_vault)
+        self._files = files.AttachmentStore()
+        self._window = None  # definida em run(); usada no seletor de arquivos
 
     def _diary(self, entry: str) -> None:
         if self._vault is not None:
@@ -73,7 +75,8 @@ class Api:
 
         disk = psutil.disk_usage("C:\\")
         return {
-            "cpu": round(psutil.cpu_percent(interval=None)),
+            # Cada chamada vem de uma thread nova: interval=None sempre daria 0 na 1ª leitura.
+            "cpu": round(psutil.cpu_percent(interval=0.3)),
             "ram": round(psutil.virtual_memory().percent),
             "disco": round(disk.percent),
         }
@@ -85,11 +88,49 @@ class Api:
         if self._voice is not None:
             self._voice.listen_now()
 
-    def send(self, text: str) -> dict:
-        started = time.time()
-        self._diary(f"Pedido: {text}")
+    # ── anexos ───────────────────────────────────────────────────────────
+    def pick_files(self) -> dict:
+        """Abre o seletor de arquivos do Windows e guarda cópias dos escolhidos."""
+        dialog = getattr(getattr(webview, "FileDialog", None), "OPEN", None) or webview.OPEN_DIALOG
+        chosen = self._window.create_file_dialog(dialog, allow_multiple=True) if self._window else None
+        return self._store_many([("path", p) for p in (chosen or [])])
+
+    def attach_data(self, name: str, b64: str) -> dict:
+        """Arquivo arrastado para a janela (o navegador entrega o conteúdo, não o caminho)."""
+        import base64
+
         try:
-            answer = self._conversation.ask(str(text))
+            data = base64.b64decode(str(b64), validate=True)
+        except ValueError:
+            return {"anexos": [], "erros": [f"{name}: conteúdo inválido"]}
+        return self._store_many([("data", (str(name), data))])
+
+    def _store_many(self, items) -> dict:
+        added, errors = [], []
+        for kind, value in items:
+            try:
+                att = self._files.add_path(value) if kind == "path" else self._files.add(*value)
+                added.append(att.public())
+            except (ValueError, OSError) as exc:
+                errors.append(str(exc))
+        return {"anexos": added, "erros": errors}
+
+    def send(self, text: str, attachments: list | None = None) -> dict:
+        started = time.time()
+        text = str(text)
+        if attachments:
+            listed = []
+            for att_id in attachments:
+                try:
+                    att = self._files.get(str(att_id))
+                    listed.append(f"- {att.nome} ({att.tipo}, {att.tamanho_kb} KB) — id {att.id}")
+                except ValueError as exc:
+                    listed.append(f"- anexo {att_id}: {exc}")
+            text = (text or "Analise os arquivos anexados.") + (
+                "\n\n[Arquivos anexados pelo usuário — leia com ler_anexo(id):]\n" + "\n".join(listed))
+        self._diary(f"Pedido: {text[:300]}")
+        try:
+            answer = self._conversation.ask(text)
         except NoBrainAvailable as exc:
             return {"error": str(exc)}
         except Exception:  # a janela nunca deve travar por um erro inesperado
@@ -226,6 +267,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         min_size=(360, 480),
         background_color="#04070C",
     )
+    api._window = window
     quitting = False
     voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
     api._voice = voice
