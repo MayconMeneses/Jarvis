@@ -53,6 +53,17 @@ def _nvidia() -> ProviderConfig:
     )
 
 
+@dataclass
+class EmailConfig:
+    gmail_ativo: bool = False
+    outlook_ativo: bool = False
+    outlook_client_id: str = ""
+    # "consumers" = contas pessoais (Hotmail/Outlook.com); "common" aceita também as de empresa.
+    outlook_authority: str = "consumers"
+    # Regras fixas: {"campo": "remetente"|"assunto", "contem": "...", "categoria": "..."}
+    regras: list[dict] = field(default_factory=list)
+
+
 def _only_known(kind: type, raw: dict) -> dict:
     known = {f.name for f in fields(kind)}
     return {k: v for k, v in raw.items() if k in known}
@@ -71,11 +82,15 @@ class Config:
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)
+    email: EmailConfig = field(default_factory=EmailConfig)
 
     @classmethod
     def from_dict(cls, raw: dict) -> "Config":
         values = _only_known(cls, raw)
-        nested = {"claude": ClaudeConfig, "gemini": ProviderConfig, "nvidia": ProviderConfig}
+        nested = {
+            "claude": ClaudeConfig, "gemini": ProviderConfig,
+            "nvidia": ProviderConfig, "email": EmailConfig,
+        }
         defaults = cls()
         for name, kind in nested.items():
             if isinstance(values.get(name), dict):
