@@ -66,6 +66,8 @@ class Config:
     obsidian_vault: str = ""
     # Ordem de tentativa; quem falhar ou estiver sem chave é pulado.
     brains: list[str] = field(default_factory=lambda: ["claude", "gemini", "nvidia"])
+    # Ferramentas do PC (leitura + propostas com aprovação). Só o Claude as usa.
+    ferramentas_pc: bool = True
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)

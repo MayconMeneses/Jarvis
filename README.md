@@ -2,7 +2,15 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 1 (janela, bandeja e roteador)
+## Estado atual: Fase 2 (desempenho do PC)
+
+- O Claude consulta ferramentas do PC por um servidor MCP próprio (`python -m jarvis.mcp_server`): visão geral (CPU, RAM, disco, bateria), processos mais pesados, programas de inicialização e uso de disco.
+- **Ações só com aprovação:** a IA apenas *propõe* encerrar um processo, limpar temporários ou desativar um programa da inicialização. A proposta aparece como cartão na janela e só é executada quando você clica em **Aprovar**, com nova validação no momento da execução.
+- Protegidos: processos essenciais do Windows, a própria Jarvis e a pasta `TEMP\claude` (sessões do Claude Code). Itens de inicialização de todos os usuários exigem administrador e não são alterados.
+- Desligar as ferramentas: `"ferramentas_pc": false` no `config.json`.
+- As ferramentas do PC funcionam só com o Claude; Gemini e NVIDIA respondem sem elas.
+
+## Fase 1 (janela, bandeja e roteador)
 
 - Janela de chat (pywebview) com ícone na bandeja. Fechar a janela só esconde; "Sair" no ícone encerra.
 - A conversa guarda as últimas 20 mensagens como contexto.

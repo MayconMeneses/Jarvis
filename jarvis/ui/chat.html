@@ -58,6 +58,16 @@
     border: 1px solid var(--border); border-radius: 10px;
   }
   #send { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; padding: 0 18px; }
+  .card {
+    align-self: stretch; padding: 12px 14px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--accent);
+  }
+  .card p { margin: 0 0 4px; }
+  .card .why { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+  .card .buttons { display: flex; gap: 8px; }
+  .card .approve { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+  .card .outcome { margin-top: 8px; font-size: 13px; }
+  .card.done { border-color: var(--border); }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 </head>
@@ -84,10 +94,57 @@
   const orb = document.getElementById("orb");
   let busy = false;
 
+  // Só **negrito**; o texto entra como nós de texto, nunca como HTML.
+  function renderText(el, text) {
+    text.split(/(\*\*[^*]+\*\*)/g).forEach((part) => {
+      if (/^\*\*[^*]+\*\*$/.test(part)) {
+        const b = document.createElement("strong");
+        b.textContent = part.slice(2, -2);
+        el.appendChild(b);
+      } else if (part) {
+        el.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function addActionCard(action) {
+    const card = document.createElement("section");
+    card.className = "card";
+    card.setAttribute("aria-label", "Ação aguardando sua aprovação");
+    const what = document.createElement("p");
+    what.textContent = action.descricao;
+    const why = document.createElement("p");
+    why.className = "why";
+    why.textContent = "Motivo: " + action.motivo;
+    const buttons = document.createElement("div");
+    buttons.className = "buttons";
+    const ok = document.createElement("button");
+    ok.type = "button"; ok.className = "approve"; ok.textContent = "Aprovar";
+    const no = document.createElement("button");
+    no.type = "button"; no.textContent = "Recusar";
+    buttons.append(ok, no);
+    card.append(what, why, buttons);
+    log.appendChild(card);
+    log.scrollTop = log.scrollHeight;
+
+    async function decide(approve) {
+      ok.disabled = no.disabled = true;
+      const res = await window.pywebview.api.decide(action.id, approve);
+      buttons.remove();
+      card.classList.add("done");
+      const out = document.createElement("p");
+      out.className = "outcome";
+      out.textContent = res.resultado;
+      card.appendChild(out);
+    }
+    ok.addEventListener("click", () => decide(true));
+    no.addEventListener("click", () => decide(false));
+  }
+
   function add(kind, text, meta) {
     const el = document.createElement("div");
     el.className = "msg " + kind;
-    el.textContent = text;  // nunca innerHTML: a resposta é tratada como texto
+    renderText(el, text);
     if (meta) {
       const m = document.createElement("span");
       m.className = "meta";
@@ -117,7 +174,10 @@
       const res = await window.pywebview.api.send(text);
       thinking.remove();
       if (res.error) add("error", res.error);
-      else add("jarvis", res.text, "via " + res.brain);
+      else {
+        add("jarvis", res.text, "via " + res.brain);
+        (res.actions || []).forEach(addActionCard);
+      }
     } catch (err) {
       thinking.remove();
       add("error", "Falha ao falar com o núcleo da Jarvis: " + err);

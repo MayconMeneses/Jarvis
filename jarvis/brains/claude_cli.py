@@ -38,22 +38,29 @@ def child_env(env: dict[str, str] | None = None) -> dict[str, str]:
 class ClaudeCLI:
     name = "claude"
 
-    def __init__(self, cfg: ClaudeConfig, workdir: Path | None = None) -> None:
+    def __init__(
+        self, cfg: ClaudeConfig, workdir: Path | None = None, mcp_config: Path | None = None
+    ) -> None:
         self.cfg = cfg
         # Pasta vazia própria: evita carregar CLAUDE.md e configurações de projetos.
         self.workdir = workdir or data_dir() / "claude-workspace"
+        # Servidor MCP da Jarvis (ferramentas do PC); None = sem ferramentas.
+        self.mcp_config = mcp_config
 
     def command(self, system: str) -> list[str]:
         exe = shutil.which(self.cfg.executable) or self.cfg.executable
         cmd = [
             exe, "-p",
             "--output-format", "json",
-            "--tools", "",
-            "--strict-mcp-config",
+            "--tools", "",  # nenhuma ferramenta embutida (Bash, Edit...)
+            "--strict-mcp-config",  # ignora os servidores MCP do usuário
             "--setting-sources", "project",
             "--no-session-persistence",
             "--system-prompt", system,
         ]
+        if self.mcp_config:
+            # Só as ferramentas da própria Jarvis ficam liberadas.
+            cmd += ["--mcp-config", str(self.mcp_config), "--allowedTools", "mcp__jarvis"]
         if self.cfg.model:
             cmd += ["--model", self.cfg.model]
         return cmd
@@ -71,6 +78,8 @@ class ClaudeCLI:
                 cwd=self.workdir,
                 env=child_env(),
                 timeout=self.cfg.timeout_seconds,
+                # Sem janela de console piscando quando a Jarvis roda pela bandeja.
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
         except FileNotFoundError as exc:
             raise BrainUnavailable("Claude Code não está instalado ou fora do PATH") from exc

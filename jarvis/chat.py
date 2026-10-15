@@ -26,6 +26,13 @@ class Conversation:
             )[-MAX_HISTORY:]
             return answer
 
+    def note(self, text: str) -> None:
+        """Registra um fato no histórico (ex.: resultado de uma ação aprovada)."""
+        with self._lock:
+            self.history = (
+                self.history + [Message(role="assistant", content=f"[Registro do sistema] {text}")]
+            )[-MAX_HISTORY:]
+
     def reset(self) -> None:
         with self._lock:
             self.history = []

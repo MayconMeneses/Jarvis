@@ -8,6 +8,8 @@ dependencies = [
     "pystray>=0.19",
     "Pillow>=10.1",
     "keyring>=25",
+    "psutil>=5.9",
+    "mcp>=2.3,<3",
 ]
 
 [project.optional-dependencies]
