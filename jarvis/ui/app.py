@@ -106,7 +106,7 @@ class Api:
 
 def build_voice(cfg: Config, api: Api, window):
     from jarvis.voice.loop import VoiceLoop
-    from jarvis.voice.stt import Transcriber
+    from jarvis.voice.stt import Transcriber, vocabulary_hint
     from jarvis.voice.tts import Speaker
 
     def notify(payload: dict) -> None:
@@ -119,7 +119,9 @@ def build_voice(cfg: Config, api: Api, window):
         respond=api.send,
         notify=notify,
         speaker=Speaker(cfg.voz.voz),
-        transcriber=Transcriber(cfg.voz.modelo_transcricao, cfg.user_name),
+        transcriber=Transcriber(
+            cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos)
+        ),
         sensitivity=cfg.voz.sensibilidade,
         speak_answers=cfg.voz.falar_respostas,
     )
@@ -218,6 +220,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
             voice.stop()
         tasks.stop()
         watcher.stop()
+        conversation.router.stop()  # fecha a sessão do Claude
         icon.stop()
         window.destroy()
 
@@ -229,6 +232,8 @@ def run(cfg: Config, conversation: Conversation) -> int:
     window.events.closing += on_closing
 
     def on_started() -> None:
+        # Abre a sessão do Claude já na largada: a 1ª pergunta não paga a inicialização.
+        threading.Thread(target=conversation.warm_up, daemon=True, name="jarvis-aquecer").start()
         icon.run_detached()
         tasks.start()
         watcher.start()

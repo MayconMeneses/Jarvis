@@ -28,6 +28,8 @@ class ClaudeConfig:
     executable: str = "claude"
     model: str = ""  # vazio = modelo padrão da assinatura
     timeout_seconds: int = 180
+    # Mantém um Claude aberto entre perguntas (~2 s por resposta em vez de ~11 s).
+    sessao_continua: bool = True
 
 
 @dataclass
@@ -68,8 +70,8 @@ class EmailConfig:
 class VoiceConfig:
     ativa: bool = True
     falar_respostas: bool = True
-    # "base" é rápido e leve; "small" acerta mais, mas usa ~3x mais RAM e tempo.
-    modelo_transcricao: str = "base"
+    # "small" errou ~11% das palavras com ruído neste PC; "base" ~60%, mas é ~4 s mais rápido.
+    modelo_transcricao: str = "small"
     voz: str = "pt-BR-FranciscaNeural"
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5

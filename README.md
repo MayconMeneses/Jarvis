@@ -55,8 +55,9 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\j
 ## Fase 4 (voz)
 
 - Diga **"Hey Jarvis"** (pronúncia em inglês), clique no 🎤 da janela ou use **Falar agora** na bandeja.
-- Transcrição **local** com faster-whisper (`base` por padrão; `small` acerta mais, mas é cerca de 3 vezes mais lento e pesado). Nenhum áudio sai do PC.
-- Resposta falada com a voz neural **Francisca** (edge-tts, online e gratuita). Sem internet, usa a voz **Maria** do Windows.
+- Transcrição **local** com faster-whisper `small` + vocabulário (seu nome, cidade e projetos). Medido com ruído de sala: ~11% de palavras erradas contra ~60% do `base`. Nenhum áudio sai do PC.
+- Um **bipe** curto avisa que ela começou a ouvir depois do "Hey Jarvis".
+- Resposta falada frase a frase (começa antes de sintetizar tudo) com a voz neural **Francisca** (edge-tts, online e gratuita). Sem internet, usa a voz **Maria** do Windows.
 - Código, links e Markdown não são lidos em voz alta; respostas longas são resumidas ("Os detalhes estão na janela").
 - **Pausar escuta** na bandeja desliga a palavra de ativação (o 🎤 continua funcionando).
 - Configuração em `voz` no `config.json`: `ativa`, `falar_respostas`, `modelo_transcricao`, `voz`, `sensibilidade`.
@@ -81,7 +82,7 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\j
 - Janela de chat (pywebview) com ícone na bandeja. Fechar a janela só esconde; "Sair" no ícone encerra.
 - A conversa guarda as últimas 20 mensagens como contexto.
 - Cérebros, em ordem (configurável em `brains`):
-  1. **Claude** via `claude -p`, usando a **assinatura** logada no Claude Code. Variáveis `ANTHROPIC_*` são removidas antes de chamar o CLI, então nunca é cobrado por API.
+  1. **Claude** via `claude -p`, usando a **assinatura** logada no Claude Code. Uma **sessão fica aberta** entre as perguntas (~1,5 s por resposta simples, contra ~11 s abrindo um processo por pergunta) e é aquecida na abertura da Jarvis. Variáveis `ANTHROPIC_*` são removidas antes de chamar o CLI, então nunca é cobrado por API.
   2. **Gemini** (chave gratuita do Google AI Studio).
   3. **NVIDIA NIM** (chave gratuita do build.nvidia.com).
   Se um falhar (limite, rede, sem chave), o próximo responde.

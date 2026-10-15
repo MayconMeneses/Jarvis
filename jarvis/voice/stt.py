@@ -1,19 +1,31 @@
-"""Transcrição local com faster-whisper (CPU, int8). Nada de áudio sai do PC."""
+"""Transcrição local com faster-whisper (CPU, int8). Nada de áudio sai do PC.
+
+Medido neste PC (frases com ruído de sala): "base" errava ~60% das palavras e
+"small" com vocabulário ~11%, ao custo de ~4 s a mais por frase.
+"""
 
 from __future__ import annotations
 
+import os
 import threading
 
 import numpy as np
 
 SAMPLE_RATE = 16000
+# Palavras que a Jarvis ouve com frequência e o modelo costuma errar.
+BASE_VOCABULARY = ["Jarvis", "Claude", "Obsidian", "Gmail", "Outlook", "e-mail", "vagas",
+                   "projeto", "memória RAM", "notícias", "clima"]
+
+
+def vocabulary_hint(user_name: str = "", city: str = "", projects=()) -> str:
+    words = [w for w in [user_name, city.split(",")[0], *projects] if w] + BASE_VOCABULARY
+    return ", ".join(dict.fromkeys(words)) + "."
 
 
 class Transcriber:
-    def __init__(self, model_size: str = "base", user_name: str = "") -> None:
+    def __init__(self, model_size: str = "small", hint: str = "") -> None:
         self.model_size = model_size
-        # Ajuda o modelo a acertar nomes próprios que aparecem com frequência.
-        self.hint = f"Jarvis, {user_name}." if user_name else "Jarvis."
+        self.hint = hint or vocabulary_hint()
         self._model = None
         self._lock = threading.Lock()
 
@@ -22,7 +34,9 @@ class Transcriber:
             if self._model is None:
                 from faster_whisper import WhisperModel
 
-                self._model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+                threads = max(1, (os.cpu_count() or 2) // 2)  # núcleos físicos
+                self._model = WhisperModel(self.model_size, device="cpu", compute_type="int8",
+                                           cpu_threads=threads)
         return self._model
 
     def warm_up(self) -> None:
@@ -33,6 +47,21 @@ class Transcriber:
         if audio.size < SAMPLE_RATE // 4:
             return ""
         segments, _ = self._load().transcribe(
-            audio, language="pt", beam_size=1, initial_prompt=self.hint, vad_filter=True
+            audio.astype(np.float32, copy=False), language="pt", beam_size=1,
+            initial_prompt=self.hint, vad_filter=True,
+            without_timestamps=True, condition_on_previous_text=False,
         )
-        return " ".join(s.text.strip() for s in segments).strip()
+        text = " ".join(s.text.strip() for s in segments).strip()
+        return "" if is_hallucination(text, audio.size / SAMPLE_RATE) else text
+
+
+# Frases que o Whisper "inventa" em silêncio ou ruído (vêm de legendas de vídeos).
+_HALLUCINATIONS = ("amara.org", "inscreva-se", "legendas pela", "legendado por", "transcrição por")
+_SHORT_FILLERS = {"obrigado", "obrigada", "tchau", "valeu", "e aí", "ok", "hum"}
+
+
+def is_hallucination(text: str, seconds: float) -> bool:
+    low = text.lower().strip(" .!?…")
+    if any(h in low for h in _HALLUCINATIONS):
+        return True
+    return seconds < 1.5 and low in _SHORT_FILLERS

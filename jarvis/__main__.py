@@ -30,7 +30,8 @@ def system_prompt(cfg: config.Config) -> str:
         f"Você é a Jarvis, assistente pessoal de {cfg.user_name}. "
         f"Responda em {cfg.language}, de forma direta e cordial. "
         "Se não souber algo, diga que não sabe."
-        f"\n\nAgora: {WEEKDAYS[now.weekday()]}, {now:%d/%m/%Y %H:%M}."
+        # Só a data: a hora vai em cada mensagem, para a sessão do Claude não reiniciar a cada minuto.
+        f"\n\nHoje: {WEEKDAYS[now.weekday()]}, {now:%d/%m/%Y}."
     )
     if cfg.city:
         prompt += f" Cidade do usuário: {cfg.city}."
