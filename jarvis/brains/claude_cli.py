@@ -14,7 +14,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from jarvis.brains.base import Answer, BrainUnavailable
+from jarvis.brains.base import Answer, BrainUnavailable, Message
 from jarvis.config import ClaudeConfig, data_dir
 
 log = logging.getLogger(__name__)
@@ -58,12 +58,12 @@ class ClaudeCLI:
             cmd += ["--model", self.cfg.model]
         return cmd
 
-    def ask(self, prompt: str, system: str) -> Answer:
+    def ask(self, messages: list[Message], system: str) -> Answer:
         self.workdir.mkdir(parents=True, exist_ok=True)
         try:
             proc = subprocess.run(
                 self.command(system),
-                input=prompt,
+                input=render_prompt(messages),
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
@@ -78,6 +78,19 @@ class ClaudeCLI:
             raise BrainUnavailable("Claude demorou demais para responder") from exc
 
         return parse_output(proc.stdout, proc.stderr, proc.returncode)
+
+
+def render_prompt(messages: list[Message]) -> str:
+    """O `claude -p` recebe um único texto: o histórico vai como transcrição."""
+    *history, current = messages
+    if not history:
+        return current["content"]
+    names = {"user": "Usuário", "assistant": "Jarvis"}
+    lines = [f"{names[m['role']]}: {m['content']}" for m in history]
+    return (
+        "Histórico recente da conversa:\n" + "\n".join(lines)
+        + "\n\nResponda agora a esta mensagem do usuário:\n" + current["content"]
+    )
 
 
 def parse_output(stdout: str, stderr: str, returncode: int) -> Answer:

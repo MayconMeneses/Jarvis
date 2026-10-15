@@ -3,7 +3,12 @@ name = "super-jarvis"
 version = "0.1.0"
 description = "Assistente pessoal para Windows com o Claude como cérebro principal"
 requires-python = ">=3.11,<3.13"
-dependencies = []
+dependencies = [
+    "pywebview>=6.2",
+    "pystray>=0.19",
+    "Pillow>=10.1",
+    "keyring>=25",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
@@ -17,6 +22,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["jarvis*"]
+
+[tool.setuptools.package-data]
+"jarvis.ui" = ["*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Sequence
 
-from jarvis.brains.base import Answer, Brain, BrainUnavailable
+from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 
 log = logging.getLogger(__name__)
 
@@ -20,11 +20,11 @@ class Router:
             raise ValueError("é preciso ao menos um cérebro")
         self.brains = list(brains)
 
-    def ask(self, prompt: str, system: str) -> Answer:
+    def ask(self, messages: list[Message], system: str) -> Answer:
         failures = []
         for brain in self.brains:
             try:
-                return brain.ask(prompt, system)
+                return brain.ask(messages, system)
             except BrainUnavailable as exc:
                 log.info("cérebro %s indisponível: %s", brain.name, exc)
                 failures.append(f"{brain.name}: {exc}")

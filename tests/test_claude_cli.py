@@ -3,7 +3,7 @@ import json
 import pytest
 
 from jarvis.brains.base import BrainUnavailable
-from jarvis.brains.claude_cli import ClaudeCLI, child_env, parse_output
+from jarvis.brains.claude_cli import ClaudeCLI, child_env, parse_output, render_prompt
 from jarvis.config import ClaudeConfig
 
 
@@ -61,4 +61,19 @@ def test_parse_output_errors_become_brain_unavailable(stdout, code):
 def test_missing_executable_is_brain_unavailable(tmp_path):
     brain = ClaudeCLI(ClaudeConfig(executable="claude-inexistente-123"), workdir=tmp_path)
     with pytest.raises(BrainUnavailable):
-        brain.ask("oi", "sys")
+        brain.ask([{"role": "user", "content": "oi"}], "sys")
+
+
+def test_render_prompt_single_message_is_plain():
+    assert render_prompt([{"role": "user", "content": "oi"}]) == "oi"
+
+
+def test_render_prompt_includes_history_before_current_message():
+    prompt = render_prompt([
+        {"role": "user", "content": "meu nome é Ana"},
+        {"role": "assistant", "content": "Prazer, Ana"},
+        {"role": "user", "content": "qual é meu nome?"},
+    ])
+    assert "Usuário: meu nome é Ana" in prompt
+    assert "Jarvis: Prazer, Ana" in prompt
+    assert prompt.endswith("qual é meu nome?")
