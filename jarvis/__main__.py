@@ -149,6 +149,13 @@ def run_text(conversation: Conversation, once: str | None) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["--mcp-server"]:  # usado pelo claude -p na versão instalada
+        from jarvis.mcp_server import server
+
+        server.run("stdio")
+        return 0
+
     for stream in (sys.stdout, sys.stderr):
         if stream is not None:  # pythonw não tem console
             stream.reconfigure(encoding="utf-8")
