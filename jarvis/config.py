@@ -64,6 +64,17 @@ class EmailConfig:
     regras: list[dict] = field(default_factory=list)
 
 
+@dataclass
+class VoiceConfig:
+    ativa: bool = True
+    falar_respostas: bool = True
+    # "base" é rápido e leve; "small" acerta mais, mas usa ~3x mais RAM e tempo.
+    modelo_transcricao: str = "base"
+    voz: str = "pt-BR-FranciscaNeural"
+    # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
+    sensibilidade: float = 0.5
+
+
 def _only_known(kind: type, raw: dict) -> dict:
     known = {f.name for f in fields(kind)}
     return {k: v for k, v in raw.items() if k in known}
@@ -83,13 +94,14 @@ class Config:
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)
     email: EmailConfig = field(default_factory=EmailConfig)
+    voz: VoiceConfig = field(default_factory=VoiceConfig)
 
     @classmethod
     def from_dict(cls, raw: dict) -> "Config":
         values = _only_known(cls, raw)
         nested = {
             "claude": ClaudeConfig, "gemini": ProviderConfig,
-            "nvidia": ProviderConfig, "email": EmailConfig,
+            "nvidia": ProviderConfig, "email": EmailConfig, "voz": VoiceConfig,
         }
         defaults = cls()
         for name, kind in nested.items():

@@ -5,6 +5,7 @@ Fechar a janela só a esconde; para encerrar, use "Sair" no ícone da bandeja.
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from pathlib import Path
@@ -33,9 +34,17 @@ class Api:
         self._cfg = cfg
         self._conversation = conversation
         self._store = store or actions.ActionStore()
+        self._voice = None  # VoiceLoop, quando a voz está ativa
 
     def greeting(self) -> str:
         return f"Olá, {self._cfg.user_name}! Em que posso ajudar?"
+
+    def voice_available(self) -> bool:
+        return self._voice is not None
+
+    def listen_now(self) -> None:
+        if self._voice is not None:
+            self._voice.listen_now()
 
     def send(self, text: str) -> dict:
         started = time.time()
@@ -65,16 +74,40 @@ class Api:
         self._conversation.reset()
 
 
+def build_voice(cfg: Config, api: Api, window):
+    from jarvis.voice.loop import VoiceLoop
+    from jarvis.voice.stt import Transcriber
+    from jarvis.voice.tts import Speaker
+
+    def notify(payload: dict) -> None:
+        try:
+            window.evaluate_js(f"window.onVoice({json.dumps(payload, ensure_ascii=False)})")
+        except Exception:  # janela fechando
+            log.debug("não foi possível atualizar a janela", exc_info=True)
+
+    return VoiceLoop(
+        respond=api.send,
+        notify=notify,
+        speaker=Speaker(cfg.voz.voz),
+        transcriber=Transcriber(cfg.voz.modelo_transcricao, cfg.user_name),
+        sensitivity=cfg.voz.sensibilidade,
+        speak_answers=cfg.voz.falar_respostas,
+    )
+
+
 def run(cfg: Config, conversation: Conversation) -> int:
+    api = Api(cfg, conversation)
     window = webview.create_window(
         "Jarvis",
         html=HTML.read_text(encoding="utf-8"),
-        js_api=Api(cfg, conversation),
+        js_api=api,
         width=440,
         height=680,
         min_size=(360, 480),
     )
     quitting = False
+    voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
+    api._voice = voice
 
     def on_closing() -> bool:
         if quitting:
@@ -85,10 +118,22 @@ def run(cfg: Config, conversation: Conversation) -> int:
     def quit_app() -> None:
         nonlocal quitting
         quitting = True
+        if voice is not None:
+            voice.stop()
         icon.stop()
         window.destroy()
 
-    icon = tray.create(on_open=window.show, on_quit=quit_app)
+    def talk_now() -> None:
+        window.show()
+        api.listen_now()
+
+    icon = tray.create(on_open=window.show, on_quit=quit_app, voice=voice, on_talk=talk_now)
     window.events.closing += on_closing
-    webview.start(icon.run_detached)
+
+    def on_started() -> None:
+        icon.run_detached()
+        if voice is not None:
+            voice.start()
+
+    webview.start(on_started)
     return 0

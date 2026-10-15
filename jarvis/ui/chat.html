@@ -68,13 +68,18 @@
   .card .approve { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
   .card .outcome { margin-top: 8px; font-size: 13px; }
   .card.done { border-color: var(--border); }
+  #voice-status { font-size: 12px; color: var(--muted); }
+  #voice-status:empty { display: none; }
+  #mic { padding: 0 12px; font-size: 18px; line-height: 1; }
+  #mic[hidden] { display: none; }
+  #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 </head>
 <body>
   <header>
     <span class="orb" id="orb" aria-hidden="true"></span>
-    <h1>Jarvis</h1>
+    <h1>Jarvis <span id="voice-status" role="status"></span></h1>
     <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
   </header>
 
@@ -83,6 +88,7 @@
   <form id="form">
     <label for="input" class="sr-only">Mensagem para a Jarvis</label>
     <textarea id="input" rows="1" placeholder="Fale com a Jarvis… (Enter envia, Shift+Enter quebra linha)" autofocus></textarea>
+    <button type="button" id="mic" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">🎤</button>
     <button type="submit" id="send">Enviar</button>
   </form>
 
@@ -173,11 +179,7 @@
     try {
       const res = await window.pywebview.api.send(text);
       thinking.remove();
-      if (res.error) add("error", res.error);
-      else {
-        add("jarvis", res.text, "via " + res.brain);
-        (res.actions || []).forEach(addActionCard);
-      }
+      showResult(res);
     } catch (err) {
       thinking.remove();
       add("error", "Falha ao falar com o núcleo da Jarvis: " + err);
@@ -186,6 +188,28 @@
       input.focus();
     }
   }
+
+  function showResult(res) {
+    if (res.error) add("error", res.error);
+    else {
+      add("jarvis", res.text, "via " + res.brain);
+      (res.actions || []).forEach(addActionCard);
+    }
+  }
+
+  // Eventos do ciclo de voz, enviados pelo Python.
+  const voiceStatus = document.getElementById("voice-status");
+  const mic = document.getElementById("mic");
+  window.onVoice = (ev) => {
+    if (ev.status !== undefined) voiceStatus.textContent = "· " + ev.status;
+    if (ev.listening !== undefined) {
+      mic.classList.toggle("on", ev.listening);
+      orb.classList.toggle("busy", ev.listening);
+    }
+    if (ev.user) add("user", ev.user, "por voz");
+    if (ev.answer) showResult(ev.answer);
+  };
+  mic.addEventListener("click", () => window.pywebview.api.listen_now());
 
   function autosize() {
     input.style.height = "auto";
@@ -208,6 +232,7 @@
   window.addEventListener("pywebviewready", async () => {
     const hello = await window.pywebview.api.greeting();
     add("jarvis", hello);
+    mic.hidden = !(await window.pywebview.api.voice_available());
   });
 </script>
 </body>

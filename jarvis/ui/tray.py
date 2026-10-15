@@ -17,9 +17,21 @@ def icon_image(size: int = 64) -> Image.Image:
     return image
 
 
-def create(on_open: Callable[[], None], on_quit: Callable[[], None]) -> pystray.Icon:
-    menu = pystray.Menu(
-        pystray.MenuItem("Abrir Jarvis", lambda: on_open(), default=True),
-        pystray.MenuItem("Sair", lambda: on_quit()),
-    )
-    return pystray.Icon("SuperJarvis", icon_image(), "Jarvis", menu)
+def create(
+    on_open: Callable[[], None],
+    on_quit: Callable[[], None],
+    voice=None,
+    on_talk: Callable[[], None] | None = None,
+) -> pystray.Icon:
+    items = [pystray.MenuItem("Abrir Jarvis", lambda: on_open(), default=True)]
+    if voice is not None:
+        items += [
+            pystray.MenuItem("Falar agora", lambda: on_talk() if on_talk else voice.listen_now()),
+            pystray.MenuItem(
+                "Pausar escuta (“Hey Jarvis”)",
+                lambda: voice.set_paused(not voice.paused.is_set()),
+                checked=lambda _item: voice.paused.is_set(),
+            ),
+        ]
+    items.append(pystray.MenuItem("Sair", lambda: on_quit()))
+    return pystray.Icon("SuperJarvis", icon_image(), "Jarvis", pystray.Menu(*items))
