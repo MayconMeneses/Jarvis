@@ -356,11 +356,11 @@ def sessoes_claude_code(apenas_esperando: bool = False) -> dict:
 
 @server.tool()
 def criar_dashboard(arquivo: str, abrir: bool = True) -> str:
-    """Cria um dashboard (indicadores, gráficos, mapa e tabela) de um documento de dados com o
-    Dashboard Universal do usuário e abre no navegador. arquivo: caminho completo de um CSV, TSV,
-    XLSX, JSON, GeoJSON, KML ou KMZ. Só lê o documento; tudo roda no PC, nada é enviado."""
+    """Cria um dashboard (indicadores, gráficos, mapa e tabela) de um documento e abre no navegador.
+    arquivo: caminho completo de um CSV, TSV, XLSX, DOCX, PDF (tabelas), JSON, GeoJSON, KML ou KMZ.
+    Só lê o documento; o painel está embutido na Jarvis e tudo roda no PC, nada é enviado."""
     try:
-        path = dashboard.build(config.load(), arquivo)
+        path = dashboard.build(arquivo)
     except (ValueError, OSError) as exc:
         return f"Não foi possível criar o dashboard: {exc}"
     if abrir:
