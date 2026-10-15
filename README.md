@@ -2,7 +2,15 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 5 (memória, saudação, clima e notícias)
+## Estado atual: Fase 6 (vagas de emprego)
+
+- Fontes legais e gratuitas: repositórios de vagas da comunidade no GitHub (frontendbr, backend-br, react-brasil) e Remotive (remotas). Cache de 6 h para respeitar os termos da Remotive, que pede no máximo cerca de 4 consultas por dia, link para a vaga e a fonte citada. LinkedIn e outros sites que proíbem robôs não são usados.
+- **Perfil** em `Jarvis/Perfil Profissional.md` no Obsidian (criado vazio no primeiro uso): stack, nível, modalidade, cidade, o que evitar e inglês. Preencha no Obsidian ou diga, por exemplo, "Jarvis, minha stack é Python e React".
+- Cada vaga recebe uma **nota de 0 a 100 com os motivos** (stack, nível, remota ou na sua cidade, idioma, recência). Vagas já mostradas não se repetem no briefing.
+- O briefing do dia traz até 3 vagas novas. Os links abrem no navegador padrão.
+- **A Jarvis nunca se candidata**: ela só mostra a vaga.
+
+## Fase 5 (memória, saudação, clima e notícias)
 
 - **Ao abrir**, a Jarvis cumprimenta pelo horário, pergunta como você está e diz o clima. Na **primeira abertura do dia** também traz 3 manchetes gerais (G1, BBC Brasil, Agência Brasil) e 3 de tecnologia (Tecnoblog, Canaltech, Olhar Digital), e salva o briefing em `Jarvis/Relatórios` no Obsidian.
 - **Clima** pelo Open-Meteo (grátis, sem chave). Diga "minha cidade é ..." para ela salvar a sua cidade.

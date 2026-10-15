@@ -48,6 +48,9 @@ def system_prompt(cfg: config.Config) -> str:
     prompt += (
         "\n\nPara clima use `clima` (se a cidade não estiver definida, pergunte e use "
         "`definir_cidade`). Para notícias use `noticias` (gerais ou tecnologia) e cite a fonte."
+        "\n\nPara vagas de emprego use `vagas`: mostre título, local, nota, o porquê, a fonte e "
+        "o link de cada uma. Se o perfil estiver vazio, pergunte stack, nível, modalidade e "
+        "cidade e grave com `atualizar_perfil`. Nunca se candidate nem invente vagas."
     )
     if cfg.ferramentas_pc:
         prompt += (
