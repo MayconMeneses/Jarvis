@@ -733,7 +733,12 @@
     btn.disabled = true;
     fb.className = "feedback";
     fb.textContent = "Testando a chave…";
-    const res = await window.pywebview.api.save_key(provider, field.value);
+    let res;
+    try {
+      res = await window.pywebview.api.save_key(provider, field.value);
+    } catch (err) {
+      res = { ok: false, mensagem: "Falha ao falar com o núcleo da Jarvis: " + err };
+    }
     btn.disabled = false;
     fb.textContent = res.mensagem;
     fb.className = "feedback " + (res.ok ? "on-ok" : "on-no");

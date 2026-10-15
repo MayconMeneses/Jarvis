@@ -187,29 +187,37 @@ class Api:
         from jarvis.brains.base import BrainUnavailable
         from jarvis.brains.openai_compat import OpenAICompat
 
-        provider, key = str(provider), str(key).strip()
+        provider = str(provider)
+        key = "".join(str(key).split())  # tira espaços e quebras de linha coladas junto
         if provider not in keys.ENV_NAMES:
             return {"ok": False, "mensagem": "provedor inválido"}
-        if len(key) < 20 or " " in key:
-            return {"ok": False, "mensagem": "isso não parece uma chave de API"}
-        cfg = config.load()
-        provider_cfg = getattr(cfg, provider)
-        brain = OpenAICompat(provider, provider_cfg, lambda _name: key)
-        test = [{"role": "user", "content": "Responda apenas: ok"}]
+        if len(key) < 20:
+            return {"ok": False, "mensagem": "isso não parece uma chave de API (muito curta)"}
+        log.info("testando chave do %s (%d caracteres, início %s…)", provider, len(key), key[:4])
         try:
-            brain.ask(test, "Teste de conexão.")
-        except BrainUnavailable as exc:
-            if "HTTP 40" not in str(exc) or "chave inválida" in str(exc):
-                return {"ok": False, "mensagem": f"a chave não funcionou: {exc}"}
-            # Chave aceita mas o nome do modelo não existe mais: escolhe um disponível.
+            cfg = config.load()
+            provider_cfg = getattr(cfg, provider)
+            brain = OpenAICompat(provider, provider_cfg, lambda _name: key)
+            test = [{"role": "user", "content": "Responda apenas: ok"}]
             try:
-                model = pick_model(brain.list_models(), provider)
-                provider_cfg.model = model
                 brain.ask(test, "Teste de conexão.")
-            except (BrainUnavailable, ValueError) as retry_exc:
-                return {"ok": False, "mensagem": f"a chave não funcionou: {retry_exc}"}
-            config.save(cfg)
-        keys.set_key(provider, key)
+            except BrainUnavailable as exc:
+                log.info("teste do %s com o modelo %s: %s", provider, provider_cfg.model, exc)
+                if not str(exc).startswith("modelo não encontrado"):
+                    return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+                # A chave foi aceita, mas o nome do modelo não existe mais: escolhe um disponível.
+                provider_cfg.model = pick_model(brain.list_models(), provider)
+                log.info("modelo do %s trocado para %s", provider, provider_cfg.model)
+                brain.ask(test, "Teste de conexão.")
+                config.save(cfg)
+            keys.set_key(provider, key)
+        except (BrainUnavailable, ValueError) as exc:
+            log.info("chave do %s recusada: %s", provider, exc)
+            return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+        except Exception as exc:  # nunca deixa o botão preso sem resposta
+            log.exception("erro inesperado ao salvar a chave do %s", provider)
+            return {"ok": False, "mensagem": f"Erro inesperado ao salvar: {exc}"}
+        log.info("chave do %s guardada (modelo %s)", provider, provider_cfg.model)
         return {"ok": True, "mensagem": f"Chave do {provider.capitalize()} testada e guardada no cofre do "
                                         f"Windows (modelo {provider_cfg.model})."}
 
