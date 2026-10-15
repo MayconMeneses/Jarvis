@@ -6,91 +6,198 @@
 <title>Jarvis</title>
 <style>
   :root {
-    --bg: #0f1216; --surface: #171b21; --surface-2: #1f252d; --border: #2a313b;
-    --text: #e7ebf0; --muted: #8b96a5; --accent: #4cc2ff; --accent-text: #06202e;
-    --user: #1d3a4d; --danger: #ff8a80;
+    --bg: #0e1116; --bg-glow: #13202b; --surface: #161b22; --surface-2: #1d232c; --surface-3: #252c37;
+    --border: #2a313c; --border-strong: #3a4352;
+    --text: #e6eaef; --muted: #8a95a4; --faint: #5f6a79;
+    --accent: #5bb8e8; --accent-strong: #7cc8ef; --accent-text: #07202e; --accent-soft: rgba(91, 184, 232, .14);
+    --user: #1b3446; --ok: #5fc39a; --danger: #f08a80; --danger-soft: rgba(240, 138, 128, .1);
+    --shadow: 0 1px 2px rgba(4, 12, 20, .5), 0 8px 24px -12px rgba(4, 12, 20, .6);
+    --radius-lg: 14px; --radius-md: 10px; --radius-sm: 6px;
+    --ease: cubic-bezier(.2, .8, .2, 1);
     color-scheme: dark;
   }
   @media (prefers-color-scheme: light) {
     :root {
-      --bg: #f5f7fa; --surface: #ffffff; --surface-2: #eef1f5; --border: #d8dee6;
-      --text: #14181d; --muted: #5d6875; --accent: #0067c0; --accent-text: #ffffff;
-      --user: #dcecfa; --danger: #b3261e;
+      --bg: #f4f6f9; --bg-glow: #e6f0f7; --surface: #ffffff; --surface-2: #eef1f5; --surface-3: #e3e8ee;
+      --border: #dbe1e8; --border-strong: #c3ccd7;
+      --text: #141a21; --muted: #5a6573; --faint: #8a94a1;
+      --accent: #0b6aa8; --accent-strong: #095a8f; --accent-text: #ffffff; --accent-soft: rgba(11, 106, 168, .09);
+      --user: #dcebf6; --ok: #1e7f56; --danger: #b3261e; --danger-soft: rgba(179, 38, 30, .06);
+      --shadow: 0 1px 2px rgba(20, 40, 60, .06), 0 8px 24px -14px rgba(20, 40, 60, .25);
       color-scheme: light;
     }
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
-    background: var(--bg); color: var(--text);
-    font: 15px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(120% 60% at 50% -10%, var(--bg-glow), var(--bg) 60%) fixed, var(--bg);
+    color: var(--text);
+    font: 15px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
     display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ── cabeçalho ─────────────────────────────────────────────── */
   header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px 12px 16px; border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px);
   }
   .orb {
-    width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+    position: relative; flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--accent-strong), var(--accent) 55%, color-mix(in srgb, var(--accent) 50%, #000) 100%);
+    box-shadow: 0 0 0 3px var(--accent-soft), 0 0 14px -2px var(--accent);
+    transition: box-shadow .3s var(--ease), filter .3s var(--ease);
   }
-  .orb.busy { animation: pulse 1.2s ease-in-out infinite; }
-  @keyframes pulse { 50% { opacity: .35; } }
-  @media (prefers-reduced-motion: reduce) { .orb.busy { animation: none; opacity: .6; } }
-  h1 { font-size: 16px; font-weight: 600; margin: 0; flex: 1; }
+  .orb::after {  /* anel que aparece ao ouvir/pensar/falar */
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    border: 2px solid var(--accent); opacity: 0;
+  }
+  .orb[data-state="listening"]::after { animation: ring 1.1s var(--ease) infinite; }
+  .orb[data-state="listening"] { filter: saturate(1.3); }
+  .orb[data-state="thinking"] { animation: breathe 1.4s ease-in-out infinite; }
+  .orb[data-state="speaking"]::after { animation: ring 1.6s var(--ease) infinite; }
+  @keyframes ring { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.35); opacity: 0; } }
+  @keyframes breathe { 50% { filter: brightness(.7); box-shadow: 0 0 0 3px var(--accent-soft), 0 0 4px -2px var(--accent); } }
+  .title { flex: 1; min-width: 0; }
+  h1 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; margin: 0; line-height: 1.2; }
+  #voice-status {
+    display: block; font-size: 12px; color: var(--muted); line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #voice-status:empty::before { content: "Pronta"; }
+
+  /* ── botões ────────────────────────────────────────────────── */
   button {
-    font: inherit; color: var(--text); background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 500; color: var(--text);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 6px 12px; cursor: pointer;
+    transition: background-color .18s var(--ease), border-color .18s var(--ease), transform .12s var(--ease), color .18s;
   }
-  button:hover { border-color: var(--muted); }
-  button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  button:disabled { opacity: .5; cursor: default; }
-  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .msg.user { align-self: flex-end; background: var(--user); border-bottom-right-radius: 4px; }
-  .msg.jarvis { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-  .msg.error { align-self: flex-start; color: var(--danger); background: transparent; border: 1px dashed var(--danger); }
-  .msg a { color: var(--accent); }
-  .meta { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
-  form { display: flex; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--border); background: var(--surface); }
-  textarea {
-    flex: 1; resize: none; min-height: 44px; max-height: 160px; padding: 10px 12px;
-    font: inherit; color: var(--text); background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 10px;
+  button:hover:not(:disabled) { background: var(--surface-3); border-color: var(--border-strong); }
+  button:active:not(:disabled) { transform: scale(.97); }
+  button:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: .45; cursor: default; }
+  .primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+  .primary:hover:not(:disabled) { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .ghost:hover:not(:disabled) { color: var(--text); }
+  .icon-btn { display: inline-grid; place-items: center; width: 44px; padding: 0; }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  /* ── conversa ──────────────────────────────────────────────── */
+  #log {
+    flex: 1; overflow-y: auto; padding: 18px 16px 12px;
+    display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
   }
-  #send { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; padding: 0 18px; }
+  .msg {
+    max-width: 86%; padding: 9px 13px 8px; border-radius: var(--radius-lg);
+    white-space: pre-wrap; overflow-wrap: anywhere; text-wrap: pretty;
+    animation: enter .22s var(--ease) both;
+  }
+  @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+  .msg.user { align-self: flex-end; background: var(--user); border-bottom-right-radius: var(--radius-sm); }
+  .msg.jarvis {
+    align-self: flex-start; background: var(--surface); border: 1px solid var(--border);
+    border-bottom-left-radius: var(--radius-sm); box-shadow: var(--shadow);
+  }
+  .msg.task { align-self: stretch; max-width: none; border-left: 3px solid var(--accent); }
+  .msg.error {
+    align-self: flex-start; color: var(--text); background: var(--danger-soft);
+    border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  }
+  .msg.error .err-title { color: var(--danger); font-weight: 600; }
+  .msg.error details { margin-top: 6px; font-size: 12px; color: var(--muted); }
+  .msg.error summary { cursor: pointer; }
+  .msg.error .retry { margin-top: 8px; }
+  .msg strong { font-weight: 600; }
+  .msg a { color: var(--accent); text-underline-offset: 2px; }
+  .meta { display: block; margin-top: 3px; font-size: 11.5px; color: var(--faint); }
+  .msg.user .meta { text-align: right; }
+
+  .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: dot 1.2s infinite ease-in-out; }
+  .typing i:nth-child(2) { animation-delay: .15s; }
+  .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+
+  /* sugestões no início da conversa */
+  .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; animation: enter .3s var(--ease) both; }
+  .suggestions button {
+    font-size: 13px; font-weight: 400; border-radius: 999px; padding: 5px 11px;
+    background: var(--accent-soft); border-color: transparent; color: var(--text);
+  }
+  .suggestions button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* cartões de aprovação */
   .card {
-    align-self: stretch; padding: 12px 14px; border-radius: 12px;
-    background: var(--surface); border: 1px solid var(--accent);
+    align-self: stretch; padding: 12px 14px; border-radius: var(--radius-lg);
+    background: var(--surface); border: 1px solid var(--accent); box-shadow: var(--shadow);
+    animation: enter .22s var(--ease) both;
   }
+  .card .label { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; color: var(--accent); margin: 0 0 4px; }
   .card p { margin: 0 0 4px; }
   .card .why { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
   .card .buttons { display: flex; gap: 8px; }
-  .card .approve { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
-  .card .outcome { margin-top: 8px; font-size: 13px; }
-  .card.done { border-color: var(--border); }
-  #voice-status { font-size: 12px; color: var(--muted); }
-  #voice-status:empty { display: none; }
-  #mic { padding: 0 12px; font-size: 18px; line-height: 1; }
+  .card .outcome { margin: 8px 0 0; font-size: 13px; }
+  .card.done { border-color: var(--border); box-shadow: none; }
+  .card.done .label { color: var(--muted); }
+  .card[data-status="executada"] .outcome { color: var(--ok); }
+  .card[data-status="falhou"] .outcome { color: var(--danger); }
+  .card[data-status="recusada"] .outcome { color: var(--muted); }
+
+  /* ── campo de mensagem ─────────────────────────────────────── */
+  form {
+    display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px 14px;
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+  textarea {
+    flex: 1; resize: none; min-height: 44px; max-height: 160px; padding: 11px 12px;
+    font: inherit; color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    transition: border-color .18s var(--ease), background-color .18s;
+  }
+  textarea:hover { border-color: var(--border-strong); }
+  textarea::placeholder { color: var(--faint); }
+  form button { height: 44px; }
+  #send { padding: 0 16px; }
   #mic[hidden] { display: none; }
-  #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; }
+  #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; animation: rec 1.2s ease-in-out infinite; }
+  @keyframes rec { 50% { box-shadow: 0 0 0 5px var(--danger-soft); } }
+
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
 </style>
 </head>
 <body>
   <header>
-    <span class="orb" id="orb" aria-hidden="true"></span>
-    <h1>Jarvis <span id="voice-status" role="status"></span></h1>
-    <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
+    <span class="orb" id="orb" data-state="idle" aria-hidden="true"></span>
+    <div class="title">
+      <h1>Jarvis</h1>
+      <span id="voice-status" role="status"></span>
+    </div>
+    <button type="button" id="reset" class="ghost" title="Apagar o histórico desta conversa">Nova conversa</button>
   </header>
 
   <main id="log" role="log" aria-live="polite" aria-label="Conversa com a Jarvis"></main>
 
   <form id="form">
     <label for="input" class="sr-only">Mensagem para a Jarvis</label>
-    <textarea id="input" rows="1" placeholder="Fale com a Jarvis… (Enter envia, Shift+Enter quebra linha)" autofocus></textarea>
-    <button type="button" id="mic" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">🎤</button>
-    <button type="submit" id="send">Enviar</button>
+    <textarea id="input" rows="1" placeholder="Fale com a Jarvis…" autofocus
+              aria-describedby="hint"></textarea>
+    <span id="hint" class="sr-only">Enter envia, Shift+Enter quebra a linha.</span>
+    <button type="button" id="mic" class="icon-btn" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>
+      </svg>
+    </button>
+    <button type="submit" id="send" class="primary">Enviar</button>
   </form>
 
 <script>
@@ -100,6 +207,21 @@
   const send = document.getElementById("send");
   const orb = document.getElementById("orb");
   let busy = false;
+
+  const SUGGESTIONS = [
+    "Como está meu PC?",
+    "Notícias de tecnologia",
+    "Tem vagas para mim?",
+    "Resuma meus e-mails",
+  ];
+
+  function now() {
+    return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function scrollDown() { log.scrollTop = log.scrollHeight; }
+
+  function setOrb(state) { orb.dataset.state = state; }
 
   // Só **negrito** e links http(s); o texto entra como nós de texto, nunca como HTML.
   // Links abrem no navegador padrão (pelo Python), não dentro da janela.
@@ -126,6 +248,9 @@
     const card = document.createElement("section");
     card.className = "card";
     card.setAttribute("aria-label", "Ação aguardando sua aprovação");
+    const label = document.createElement("p");
+    label.className = "label";
+    label.textContent = "Aguardando sua aprovação";
     const what = document.createElement("p");
     what.textContent = action.descricao;
     const why = document.createElement("p");
@@ -134,19 +259,21 @@
     const buttons = document.createElement("div");
     buttons.className = "buttons";
     const ok = document.createElement("button");
-    ok.type = "button"; ok.className = "approve"; ok.textContent = "Aprovar";
+    ok.type = "button"; ok.className = "primary"; ok.textContent = "Aprovar";
     const no = document.createElement("button");
     no.type = "button"; no.textContent = "Recusar";
     buttons.append(ok, no);
-    card.append(what, why, buttons);
+    card.append(label, what, why, buttons);
     log.appendChild(card);
-    log.scrollTop = log.scrollHeight;
+    scrollDown();
 
     async function decide(approve) {
       ok.disabled = no.disabled = true;
       const res = await window.pywebview.api.decide(action.id, approve);
       buttons.remove();
       card.classList.add("done");
+      card.dataset.status = res.status;
+      label.textContent = { executada: "Aprovada e executada", recusada: "Recusada", falhou: "Não foi possível" }[res.status] || res.status;
       const out = document.createElement("p");
       out.className = "outcome";
       out.textContent = res.resultado;
@@ -157,67 +284,139 @@
   }
 
   function add(kind, text, meta) {
+    hideSuggestions();
     const el = document.createElement("div");
     el.className = "msg " + kind;
     renderText(el, text);
-    if (meta) {
-      const m = document.createElement("span");
-      m.className = "meta";
-      m.textContent = meta;
-      el.appendChild(m);
-    }
+    const m = document.createElement("span");
+    m.className = "meta";
+    m.textContent = meta ? `${now()} · ${meta}` : now();
+    el.appendChild(m);
     log.appendChild(el);
-    log.scrollTop = log.scrollHeight;
+    scrollDown();
     return el;
   }
+
+  function addTyping() {
+    const el = document.createElement("div");
+    el.className = "msg jarvis";
+    el.setAttribute("aria-label", "A Jarvis está pensando");
+    el.innerHTML = '<span class="typing" aria-hidden="true"><i></i><i></i><i></i></span>';  // marcação fixa, sem dados
+    log.appendChild(el);
+    scrollDown();
+    return el;
+  }
+
+  // Mensagem técnica do roteador → explicação curta, com os detalhes recolhidos.
+  function friendlyError(raw) {
+    const limit = raw.match(/session limit[^)]*resets ([^;(]+)/i) || raw.match(/limite de uso/i);
+    if (limit) {
+      const when = limit[1] ? ` (renova às ${limit[1].trim().replace(/\s*\(.*$/, "")})` : "";
+      return ["O limite de uso do Claude acabou por enquanto" + when + ".",
+              "Para continuar sem esperar, configure a chave grátis do Gemini ou da NVIDIA (veja o README)."];
+    }
+    if (/sem conexão|connection|getaddrinfo/i.test(raw)) {
+      return ["Sem conexão com a internet.", "Confira a rede e tente de novo."];
+    }
+    return ["Não consegui responder agora.", ""];
+  }
+
+  function addError(raw, retryText) {
+    hideSuggestions();
+    const [title, hint] = friendlyError(String(raw));
+    const el = document.createElement("div");
+    el.className = "msg error";
+    el.setAttribute("role", "alert");
+    const t = document.createElement("div");
+    t.className = "err-title";
+    t.textContent = title;
+    el.appendChild(t);
+    if (hint) el.appendChild(document.createTextNode(hint));
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = "Detalhes técnicos";
+    details.append(summary, document.createTextNode(String(raw)));
+    el.appendChild(details);
+    if (retryText) {
+      const retry = document.createElement("button");
+      retry.type = "button"; retry.className = "retry"; retry.textContent = "Tentar de novo";
+      retry.addEventListener("click", () => { el.remove(); ask(retryText, false); });
+      el.appendChild(retry);
+    }
+    log.appendChild(el);
+    scrollDown();
+  }
+
+  function showSuggestions() {
+    const box = document.createElement("div");
+    box.className = "suggestions";
+    box.id = "suggestions";
+    SUGGESTIONS.forEach((text) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = text;
+      b.addEventListener("click", () => ask(text, true));
+      box.appendChild(b);
+    });
+    log.appendChild(box);
+    scrollDown();
+  }
+
+  function hideSuggestions() { document.getElementById("suggestions")?.remove(); }
 
   function setBusy(on) {
     busy = on;
     send.disabled = on;
-    orb.classList.toggle("busy", on);
+    log.setAttribute("aria-busy", on ? "true" : "false");
+    setOrb(on ? "thinking" : "idle");
   }
 
-  async function submit() {
-    const text = input.value.trim();
+  async function ask(text, echo) {
     if (!text || busy) return;
-    input.value = "";
-    autosize();
-    add("user", text);
+    if (echo) add("user", text);
     setBusy(true);
-    const thinking = add("jarvis", "Pensando…");
+    const typing = addTyping();
     try {
       const res = await window.pywebview.api.send(text);
-      thinking.remove();
-      showResult(res);
+      typing.remove();
+      showResult(res, text);
     } catch (err) {
-      thinking.remove();
-      add("error", "Falha ao falar com o núcleo da Jarvis: " + err);
+      typing.remove();
+      addError("Falha ao falar com o núcleo da Jarvis: " + err, text);
     } finally {
       setBusy(false);
       input.focus();
     }
   }
 
-  function showResult(res) {
-    if (res.error) add("error", res.error);
+  function submit() {
+    const text = input.value.trim();
+    if (!text || busy) return;
+    input.value = "";
+    autosize();
+    ask(text, true);
+  }
+
+  function showResult(res, originalText) {
+    if (res.error) addError(res.error, originalText);
     else {
       add("jarvis", res.text, "via " + res.brain);
       (res.actions || []).forEach(addActionCard);
     }
   }
 
-  // Eventos do ciclo de voz, enviados pelo Python.
+  // Eventos do ciclo de voz e das tarefas, enviados pelo Python.
   const voiceStatus = document.getElementById("voice-status");
   const mic = document.getElementById("mic");
+  const STATUS_TO_ORB = { "Ouvindo…": "listening", "Transcrevendo…": "thinking", "Pensando…": "thinking", "Falando…": "speaking" };
   window.onVoice = (ev) => {
-    if (ev.status !== undefined) voiceStatus.textContent = "· " + ev.status;
-    if (ev.listening !== undefined) {
-      mic.classList.toggle("on", ev.listening);
-      orb.classList.toggle("busy", ev.listening);
+    if (ev.status !== undefined) {
+      voiceStatus.textContent = ev.status;
+      if (!busy) setOrb(STATUS_TO_ORB[ev.status] || "idle");
     }
+    if (ev.listening !== undefined) mic.classList.toggle("on", ev.listening);
     if (ev.user) add("user", ev.user, "por voz");
     if (ev.answer) showResult(ev.answer);
-    if (ev.task) add("jarvis", ev.task, "tarefa do Claude Code");
+    if (ev.task) add("jarvis task", ev.task, "tarefa do Claude Code");
   };
   mic.addEventListener("click", () => window.pywebview.api.listen_now());
 
@@ -236,14 +435,16 @@
     await window.pywebview.api.reset();
     log.textContent = "";
     add("jarvis", "Conversa nova. Em que posso ajudar?");
+    showSuggestions();
     input.focus();
   });
 
   window.addEventListener("pywebviewready", async () => {
-    const loading = add("jarvis", "Preparando seu briefing…");
+    const typing = addTyping();
     const hello = await window.pywebview.api.greeting();
-    loading.remove();
+    typing.remove();
     add("jarvis", hello);
+    showSuggestions();
     mic.hidden = !(await window.pywebview.api.voice_available());
   });
 </script>
