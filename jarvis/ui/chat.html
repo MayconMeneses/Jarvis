@@ -166,6 +166,33 @@
   #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; animation: rec 1.1s ease-in-out infinite; }
   @keyframes rec { 50% { box-shadow: 0 0 0 5px var(--danger-soft), 0 0 16px var(--danger); } }
 
+  /* painel de cérebros */
+  dialog {
+    width: min(400px, calc(100vw - 24px)); max-height: calc(100vh - 40px); overflow: auto; padding: 16px;
+    color: var(--text); background: var(--panel-solid); border: 1px solid var(--line-strong);
+    box-shadow: 0 0 30px -10px var(--cyan);
+  }
+  dialog::backdrop { background: rgba(2, 6, 10, .7); }
+  dialog h2 { margin: 0 0 12px; font: 600 13px var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--cyan); }
+  .brain { padding: 10px 0; border-top: 1px solid var(--line); }
+  .brain h3 { display: flex; justify-content: space-between; margin: 0 0 6px; font: 600 13px var(--mono); letter-spacing: .08em; }
+  .brain h3 small { font-weight: 500; }
+  .brain p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+  .on-ok { color: var(--ok); } .on-no { color: var(--orange); }
+  .key-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .key-row input {
+    flex: 1; min-width: 0; padding: 7px 9px; font: 12.5px var(--mono); color: var(--text);
+    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  .key-row input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .modes { display: grid; gap: 6px; margin: 6px 0 2px; font-size: 13px; }
+  .modes label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+  .modes input { margin-top: 3px; accent-color: var(--cyan); }
+  .modes small { display: block; color: var(--muted); }
+  .feedback { min-height: 1.2em; margin: 0; font-size: 12.5px; }
+  .linklike { padding: 0; border: 0; text-transform: none; letter-spacing: 0; font: 12.5px "Segoe UI", sans-serif; text-decoration: underline; }
+  .dialog-actions { display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
+
   /* revisão de mudanças do Claude Code */
   .review .files { margin: 4px 0 8px; padding: 0; list-style: none; font: 12px var(--mono); }
   .review .files li { padding: 1px 0; color: var(--muted); }
@@ -229,8 +256,52 @@
 
   <div class="toolbar">
     <span class="label">Canal de comunicação</span>
-    <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
+    <span>
+      <button type="button" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros</button>
+      <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
+    </span>
   </div>
+
+  <dialog id="brains" aria-labelledby="brains-title">
+    <h2 id="brains-title">Cérebros da Jarvis</h2>
+
+    <section class="brain">
+      <h3>Claude <small id="st-claude"></small></h3>
+      <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
+    </section>
+
+    <section class="brain" data-provider="gemini">
+      <h3>Gemini <small id="st-gemini"></small></h3>
+      <p>Chave gratuita do Google AI Studio. <button type="button" class="ghost linklike" data-link="https://aistudio.google.com/apikey">Criar chave grátis</button></p>
+      <div class="key-row">
+        <label for="key-gemini" class="sr-only">Chave de API do Gemini</label>
+        <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Gemini">
+        <button type="button" class="primary" data-save="gemini">Salvar e testar</button>
+      </div>
+      <fieldset class="modes" style="border:0;padding:0;margin:0">
+        <legend class="label" style="margin-bottom:4px">Quando usar</legend>
+        <label><input type="radio" name="uso" value="reserva"><span>Só como reserva<small>Quando o limite do Claude acabar ou ele falhar.</small></span></label>
+        <label><input type="radio" name="uso" value="simples"><span>Perguntas simples<small>Conversa rápida vai para o Gemini e economiza o limite do Claude.</small></span></label>
+      </fieldset>
+      <p style="margin-top:6px">Em qualquer modo: diga <b>"Gemini, ..."</b> ou <b>"pergunte ao Gemini ..."</b>.</p>
+      <p class="feedback" id="fb-gemini" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="gemini">Remover chave</button>
+    </section>
+
+    <section class="brain" data-provider="nvidia">
+      <h3>NVIDIA <small id="st-nvidia"></small></h3>
+      <p>Reserva extra (grátis, ~40 pedidos/min). <button type="button" class="ghost linklike" data-link="https://build.nvidia.com">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-nvidia" class="sr-only">Chave de API da NVIDIA</label>
+        <input id="key-nvidia" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave da NVIDIA">
+        <button type="button" class="primary" data-save="nvidia">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-nvidia" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="nvidia">Remover chave</button>
+    </section>
+
+    <div class="dialog-actions"><button type="button" id="close-brains">Fechar</button></div>
+  </dialog>
 
   <main id="log" role="log" aria-live="polite" aria-label="Conversa com a Jarvis"></main>
 
@@ -630,6 +701,57 @@
     showSuggestions();
     input.focus();
   });
+
+  // ── painel de cérebros ───────────────────────────────────────
+  const brainsDialog = document.getElementById("brains");
+
+  function setStatus(id, on, yes, no) {
+    const el = document.getElementById(id);
+    el.textContent = on ? yes : no;
+    el.className = on ? "on-ok" : "on-no";
+  }
+
+  async function refreshBrains() {
+    const s = await window.pywebview.api.brains_status();
+    setStatus("st-claude", s.claude, "● conectado", "● não encontrado");
+    setStatus("st-gemini", s.gemini, "● chave ok", "● sem chave");
+    setStatus("st-nvidia", s.nvidia, "● chave ok", "● sem chave");
+    document.querySelectorAll('input[name="uso"]').forEach((r) => { r.checked = r.value === s.uso_gemini; });
+  }
+
+  document.getElementById("open-brains").addEventListener("click", async () => {
+    await refreshBrains();
+    brainsDialog.showModal();
+  });
+  document.getElementById("close-brains").addEventListener("click", () => brainsDialog.close());
+
+  brainsDialog.querySelectorAll("[data-save]").forEach((btn) => btn.addEventListener("click", async () => {
+    const provider = btn.dataset.save;
+    const field = document.getElementById("key-" + provider);
+    const fb = document.getElementById("fb-" + provider);
+    if (!field.value.trim()) { fb.textContent = "Cole a chave primeiro."; field.focus(); return; }
+    btn.disabled = true;
+    fb.className = "feedback";
+    fb.textContent = "Testando a chave…";
+    const res = await window.pywebview.api.save_key(provider, field.value);
+    btn.disabled = false;
+    fb.textContent = res.mensagem;
+    fb.className = "feedback " + (res.ok ? "on-ok" : "on-no");
+    if (res.ok) field.value = "";  // a chave não fica na tela
+    refreshBrains();
+  }));
+
+  brainsDialog.querySelectorAll("[data-remove]").forEach((btn) => btn.addEventListener("click", async () => {
+    await window.pywebview.api.remove_key(btn.dataset.remove);
+    document.getElementById("fb-" + btn.dataset.remove).textContent = "Chave removida.";
+    refreshBrains();
+  }));
+
+  brainsDialog.querySelectorAll("[data-link]").forEach((btn) => btn.addEventListener("click",
+    () => window.pywebview.api.open_link(btn.dataset.link)));
+
+  document.querySelectorAll('input[name="uso"]').forEach((r) => r.addEventListener("change",
+    () => window.pywebview.api.set_gemini_mode(r.value)));
 
   window.addEventListener("pywebviewready", async () => {
     refreshStats();

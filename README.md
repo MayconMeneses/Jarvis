@@ -2,6 +2,16 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
+## Abrir coisas, revisar mudanças, olhar a tela e cérebros
+
+- **Abrir por voz ou texto**: programas do Menu Iniciar (WhatsApp, VS Code, Obsidian, calculadora...), sites (só `http(s)`), pastas (Documentos, Downloads, Área de Trabalho...) e projetos cadastrados (VS Code e, se você pedir, o Terminal).
+- **Revisão das mudanças do Claude Code**: depois de uma execução aprovada, aparece um cartão com os arquivos e o diff colorido e os botões **Manter** e **Desfazer**. O Desfazer devolve cada arquivo ao estado de antes da execução, **inclusive as suas alterações que ainda não estavam em commit**.
+- **"Olha minha tela"**: a Jarvis tira um print de todos os monitores, sem a própria janela, e o Claude analisa. Só é usado quando você pede.
+- **⚙ Cérebros**: cadastre a chave grátis do Gemini (ou da NVIDIA). A Jarvis testa a chave antes de guardar, no cofre do Windows, e escolhe sozinha o modelo Flash disponível.
+  - **Só como reserva**: o Gemini entra quando o limite do Claude acaba.
+  - **Perguntas simples**: conversa rápida vai para o Gemini e economiza o limite do Claude. Tudo que usa ferramentas continua no Claude.
+  - Em qualquer modo, diga **"Gemini, ..."** ou **"pergunte ao Gemini ..."**.
+
 ## Pesquisa na internet e criação de documentos
 
 - **Pesquisa em níveis** (pela sua assinatura do Claude, sem custo extra):
