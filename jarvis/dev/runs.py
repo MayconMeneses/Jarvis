@@ -92,6 +92,11 @@ class Run:
     alteracoes: str = ""
     notificada: bool = False
     nivel: str = ""  # só para pesquisas: simples | media | dificil | extra
+    # Só para "executar": retrato de antes, arquivos mudados, diff e decisão do usuário.
+    retrato: dict = field(default_factory=dict)
+    mudancas: list = field(default_factory=list)
+    diff: str = ""
+    revisao: str = ""  # "" | pendente | mantida | desfeita
 
 
 class RunStore:
@@ -184,6 +189,13 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
     timeout = mode["timeout"] or level.get("timeout", 1800)
     prompt = mode["prompt"].format(tarefa=run.tarefa, fontes=level.get("fontes", 0),
                                    nivel_nome=level.get("nome", ""))
+    if run.modo == "executar":
+        try:
+            run.retrato = projects.snapshot(Path(run.pasta))
+        except (RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
+            run.status, run.resultado = "falhou", f"Não foi possível registrar o estado do git antes: {exc}"
+            run.terminada_em = time.time()
+            return store.save(run)
     try:
         proc = runner(
             command(run, claude), input=prompt,
@@ -201,7 +213,14 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
     except (OSError, ValueError) as exc:
         run.status, run.resultado = "falhou", f"Não foi possível rodar o Claude Code: {exc}"
     if run.modo == "executar":
-        run.alteracoes = projects.diff_stat(Path(run.pasta))
+        folder = Path(run.pasta)
+        run.alteracoes = projects.diff_stat(folder)
+        try:
+            run.mudancas = projects.changes_since(folder, run.retrato)
+            run.diff = projects.diff_text(folder, run.retrato, run.mudancas)
+            run.revisao = "pendente" if run.mudancas else ""
+        except (RuntimeError, OSError, subprocess.TimeoutExpired):
+            log.warning("não foi possível montar a prévia das mudanças", exc_info=True)
     if run.modo == "pesquisar" and run.status == "concluida":
         found, wanted = count_sources(run.resultado), level.get("fontes", 0)
         run.alteracoes = f"{found} sites citados (meta: {wanted})"
@@ -210,6 +229,23 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
     run.terminada_em = time.time()
     store.save(run)
     _save_to_obsidian(run, vault)
+    return run
+
+
+def review(store: RunStore, run_id: str, keep: bool) -> Run:
+    """Decisão do usuário sobre as mudanças de uma execução: manter ou desfazer."""
+    run = next((r for r in store.all() if r.id == run_id), None)
+    if run is None:
+        raise ValueError("execução não encontrada")
+    if run.revisao != "pendente":
+        raise ValueError("esta revisão já foi decidida")
+    if keep:
+        run.revisao, message = "mantida", "Mudanças mantidas. Revise e faça o commit quando quiser."
+    else:
+        message = projects.undo_changes(Path(run.pasta), run.retrato, run.mudancas)
+        run.revisao = "desfeita"
+    run.alteracoes = (run.alteracoes + "\n" if run.alteracoes else "") + message
+    store.save(run)
     return run
 
 
