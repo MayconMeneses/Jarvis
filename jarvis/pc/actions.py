@@ -20,7 +20,7 @@ import psutil
 from jarvis.config import data_dir
 from jarvis.pc import startup
 
-KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao")
+KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -143,9 +143,24 @@ def propose_disable_startup(store: ActionStore, nome: str, motivo: str, reg=None
     ))
 
 
+def propose_organize_emails(store: ActionStore, items: list[dict], motivo: str, active: set[str]) -> Action:
+    from jarvis.mail import validate_items
+
+    items = validate_items(items, active)
+    counts: dict[str, int] = {}
+    for item in items:
+        counts[item["categoria"]] = counts.get(item["categoria"], 0) + 1
+    summary = ", ".join(f"{cat} ({n})" for cat, n in sorted(counts.items()))
+    return store.save(Action(
+        "organizar_emails", {"itens": items},
+        f"Aplicar marcadores da Jarvis em {len(items)} e-mail(s): {summary}. Nada é apagado, movido ou enviado.",
+        motivo,
+    ))
+
+
 # ── executar (só depois da aprovação do usuário) ──────────────────────────
 
-def execute(action: Action, temp: Path | None = None, reg=None, folders=None) -> str:
+def execute(action: Action, temp: Path | None = None, reg=None, folders=None, mail_accounts=None) -> str:
     if action.kind == "encerrar_processo":
         proc = check_process(action.params["pid"], action.params["nome"])
         proc.terminate()
@@ -175,6 +190,11 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None) ->
     if action.kind == "desativar_inicializacao":
         return startup.disable(action.params["nome"], reg, folders)
 
+    if action.kind == "organizar_emails":
+        from jarvis import config, mail
+
+        return mail.organize(config.load(), action.params["itens"], found=mail_accounts)
+
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")
 
 
@@ -188,6 +208,6 @@ def decide(store: ActionStore, action_id: str, approve: bool, **execute_kwargs) 
     try:
         action.resultado = execute(action, **execute_kwargs)
         action.status = "executada"
-    except (ValueError, OSError, psutil.Error) as exc:
+    except (ValueError, OSError, RuntimeError, psutil.Error) as exc:  # MailError é RuntimeError
         action.status, action.resultado = "falhou", f"Não foi possível: {exc}"
     return store.save(action)
