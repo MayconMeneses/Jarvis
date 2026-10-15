@@ -1,15 +1,21 @@
-"""Interface de texto da Fase 0.
+"""Ponto de entrada.
 
-    python -m jarvis "sua pergunta"    responde uma vez
-    python -m jarvis                   conversa até digitar "sair"
+    python -m jarvis                     abre a janela com ícone na bandeja
+    python -m jarvis --texto             conversa no terminal até digitar "sair"
+    python -m jarvis "sua pergunta"      responde uma vez no terminal
+    python -m jarvis --chave gemini      guarda a chave do Gemini no cofre do Windows
+    python -m jarvis --chave nvidia      guarda a chave da NVIDIA no cofre do Windows
 """
 
 from __future__ import annotations
 
+import argparse
+import getpass
 import sys
 
-from jarvis import config, log
+from jarvis import config, keys, log
 from jarvis.brains import NoBrainAvailable, build_router
+from jarvis.chat import Conversation
 
 
 def system_prompt(cfg: config.Config) -> str:
@@ -20,26 +26,32 @@ def system_prompt(cfg: config.Config) -> str:
     )
 
 
-def main(argv: list[str] | None = None) -> int:
-    argv = sys.argv[1:] if argv is None else argv
-    for stream in (sys.stdout, sys.stderr):
-        stream.reconfigure(encoding="utf-8")
-    log.setup()
-    cfg = config.load()
-    router = build_router(cfg)
-    system = system_prompt(cfg)
+def new_conversation(cfg: config.Config) -> Conversation:
+    return Conversation(build_router(cfg), system_prompt(cfg))
 
+
+def store_key(provider: str) -> int:
+    key = getpass.getpass(f"Cole a chave de API do {provider} (não aparece na tela): ")
+    if not key.strip():
+        print("Nenhuma chave informada.")
+        return 1
+    keys.set_key(provider, key)
+    print(f"Chave do {provider} guardada no Gerenciador de Credenciais do Windows.")
+    return 0
+
+
+def run_text(conversation: Conversation, once: str | None) -> int:
     def reply(prompt: str) -> int:
         try:
-            answer = router.ask(prompt, system)
+            answer = conversation.ask(prompt)
         except NoBrainAvailable as exc:
             print(f"[Jarvis] {exc}", file=sys.stderr)
             return 1
         print(f"Jarvis ({answer.brain}): {answer.text}")
         return 0
 
-    if argv:
-        return reply(" ".join(argv))
+    if once:
+        return reply(once)
 
     print("Jarvis pronta. Digite 'sair' para encerrar.")
     while True:
@@ -52,6 +64,31 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if prompt:
             reply(prompt)
+
+
+def main(argv: list[str] | None = None) -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if stream is not None:  # pythonw não tem console
+            stream.reconfigure(encoding="utf-8")
+
+    parser = argparse.ArgumentParser(prog="jarvis", description="Super Jarvis")
+    parser.add_argument("pergunta", nargs="*", help="responde uma vez no terminal")
+    parser.add_argument("--texto", action="store_true", help="conversa no terminal")
+    parser.add_argument("--chave", choices=sorted(keys.ENV_NAMES), help="guarda uma chave de API")
+    args = parser.parse_args(argv)
+
+    log.setup()
+    if args.chave:
+        return store_key(args.chave)
+
+    cfg = config.load()
+    conversation = new_conversation(cfg)
+    if args.pergunta or args.texto:
+        return run_text(conversation, " ".join(args.pergunta) or None)
+
+    from jarvis.ui.app import run  # importa a interface só quando é usada
+
+    return run(cfg, conversation)
 
 
 if __name__ == "__main__":

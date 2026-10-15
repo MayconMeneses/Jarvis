@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Literal, Protocol, TypedDict
+
+
+class Message(TypedDict):
+    role: Literal["user", "assistant"]
+    content: str
 
 
 class BrainUnavailable(RuntimeError):
-    """O cérebro não pode responder agora (limite, rede, não instalado).
+    """O cérebro não pode responder agora (limite, rede, sem chave, não instalado).
 
     O roteador trata este erro passando para o próximo cérebro da lista.
     """
@@ -22,4 +27,6 @@ class Answer:
 class Brain(Protocol):
     name: str
 
-    def ask(self, prompt: str, system: str) -> Answer: ...
+    def ask(self, messages: list[Message], system: str) -> Answer:
+        """Responde à última mensagem, considerando as anteriores como histórico."""
+        ...
