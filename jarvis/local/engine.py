@@ -175,15 +175,12 @@ class LocalEngine:
             f"- {h['titulo']} ({h['fonte']}) {h['link']}" for h in items)
 
     def _vagas(self, text: str) -> str:
-        from jarvis import memory
+        from jarvis import memory_db
         from jarvis.info import jobs
 
-        vault = memory.open_vault(self._load_config().obsidian_vault)
-        if vault is None:
-            return "Preciso do cofre do Obsidian configurado para ler seu perfil profissional."
-        profile, _ = jobs.load_profile(vault.home)
+        profile, _ = jobs.load_profile(memory_db.open_memory(self._load_config()))
         if jobs.profile_is_empty(profile):
-            return "Seu perfil profissional está vazio: preencha \"Jarvis/Perfil Profissional.md\" no Obsidian."
+            return "Seu perfil profissional está vazio: me diga sua stack, nível e modalidade que eu anoto."
         found = jobs.find(profile, 5)["vagas"]
         if not found:
             return "Não achei vagas novas compatíveis agora."

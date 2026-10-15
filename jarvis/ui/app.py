@@ -7,13 +7,14 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
 import threading
 import time
 from pathlib import Path
 
 import webview
 
-from jarvis import briefing, config, files, memory
+from jarvis import briefing, config, files, memory_db
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
@@ -37,16 +38,15 @@ class Api:
         self._conversation = conversation
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
-        self._vault = memory.open_vault(cfg.obsidian_vault)
+        self._memory = memory_db.open_memory(cfg)
         self._files = files.AttachmentStore()
         self._window = None  # definida em run(); usada no seletor de arquivos
 
     def _diary(self, entry: str) -> None:
-        if self._vault is not None:
-            try:
-                self._vault.diary(entry)
-            except OSError:
-                log.warning("não foi possível escrever no diário", exc_info=True)
+        try:
+            self._memory.diary(entry)
+        except (sqlite3.Error, OSError):
+            log.warning("não foi possível escrever no diário", exc_info=True)
 
     def greeting(self) -> str:
         """Saudação + clima (+ manchetes na 1ª abertura do dia), também falada."""
@@ -273,6 +273,54 @@ class Api:
     def reset(self) -> None:
         self._conversation.reset()
 
+    # ── visualizador da memória (janela "Memória") ──────────────────────
+    def memory_list(self, query: str = "") -> dict:
+        """Notas mais recentes ou o resultado de uma busca."""
+        try:
+            if str(query).strip():
+                notes = [{"ref": h["nota"], "resumo": h["trecho"]} for h in self._memory.search(str(query), 40)]
+            else:
+                notes = [{"ref": n["ref"], "resumo": n["resumo"], "atualizado": n["atualizado"][:10]}
+                         for n in self._memory.list_notes(limit=200)]
+            return {"notas": notes, "total": self._memory.count()}
+        except sqlite3.Error as exc:
+            return {"error": f"Não foi possível ler a memória: {exc}"}
+
+    def memory_get(self, ref: str) -> dict:
+        try:
+            return {"ref": str(ref), "texto": self._memory.read(str(ref), 200_000)}
+        except (ValueError, sqlite3.Error) as exc:
+            return {"error": str(exc)}
+
+    def memory_save(self, ref: str, text: str) -> dict:
+        try:
+            self._memory.edit(str(ref), str(text))
+        except (ValueError, sqlite3.Error) as exc:
+            return {"error": str(exc)}
+        self._diary(f"Memória editada na janela: {ref}")
+        return {"ok": True}
+
+    def memory_delete(self, ref: str) -> dict:
+        try:
+            ok = self._memory.delete(str(ref))
+        except (ValueError, sqlite3.Error) as exc:
+            return {"error": str(exc)}
+        self._diary(f"Memória apagada na janela: {ref}")
+        return {"ok": ok}
+
+    def memory_export(self) -> dict:
+        """Grava uma cópia em Markdown numa pasta escolhida (por exemplo, a Jarvis/ de um cofre do Obsidian)."""
+        if self._window is None:
+            return {"error": "janela indisponível"}
+        chosen = self._window.create_file_dialog(webview.FileDialog.FOLDER)
+        if not chosen:
+            return {"cancelado": True}
+        try:
+            count = memory_db.export_markdown(self._memory, chosen[0])
+        except (OSError, sqlite3.Error) as exc:
+            return {"error": f"Não foi possível exportar: {exc}"}
+        return {"text": f"{count} nota(s) gravadas em {chosen[0]}."}
+
     def dashboard(self) -> dict:
         """Botão 📊: escolhe um documento e abre o dashboard dele no navegador."""
         from jarvis import dashboard
@@ -365,7 +413,7 @@ def build_task_worker(cfg: Config, api: Api, window):
         if api._voice is not None:
             api._voice.speak(f"{head}. Os detalhes estão na janela.")
 
-    return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
+    return runs.RunWorker(runs.RunStore(), cfg.claude, notify, mem=api._memory)
 
 
 def window_geometry(width: int = 440, height: int = 720, margin: int = 12) -> tuple[int, int, int, int]:

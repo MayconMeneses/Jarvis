@@ -12,7 +12,7 @@ import argparse
 import sys
 import time
 
-from jarvis import config, memory
+from jarvis import config, memory_db
 from jarvis.eval import bench
 
 
@@ -54,13 +54,8 @@ def main(argv: list[str] | None = None) -> int:
 
     report = bench.report_markdown(commands, summaries, answers, encoder is not None)
     print("\n" + report)
-    vault = memory.open_vault(cfg.obsidian_vault)
-    if vault is not None:
-        folder = vault.home / "Avaliações"
-        folder.mkdir(parents=True, exist_ok=True)
-        path = folder / f"{time.strftime('%Y-%m-%d %H%M')} Avaliação.md"
-        path.write_text(report, encoding="utf-8")
-        print(f"\nRelatório salvo em {path}")
+    ref = memory_db.open_memory(cfg).put(f"Avaliações/{time.strftime('%Y-%m-%d %H%M')} Avaliação", report, "relatorio")
+    print(f"\nRelatório salvo na memória da Jarvis: {ref}")
     return 0
 
 

@@ -1,7 +1,7 @@
 """Projetos de código cadastrados, um resumo rápido do estado de cada um (sem IA),
-a ficha de informações de cada projeto no Obsidian e a criação de projetos novos.
+a ficha de informações de cada projeto na memória da Jarvis e a criação de projetos novos.
 
-A ficha fica em <cofre>/Jarvis/Projetos/<nome>/Sobre.md (área da Jarvis no cofre).
+A ficha é a nota "Projetos/<nome>/Sobre" do banco de memória (jarvis/memory_db.py).
 A pasta do projeto só é criada por uma ação aprovada pelo usuário na janela.
 """
 
@@ -13,6 +13,7 @@ import unicodedata
 from datetime import date
 from pathlib import Path
 
+from jarvis import memory_db
 from jarvis.config import Config
 
 
@@ -194,16 +195,20 @@ def unregister(cfg: Config, name: str) -> str:
     raise ValueError(f"projeto '{name}' não cadastrado")
 
 
-# ── ficha do projeto no Obsidian ─────────────────────────────────────────
+# ── ficha do projeto na memória da Jarvis ────────────────────────────────
 
-INFO_FILE = "Sobre.md"
+INFO_NAME = "Sobre"
 SECTIONS = ("Descrição", "Stack", "Objetivos", "Decisões", "Pendências", "Anotações")
 MAX_CONTEXT_CHARS = 3000
-_FORBIDDEN = re.compile(r'[\\/:*?"<>|#^\[\]]')
 
 
-def note_folder(vault, name: str) -> Path:
-    return vault.home / "Projetos" / (_FORBIDDEN.sub("", name).strip() or "projeto")
+def project_folder(name: str) -> str:
+    """Prefixo das notas do projeto na memória (ex.: Projetos/Comandiva)."""
+    return "Projetos/" + (memory_db.clean_title(name) or "projeto")
+
+
+def info_ref(name: str) -> str:
+    return f"{project_folder(name)}/{INFO_NAME}"
 
 
 def _section(name: str) -> str:
@@ -235,29 +240,27 @@ def _render_info(name: str, parts: dict[str, list[str]]) -> str:
     return "\n".join(out)
 
 
-def add_info(cfg: Config, vault, name: str, text: str, section: str = "Anotações") -> Path:
+def add_info(cfg: Config, mem, name: str, text: str, section: str = "Anotações") -> str:
     """Acrescenta uma informação à ficha. "Descrição" substitui a anterior; o resto acumula."""
     registered, _ = resolve(cfg, name)
     key = _section(section)
     text = " ".join(text.split())[:1500]
     if not text:
         raise ValueError("escreva a informação")
-    path = note_folder(vault, registered) / INFO_FILE
-    parts = _parse_info(path.read_text(encoding="utf-8")) if path.exists() else {}
+    ref = info_ref(registered)
+    parts = _parse_info(mem.get(ref) or "")
     if key == "Descrição":
         parts[key] = [text]
     else:
         parts.setdefault(key, []).append(f"- {date.today().isoformat()}: {text}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(_render_info(registered, parts), encoding="utf-8")
-    return path
+    return mem.put(ref, _render_info(registered, parts), "projeto", title=registered)
 
 
-def read_info(cfg: Config, vault, name: str) -> str:
+def read_info(cfg: Config, mem, name: str) -> str:
     """Texto da ficha, ou "" se ainda não houver."""
     registered, _ = resolve(cfg, name)
-    path = note_folder(vault, registered) / INFO_FILE
-    return path.read_text(encoding="utf-8", errors="replace") if path.exists() else ""
+    return mem.get(info_ref(registered)) or ""
+
 
 
 # ── projeto novo (só executado depois da aprovação) ──────────────────────

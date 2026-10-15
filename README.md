@@ -12,7 +12,7 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis.eval
 C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis.eval --ias claude,local --juiz gemini
 ```
 
-O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respostas dos cérebros (gasta limite). O relatório vai para `Jarvis/Avaliações` no Obsidian.
+O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respostas dos cérebros (gasta limite). O relatório fica na memória da Jarvis (nota `Avaliações/...`).
 
 - **Métricas:**
   - **BLEU** (tradução) e **ROUGE-1/2/L** (sumarização, com precisão, recall e F1).
@@ -68,7 +68,7 @@ A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem I
   | **extra difícil** | 50 ou mais | Em segundo plano, gasta bastante do limite |
 
   - A Jarvis escolhe o nível sozinha, ou use o que você pedir ("Jarvis, pesquisa difícil sobre...").
-  - O relatório traz a resposta direta, as categorias, as opções com prós e contras, as divergências entre as fontes e a lista de fontes. Ele é salvo em `Jarvis/Pesquisas` no Obsidian.
+  - O relatório traz a resposta direta, as categorias, as opções com prós e contras, as divergências entre as fontes e a lista de fontes. Ele é salvo na memória da Jarvis (notas `Pesquisas/...`).
   - As pesquisas em segundo plano rodam isoladas: só buscam e leem sites, sem acesso às ferramentas do PC.
   - Medido: uma pesquisa média citou 31 sites em 2,7 min.
 - **Criar documentos** em `Documentos\Jarvis`, sem sobrescrever:
@@ -89,7 +89,7 @@ A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem I
 - Instala só para o seu usuário, em `%LOCALAPPDATA%\Programs\SuperJarvis`, sem pedir administrador.
 - Cria atalho no menu Iniciar. O atalho na área de trabalho e o "Abrir a Jarvis quando o Windows iniciar" são opcionais.
 - Avisa se o Claude Code não estiver instalado.
-- Desinstale em Configurações > Aplicativos. Suas configurações, chaves e notas no Obsidian **são mantidas**.
+- Desinstale em Configurações > Aplicativos. Suas configurações, chaves e a memória (`%APPDATA%\SuperJarvis\memoria.db`) **são mantidas**.
 - Só uma Jarvis abre por vez. Abrir de novo apenas avisa que ela já está na bandeja.
 
 Dois executáveis na pasta do programa:
@@ -109,13 +109,13 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\j
 ## Fase 7 (parceira de desenvolvimento)
 
 - Cadastre projetos por voz ou texto: "Jarvis, meu projeto Comandiva fica em C:\...\pasta". Eles ficam em `projetos` no `config.json`.
-- **Ficha do projeto**: conte à Jarvis o que é o projeto, a stack, objetivos, decisões e pendências ("Jarvis, anota no Comandiva que decidimos usar Postgres"). Ela grava em `Jarvis/Projetos/<projeto>/Sobre.md` no Obsidian (Descrição substitui; as outras seções acumulam com data; suas edições na nota são mantidas) e manda essa ficha como contexto em toda análise, plano ou execução do Claude Code.
+- **Ficha do projeto**: conte à Jarvis o que é o projeto, a stack, objetivos, decisões e pendências ("Jarvis, anota no Comandiva que decidimos usar Postgres"). Ela grava na nota `Projetos/<projeto>/Sobre` da memória (Descrição substitui; as outras seções acumulam com data; você pode editar a nota na janela **Memória**) e manda essa ficha como contexto em toda análise, plano ou execução do Claude Code.
 - **Projeto novo**: "Jarvis, cria um projeto Loja Virtual em C:\...\Projetos". Aparece um cartão; só depois que você aprova ela cria a pasta com `README.md`, roda `git init` (sem commit), cadastra o projeto e abre a ficha. Ela nunca usa uma pasta que já existe. Depois, peça para o Claude Code montar a estrutura (cartão de execução).
 - **Esquecer projeto**: tira da lista da Jarvis, sem apagar pasta nem ficha.
 - **Estado rápido** (sem IA): branch, arquivos alterados e últimos commits.
 - **Analisar** e **planejar**: o Claude Code lê o projeto (somente Read/Glob/Grep, modo `dontAsk`) e responde ou monta um plano com arquivos, passos, riscos e testes.
 - **Executar**: o Claude Code pode editar arquivos **só depois que você aprova o cartão**, só em projetos git, sem commit/push e sem Bash irrestrito (apenas `git status`/`git diff`). Ao final, você recebe o `git diff --stat` para revisar.
-- As tarefas rodam em segundo plano na janela, uma por vez. Ao terminar, a Jarvis avisa em texto e voz e salva o resultado em `Jarvis/Projetos/<projeto>/` no Obsidian.
+- As tarefas rodam em segundo plano na janela, uma por vez. Ao terminar, a Jarvis avisa em texto e voz e salva o resultado na memória (notas `Projetos/<projeto>/...`).
 - Tudo usa a sua assinatura do Claude (sem chave de API), então conta nos limites do plano Pro.
 - **Dashboards de documentos**: clique em 📊 na janela e escolha um arquivo, ou diga "Jarvis, cria um dashboard de C:\...\vendas.xlsx". O painel do **Dashboard Universal** (versão 0.7.1) está **dentro da Jarvis**, em `jarvis/dashboard/painel.html`: não precisa do programa instalado. A Jarvis embute o documento nesse painel e abre no navegador. Aceita CSV, TSV, XLSX, DOCX, PDF (tabelas), JSON, GeoJSON, KML e KMZ, até 50 MB (o `.doc` antigo não). Para atualizar o painel, troque `painel.html` pelo `dist/index.html` de uma versão nova. Tudo roda no PC; o documento não é alterado nem enviado. Os HTMLs ficam em `%LOCALAPPDATA%\SuperJarvis\dashboards`.
 - **Monitor de sessões**: a cada 5 s a Jarvis olha as sessões do Claude Code abertas no PC (terminal ou app) e avisa uma vez, em texto e voz, quando uma passa a esperar você: pedido de permissão, pergunta ou turno encerrado. Pergunte "alguma sessão está me esperando?" (ferramenta `sessoes_claude_code`). Só lê `~/.claude/sessions/*.json` e o fim dos `~/.claude/projects/*/*.jsonl`, nunca escreve neles. O formato não é oficial: o que foi confirmado e o que é estimativa está em `jarvis/dev/sessions.py`. Avisos com "talvez" são estimativa (no app desktop, uma ferramenta parada há mais de 60 s pode ser pedido de permissão ou só um comando demorado). Ao abrir a Jarvis, sessões que já estavam só paradas não são anunciadas.
@@ -123,7 +123,7 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\j
 ## Fase 6 (vagas de emprego)
 
 - Fontes legais e gratuitas: repositórios de vagas da comunidade no GitHub (frontendbr, backend-br, react-brasil) e Remotive (remotas). Cache de 6 h para respeitar os termos da Remotive, que pede no máximo cerca de 4 consultas por dia, link para a vaga e a fonte citada. LinkedIn e outros sites que proíbem robôs não são usados.
-- **Perfil** em `Jarvis/Perfil Profissional.md` no Obsidian (criado vazio no primeiro uso): stack, nível, modalidade, cidade, o que evitar e inglês. Preencha no Obsidian ou diga, por exemplo, "Jarvis, minha stack é Python e React".
+- **Perfil** na nota `Perfil Profissional` da memória (criada vazia no primeiro uso): stack, nível, modalidade, cidade, o que evitar e inglês. Edite na janela **Memória** ou diga, por exemplo, "Jarvis, minha stack é Python e React".
 - Cada vaga recebe uma **nota de 0 a 100 com os motivos** (stack, nível, remota ou na sua cidade, idioma, recência). Vagas já mostradas não se repetem no briefing.
 - O briefing do dia traz até 3 vagas novas. Os links abrem no navegador padrão.
 - **A Jarvis nunca se candidata**: ela só mostra a vaga.
@@ -132,7 +132,11 @@ C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m PyInstaller packaging\j
 
 - **Ao abrir**, a Jarvis cumprimenta pelo horário, pergunta como você está e diz o clima. Na **primeira abertura do dia** também traz 3 manchetes gerais (G1, BBC Brasil, Agência Brasil) e 3 de tecnologia (Tecnoblog, Canaltech, Olhar Digital), e salva o briefing em `Jarvis/Relatórios` no Obsidian.
 - **Clima** pelo Open-Meteo (grátis, sem chave). Diga "minha cidade é ..." para ela salvar a sua cidade.
-- **Memória no Obsidian** (`obsidian_vault` no `config.json`): a Jarvis grava fatos duráveis em `Jarvis/Memória` (uma nota por assunto) e as carrega em toda conversa. Editou ou apagou uma nota, ela passa a usar a versão nova.
+- **Memória própria** (sem Obsidian): um único arquivo SQLite, `%APPDATA%\SuperJarvis\memoria.db`, que vai junto da Jarvis (nada para instalar). A Jarvis grava fatos duráveis (uma nota por assunto), o diário, os relatórios, as fichas de projeto, as pesquisas e o perfil de vagas, e carrega o índice em toda conversa. A busca (`buscar_notas`) ignora acentos e maiúsculas.
+  - **Janela "◈ Memória"** (botão no alto): lista, busca, edita, apaga e exporta as notas. O que você editar ou apagar vale na próxima conversa.
+  - **Obsidian é opcional.** Na primeira vez que a memória é criada, a Jarvis copia (só lê) as notas de `Jarvis/` do cofre configurado em `obsidian_vault`, sem apagar nada. Para importar de novo: `python -m jarvis --importar-obsidian "C:\caminho\do\cofre"` (só traz o que ainda não existe). Para ver a memória no Obsidian: `python -m jarvis --exportar-memoria "C:\caminho\do\cofre\Jarvis"` ou o botão **Exportar…** (o banco é a fonte da verdade; a cópia sobrescreve notas de mesmo caminho).
+  - O caminho do banco pode ser trocado em `memoria_db` no `config.json`. Backup: copie o arquivo `memoria.db`.
+  - Mudança de comportamento: a Jarvis não lê mais o resto do seu cofre (só o que foi importado de `Jarvis/`).
 - **Lê as suas notas** (somente leitura) para responder sobre seus projetos, por exemplo "o que falta no MM System?".
 - **Diário** em `Jarvis/Diário/AAAA-MM-DD.md` com pedidos e ações do dia.
 - A Jarvis só escreve dentro da pasta `Jarvis/` do cofre.

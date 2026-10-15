@@ -4,7 +4,8 @@ import types
 
 import pytest
 
-from jarvis import documents, files, memory
+from jarvis import documents, files
+from jarvis.memory_db import MemoryDB
 from jarvis.config import ClaudeConfig
 from jarvis.dev import runs
 
@@ -109,9 +110,9 @@ def test_research_runs_isolated_with_only_web_tools():
     assert "--mcp-config" not in cmd and "--strict-mcp-config" in cmd
 
 
-def test_research_prompt_counts_sources_and_saves_to_obsidian(tmp_path):
+def test_research_prompt_counts_sources_and_saves_to_memory(tmp_path):
     store = runs.RunStore(tmp_path / "runs")
-    vault = memory.Vault(tmp_path / "cofre")
+    mem = MemoryDB(tmp_path / "m.db")
     run = store.save(runs.Run("Pesquisa média", str(tmp_path), "pesquisar", "qual banco de dados usar", nivel="media"))
     sent = {}
 
@@ -120,12 +121,12 @@ def test_research_prompt_counts_sources_and_saves_to_obsidian(tmp_path):
         result = "**Resposta**\n" + "\n".join(f"{i}. Site https://site{i}.com/artigo" for i in range(1, 13))
         return types.SimpleNamespace(returncode=0, stdout=json.dumps({"result": result}), stderr="")
 
-    done = runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, vault=vault)
+    done = runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, mem=mem)
     assert "NO MÍNIMO 15 sites" in sent["input"] and "qual banco de dados usar" in sent["input"]
     assert sent["timeout"] == runs.LEVELS["media"]["timeout"]
     assert done.alteracoes.startswith("12 sites citados (meta: 15)") and "abaixo da meta" in done.alteracoes
-    [report] = (vault.home / "Pesquisas").glob("*.md")
-    assert "qual banco de dados usar" in report.read_text(encoding="utf-8")
+    [report] = [n["ref"] for n in mem.list_notes("Pesquisas/")]
+    assert "qual banco de dados usar" in mem.read(report)
 
 
 def test_count_sources_ignores_duplicates_and_www():

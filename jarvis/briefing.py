@@ -1,7 +1,7 @@
 """Saudação ao abrir a Jarvis.
 
 Sempre: cumprimento, "como você está?" e o clima. Na primeira abertura do dia,
-também as manchetes gerais e de tecnologia, salvas em Jarvis/Relatórios no Obsidian.
+também as manchetes gerais e de tecnologia, salvas em Relatórios na memória da Jarvis.
 Montado sem IA: rápido e sem gastar o limite da assinatura.
 """
 
@@ -9,10 +9,11 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
 from datetime import date, datetime
 from pathlib import Path
 
-from jarvis import memory
+from jarvis import memory_db
 from jarvis.config import Config, data_dir
 from jarvis.info import jobs, news, weather
 
@@ -42,11 +43,8 @@ def mark_done(state_path: Path, today: date) -> None:
 
 def new_jobs(cfg: Config) -> tuple[str, str]:
     """Até 3 vagas novas compatíveis. ("", "") se não houver perfil ou vagas."""
-    vault = memory.open_vault(cfg.obsidian_vault)
-    if vault is None:
-        return "", ""
     try:
-        profile, _ = jobs.load_profile(vault.home)
+        profile, _ = jobs.load_profile(memory_db.open_memory(cfg))
         if jobs.profile_is_empty(profile):
             text = "Preencha o seu perfil profissional para eu buscar vagas (ou me diga sua stack e nível)."
             return f"\n**Vagas:** {text}", text
@@ -103,17 +101,15 @@ def build(
             spoken.append(job_spoken)
         spoken.append("Os detalhes estão na janela.")
         mark_done(state_path, now.date())
-        _save_to_obsidian(cfg, "\n".join(lines))
+        _save_report(cfg, "\n".join(lines))
 
     return {"text": "\n".join(lines), "speak": " ".join(spoken), "completo": full, "manchetes": headlines}
 
 
-def _save_to_obsidian(cfg: Config, text: str) -> None:
-    vault = memory.open_vault(cfg.obsidian_vault)
-    if vault is None:
-        return
+def _save_report(cfg: Config, text: str) -> None:
     try:
-        vault.save_report("Briefing", f"# Briefing {date.today():%d/%m/%Y}\n\n{text}\n")
-        vault.diary("Briefing do dia apresentado.")
-    except OSError:
-        log.warning("não foi possível salvar o briefing no Obsidian", exc_info=True)
+        mem = memory_db.open_memory(cfg)
+        mem.save_report("Briefing", f"# Briefing {date.today():%d/%m/%Y}\n\n{text}\n")
+        mem.diary("Briefing do dia apresentado.")
+    except (sqlite3.Error, OSError, ValueError):
+        log.warning("não foi possível salvar o briefing na memória", exc_info=True)

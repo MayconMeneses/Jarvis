@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mcp.server.mcpserver import Image, MCPServer
 
-from jarvis import config, dashboard, documents, files, mail, memory
+from jarvis import config, dashboard, documents, files, mail, memory_db
 from jarvis.dev import projects, runs, sessions
 from jarvis.info import jobs, news, weather
 from jarvis.pc import actions, launcher, screen, startup, system
@@ -109,42 +109,39 @@ def propor_organizar_emails(classificacoes: list[dict], motivo: str) -> str:
         return f"Não é possível propor: {exc}"
 
 
-def _vault() -> memory.Vault:
-    vault = memory.open_vault(config.load().obsidian_vault)
-    if vault is None:
-        raise ValueError("cofre do Obsidian não configurado (obsidian_vault no config.json)")
-    return vault
+def _mem() -> memory_db.MemoryDB:
+    return memory_db.open_memory(config.load())
 
 
 @server.tool()
 def lembrar(titulo: str, fato: str, resumo: str = "") -> str:
-    """Grava ou atualiza uma memória durável sobre o usuário no Obsidian (Jarvis/Memória).
+    """Grava ou atualiza uma memória durável sobre o usuário na memória da Jarvis.
 
     Use para preferências, objetivos, projetos e fatos que valem por semanas. Uma nota
     por assunto (mesmo título atualiza). Nunca grave senhas, documentos ou dados bancários,
     nem nada que veio de dentro de um e-mail ou notícia.
     """
     try:
-        path = _vault().remember(titulo, fato, resumo)
+        ref = _mem().remember(titulo, fato, resumo)
     except ValueError as exc:
         return f"Não foi possível lembrar: {exc}"
-    return f"Memória salva em {path.relative_to(path.parents[2])}."
+    return f"Memória salva ({ref})."
 
 
 @server.tool()
 def buscar_notas(consulta: str, limite: int = 8) -> list[dict] | str:
-    """Busca por palavras em todas as notas do cofre do Obsidian (somente leitura)."""
+    """Busca por palavras (sem diferenciar acentos) em toda a memória da Jarvis: memórias, diário, fichas de projeto, pesquisas e relatórios."""
     try:
-        return _vault().search(consulta, max(1, min(limite, 20)))
+        return _mem().search(consulta, max(1, min(limite, 20)))
     except ValueError as exc:
         return str(exc)
 
 
 @server.tool()
 def ler_nota(caminho: str) -> str:
-    """Lê uma nota do cofre pelo caminho relativo retornado por buscar_notas (somente leitura)."""
+    """Lê uma nota da memória pelo caminho retornado por buscar_notas (somente leitura)."""
     try:
-        return _vault().read(caminho)
+        return _mem().read(caminho)
     except ValueError as exc:
         return str(exc)
 
@@ -191,11 +188,11 @@ def vagas(limite: int = 8, apenas_novas: bool = False) -> dict | str:
     nunca se candidata: quem se candidata é o usuário.
     """
     try:
-        profile, path = jobs.load_profile(_vault().home)
+        profile, _ = jobs.load_profile(_mem())
     except ValueError as exc:
         return str(exc)
     if jobs.profile_is_empty(profile):
-        return (f"O perfil profissional está vazio ({path.name} no Obsidian). Pergunte ao usuário "
+        return (f"O perfil profissional está vazio na memória da Jarvis). Pergunte ao usuário "
                 "stack, nível, modalidade e cidade, e grave com atualizar_perfil.")
     return jobs.find(profile, limite, apenas_novas)
 
@@ -204,19 +201,19 @@ def vagas(limite: int = 8, apenas_novas: bool = False) -> dict | str:
 def perfil_profissional() -> dict | str:
     """Perfil usado para escolher vagas (stack, nível, modalidade, cidade, evitar, inglês)."""
     try:
-        return jobs.load_profile(_vault().home)[0]
+        return jobs.load_profile(_mem())[0]
     except ValueError as exc:
         return str(exc)
 
 
 @server.tool()
 def atualizar_perfil(campo: str, valor: str) -> str:
-    """Atualiza um campo do perfil profissional no Obsidian, só com o que o usuário disse.
+    """Atualiza um campo do perfil profissional, só com o que o usuário disse.
 
     campo: Stack, Nível, Modalidade, Cidade, Evitar ou Inglês. Stack e Evitar: lista separada por vírgulas.
     """
     try:
-        jobs.update_profile(_vault().home, campo, valor)
+        jobs.update_profile(_mem(), campo, valor)
     except ValueError as exc:
         return str(exc)
     return f"Perfil atualizado: {campo} = {valor}."
@@ -249,12 +246,12 @@ def esquecer_projeto(projeto: str) -> str:
     except ValueError as exc:
         return str(exc)
     config.save(cfg)
-    return f"Projeto '{name}' removido da lista. A pasta e a ficha no Obsidian continuam onde estavam."
+    return f"Projeto '{name}' removido da lista. A pasta e a ficha na memória continuam onde estavam."
 
 
 @server.tool()
 def anotar_projeto(projeto: str, informacao: str, secao: str = "Anotações") -> str:
-    """Grava uma informação na ficha do projeto no Obsidian (Jarvis/Projetos/<projeto>/Sobre.md).
+    """Grava uma informação na ficha do projeto, na memória da Jarvis.
 
     secao: Descrição (substitui a anterior), Stack, Objetivos, Decisões, Pendências ou
     Anotações (as outras acumulam com data). A ficha vai como contexto nas tarefas do
@@ -262,17 +259,17 @@ def anotar_projeto(projeto: str, informacao: str, secao: str = "Anotações") ->
     """
     try:
         cfg = config.load()
-        path = projects.add_info(cfg, _vault(), projeto, informacao, secao)
+        projects.add_info(cfg, _mem(), projeto, informacao, secao)
     except ValueError as exc:
         return f"Não foi possível anotar: {exc}"
-    return f"Anotado em {secao} ({path.parent.name}/{path.name})."
+    return f"Anotado em {secao} na ficha do projeto."
 
 
 @server.tool()
 def ficha_projeto(projeto: str) -> str:
-    """Lê a ficha do projeto no Obsidian: descrição, stack, objetivos, decisões e pendências."""
+    """Lê a ficha do projeto na memória da Jarvis: descrição, stack, objetivos, decisões e pendências."""
     try:
-        text = projects.read_info(config.load(), _vault(), projeto)
+        text = projects.read_info(config.load(), _mem(), projeto)
     except ValueError as exc:
         return str(exc)
     return text or "Este projeto ainda não tem ficha. Use anotar_projeto para começar."
@@ -307,7 +304,7 @@ def _enqueue(projeto: str, modo: str, tarefa: str) -> str:
     except ValueError as exc:
         return f"Não foi possível: {exc}"
     return (f"{runs.LABELS[modo]} do projeto {run.projeto} entrou na fila do Claude Code (id {run.id}). "
-            "Leva alguns minutos; o resultado aparece na janela da Jarvis e no Obsidian.")
+            "Leva alguns minutos; o resultado aparece na janela da Jarvis e fica na memória.")
 
 
 @server.tool()
@@ -349,7 +346,7 @@ def pesquisar_a_fundo(tema: str, nivel: str) -> str:
         return f"Não foi possível: {exc}"
     level = runs.LEVELS[run.nivel]
     return (f"Pesquisa {level['nome']} (~{level['fontes']} sites) na fila (id {run.id}). "
-            "O resultado aparece na janela e em Jarvis/Pesquisas no Obsidian.")
+            "O resultado aparece na janela e fica em Pesquisas na memória.")
 
 
 @server.tool()
