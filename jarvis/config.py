@@ -124,14 +124,29 @@ def load(path: Path | None = None) -> Config:
         return cfg
     raw = json.loads(path.read_text(encoding="utf-8"))
     cfg = Config.from_dict(raw)
-    if asdict(cfg) != raw:  # completa o arquivo com campos novos de versões recentes
+    if not cfg.obsidian_vault or not Path(cfg.obsidian_vault).is_dir():
+        cfg.obsidian_vault = detect_obsidian_vault() or cfg.obsidian_vault
+    if asdict(cfg) != raw:  # completa o arquivo com campos novos (ou o cofre detectado)
         save(cfg, path)
     return cfg
+
+
+def detect_obsidian_vault(obsidian_json: Path | None = None) -> str:
+    """Cofre aberto no Obsidian deste usuário (o mais recente), ou "" se não houver."""
+    obsidian_json = obsidian_json or Path(os.environ.get("APPDATA", "")) / "obsidian" / "obsidian.json"
+    try:
+        vaults = json.loads(obsidian_json.read_text(encoding="utf-8")).get("vaults", {}).values()
+    except (OSError, ValueError, AttributeError):
+        return ""
+    existing = [v for v in vaults if isinstance(v, dict) and Path(v.get("path", "")).is_dir()]
+    if not existing:
+        return ""
+    best = max(existing, key=lambda v: (bool(v.get("open")), v.get("ts", 0)))
+    return best["path"]
 
 
 def save(cfg: Config, path: Path | None = None) -> None:
     path = path or config_dir() / "config.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(asdict(cfg), ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    # ensure_ascii: acentos viram á etc., então o arquivo nunca fica com texto corrompido.
+    path.write_text(json.dumps(asdict(cfg), ensure_ascii=True, indent=2), encoding="utf-8")
