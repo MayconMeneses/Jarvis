@@ -67,6 +67,17 @@ class Api:
 
         return webbrowser.open(url)
 
+    def system_stats(self) -> dict:
+        """Números reais para os medidores do HUD (leitura leve, sem esperar)."""
+        import psutil
+
+        disk = psutil.disk_usage("C:\\")
+        return {
+            "cpu": round(psutil.cpu_percent(interval=None)),
+            "ram": round(psutil.virtual_memory().percent),
+            "disco": round(disk.percent),
+        }
+
     def voice_available(self) -> bool:
         return self._voice is not None
 
@@ -149,6 +160,19 @@ def build_task_worker(cfg: Config, api: Api, window):
     return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
 
 
+def window_geometry(width: int = 440, height: int = 720, margin: int = 12) -> tuple[int, int, int, int]:
+    """Canto inferior direito da área útil do monitor (sem cobrir a barra de tarefas)."""
+    import ctypes
+    import ctypes.wintypes as wt
+
+    area = wt.RECT()
+    if not ctypes.windll.user32.SystemParametersInfoW(0x0030, 0, ctypes.byref(area), 0):  # SPI_GETWORKAREA
+        return 100, 60, width, min(height, 680)
+    usable = area.bottom - area.top - 2 * margin
+    height = max(480, min(height, usable))
+    return area.right - width - margin, area.bottom - height - margin, width, height
+
+
 _ERROR_ALREADY_EXISTS = 183
 
 
@@ -193,13 +217,14 @@ def run(cfg: Config, conversation: Conversation) -> int:
         )
         return 0
     api = Api(cfg, conversation)
+    x, y, width, height = window_geometry()
     window = webview.create_window(
         "Jarvis",
         html=HTML.read_text(encoding="utf-8"),
         js_api=api,
-        width=440,
-        height=680,
+        x=x, y=y, width=width, height=height,
         min_size=(360, 480),
+        background_color="#04070C",
     )
     quitting = False
     voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
