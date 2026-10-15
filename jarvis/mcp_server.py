@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mcp.server.mcpserver import MCPServer
 
-from jarvis import config, mail, memory
+from jarvis import config, dashboard, mail, memory
 from jarvis.dev import projects, runs, sessions
 from jarvis.info import jobs, news, weather
 from jarvis.pc import actions, startup, system
@@ -352,6 +352,20 @@ def sessoes_claude_code(apenas_esperando: bool = False) -> dict:
     waiting = [s for s in found if s.esperando]
     shown = waiting if apenas_esperando else found
     return {"esperando": len(waiting), "total": len(found), "sessoes": [s.to_dict() for s in shown]}
+
+
+@server.tool()
+def criar_dashboard(arquivo: str, abrir: bool = True) -> str:
+    """Cria um dashboard (indicadores, gráficos, mapa e tabela) de um documento de dados com o
+    Dashboard Universal do usuário e abre no navegador. arquivo: caminho completo de um CSV, TSV,
+    XLSX, JSON, GeoJSON, KML ou KMZ. Só lê o documento; tudo roda no PC, nada é enviado."""
+    try:
+        path = dashboard.build(config.load(), arquivo)
+    except (ValueError, OSError) as exc:
+        return f"Não foi possível criar o dashboard: {exc}"
+    if abrir:
+        dashboard.open_in_browser(path)
+    return f"Dashboard {'aberto no navegador e ' if abrir else ''}salvo em {path}."
 
 
 if __name__ == "__main__":

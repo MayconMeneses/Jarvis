@@ -71,7 +71,7 @@
   .card.done { border-color: var(--border); }
   #voice-status { font-size: 12px; color: var(--muted); }
   #voice-status:empty { display: none; }
-  #mic { padding: 0 12px; font-size: 18px; line-height: 1; }
+  #mic, #dash { padding: 0 12px; font-size: 18px; line-height: 1; }
   #mic[hidden] { display: none; }
   #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -89,6 +89,7 @@
   <form id="form">
     <label for="input" class="sr-only">Mensagem para a Jarvis</label>
     <textarea id="input" rows="1" placeholder="Fale com a Jarvis… (Enter envia, Shift+Enter quebra linha)" autofocus></textarea>
+    <button type="button" id="dash" title="Criar dashboard de um documento (CSV, Excel, JSON, KML…)" aria-label="Criar dashboard de um documento">📊</button>
     <button type="button" id="mic" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">🎤</button>
     <button type="submit" id="send">Enviar</button>
   </form>
@@ -220,6 +221,11 @@
     if (ev.task) add("jarvis", ev.task, "tarefa do Claude Code");
   };
   mic.addEventListener("click", () => window.pywebview.api.listen_now());
+  document.getElementById("dash").addEventListener("click", async () => {
+    const res = await window.pywebview.api.dashboard();
+    if (res.error) add("error", res.error);
+    else if (res.text) add("jarvis", res.text, "dashboard");
+  });
 
   function autosize() {
     input.style.height = "auto";

@@ -64,6 +64,9 @@ def system_prompt(cfg: config.Config) -> str:
         "`esquecer_projeto` só tira da lista, nunca apaga arquivos."
         "\n\nPara saber se alguma sessão do Claude Code no PC está esperando o usuário, use "
         "`sessoes_claude_code`."
+        "\n\nPara montar um dashboard de uma planilha ou arquivo de dados (CSV, Excel, JSON, "
+        "GeoJSON, KML, KMZ), use `criar_dashboard` com o caminho completo; o botão 📊 da "
+        "janela faz o mesmo escolhendo o arquivo. PDF e Word não são suportados."
     )
     if cfg.ferramentas_pc:
         prompt += (
