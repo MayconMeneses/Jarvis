@@ -124,6 +124,82 @@ def test_errors_are_spoken_with_a_short_message():
     assert speaker.said == ["Não consegui responder agora."]
 
 
+def test_sentences_are_split_and_short_ones_merged():
+    from jarvis.voice.tts import split_sentences
+
+    parts = split_sentences("Oi. Tudo bem? A RAM está em 94%, o que é bastante alto para este PC. Quer que eu veja?")
+    assert parts == ["Oi. Tudo bem? A RAM está em 94%, o que é bastante alto para este PC.", "Quer que eu veja?"]
+    assert split_sentences("") == []
+
+
+def test_speaker_plays_first_sentence_without_waiting_for_the_rest(monkeypatch):
+    import threading
+    import time
+    from jarvis.voice import tts
+
+    played, release = [], threading.Event()
+
+    class SlowEdge:
+        sample_rate = 24000
+
+        def synthesize(self, text):
+            if text.startswith("Segunda"):
+                release.wait(2)  # a 2ª frase demora para sintetizar
+            return text
+
+    fake_sd = types_module(play=lambda pcm, rate: played.append((time.time(), pcm)), wait=lambda: None)
+    monkeypatch.setitem(__import__("sys").modules, "sounddevice", fake_sd)
+    speaker = tts.Speaker()
+    speaker.edge = SlowEdge()
+    t = threading.Thread(target=speaker.say, args=("Primeira frase bem longa para não ser juntada. Segunda frase também longa o bastante.",))
+    t.start()
+    time.sleep(0.3)
+    assert [p for _, p in played] == ["Primeira frase bem longa para não ser juntada."]  # já tocou
+    release.set()
+    t.join(3)
+    assert len(played) == 2
+
+
+def types_module(**attrs):
+    import types
+
+    return types.SimpleNamespace(**attrs)
+
+
+def test_whisper_hallucinations_are_dropped():
+    from jarvis.voice.stt import is_hallucination
+
+    assert is_hallucination("Legendas pela comunidade Amara.org", 3.0)
+    assert is_hallucination("Obrigado.", 0.8)
+    assert not is_hallucination("Obrigado.", 3.0)  # fala real mais longa
+    assert not is_hallucination("Quanto de RAM estou usando?", 2.0)
+
+
+def test_vocabulary_includes_user_city_and_projects():
+    from jarvis.voice.stt import vocabulary_hint
+
+    hint = vocabulary_hint("Maycon", "Fortaleza, Ceará", ["Comandiva", "MM System"])
+    assert hint.startswith("Maycon, Fortaleza, Comandiva, MM System, Jarvis")
+
+
+def test_chime_is_heard_before_recording_and_its_audio_is_discarded():
+    loop, events, speaker = make_loop("oi")
+    chimes = []
+    speaker.chime = lambda: chimes.append(loop._frames.qsize())
+    for f in silence(5):  # áudio do próprio bipe, que deve ser descartado
+        loop._frames.put(f)
+
+    def feed_after_chime():
+        import time
+        time.sleep(0.2)
+        for f in speech(5) + silence(30):
+            loop._frames.put(f)
+    import threading
+    threading.Thread(target=feed_after_chime).start()
+    loop._handle_turn()
+    assert chimes == [5] and speaker.said == ["Resposta para: oi"]
+
+
 def test_pause_toggle_notifies_window():
     loop, events, _ = make_loop("x")
     loop.set_paused(True)

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import webview
 
-from jarvis import briefing, config, memory
+from jarvis import briefing, config, files, memory
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
@@ -37,8 +37,9 @@ class Api:
         self._conversation = conversation
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
-        self._window = None
         self._vault = memory.open_vault(cfg.obsidian_vault)
+        self._files = files.AttachmentStore()
+        self._window = None  # definida em run(); usada no seletor de arquivos
 
     def _diary(self, entry: str) -> None:
         if self._vault is not None:
@@ -68,6 +69,18 @@ class Api:
 
         return webbrowser.open(url)
 
+    def system_stats(self) -> dict:
+        """Números reais para os medidores do HUD (leitura leve, sem esperar)."""
+        import psutil
+
+        disk = psutil.disk_usage("C:\\")
+        return {
+            # Cada chamada vem de uma thread nova: interval=None sempre daria 0 na 1ª leitura.
+            "cpu": round(psutil.cpu_percent(interval=0.3)),
+            "ram": round(psutil.virtual_memory().percent),
+            "disco": round(disk.percent),
+        }
+
     def voice_available(self) -> bool:
         return self._voice is not None
 
@@ -75,11 +88,49 @@ class Api:
         if self._voice is not None:
             self._voice.listen_now()
 
-    def send(self, text: str) -> dict:
-        started = time.time()
-        self._diary(f"Pedido: {text}")
+    # ── anexos ───────────────────────────────────────────────────────────
+    def pick_files(self) -> dict:
+        """Abre o seletor de arquivos do Windows e guarda cópias dos escolhidos."""
+        dialog = getattr(getattr(webview, "FileDialog", None), "OPEN", None) or webview.OPEN_DIALOG
+        chosen = self._window.create_file_dialog(dialog, allow_multiple=True) if self._window else None
+        return self._store_many([("path", p) for p in (chosen or [])])
+
+    def attach_data(self, name: str, b64: str) -> dict:
+        """Arquivo arrastado para a janela (o navegador entrega o conteúdo, não o caminho)."""
+        import base64
+
         try:
-            answer = self._conversation.ask(str(text))
+            data = base64.b64decode(str(b64), validate=True)
+        except ValueError:
+            return {"anexos": [], "erros": [f"{name}: conteúdo inválido"]}
+        return self._store_many([("data", (str(name), data))])
+
+    def _store_many(self, items) -> dict:
+        added, errors = [], []
+        for kind, value in items:
+            try:
+                att = self._files.add_path(value) if kind == "path" else self._files.add(*value)
+                added.append(att.public())
+            except (ValueError, OSError) as exc:
+                errors.append(str(exc))
+        return {"anexos": added, "erros": errors}
+
+    def send(self, text: str, attachments: list | None = None) -> dict:
+        started = time.time()
+        text = str(text)
+        if attachments:
+            listed = []
+            for att_id in attachments:
+                try:
+                    att = self._files.get(str(att_id))
+                    listed.append(f"- {att.nome} ({att.tipo}, {att.tamanho_kb} KB) — id {att.id}")
+                except ValueError as exc:
+                    listed.append(f"- anexo {att_id}: {exc}")
+            text = (text or "Analise os arquivos anexados.") + (
+                "\n\n[Arquivos anexados pelo usuário — leia com ler_anexo(id):]\n" + "\n".join(listed))
+        self._diary(f"Pedido: {text[:300]}")
+        try:
+            answer = self._conversation.ask(text)
         except NoBrainAvailable as exc:
             return {"error": str(exc)}
         except Exception:  # a janela nunca deve travar por um erro inesperado
@@ -100,6 +151,103 @@ class Api:
         self._diary(f"Ação {action.status}: {action.descricao} {action.resultado}")
         self._conversation.note(f"Ação '{action.descricao}' {action.status}. {action.resultado}")
         return {"status": action.status, "resultado": action.resultado}
+
+    def review_run(self, run_id: str, keep: bool) -> dict:
+        """Manter ou desfazer as mudanças que o Claude Code fez num projeto."""
+        from jarvis.dev import runs
+
+        try:
+            run = runs.review(runs.RunStore(), str(run_id), bool(keep))
+        except (ValueError, RuntimeError, OSError) as exc:
+            return {"status": "falhou", "resultado": str(exc)}
+        message = run.alteracoes.splitlines()[-1]
+        self._diary(f"Mudanças no projeto {run.projeto}: {run.revisao}. {message}")
+        self._conversation.note(f"Mudanças do Claude Code no projeto {run.projeto}: {run.revisao} "
+                                f"pelo usuário. {message}")
+        return {"status": run.revisao, "resultado": message}
+
+    # ── cérebros (Claude, Gemini, NVIDIA) ─────────────────────────────────
+    def brains_status(self) -> dict:
+        import shutil
+
+        from jarvis import keys
+
+        cfg = config.load()
+        return {
+            "claude": bool(shutil.which(cfg.claude.executable)),
+            "gemini": bool(keys.get_key("gemini")),
+            "nvidia": bool(keys.get_key("nvidia")),
+            "brave": bool(keys.get_key("brave")),
+            "uso_gemini": cfg.uso_gemini,
+            "modelo_gemini": cfg.gemini.model,
+        }
+
+    def save_key(self, provider: str, key: str) -> dict:
+        """Testa a chave com uma pergunta mínima e só guarda se funcionar (nunca devolve a chave)."""
+        from jarvis import keys
+        from jarvis.brains.base import BrainUnavailable
+        from jarvis.brains.openai_compat import OpenAICompat
+
+        provider = str(provider)
+        key = "".join(str(key).split())  # tira espaços e quebras de linha coladas junto
+        if provider not in keys.ENV_NAMES:
+            return {"ok": False, "mensagem": "provedor inválido"}
+        if len(key) < 20:
+            return {"ok": False, "mensagem": "isso não parece uma chave de API (muito curta)"}
+        log.info("testando chave do %s (%d caracteres, início %s…)", provider, len(key), key[:4])
+        if provider == "brave":  # buscador (não é IA): testa uma busca
+            from jarvis.local import websearch
+
+            try:
+                websearch.brave("teste", key, limit=1)
+            except Exception as exc:
+                log.info("chave do brave recusada: %s", exc)
+                return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+            keys.set_key("brave", key)
+            return {"ok": True, "mensagem": "Chave do Brave testada e guardada: busca completa na web sem IA ativada."}
+        try:
+            cfg = config.load()
+            provider_cfg = getattr(cfg, provider)
+            brain = OpenAICompat(provider, provider_cfg, lambda _name: key)
+            test = [{"role": "user", "content": "Responda apenas: ok"}]
+            try:
+                brain.ask(test, "Teste de conexão.")
+            except BrainUnavailable as exc:
+                log.info("teste do %s com o modelo %s: %s", provider, provider_cfg.model, exc)
+                if not str(exc).startswith("modelo não encontrado"):
+                    return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+                # A chave foi aceita, mas o nome do modelo não existe mais: escolhe um disponível.
+                provider_cfg.model = pick_model(brain.list_models(), provider)
+                log.info("modelo do %s trocado para %s", provider, provider_cfg.model)
+                brain.ask(test, "Teste de conexão.")
+                config.save(cfg)
+            keys.set_key(provider, key)
+        except (BrainUnavailable, ValueError) as exc:
+            log.info("chave do %s recusada: %s", provider, exc)
+            return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+        except Exception as exc:  # nunca deixa o botão preso sem resposta
+            log.exception("erro inesperado ao salvar a chave do %s", provider)
+            return {"ok": False, "mensagem": f"Erro inesperado ao salvar: {exc}"}
+        log.info("chave do %s guardada (modelo %s)", provider, provider_cfg.model)
+        return {"ok": True, "mensagem": f"Chave do {provider.capitalize()} testada e guardada no cofre do "
+                                        f"Windows (modelo {provider_cfg.model})."}
+
+    def remove_key(self, provider: str) -> dict:
+        from jarvis import keys
+
+        if str(provider) in keys.ENV_NAMES:
+            keys.delete_key(str(provider))
+        return {"ok": True}
+
+    def set_gemini_mode(self, mode: str) -> dict:
+        from jarvis.brains import policy
+
+        if mode not in policy.MODES:
+            return {"ok": False}
+        cfg = config.load()
+        cfg.uso_gemini = mode
+        config.save(cfg)
+        return {"ok": True}
 
     def reset(self) -> None:
         self._conversation.reset()
@@ -125,9 +273,27 @@ class Api:
                         f"Ele fica salvo em {path}."}
 
 
+def pick_model(models: list[str], provider: str) -> str:
+    """Modelo de texto rápido mais recente da lista (Gemini: "flash"; outros: o 1º de chat)."""
+    import re
+
+    skip = ("lite", "image", "tts", "audio", "live", "embedding", "vision", "thinking", "exp")
+    if provider == "gemini":
+        candidates = [m for m in models if "gemini" in m and "flash" in m and not any(s in m for s in skip)]
+        if candidates:
+            def version(name: str) -> tuple:
+                found = re.search(r"(\d+(?:\.\d+)?)", name)
+                return (float(found.group(1)) if found else 0.0, "preview" not in name, name)
+            return max(candidates, key=version)
+    chat = [m for m in models if not any(s in m for s in skip)]
+    if not chat:
+        raise ValueError("nenhum modelo de texto disponível para esta chave")
+    return chat[0]
+
+
 def build_voice(cfg: Config, api: Api, window):
     from jarvis.voice.loop import VoiceLoop
-    from jarvis.voice.stt import Transcriber
+    from jarvis.voice.stt import Transcriber, vocabulary_hint
     from jarvis.voice.tts import Speaker
 
     def notify(payload: dict) -> None:
@@ -140,7 +306,9 @@ def build_voice(cfg: Config, api: Api, window):
         respond=api.send,
         notify=notify,
         speaker=Speaker(cfg.voz.voz),
-        transcriber=Transcriber(cfg.voz.modelo_transcricao, cfg.user_name),
+        transcriber=Transcriber(
+            cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos)
+        ),
         sensitivity=cfg.voz.sensibilidade,
         speak_answers=cfg.voz.falar_respostas,
     )
@@ -152,10 +320,21 @@ def build_task_worker(cfg: Config, api: Api, window):
     def notify(run) -> None:
         label = runs.LABELS[run.modo]
         ok = run.status == "concluida"
-        head = f"{'✅' if ok else '⚠️'} {label} do projeto {run.projeto} {'concluída' if ok else 'falhou'}"
-        body = f"{head}:\n{run.resultado}"
-        if run.alteracoes:
-            body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+        mark, state = ("✅", "concluída") if ok else ("⚠️", "falhou")
+        if run.modo == "pesquisar":
+            head = f"{mark} {run.projeto} {state}: {run.tarefa[:80]}"
+            body = f"{head}\n({run.alteracoes})\n\n{run.resultado}" if run.alteracoes else f"{head}\n\n{run.resultado}"
+        else:
+            head = f"{mark} {label} do projeto {run.projeto} {state}"
+            body = f"{head}:\n{run.resultado}"
+            if run.alteracoes:
+                body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+        if run.revisao == "pendente":
+            review = {"id": run.id, "projeto": run.projeto, "diff": run.diff, "arquivos": run.mudancas}
+            try:
+                window.evaluate_js(f"window.onVoice({json.dumps({'review': review}, ensure_ascii=False)})")
+            except Exception:
+                log.debug("janela indisponível para a revisão", exc_info=True)
         api._conversation.note(f"{head}. Pedido: {run.tarefa[:200]}. Resultado: {run.resultado[:2000]}")
         api._diary(f"{head}: {run.tarefa[:120]}")
         try:
@@ -166,6 +345,34 @@ def build_task_worker(cfg: Config, api: Api, window):
             api._voice.speak(f"{head}. Os detalhes estão na janela.")
 
     return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
+
+
+def window_geometry(width: int = 440, height: int = 720, margin: int = 12) -> tuple[int, int, int, int]:
+    """Canto inferior direito da área útil do monitor (sem cobrir a barra de tarefas)."""
+    import ctypes
+    import ctypes.wintypes as wt
+
+    area = wt.RECT()
+    if not ctypes.windll.user32.SystemParametersInfoW(0x0030, 0, ctypes.byref(area), 0):  # SPI_GETWORKAREA
+        return 100, 60, width, min(height, 680)
+    usable = area.bottom - area.top - 2 * margin
+    height = max(480, min(height, usable))
+    return area.right - width - margin, area.bottom - height - margin, width, height
+
+
+_ERROR_ALREADY_EXISTS = 183
+
+
+def claim_single_instance(name: str = "Local\\SuperJarvis"):
+    """Mutex nomeado do Windows. Retorna o handle, ou None se outra Jarvis já está aberta."""
+    import ctypes
+
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.CreateMutexW(None, False, name)
+    if kernel32.GetLastError() == _ERROR_ALREADY_EXISTS:
+        kernel32.CloseHandle(handle)
+        return None
+    return handle
 
 
 def build_session_watcher(api: Api, window):
@@ -188,14 +395,23 @@ def build_session_watcher(api: Api, window):
 
 
 def run(cfg: Config, conversation: Conversation) -> int:
+    instance = claim_single_instance()
+    if instance is None:
+        import ctypes
+
+        ctypes.windll.user32.MessageBoxW(
+            None, "A Jarvis já está aberta. Procure o ícone dela na bandeja, perto do relógio.", "Jarvis", 0x40
+        )
+        return 0
     api = Api(cfg, conversation)
+    x, y, width, height = window_geometry()
     window = webview.create_window(
         "Jarvis",
         html=HTML.read_text(encoding="utf-8"),
         js_api=api,
-        width=440,
-        height=680,
+        x=x, y=y, width=width, height=height,
         min_size=(360, 480),
+        background_color="#04070C",
     )
     api._window = window
     quitting = False
@@ -217,6 +433,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
             voice.stop()
         tasks.stop()
         watcher.stop()
+        conversation.router.stop()  # fecha a sessão do Claude
         icon.stop()
         window.destroy()
 
@@ -228,6 +445,8 @@ def run(cfg: Config, conversation: Conversation) -> int:
     window.events.closing += on_closing
 
     def on_started() -> None:
+        # Abre a sessão do Claude já na largada: a 1ª pergunta não paga a inicialização.
+        threading.Thread(target=conversation.warm_up, daemon=True, name="jarvis-aquecer").start()
         icon.run_detached()
         tasks.start()
         watcher.start()

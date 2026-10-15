@@ -22,12 +22,17 @@ class Conversation:
     def ask(self, text: str) -> Answer:
         with self._lock:
             messages = self.history + [Message(role="user", content=text)]
-            system = self.system() if callable(self.system) else self.system
-            answer = self.router.ask(messages, system)
+            answer = self.router.ask(messages, self._system())
             self.history = (
                 messages + [Message(role="assistant", content=answer.text)]
             )[-MAX_HISTORY:]
             return answer
+
+    def _system(self) -> str:
+        return self.system() if callable(self.system) else self.system
+
+    def warm_up(self) -> None:
+        self.router.warm_up(self._system())
 
     def remember_said(self, text: str) -> None:
         """Registra algo que a Jarvis disse por iniciativa própria (ex.: a saudação)."""

@@ -17,6 +17,27 @@ from jarvis.config import ProviderConfig
 log = logging.getLogger(__name__)
 
 
+def http_reason(name: str, exc: urllib.error.HTTPError) -> str:
+    """Motivo legível de um erro HTTP, usando a mensagem do próprio provedor quando houver."""
+    body = exc.read().decode("utf-8", "replace")
+    log.warning("%s HTTP %s: %s", name, exc.code, body[:300])
+    message = ""
+    try:
+        data = json.loads(body)
+        error = (data[0] if isinstance(data, list) else data).get("error", {})
+        message = str(error.get("message", "") if isinstance(error, dict) else error)
+    except (ValueError, AttributeError, IndexError):
+        pass
+    low = message.lower()
+    if exc.code in (401, 403) or "api key" in low or "api_key" in low:
+        return f"chave inválida ({message or 'recusada pelo provedor'})"
+    if exc.code == 429:
+        return f"limite de uso atingido ({message})" if message else "limite de uso atingido"
+    if exc.code == 404 or "not found" in low or "is not supported" in low:
+        return f"modelo não encontrado (HTTP {exc.code}: {message})"
+    return f"erro HTTP {exc.code}" + (f": {message}" if message else "")
+
+
 class OpenAICompat:
     def __init__(
         self, name: str, cfg: ProviderConfig, get_key: Callable[[str], str | None]
@@ -24,6 +45,23 @@ class OpenAICompat:
         self.name = name
         self.cfg = cfg
         self._get_key = get_key
+
+    def list_models(self) -> list[str]:
+        """Modelos disponíveis para a chave (GET /models), sem o prefixo "models/"."""
+        key = self._get_key(self.name)
+        if not key:
+            raise BrainUnavailable("sem chave de API configurada")
+        request = urllib.request.Request(
+            self.cfg.base_url.rstrip("/") + "/models", headers={"Authorization": f"Bearer {key}"}
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.cfg.timeout_seconds) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            raise BrainUnavailable(http_reason(self.name, exc)) from exc
+        except (urllib.error.URLError, OSError, json.JSONDecodeError) as exc:
+            raise BrainUnavailable(f"não foi possível listar os modelos ({exc})") from exc
+        return [str(m.get("id", "")).removeprefix("models/") for m in data.get("data", []) if m.get("id")]
 
     def ask(self, messages: list[Message], system: str) -> Answer:
         key = self._get_key(self.name)
@@ -44,10 +82,7 @@ class OpenAICompat:
             with urllib.request.urlopen(request, timeout=self.cfg.timeout_seconds) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")[:300]
-            log.warning("%s HTTP %s: %s", self.name, exc.code, detail)
-            reason = {401: "chave inválida", 403: "acesso negado", 429: "limite de uso atingido"}
-            raise BrainUnavailable(reason.get(exc.code, f"erro HTTP {exc.code}")) from exc
+            raise BrainUnavailable(http_reason(self.name, exc)) from exc
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise BrainUnavailable(f"sem conexão ({exc})") from exc
         except json.JSONDecodeError as exc:

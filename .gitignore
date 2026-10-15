@@ -13,3 +13,6 @@ dist/
 # Segredos e configuração local
 .env
 *.local.json
+
+# Build e instalador
+build-pyinstaller.log

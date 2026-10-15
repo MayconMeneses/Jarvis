@@ -4,36 +4,60 @@ from pathlib import Path
 
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 from jarvis.brains.claude_cli import ClaudeCLI
+from jarvis.brains.claude_session import ClaudeSession
+from jarvis.brains import policy
 from jarvis.brains.openai_compat import OpenAICompat
 from jarvis.brains.router import NoBrainAvailable, Router
 from jarvis.config import Config, data_dir
 from jarvis.keys import get_key
 
 
-def console_python() -> str:
-    """python.exe ao lado do interpretador atual (o servidor MCP usa stdio)."""
+def mcp_server_command() -> tuple[str, list[str]]:
+    """Como iniciar o servidor MCP (stdio): precisa de um executável de console.
+
+    Instalado (PyInstaller): jarvis-cli.exe --mcp-server, na mesma pasta do Jarvis.exe.
+    Em desenvolvimento: python.exe -m jarvis.mcp_server.
+    """
     exe = Path(sys.executable)
+    if getattr(sys, "frozen", False):
+        return str(exe.with_name("jarvis-cli.exe")), ["--mcp-server"]
     candidate = exe.with_name("python.exe")
-    return str(candidate if candidate.exists() else exe)
+    return str(candidate if candidate.exists() else exe), ["-m", "jarvis.mcp_server"]
 
 
 def write_mcp_config(path: Path | None = None) -> Path:
     path = path or data_dir() / "mcp.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    config = {"mcpServers": {"jarvis": {"command": console_python(), "args": ["-m", "jarvis.mcp_server"]}}}
+    command, args = mcp_server_command()
+    config = {"mcpServers": {"jarvis": {"command": command, "args": args}}}
     path.write_text(json.dumps(config, indent=2), encoding="utf-8")
     return path
 
 
 def build_router(cfg: Config) -> Router:
     mcp = write_mcp_config() if cfg.ferramentas_pc else None
+    claude_kind = ClaudeSession if cfg.claude.sessao_continua else ClaudeCLI
     available = {
-        "claude": lambda: ClaudeCLI(cfg.claude, mcp_config=mcp),
+        "claude": lambda: claude_kind(cfg.claude, mcp_config=mcp),
         "gemini": lambda: OpenAICompat("gemini", cfg.gemini, get_key),
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }
     brains = [available[name]() for name in cfg.brains if name in available]
-    return Router(brains)
+    local = None
+    if cfg.modo_independente:
+        from jarvis.local.engine import LocalEngine
+
+        local = LocalEngine()
+        brains.append(local)  # último cérebro: a Jarvis nunca fica sem resposta
+
+    def prefer(text: str) -> str | None:
+        from jarvis import config
+
+        if local is not None and local.is_direct_command(text):
+            return "local"  # comando direto: na hora, sem gastar limite de nenhuma IA
+        return policy.preferred(text, config.load().uso_gemini)  # lido a cada pedido: muda na hora
+
+    return Router(brains, prefer=prefer)
 
 
 __all__ = [

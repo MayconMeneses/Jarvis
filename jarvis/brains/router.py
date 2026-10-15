@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 
@@ -15,14 +15,36 @@ class NoBrainAvailable(RuntimeError):
 
 
 class Router:
-    def __init__(self, brains: Sequence[Brain]) -> None:
+    def __init__(self, brains: Sequence[Brain], prefer: Callable[[str], str | None] | None = None) -> None:
         if not brains:
             raise ValueError("é preciso ao menos um cérebro")
         self.brains = list(brains)
+        # Recebe o texto do pedido e diz qual cérebro tentar primeiro (ver policy.py).
+        self.prefer = prefer
+
+    def order(self, messages: list[Message]) -> list[Brain]:
+        first = self.prefer(messages[-1]["content"]) if self.prefer and messages else None
+        if first is None:
+            return self.brains
+        return sorted(self.brains, key=lambda b: b.name != first)  # estável: o resto mantém a ordem
+
+    def warm_up(self, system: str) -> None:
+        """Prepara os cérebros que suportam isso (ex.: abre a sessão do Claude)."""
+        for brain in self.brains:
+            if hasattr(brain, "warm_up"):
+                try:
+                    brain.warm_up(system)
+                except BrainUnavailable as exc:
+                    log.info("não foi possível preparar %s: %s", brain.name, exc)
+
+    def stop(self) -> None:
+        for brain in self.brains:
+            if hasattr(brain, "stop"):
+                brain.stop()
 
     def ask(self, messages: list[Message], system: str) -> Answer:
         failures = []
-        for brain in self.brains:
+        for brain in self.order(messages):
             try:
                 return brain.ask(messages, system)
             except BrainUnavailable as exc:

@@ -28,6 +28,10 @@ class ClaudeConfig:
     executable: str = "claude"
     model: str = ""  # vazio = modelo padrão da assinatura
     timeout_seconds: int = 180
+    # Mantém um Claude aberto entre perguntas (~2 s por resposta em vez de ~11 s).
+    sessao_continua: bool = True
+    # Pesquisar na internet e ler sites (WebSearch/WebFetch da assinatura).
+    web: bool = True
 
 
 @dataclass
@@ -68,8 +72,8 @@ class EmailConfig:
 class VoiceConfig:
     ativa: bool = True
     falar_respostas: bool = True
-    # "base" é rápido e leve; "small" acerta mais, mas usa ~3x mais RAM e tempo.
-    modelo_transcricao: str = "base"
+    # "small" errou ~11% das palavras com ruído neste PC; "base" ~60%, mas é ~4 s mais rápido.
+    modelo_transcricao: str = "small"
     voz: str = "pt-BR-FranciscaNeural"
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5
@@ -90,6 +94,11 @@ class Config:
     brains: list[str] = field(default_factory=lambda: ["claude", "gemini", "nvidia"])
     # Ferramentas do PC (leitura + propostas com aprovação). Só o Claude as usa.
     ferramentas_pc: bool = True
+    # Quando usar o Gemini: "reserva" (só se o Claude falhar) ou "simples" (conversa curta
+    # sem ferramentas vai para o Gemini). Pedir "Gemini, ..." funciona nos dois modos.
+    uso_gemini: str = "reserva"
+    # Motor local sem IA: comandos diretos na hora e reserva final quando nenhuma IA responde.
+    modo_independente: bool = True
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)
@@ -122,14 +131,43 @@ def load(path: Path | None = None) -> Config:
         return cfg
     raw = json.loads(path.read_text(encoding="utf-8"))
     cfg = Config.from_dict(raw)
-    if asdict(cfg) != raw:  # completa o arquivo com campos novos de versões recentes
+    if not cfg.obsidian_vault or not Path(cfg.obsidian_vault).is_dir():
+        cfg.obsidian_vault = detect_obsidian_vault() or cfg.obsidian_vault
+    if asdict(cfg) != raw:  # completa o arquivo com campos novos (ou o cofre detectado)
         save(cfg, path)
     return cfg
+
+
+def detect_obsidian_vault(obsidian_json: Path | None = None) -> str:
+    """Cofre aberto no Obsidian deste usuário (o mais recente), ou "" se não houver."""
+    obsidian_json = obsidian_json or Path(os.environ.get("APPDATA", "")) / "obsidian" / "obsidian.json"
+    try:
+        vaults = json.loads(obsidian_json.read_text(encoding="utf-8")).get("vaults", {}).values()
+    except (OSError, ValueError, AttributeError):
+        return ""
+    existing = [v for v in vaults if isinstance(v, dict) and Path(v.get("path", "")).is_dir()]
+    if not existing:
+        return ""
+    best = max(existing, key=lambda v: (bool(v.get("open")), v.get("ts", 0)))
+    return best["path"]
 
 
 def save(cfg: Config, path: Path | None = None) -> None:
     path = path or config_dir() / "config.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(asdict(cfg), ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    new = asdict(cfg)
+    try:
+        old = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        old = {}
+    changed = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k))
+    if changed:
+        import logging
+        import sys
+
+        # Registro para rastrear quem altera a configuração (ex.: cidade apagada sem querer).
+        logging.getLogger(__name__).info(
+            "config.json alterado por pid %s (%s): %s", os.getpid(), " ".join(sys.argv[:2])[-80:],
+            ", ".join(f"{k}: {old.get(k)!r:.40} -> {new.get(k)!r:.40}" for k in changed if k not in ("claude",)))
+    # ensure_ascii: acentos viram á etc., então o arquivo nunca fica com texto corrompido.
+    path.write_text(json.dumps(new, ensure_ascii=True, indent=2), encoding="utf-8")
