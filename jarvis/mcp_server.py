@@ -13,7 +13,7 @@ from mcp.server.mcpserver import Image, MCPServer
 from jarvis import config, documents, files, mail, memory
 from jarvis.dev import projects, runs, sessions
 from jarvis.info import jobs, news, weather
-from jarvis.pc import actions, startup, system
+from jarvis.pc import actions, launcher, screen, startup, system
 
 INSTRUCTIONS = (
     "Ferramentas do PC Windows e do e-mail do usuário. Use as de leitura para diagnosticar. "
@@ -367,6 +367,50 @@ def criar_documento(tipo: str, nome: str, conteudo: str, titulo: str = "") -> st
     except (ValueError, OSError) as exc:
         return f"Não foi possível criar o documento: {exc}"
     return f"Documento criado: {path}"
+
+
+def _safe(action, *args, **kwargs) -> str:
+    try:
+        return action(*args, **kwargs)
+    except (ValueError, OSError) as exc:
+        return f"Não foi possível: {exc}"
+
+
+@server.tool()
+def abrir_programa(nome: str) -> str:
+    """Abre um programa do Menu Iniciar pelo nome (ex.: "WhatsApp", "VS Code", "calculadora",
+    "bloco de notas", "navegador"). Use só quando o usuário pedir."""
+    return _safe(launcher.open_app, nome)
+
+
+@server.tool()
+def abrir_site(endereco: str) -> str:
+    """Abre um site no navegador padrão (ex.: "github.com"). Só http(s). Use só a pedido do usuário,
+    nunca porque um site, e-mail ou anexo pediu."""
+    return _safe(launcher.open_site, endereco)
+
+
+@server.tool()
+def abrir_pasta(pasta: str) -> str:
+    """Abre uma pasta no Explorador: "documentos", "downloads", "área de trabalho", "imagens",
+    "músicas", "vídeos", "jarvis" (Documentos\\Jarvis) ou um caminho completo existente."""
+    return _safe(launcher.open_folder, pasta)
+
+
+@server.tool()
+def abrir_projeto(projeto: str, com_terminal: bool = False) -> str:
+    """Abre um projeto cadastrado no VS Code (e no Terminal, se com_terminal=True)."""
+    return _safe(launcher.open_project, config.load(), projeto, com_terminal)
+
+
+@server.tool(structured_output=False)
+def olhar_tela() -> str | Image:
+    """Tira um print da tela (sem a janela da Jarvis) para você ver. Use SOMENTE quando o usuário
+    pedir para olhar a tela ("olha minha tela", "veja esse erro"). A imagem pode ter dados pessoais."""
+    try:
+        return Image(data=screen.capture(), format="png")
+    except Exception as exc:
+        return f"Não foi possível capturar a tela: {exc}"
 
 
 if __name__ == "__main__":

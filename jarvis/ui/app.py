@@ -152,6 +152,20 @@ class Api:
         self._conversation.note(f"Ação '{action.descricao}' {action.status}. {action.resultado}")
         return {"status": action.status, "resultado": action.resultado}
 
+    def review_run(self, run_id: str, keep: bool) -> dict:
+        """Manter ou desfazer as mudanças que o Claude Code fez num projeto."""
+        from jarvis.dev import runs
+
+        try:
+            run = runs.review(runs.RunStore(), str(run_id), bool(keep))
+        except (ValueError, RuntimeError, OSError) as exc:
+            return {"status": "falhou", "resultado": str(exc)}
+        message = run.alteracoes.splitlines()[-1]
+        self._diary(f"Mudanças no projeto {run.projeto}: {run.revisao}. {message}")
+        self._conversation.note(f"Mudanças do Claude Code no projeto {run.projeto}: {run.revisao} "
+                                f"pelo usuário. {message}")
+        return {"status": run.revisao, "resultado": message}
+
     def reset(self) -> None:
         self._conversation.reset()
 
@@ -194,6 +208,12 @@ def build_task_worker(cfg: Config, api: Api, window):
             body = f"{head}:\n{run.resultado}"
             if run.alteracoes:
                 body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+        if run.revisao == "pendente":
+            review = {"id": run.id, "projeto": run.projeto, "diff": run.diff, "arquivos": run.mudancas}
+            try:
+                window.evaluate_js(f"window.onVoice({json.dumps({'review': review}, ensure_ascii=False)})")
+            except Exception:
+                log.debug("janela indisponível para a revisão", exc_info=True)
         api._conversation.note(f"{head}. Pedido: {run.tarefa[:200]}. Resultado: {run.resultado[:2000]}")
         api._diary(f"{head}: {run.tarefa[:120]}")
         try:
