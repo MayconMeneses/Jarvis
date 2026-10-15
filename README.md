@@ -2,6 +2,36 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
+## Avaliação de qualidade (métricas e benchmarks)
+
+```bash
+C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis.eval
+```
+
+```bash
+C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis.eval --ias claude,local --juiz gemini
+```
+
+O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respostas dos cérebros (gasta limite). O relatório vai para `Jarvis/Avaliações` no Obsidian.
+
+- **Métricas:**
+  - **BLEU** (tradução) e **ROUGE-1/2/L** (sumarização, com precisão, recall e F1).
+  - **METEOR**, com radicais em português; sem o dicionário de sinônimos do WordNet, que só existe em inglês.
+  - **BERTScore**, com o MiniLM multilíngue de 112 MB. Os valores não são comparáveis aos publicados com o RoBERTa-large.
+  - **Precisão, recall e F1** por intenção (macro e micro) e matriz de confusão.
+- **BLEURT** não roda neste PC (TensorFlow e modelo de 2 GB ou mais). O substituto é o **juiz por rubrica** (`--juiz`), de preferência um cérebro diferente do avaliado, para não favorecer a si mesmo.
+- **Critérios em toda resposta**, de 0 a 10, mostrados na janela (passe o mouse sobre "qualidade"): coerência, clareza, relevância, fidelidade (quando há fontes) e fluidez. São heurísticas de **forma**: não dizem se a resposta está correta.
+- **Benchmarks:**
+  - comandos com conjunto de **ajuste** e de **validação** separados; o relatório aponta overfitting quando a diferença passa de 5%;
+  - **robustez** (sem acentos, maiúsculas, erro de digitação, "por favor", ruído);
+  - resumos contra o baseline **Lead-2**;
+  - respostas por cérebro, com latência.
+- **Resultados de 15/10/2026:**
+  - comandos: 100% no ajuste e **94,7% na validação**;
+  - robustez: 93,5% com erro de digitação;
+  - resumo extrativo: ROUGE-L 0,35, **abaixo** do Lead-2 (0,43);
+  - Claude: BERTScore 0,91 e juiz 9,7/10.
+
 ## Modo independente (sem IA)
 
 A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem IA generativa, fica sempre como o último cérebro.
