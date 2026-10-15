@@ -6,6 +6,7 @@ Fechar a janela só a esconde; para encerrar, use "Sair" no ícone da bandeja.
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 
 import webview
@@ -13,6 +14,7 @@ import webview
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
+from jarvis.pc import actions
 from jarvis.ui import tray
 
 log = logging.getLogger(__name__)
@@ -25,14 +27,18 @@ class Api:
     Atributos com "_" não são expostos ao JavaScript.
     """
 
-    def __init__(self, cfg: Config, conversation: Conversation) -> None:
+    def __init__(
+        self, cfg: Config, conversation: Conversation, store: actions.ActionStore | None = None
+    ) -> None:
         self._cfg = cfg
         self._conversation = conversation
+        self._store = store or actions.ActionStore()
 
     def greeting(self) -> str:
         return f"Olá, {self._cfg.user_name}! Em que posso ajudar?"
 
     def send(self, text: str) -> dict:
+        started = time.time()
         try:
             answer = self._conversation.ask(str(text))
         except NoBrainAvailable as exc:
@@ -40,7 +46,20 @@ class Api:
         except Exception:  # a janela nunca deve travar por um erro inesperado
             log.exception("erro ao responder")
             return {"error": "Erro inesperado. Detalhes no log da Jarvis."}
-        return {"text": answer.text, "brain": answer.brain}
+        proposals = [
+            {"id": a.id, "descricao": a.descricao, "motivo": a.motivo}
+            for a in self._store.pending_since(started)
+        ]
+        return {"text": answer.text, "brain": answer.brain, "actions": proposals}
+
+    def decide(self, action_id: str, approve: bool) -> dict:
+        try:
+            action = actions.decide(self._store, str(action_id), bool(approve))
+        except (ValueError, FileNotFoundError) as exc:
+            return {"status": "falhou", "resultado": str(exc)}
+        log.info("ação %s %s: %s", action.kind, action.status, action.resultado)
+        self._conversation.note(f"Ação '{action.descricao}' {action.status}. {action.resultado}")
+        return {"status": action.status, "resultado": action.resultado}
 
     def reset(self) -> None:
         self._conversation.reset()
