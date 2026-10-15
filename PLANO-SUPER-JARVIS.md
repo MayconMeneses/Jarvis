@@ -131,6 +131,39 @@ Projetos/                      (seu cofre)
 - SQLite fica só para dados técnicos (log de ações e uso dos cérebros), não para a memória.
 - Dados pessoais são removidos antes de ir para a nuvem quando possível.
 
+### Memória própria, sem depender do Obsidian (decisão de 2026-10-15)
+Objetivo do dono: a Jarvis vira um aplicativo com instalador e **tudo que ela precisa vem dentro do instalador**. A memória não pode exigir Obsidian (nem qualquer outro programa).
+
+**Levantamento do que hoje depende de algo de fora** (CONFIRMADO no código):
+
+| Dependência | Onde | Situação para o instalador |
+|---|---|---|
+| Cofre do Obsidian (`obsidian_vault`) | `memory.py` (classe `Vault`), `briefing.py`, `ui/app.py` (diário), `mcp_server.py` (lembrar, buscar_notas, ler_nota, perfil de vagas), `dev/projects.py` e `dev/runs.py` (ficha e relatórios dos projetos), `__main__.py` (índice no prompt) | **Trocar**: é o assunto desta seção |
+| Painel do Dashboard Universal | `jarvis/dashboard/painel.html` | Já embutido |
+| Modelos de voz "Hey Jarvis" (openWakeWord) | dentro do pacote Python | Já vão no pacote; conferir no PyInstaller |
+| Modelos Whisper (base 142 MB, small 464 MB) | baixados na 1ª vez para `~/.cache/huggingface` | **Decidir**: embutir o `base` no instalador ou baixar na instalação com barra de progresso |
+| Modelo de significado (MiniLM, 122 MB) | `~/.cache/huggingface` | Só entra se a busca por significado for usada; hoje não é obrigatória |
+| Claude Code (`claude`) | executável externo, usa a assinatura do dono | **Não dá para embutir** (licença e login). O instalador/primeira abertura detecta e guia a instalação e o login; sem ele a Jarvis cai no Gemini/NIM ou no modo independente |
+| `git` | projetos de código, estado e revisão | Detectar; se faltar, as funções de projeto avisam em vez de quebrar |
+| Python e bibliotecas | venv do dono | O instalador leva o runtime (PyInstaller) |
+| Internet | voz de resposta (edge-tts), clima, notícias, vagas, IA em nuvem | Inevitável; já degrada com aviso |
+| Credenciais de e-mail | `config_dir()/gmail_client_secret.json` e tokens no cofre do Windows (DPAPI) | Por usuário, ficam fora do instalador de propósito |
+
+**Desenho da memória única**
+- **Um arquivo SQLite** em `%APPDATA%\SuperJarvis\memoria.db` (sobrevive a desinstalar e atualizar; backup = copiar um arquivo). Python já traz o `sqlite3`: nada a instalar.
+- Tabelas: `memorias` (título, fato, resumo, criado, atualizado), `diario` (data, hora, texto), `relatorios` (nome, conteúdo, data), `projetos_fichas` (projeto, seção, texto, data), `perfil` (chave, valor, para o perfil de vagas) e um índice de busca **FTS5** (rápido e leve; mantém a regra do PC fraco).
+- **Mesma interface da `Vault`** (`remember`, `memories`, `index_text`, `search`, `read`, `diary`, `save_report`, mais ficha de projeto e perfil), então `briefing`, `app`, `mcp_server`, `projects` e `runs` trocam só de onde vêm os dados. As ferramentas MCP mantêm os nomes.
+- **Obsidian passa a ser opcional**: (1) importação única das notas que já estão em `Jarvis/` no cofre, sem apagar nada; (2) exportação para Markdown, se o dono quiser continuar vendo tudo no Obsidian (o banco é a fonte da verdade, o Markdown é cópia). Sem cofre configurado, tudo funciona igual.
+- A tela da Jarvis ganha um visualizador simples da memória (listar, buscar, editar, apagar), porque sem Obsidian o dono precisa de um jeito de ver e corrigir o que ela guardou.
+- Regras mantidas: nada de senhas, documentos ou dados bancários na memória; conteúdo de e-mail e notícia nunca vira memória sem passar pelo dono; dados pessoais saem antes de ir para a nuvem quando possível.
+
+**Ordem sugerida**
+1. Reconciliar o branch com a `main` (a `main` recebeu a Fase 8 e a interface HUD; o branch tem ficha de projeto, projeto novo, dashboard e fila estável).
+2. Criar `jarvis/memory_db.py` com a interface acima e testes; migrar as chamadas para uma fábrica única `open_memory(cfg)`.
+3. Importador do `Jarvis/` do Obsidian e exportador opcional para Markdown.
+4. Visualizador de memória na janela.
+5. Fechar o levantamento de empacotamento (modelo Whisper, wake word, detecção do Claude Code e do git) no instalador.
+
 ### Rotina ao abrir (briefing)
 Sempre que a Jarvis abre (ou no primeiro uso do dia), ela fala com você:
 
