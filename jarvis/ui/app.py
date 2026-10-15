@@ -140,7 +140,28 @@ class Api:
             {"id": a.id, "descricao": a.descricao, "motivo": a.motivo}
             for a in self._store.pending_since(started)
         ]
-        return {"text": answer.text, "brain": answer.brain, "actions": proposals}
+        return {"text": answer.text, "brain": answer.brain, "actions": proposals,
+                "qualidade": self._evaluate(text, answer, time.time() - started)}
+
+    def _evaluate(self, question: str, answer, seconds: float) -> dict | None:
+        """Critérios de qualidade de toda resposta (heurísticas leves, sem modelo) + registro."""
+        from jarvis.eval import quality
+
+        try:
+            result = quality.evaluate(question, answer.text)
+        except Exception:
+            log.debug("avaliação da resposta falhou", exc_info=True)
+            return None
+        try:
+            from jarvis.config import data_dir
+
+            record = {"quando": time.time(), "cerebro": answer.brain, "segundos": round(seconds, 2),
+                      "media": result["media"], "notas": result["notas"], "pergunta": question[:200]}
+            with (data_dir() / "avaliacoes.jsonl").open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except OSError:
+            pass
+        return result
 
     def decide(self, action_id: str, approve: bool) -> dict:
         try:

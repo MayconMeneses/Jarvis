@@ -1,0 +1,27 @@
+[
+  {
+    "pergunta": "o que é Docker",
+    "texto": "Docker é uma plataforma de código aberto para criar, distribuir e executar aplicações em contêineres. Um contêiner empacota o código e todas as dependências, para que a aplicação rode da mesma forma em qualquer ambiente. Diferente de uma máquina virtual, o contêiner compartilha o núcleo do sistema operacional, por isso é mais leve e inicia em segundos. A empresa Docker foi fundada em 2013 por Solomon Hykes. O Docker Hub é um repositório público de imagens. Muitas equipes usam Docker com Kubernetes para orquestrar contêineres em produção.",
+    "referencia": "Docker é uma plataforma de código aberto que executa aplicações em contêineres, que empacotam o código e as dependências e são mais leves que máquinas virtuais."
+  },
+  {
+    "pergunta": "como funciona a fotossíntese",
+    "texto": "A fotossíntese é o processo pelo qual plantas, algas e algumas bactérias transformam energia luminosa em energia química. Ela acontece principalmente nos cloroplastos, que contêm clorofila. A planta absorve água pelas raízes e gás carbônico pelas folhas. Usando a luz do sol, produz glicose e libera oxigênio para a atmosfera. A glicose serve de alimento e é usada no crescimento da planta. O processo é essencial para a vida na Terra, pois produz o oxigênio que respiramos.",
+    "referencia": "Na fotossíntese, as plantas usam a luz do sol, água e gás carbônico para produzir glicose e liberar oxigênio, nos cloroplastos com clorofila."
+  },
+  {
+    "pergunta": "o que é a LGPD",
+    "texto": "A Lei Geral de Proteção de Dados Pessoais, conhecida como LGPD, é a lei brasileira que regula o tratamento de dados pessoais. Ela foi sancionada em 2018 e entrou em vigor em 2020. A lei vale para empresas e órgãos públicos que coletam dados de pessoas no Brasil. Ela exige uma base legal, como o consentimento, para tratar dados. A Autoridade Nacional de Proteção de Dados, a ANPD, fiscaliza o cumprimento e pode aplicar multas. O titular tem direito de acessar, corrigir e pedir a exclusão dos seus dados.",
+    "referencia": "A LGPD é a lei brasileira de proteção de dados pessoais, em vigor desde 2020, que exige base legal como o consentimento e é fiscalizada pela ANPD."
+  },
+  {
+    "pergunta": "o que é Python",
+    "texto": "Python é uma linguagem de programação de alto nível, interpretada e de uso geral. Foi criada por Guido van Rossum e lançada em 1991. A linguagem prioriza a legibilidade do código, usando indentação para definir blocos. Python é muito usado em ciência de dados, inteligência artificial, automação e desenvolvimento web. Possui uma grande biblioteca padrão e milhares de pacotes no PyPI. O nome é uma homenagem ao grupo de comédia Monty Python.",
+    "referencia": "Python é uma linguagem de programação de alto nível e uso geral, criada por Guido van Rossum em 1991, focada em legibilidade e muito usada em dados, IA e web."
+  },
+  {
+    "pergunta": "o que é uma API REST",
+    "texto": "Uma API REST é uma interface que permite a comunicação entre sistemas pela web usando o protocolo HTTP. Ela segue os princípios da arquitetura REST, definida por Roy Fielding em 2000. Os recursos são identificados por URLs e manipulados com métodos como GET, POST, PUT e DELETE. As respostas costumam vir em formato JSON. Uma API REST não guarda estado entre as requisições, o que facilita escalar o serviço. É o padrão mais comum para integrar aplicações web e móveis.",
+    "referencia": "Uma API REST permite que sistemas se comuniquem via HTTP, acessando recursos por URLs com métodos como GET e POST, geralmente com respostas em JSON e sem guardar estado."
+  }
+]
