@@ -23,6 +23,7 @@ dependencies = [
     "openpyxl>=3.1",
     "python-pptx>=1.0",
     "fpdf2>=2.8",
+    "snowballstemmer>=2.2",
 ]
 
 [project.optional-dependencies]
@@ -41,6 +42,7 @@ include = ["jarvis*"]
 [tool.setuptools.package-data]
 "jarvis.ui" = ["*.html"]
 "jarvis.dashboard" = ["*.html"]
+"jarvis.eval" = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

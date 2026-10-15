@@ -221,14 +221,30 @@ def extract(query: str, docs: list[tuple[int, str]], top: int = 6) -> list[tuple
     terms = set(keywords(query))
     if not terms:
         return []
-    candidates = [(s, n, set(keywords(s))) for n, text in docs for s in sentences(text)]
-    spread = {t: len({n for _, n, words in candidates if t in words}) for t in terms}
+    # (frase, fonte, palavras, posição da frase dentro do próprio texto)
+    candidates = [(s, n, set(keywords(s)), i) for n, text in docs for i, s in enumerate(sentences(text))]
+    spread = {t: len({n for _, n, words, _ in candidates if t in words}) for t in terms}
+    # Centralidade (ideia do TextRank): o quanto a frase compartilha conteúdo com as outras
+    # frases do mesmo texto. Frases centrais representam melhor o assunto do documento.
+    by_doc: dict[int, list[set]] = {}
+    for _, source, words, _ in candidates:
+        by_doc.setdefault(source, []).append(words)
+
+    def centrality(source: int, words: set) -> float:
+        others = [w for w in by_doc[source] if w is not words and w]
+        if not others or not words:
+            return 0.0
+        return sum(len(words & w) / len(words | w) for w in others) / len(others)
+
     scored = []
-    for position, (sentence, source, words) in enumerate(candidates):
+    for sentence, source, words, position in candidates:
         hits = terms & words
-        if not hits:
-            continue
-        score = sum(1 + 0.5 * spread[t] for t in hits) / (1 + 0.002 * position)
+        if not hits and position > 2:
+            continue  # sem termo da pergunta, só entra se estiver no começo do texto
+        score = sum(1 + 0.5 * spread[t] for t in hits) + 8 * centrality(source, words)
+        score *= 1 + 1.2 / (1 + position)  # o começo do texto costuma resumir o assunto
+        if re.search(r"\b(e|sao|foi|significa|consiste|refere)\b", fold(sentence)[:120]):
+            score *= 1.25  # frase de definição ("X é ...")
         scored.append((score, sentence, source, words))
     chosen: list[tuple[str, int]] = []
     kept: list[set] = []

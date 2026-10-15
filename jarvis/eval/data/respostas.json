@@ -1,0 +1,18 @@
+[
+  {"tipo": "fato", "pergunta": "Qual é a capital da Austrália? Responda em uma frase.",
+   "referencia": "A capital da Austrália é Camberra."},
+  {"tipo": "fato", "pergunta": "Quem criou a linguagem Python? Responda em uma frase.",
+   "referencia": "A linguagem Python foi criada por Guido van Rossum."},
+  {"tipo": "explicacao", "pergunta": "Explique em duas frases o que é uma variável em programação.",
+   "referencia": "Uma variável é um nome que guarda um valor na memória do programa. Esse valor pode ser lido e alterado durante a execução."},
+  {"tipo": "explicacao", "pergunta": "Em duas frases, qual a diferença entre RAM e disco?",
+   "referencia": "A RAM é uma memória rápida e temporária usada pelos programas em execução. O disco guarda os arquivos de forma permanente, mas é mais lento."},
+  {"tipo": "traducao", "pergunta": "Traduza para o português, só a tradução: 'The quick brown fox jumps over the lazy dog.'",
+   "referencia": "A rápida raposa marrom pula sobre o cão preguiçoso."},
+  {"tipo": "traducao", "pergunta": "Traduza para o português, só a tradução: 'Please save your work before closing the application.'",
+   "referencia": "Por favor, salve seu trabalho antes de fechar o aplicativo."},
+  {"tipo": "traducao", "pergunta": "Traduza para o inglês, só a tradução: 'O relatório será enviado amanhã de manhã.'",
+   "referencia": "The report will be sent tomorrow morning."},
+  {"tipo": "resumo", "pergunta": "Resuma em uma frase: A reunião de hoje definiu que o lançamento do aplicativo será adiado para março, porque a equipe precisa corrigir falhas de segurança encontradas nos testes. O marketing vai ajustar a campanha para a nova data.",
+   "referencia": "O lançamento do aplicativo foi adiado para março para corrigir falhas de segurança, e o marketing vai ajustar a campanha."}
+]
