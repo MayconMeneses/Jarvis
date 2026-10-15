@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mcp.server.mcpserver import Image, MCPServer
 
-from jarvis import config, files, mail, memory
+from jarvis import config, documents, files, mail, memory
 from jarvis.dev import projects, runs, sessions
 from jarvis.info import jobs, news, weather
 from jarvis.pc import actions, startup, system
@@ -284,6 +284,23 @@ def propor_executar_tarefa(projeto: str, tarefa: str, motivo: str) -> str:
 
 
 @server.tool()
+def pesquisar_a_fundo(tema: str, nivel: str) -> str:
+    """Pesquisa longa na internet em segundo plano, com relatório por categorias e fontes.
+
+    nivel: "media" (~15 sites), "dificil" (~35) ou "extra" (50+). Para perguntas simples
+    (~3 sites), pesquise você mesmo com WebSearch/WebFetch, sem esta ferramenta.
+    Leva de alguns minutos a quase uma hora e consome bastante do limite da assinatura.
+    """
+    try:
+        run = runs.enqueue_research(runs.RunStore(), tema, nivel)
+    except ValueError as exc:
+        return f"Não foi possível: {exc}"
+    level = runs.LEVELS[run.nivel]
+    return (f"Pesquisa {level['nome']} (~{level['fontes']} sites) na fila (id {run.id}). "
+            "O resultado aparece na janela e em Jarvis/Pesquisas no Obsidian.")
+
+
+@server.tool()
 def tarefas_de_codigo(limite: int = 5) -> list[dict]:
     """Últimas tarefas do Claude Code (status e começo do resultado)."""
     recent = runs.RunStore().all()[-max(1, min(limite, 20)):]
@@ -332,6 +349,24 @@ def salvar_arquivo(nome: str, conteudo: str) -> str:
     except (ValueError, OSError) as exc:
         return f"Não foi possível salvar: {exc}"
     return f"Arquivo criado: {path}"
+
+
+@server.tool()
+def criar_documento(tipo: str, nome: str, conteudo: str, titulo: str = "") -> str:
+    """Cria um documento em Documentos\\Jarvis (nunca sobrescreve). Use quando o usuário pedir.
+
+    tipo "word" ou "pdf": conteudo em Markdown (# títulos, - listas, 1. listas numeradas,
+      tabelas |a|b| com linha |---|---|, **negrito**).
+    tipo "excel": conteudo em JSON: [{"nome": "Vendas", "linhas": [["Mês","Total"],["Out", 1200]]}]
+      (1ª linha = cabeçalho; números como números; fórmulas como "=SUM(B2:B5)").
+    tipo "powerpoint": conteudo em JSON: [{"titulo": "...", "topicos": ["...", "..."], "notas": "..."}]
+      (use `titulo` para a capa).
+    """
+    try:
+        path = documents.create(tipo, nome, conteudo, titulo)
+    except (ValueError, OSError) as exc:
+        return f"Não foi possível criar o documento: {exc}"
+    return f"Documento criado: {path}"
 
 
 if __name__ == "__main__":

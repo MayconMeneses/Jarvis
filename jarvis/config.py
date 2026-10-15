@@ -30,6 +30,8 @@ class ClaudeConfig:
     timeout_seconds: int = 180
     # Mantém um Claude aberto entre perguntas (~2 s por resposta em vez de ~11 s).
     sessao_continua: bool = True
+    # Pesquisar na internet e ler sites (WebSearch/WebFetch da assinatura).
+    web: bool = True
 
 
 @dataclass
