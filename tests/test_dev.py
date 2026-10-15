@@ -176,3 +176,89 @@ def test_code_changes_only_enter_queue_after_approval(cfg, tmp_path, monkeypatch
 
     with pytest.raises(ValueError, match="git"):
         actions.propose_dev_task(acts, cfg, "Sem Git", "x", "m")
+
+
+# ── ficha do projeto e projeto novo ──────────────────────────────────────
+
+def test_project_info_accumulates_and_description_replaces(cfg, tmp_path):
+    vault = memory.Vault(tmp_path / "cofre")
+    projects.add_info(cfg, vault, "comandiva sistema", "Sistema de pedidos para restaurantes", "descricao")
+    projects.add_info(cfg, vault, "Comandiva Sistema", "Python 3.11 e FastAPI", "Stack")
+    projects.add_info(cfg, vault, "Comandiva Sistema", "Usar Postgres", "decisões")
+    path = projects.add_info(cfg, vault, "Comandiva Sistema", "Sistema de comandas", "Descrição")
+    projects.add_info(cfg, vault, "Comandiva Sistema", "Sem Redis por enquanto", "Decisões")
+    text = projects.read_info(cfg, vault, "Comandiva Sistema")
+    assert path == vault.home / "Projetos" / "Comandiva Sistema" / "Sobre.md"
+    assert "Sistema de comandas" in text and "restaurantes" not in text
+    assert "Usar Postgres" in text and "Sem Redis" in text and "## Stack" in text
+    assert text.index("## Descrição") < text.index("## Stack") < text.index("## Decisões")
+    with pytest.raises(ValueError, match="seção"):
+        projects.add_info(cfg, vault, "Comandiva Sistema", "x", "Senhas")
+    with pytest.raises(ValueError, match="não cadastrado"):
+        projects.add_info(cfg, vault, "Outro", "x")
+
+
+def test_user_edits_to_the_note_are_kept(cfg, tmp_path):
+    vault = memory.Vault(tmp_path / "cofre")
+    path = projects.add_info(cfg, vault, "Comandiva Sistema", "primeira", "Pendências")
+    path.write_text(path.read_text(encoding="utf-8") + "\n## Links\n- https://exemplo.com\n", encoding="utf-8")
+    projects.add_info(cfg, vault, "Comandiva Sistema", "segunda", "Pendências")
+    text = path.read_text(encoding="utf-8")
+    assert "primeira" in text and "segunda" in text and "## Links" in text and "exemplo.com" in text
+
+
+def test_tasks_receive_the_project_note_as_context(cfg, tmp_path):
+    vault = memory.Vault(tmp_path / "cofre")
+    projects.add_info(cfg, vault, "Comandiva Sistema", "Usa FastAPI", "Stack")
+    store = runs.RunStore(tmp_path / "runs")
+    run = runs.enqueue(store, cfg, "Comandiva Sistema", "analisar", "onde fica o login?")
+    runner = fake_runner("em app.py")
+    runs.execute(run, store, ClaudeConfig(executable="x"), runner=runner, vault=vault)
+    prompt = runner.calls[0][1]["input"]
+    assert "Usa FastAPI" in prompt and "não ordem" in prompt and "onde fica o login?" in prompt
+
+
+def test_unregister_keeps_files(cfg, repo):
+    assert projects.unregister(cfg, "comandiva sistema") == "Comandiva Sistema"
+    assert "Comandiva Sistema" not in cfg.projetos and (repo / "app.py").exists()
+    with pytest.raises(ValueError):
+        projects.unregister(cfg, "Comandiva Sistema")
+
+
+def test_plan_new_validates(cfg, tmp_path, repo):
+    assert projects.plan_new(cfg, "Loja: Nova", str(tmp_path)) == tmp_path.resolve() / "Loja Nova"
+    with pytest.raises(ValueError, match="já existe um projeto"):
+        projects.plan_new(cfg, "comandiva sistema", str(tmp_path))
+    with pytest.raises(ValueError, match="já existe uma pasta"):
+        projects.plan_new(cfg, "MeuApp", str(repo.parent))
+    with pytest.raises(ValueError, match="não encontrada"):
+        projects.plan_new(cfg, "X", "pasta/relativa")
+    with pytest.raises(ValueError, match="nome"):
+        projects.plan_new(cfg, " :: ", str(tmp_path))
+
+
+def test_new_project_is_only_created_after_approval(cfg, tmp_path, monkeypatch):
+    acts = actions.ActionStore(tmp_path / "acoes")
+    parent = tmp_path / "Projetos"
+    parent.mkdir()
+    vault_dir = tmp_path / "cofre"
+    vault_dir.mkdir()
+    cfg.obsidian_vault = str(vault_dir)
+    saved = []
+    monkeypatch.setattr("jarvis.config.load", lambda: cfg)
+    monkeypatch.setattr("jarvis.config.save", lambda c, path=None: saved.append(dict(c.projetos)))
+
+    action = actions.propose_new_project(acts, cfg, "Loja Virtual", str(parent), "Loja de roupas online", "pedido")
+    assert not (parent / "Loja Virtual").exists() and "Loja Virtual" not in cfg.projetos
+    done = actions.decide(acts, action.id, True)
+    assert done.status == "executada", done.resultado
+    target = parent / "Loja Virtual"
+    assert "Loja de roupas online" in (target / "README.md").read_text(encoding="utf-8")
+    assert projects.is_git_repo(target) and projects.status(cfg, "loja virtual")["ultimos_commits"] == []
+    assert saved and saved[-1]["Loja Virtual"] == str(target.resolve())
+    assert "Loja de roupas online" in projects.read_info(cfg, memory.Vault(vault_dir), "Loja Virtual")
+
+    # recusada: nada é criado
+    other = actions.propose_new_project(acts, cfg, "Outro", str(parent), "", "pedido")
+    assert actions.decide(acts, other.id, False).status == "recusada"
+    assert not (parent / "Outro").exists()

@@ -241,6 +241,58 @@ def registrar_projeto(nome: str, pasta: str) -> str:
 
 
 @server.tool()
+def esquecer_projeto(projeto: str) -> str:
+    """Tira um projeto da lista da Jarvis. Não apaga a pasta nem nenhum arquivo."""
+    cfg = config.load()
+    try:
+        name = projects.unregister(cfg, projeto)
+    except ValueError as exc:
+        return str(exc)
+    config.save(cfg)
+    return f"Projeto '{name}' removido da lista. A pasta e a ficha no Obsidian continuam onde estavam."
+
+
+@server.tool()
+def anotar_projeto(projeto: str, informacao: str, secao: str = "Anotações") -> str:
+    """Grava uma informação na ficha do projeto no Obsidian (Jarvis/Projetos/<projeto>/Sobre.md).
+
+    secao: Descrição (substitui a anterior), Stack, Objetivos, Decisões, Pendências ou
+    Anotações (as outras acumulam com data). A ficha vai como contexto nas tarefas do
+    Claude Code. Não altera a pasta do projeto. Nunca grave senhas ou chaves.
+    """
+    try:
+        cfg = config.load()
+        path = projects.add_info(cfg, _vault(), projeto, informacao, secao)
+    except ValueError as exc:
+        return f"Não foi possível anotar: {exc}"
+    return f"Anotado em {secao} ({path.parent.name}/{path.name})."
+
+
+@server.tool()
+def ficha_projeto(projeto: str) -> str:
+    """Lê a ficha do projeto no Obsidian: descrição, stack, objetivos, decisões e pendências."""
+    try:
+        text = projects.read_info(config.load(), _vault(), projeto)
+    except ValueError as exc:
+        return str(exc)
+    return text or "Este projeto ainda não tem ficha. Use anotar_projeto para começar."
+
+
+@server.tool()
+def propor_criar_projeto(nome: str, pasta_pai: str, descricao: str, motivo: str) -> str:
+    """Propõe criar um projeto NOVO: pasta <pasta_pai>/<nome> com README.md e git init (sem commit).
+
+    Não executa: o usuário aprova na janela. pasta_pai é o caminho completo de uma pasta que
+    já existe (pergunte ao usuário se ele não disse). Depois de criado, use
+    propor_executar_tarefa para o Claude Code montar a estrutura inicial.
+    """
+    try:
+        return _proposal(actions.propose_new_project(store, config.load(), nome, pasta_pai, descricao, motivo))
+    except ValueError as exc:
+        return f"Não é possível propor: {exc}"
+
+
+@server.tool()
 def estado_projeto(projeto: str) -> dict | str:
     """Resumo rápido do projeto sem IA: branch, arquivos alterados e últimos commits."""
     try:

@@ -1,9 +1,16 @@
-"""Projetos de código cadastrados e um resumo rápido do estado de cada um (sem IA)."""
+"""Projetos de código cadastrados, um resumo rápido do estado de cada um (sem IA),
+a ficha de informações de cada projeto no Obsidian e a criação de projetos novos.
+
+A ficha fica em <cofre>/Jarvis/Projetos/<nome>/Sobre.md (área da Jarvis no cofre).
+A pasta do projeto só é criada por uma ação aprovada pelo usuário na janela.
+"""
 
 from __future__ import annotations
 
+import re
 import subprocess
 import unicodedata
+from datetime import date
 from pathlib import Path
 
 from jarvis.config import Config
@@ -63,7 +70,10 @@ def status(cfg: Config, name: str) -> dict:
     changed = [line for line in _git(path, "status", "--porcelain").splitlines() if line.strip()]
     info["arquivos_alterados"] = len(changed)
     info["alteracoes"] = changed[:15]
-    info["ultimos_commits"] = _git(path, "log", "-5", "--pretty=format:%h %ad %s", "--date=short").splitlines()
+    try:
+        info["ultimos_commits"] = _git(path, "log", "-5", "--pretty=format:%h %ad %s", "--date=short").splitlines()
+    except RuntimeError:  # repositório novo, ainda sem commits
+        info["ultimos_commits"] = []
     return info
 
 
@@ -72,3 +82,114 @@ def diff_stat(path: Path) -> str:
         return _git(path, "diff", "--stat") or "nenhuma alteração em arquivos rastreados"
     except (RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
         return f"não foi possível ler o diff: {exc}"
+
+
+def unregister(cfg: Config, name: str) -> str:
+    """Tira o projeto da lista. Não apaga nenhum arquivo (nem a pasta, nem a ficha)."""
+    for registered in list(cfg.projetos):
+        if _fold(registered) == _fold(name.strip()):
+            del cfg.projetos[registered]
+            return registered
+    raise ValueError(f"projeto '{name}' não cadastrado")
+
+
+# ── ficha do projeto no Obsidian ─────────────────────────────────────────
+
+INFO_FILE = "Sobre.md"
+SECTIONS = ("Descrição", "Stack", "Objetivos", "Decisões", "Pendências", "Anotações")
+MAX_CONTEXT_CHARS = 3000
+_FORBIDDEN = re.compile(r'[\\/:*?"<>|#^\[\]]')
+
+
+def note_folder(vault, name: str) -> Path:
+    return vault.home / "Projetos" / (_FORBIDDEN.sub("", name).strip() or "projeto")
+
+
+def _section(name: str) -> str:
+    for known in SECTIONS:
+        if _fold(known) == _fold(name.strip()):
+            return known
+    known = ", ".join(SECTIONS)
+    raise ValueError(f"seção inválida: {name} (use {known})")
+
+
+def _parse_info(text: str) -> dict[str, list[str]]:
+    parts: dict[str, list[str]] = {}
+    current = None
+    for line in text.splitlines():
+        if line.startswith("## "):
+            current = line[3:].strip()
+            parts.setdefault(current, [])
+        elif current is not None and line.strip():
+            parts[current].append(line.rstrip())
+    return parts
+
+
+def _render_info(name: str, parts: dict[str, list[str]]) -> str:
+    out = [f"# {name}", "", "Ficha do projeto mantida pela Jarvis. Pode editar à vontade.", ""]
+    order = list(SECTIONS) + [k for k in parts if k not in SECTIONS]
+    for key in order:
+        if parts.get(key):
+            out += [f"## {key}", *parts[key], ""]
+    return "\n".join(out)
+
+
+def add_info(cfg: Config, vault, name: str, text: str, section: str = "Anotações") -> Path:
+    """Acrescenta uma informação à ficha. "Descrição" substitui a anterior; o resto acumula."""
+    registered, _ = resolve(cfg, name)
+    key = _section(section)
+    text = " ".join(text.split())[:1500]
+    if not text:
+        raise ValueError("escreva a informação")
+    path = note_folder(vault, registered) / INFO_FILE
+    parts = _parse_info(path.read_text(encoding="utf-8")) if path.exists() else {}
+    if key == "Descrição":
+        parts[key] = [text]
+    else:
+        parts.setdefault(key, []).append(f"- {date.today().isoformat()}: {text}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_render_info(registered, parts), encoding="utf-8")
+    return path
+
+
+def read_info(cfg: Config, vault, name: str) -> str:
+    """Texto da ficha, ou "" se ainda não houver."""
+    registered, _ = resolve(cfg, name)
+    path = note_folder(vault, registered) / INFO_FILE
+    return path.read_text(encoding="utf-8", errors="replace") if path.exists() else ""
+
+
+# ── projeto novo (só executado depois da aprovação) ──────────────────────
+
+_BAD_FOLDER = re.compile(r'[\\/:*?"<>|]')
+
+
+def plan_new(cfg: Config, name: str, parent: str) -> Path:
+    """Valida e devolve a pasta que será criada. Chamado ao propor E ao executar."""
+    name = name.strip()[:60]
+    folder_name = _BAD_FOLDER.sub("", name).strip().rstrip(".")
+    if not folder_name:
+        raise ValueError("informe um nome para o projeto")
+    if any(_fold(n) == _fold(name) for n in cfg.projetos):
+        raise ValueError(f"já existe um projeto cadastrado com o nome '{name}'")
+    base = Path(parent.strip().strip('"')).expanduser()
+    if not base.is_absolute() or not base.is_dir():
+        raise ValueError(f"pasta onde criar o projeto não encontrada: {parent}")
+    target = base.resolve() / folder_name
+    if target.exists():
+        raise ValueError(f"já existe uma pasta em {target}")
+    return target
+
+
+def create(cfg: Config, name: str, parent: str, description: str = "", git: bool = True) -> Path:
+    """Cria a pasta com README (e git init, sem commit) e cadastra o projeto."""
+    target = plan_new(cfg, name, parent)
+    target.mkdir()
+    readme = f"# {name.strip()}\n"
+    if description.strip():
+        readme += f"\n{description.strip()}\n"
+    (target / "README.md").write_text(readme, encoding="utf-8")
+    if git:
+        _git(target, "init", "-q", "-b", "main")
+    cfg.projetos[name.strip()[:60]] = str(target)
+    return target

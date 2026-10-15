@@ -57,6 +57,13 @@ def system_prompt(cfg: config.Config) -> str:
         "mudar código, só `propor_executar_tarefa` (o usuário aprova). Essas tarefas rodam em "
         "segundo plano: diga que vai avisar quando terminar. Use `estado_projeto` e as notas do "
         "Obsidian para saber onde o usuário parou."
+        " Quando o usuário contar algo sobre um projeto (o que é, stack, objetivos, decisões, "
+        "pendências), grave com `anotar_projeto`; consulte com `ficha_projeto`. Para começar um "
+        "projeto do zero, use `propor_criar_projeto` (pergunte em que pasta, se ele não disse); "
+        "depois de aprovado, ofereça `propor_executar_tarefa` para montar a estrutura. "
+        "`esquecer_projeto` só tira da lista, nunca apaga arquivos."
+        "\n\nPara saber se alguma sessão do Claude Code no PC está esperando o usuário, use "
+        "`sessoes_claude_code`."
     )
     if cfg.ferramentas_pc:
         prompt += (
