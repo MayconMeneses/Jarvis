@@ -162,6 +162,25 @@ def claim_single_instance(name: str = "Local\\SuperJarvis"):
     return handle
 
 
+def build_session_watcher(api: Api, window):
+    """Avisa quando uma sessão do Claude Code no PC passa a esperar o usuário."""
+    from jarvis.dev import sessions
+
+    def notify(session) -> None:
+        text = "⏳ " + session.frase()
+        api._conversation.note(text)
+        try:
+            window.evaluate_js(f"window.onVoice({json.dumps({'task': text}, ensure_ascii=False)})")
+        except Exception:
+            log.debug("janela indisponível para o aviso da sessão", exc_info=True)
+        if api._voice is not None:
+            talvez = "talvez " if session.motivo.startswith("talvez") else ""
+            api._voice.speak(f"A sessão {session.nome}, do projeto {session.projeto}, "
+                             f"{talvez}está {sessions.DESCRICAO[session.estado]}.")
+
+    return sessions.SessionWatcher(notify)
+
+
 def run(cfg: Config, conversation: Conversation) -> int:
     instance = claim_single_instance()
     if instance is None:
@@ -184,6 +203,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
     api._voice = voice
     tasks = build_task_worker(cfg, api, window)
+    watcher = build_session_watcher(api, window)
 
     def on_closing() -> bool:
         if quitting:
@@ -197,6 +217,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         if voice is not None:
             voice.stop()
         tasks.stop()
+        watcher.stop()
         icon.stop()
         window.destroy()
 
@@ -210,6 +231,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     def on_started() -> None:
         icon.run_detached()
         tasks.start()
+        watcher.start()
         if voice is not None:
             voice.start()
 
