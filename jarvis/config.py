@@ -97,6 +97,8 @@ class Config:
     voz: VoiceConfig = field(default_factory=VoiceConfig)
     # Projetos de código que a Jarvis pode analisar: {"nome": "C:\\caminho\\da\\pasta"}
     projetos: dict[str, str] = field(default_factory=dict)
+    # index.html do Dashboard Universal; vazio = a cópia do programa instalado
+    painel_dashboard: str = ""
 
     @classmethod
     def from_dict(cls, raw: dict) -> "Config":

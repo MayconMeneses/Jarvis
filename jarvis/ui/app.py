@@ -37,6 +37,7 @@ class Api:
         self._conversation = conversation
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
+        self._window = None
         self._vault = memory.open_vault(cfg.obsidian_vault)
 
     def _diary(self, entry: str) -> None:
@@ -102,6 +103,26 @@ class Api:
 
     def reset(self) -> None:
         self._conversation.reset()
+
+    def dashboard(self) -> dict:
+        """Botão 📊: escolhe um documento e abre o dashboard dele no navegador."""
+        from jarvis import dashboard
+
+        if self._window is None:
+            return {"error": "janela indisponível"}
+        tipos = ("Dados (" + ";".join("*" + e for e in dashboard.SUPPORTED) + ")", "Todos os arquivos (*.*)")
+        escolha = self._window.create_file_dialog(webview.FileDialog.OPEN, file_types=tipos)
+        if not escolha:
+            return {"cancelado": True}
+        try:
+            path = dashboard.build(config.load(), escolha[0])
+        except (ValueError, OSError) as exc:
+            return {"error": f"Não foi possível criar o dashboard: {exc}"}
+        dashboard.open_in_browser(path)
+        self._diary(f"Dashboard criado de {Path(escolha[0]).name}")
+        self._conversation.note(f"Criei um dashboard do arquivo {escolha[0]} e abri no navegador ({path}).")
+        return {"text": f"📊 Abri no navegador o dashboard de {Path(escolha[0]).name}. "
+                        f"Ele fica salvo em {path}."}
 
 
 def build_voice(cfg: Config, api: Api, window):
@@ -176,6 +197,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         height=680,
         min_size=(360, 480),
     )
+    api._window = window
     quitting = False
     voice = build_voice(cfg, api, window) if cfg.voz.ativa else None
     api._voice = voice
