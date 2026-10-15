@@ -2,7 +2,16 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 3 (e-mail Gmail e Outlook)
+## Estado atual: Fase 4 (voz)
+
+- Diga **"Hey Jarvis"** (pronúncia em inglês), clique no 🎤 da janela ou use **Falar agora** na bandeja.
+- Transcrição **local** com faster-whisper (`base` por padrão; `small` acerta mais, mas é cerca de 3 vezes mais lento e pesado). Nenhum áudio sai do PC.
+- Resposta falada com a voz neural **Francisca** (edge-tts, online e gratuita). Sem internet, usa a voz **Maria** do Windows.
+- Código, links e Markdown não são lidos em voz alta; respostas longas são resumidas ("Os detalhes estão na janela").
+- **Pausar escuta** na bandeja desliga a palavra de ativação (o 🎤 continua funcionando).
+- Configuração em `voz` no `config.json`: `ativa`, `falar_respostas`, `modelo_transcricao`, `voz`, `sensibilidade`.
+
+## Fase 3 (e-mail Gmail e Outlook)
 
 - Lê a caixa de entrada do Gmail (API oficial) e do Outlook/Hotmail (Microsoft Graph) com OAuth. Para conectar, siga o guia [docs/CONFIGURAR-EMAIL.md](docs/CONFIGURAR-EMAIL.md).
 - Organiza com marcadores (`Jarvis/Financeiro`, `Jarvis: Importante`...) **só após Aprovar**. Nunca apaga, move ou envia.
