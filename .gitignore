@@ -1,0 +1,15 @@
+# Repositórios de estudo (licenças de terceiros, não fazem parte do projeto)
+_referencias/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Segredos e configuração local
+.env
+*.local.json
