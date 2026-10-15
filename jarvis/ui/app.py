@@ -7,11 +7,13 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 import time
 from pathlib import Path
 
 import webview
 
+from jarvis import briefing, config, memory
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
@@ -35,9 +37,26 @@ class Api:
         self._conversation = conversation
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
+        self._vault = memory.open_vault(cfg.obsidian_vault)
+
+    def _diary(self, entry: str) -> None:
+        if self._vault is not None:
+            try:
+                self._vault.diary(entry)
+            except OSError:
+                log.warning("não foi possível escrever no diário", exc_info=True)
 
     def greeting(self) -> str:
-        return f"Olá, {self._cfg.user_name}! Em que posso ajudar?"
+        """Saudação + clima (+ manchetes na 1ª abertura do dia), também falada."""
+        try:
+            result = briefing.build(config.load())
+        except Exception:
+            log.exception("falha no briefing")
+            return f"Olá, {self._cfg.user_name}! Como você está?"
+        self._conversation.remember_said(result["text"])
+        if self._voice is not None:
+            threading.Thread(target=self._voice.speak, args=(result["speak"],), daemon=True).start()
+        return result["text"]
 
     def voice_available(self) -> bool:
         return self._voice is not None
@@ -48,6 +67,7 @@ class Api:
 
     def send(self, text: str) -> dict:
         started = time.time()
+        self._diary(f"Pedido: {text}")
         try:
             answer = self._conversation.ask(str(text))
         except NoBrainAvailable as exc:
@@ -67,6 +87,7 @@ class Api:
         except (ValueError, FileNotFoundError) as exc:
             return {"status": "falhou", "resultado": str(exc)}
         log.info("ação %s %s: %s", action.kind, action.status, action.resultado)
+        self._diary(f"Ação {action.status}: {action.descricao} {action.resultado}")
         self._conversation.note(f"Ação '{action.descricao}' {action.status}. {action.resultado}")
         return {"status": action.status, "resultado": action.resultado}
 

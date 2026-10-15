@@ -17,6 +17,7 @@ dependencies = [
     "sounddevice>=0.4",
     "edge-tts>=7",
     "miniaudio>=1.59",
+    "defusedxml>=0.7",
 ]
 
 [project.optional-dependencies]

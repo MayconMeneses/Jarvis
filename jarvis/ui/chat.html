@@ -230,7 +230,9 @@
   });
 
   window.addEventListener("pywebviewready", async () => {
+    const loading = add("jarvis", "Preparando seu briefing…");
     const hello = await window.pywebview.api.greeting();
+    loading.remove();
     add("jarvis", hello);
     mic.hidden = !(await window.pywebview.api.voice_available());
   });
