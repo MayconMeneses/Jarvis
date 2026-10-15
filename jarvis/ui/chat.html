@@ -166,6 +166,19 @@
   #mic.on { background: var(--danger); border-color: var(--danger); color: #fff; animation: rec 1.1s ease-in-out infinite; }
   @keyframes rec { 50% { box-shadow: 0 0 0 5px var(--danger-soft), 0 0 16px var(--danger); } }
 
+  /* anexos */
+  #chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; background: rgba(4, 10, 16, .85); border-top: 1px solid var(--line); }
+  #chips:empty { display: none; }
+  #chips:not(:empty) + form { border-top: 0; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 4px 3px 9px;
+          font: 12px var(--mono); color: var(--text); background: var(--cyan-soft); border: 1px solid var(--line-strong); }
+  .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 230px; }
+  .chip small { color: var(--muted); }
+  .chip button { padding: 0 6px; height: 20px; border: 0; font-size: 14px; line-height: 1; }
+  .drop-overlay { position: fixed; inset: 8px; display: none; place-items: center; z-index: 10;
+                  border: 2px dashed var(--cyan); background: rgba(4, 12, 20, .88); font: 600 14px var(--mono);
+                  letter-spacing: .12em; color: var(--cyan); text-transform: uppercase; pointer-events: none; }
+  body.dragging .drop-overlay { display: grid; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
@@ -208,7 +221,14 @@
 
   <main id="log" role="log" aria-live="polite" aria-label="Conversa com a Jarvis"></main>
 
+  <div id="chips" aria-label="Arquivos anexados"></div>
+  <div class="drop-overlay" aria-hidden="true">Solte para anexar</div>
   <form id="form">
+    <button type="button" id="attach" class="icon-btn" title="Anexar arquivos (PDF, Word, Excel, código, imagens)" aria-label="Anexar arquivos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.9-8.9a3.7 3.7 0 0 1 5.2 5.2l-8.9 8.9a1.8 1.8 0 0 1-2.6-2.6l8.2-8.2"/>
+      </svg>
+    </button>
     <label for="input" class="sr-only">Mensagem para a Jarvis</label>
     <textarea id="input" rows="1" placeholder="Fale com a Jarvis…" autofocus aria-describedby="hint"></textarea>
     <span id="hint" class="sr-only">Enter envia, Shift+Enter quebra a linha.</span>
@@ -359,7 +379,7 @@
     return ["Não consegui responder agora.", ""];
   }
 
-  function addError(raw, retryText) {
+  function addError(raw, retryText, retryFiles = []) {
     hideSuggestions();
     const [title, hint] = friendlyError(String(raw));
     const el = document.createElement("div");
@@ -375,10 +395,10 @@
     summary.textContent = "Detalhes técnicos";
     details.append(summary, document.createTextNode(String(raw)));
     el.appendChild(details);
-    if (retryText) {
+    if (retryText || retryFiles.length) {
       const retry = document.createElement("button");
       retry.type = "button"; retry.className = "retry"; retry.textContent = "Tentar de novo";
-      retry.addEventListener("click", () => { el.remove(); ask(retryText, false); });
+      retry.addEventListener("click", () => { el.remove(); ask(retryText, false, retryFiles); });
       el.appendChild(retry);
     }
     log.appendChild(el);
@@ -408,18 +428,18 @@
     setOrb(on ? "thinking" : "idle");
   }
 
-  async function ask(text, echo) {
-    if (!text || busy) return;
-    if (echo) add("user", text);
+  async function ask(text, echo, files = []) {
+    if ((!text && !files.length) || busy) return;
+    if (echo) add("user", text + (files.length ? (text ? "\n" : "") + "📎 " + files.map((f) => f.nome).join(", ") : ""));
     setBusy(true);
     const typing = addTyping();
     try {
-      const res = await window.pywebview.api.send(text);
+      const res = await window.pywebview.api.send(text, files.map((f) => f.id));
       typing.remove();
-      showResult(res, text);
+      showResult(res, text, files);
     } catch (err) {
       typing.remove();
-      addError("Falha ao falar com o núcleo da Jarvis: " + err, text);
+      addError("Falha ao falar com o núcleo da Jarvis: " + err, text, files);
     } finally {
       setBusy(false);
       input.focus();
@@ -428,14 +448,74 @@
 
   function submit() {
     const text = input.value.trim();
-    if (!text || busy) return;
+    if ((!text && !pending.length) || busy) return;
+    const files = pending;
+    pending = [];
+    renderChips();
     input.value = "";
     autosize();
-    ask(text, true);
+    ask(text, true, files);
   }
 
-  function showResult(res, originalText) {
-    if (res.error) addError(res.error, originalText);
+  // ── anexos ───────────────────────────────────────────────────
+  let pending = [];
+  const chips = document.getElementById("chips");
+
+  function renderChips() {
+    chips.textContent = "";
+    pending.forEach((f, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const name = document.createElement("span");
+      name.textContent = f.nome;
+      name.title = f.nome;
+      const info = document.createElement("small");
+      info.textContent = `${f.tipo} · ${f.tamanho_kb} KB`;
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.textContent = "×";
+      remove.setAttribute("aria-label", "Remover " + f.nome);
+      remove.addEventListener("click", () => { pending.splice(i, 1); renderChips(); });
+      chip.append(name, info, remove);
+      chips.appendChild(chip);
+    });
+  }
+
+  function addAttachments(res) {
+    pending.push(...(res.anexos || []));
+    renderChips();
+    (res.erros || []).forEach((e) => addError(e));
+    input.focus();
+  }
+
+  document.getElementById("attach").addEventListener("click", async () => {
+    addAttachments(await window.pywebview.api.pick_files());
+  });
+
+  const MAX_MB = 25;
+  function readAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",", 2)[1] || "");
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+  let dragDepth = 0;
+  window.addEventListener("dragenter", (e) => { e.preventDefault(); dragDepth++; document.body.classList.add("dragging"); });
+  window.addEventListener("dragleave", () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove("dragging"); } });
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    dragDepth = 0;
+    document.body.classList.remove("dragging");
+    for (const file of e.dataTransfer?.files || []) {
+      if (file.size > MAX_MB * 1024 * 1024) { addError(`'${file.name}' passa do limite de ${MAX_MB} MB`); continue; }
+      addAttachments(await window.pywebview.api.attach_data(file.name, await readAsBase64(file)));
+    }
+  });
+
+  function showResult(res, originalText, files = []) {
+    if (res.error) addError(res.error, originalText, files);
     else {
       add("jarvis", res.text, "via " + res.brain);
       (res.actions || []).forEach(addActionCard);
