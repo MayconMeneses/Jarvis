@@ -2,7 +2,16 @@
 
 Assistente pessoal para Windows. O plano completo está em [PLANO-SUPER-JARVIS.md](PLANO-SUPER-JARVIS.md).
 
-## Estado atual: Fase 4 (voz)
+## Estado atual: Fase 5 (memória, saudação, clima e notícias)
+
+- **Ao abrir**, a Jarvis cumprimenta pelo horário, pergunta como você está e diz o clima. Na **primeira abertura do dia** também traz 3 manchetes gerais (G1, BBC Brasil, Agência Brasil) e 3 de tecnologia (Tecnoblog, Canaltech, Olhar Digital), e salva o briefing em `Jarvis/Relatórios` no Obsidian.
+- **Clima** pelo Open-Meteo (grátis, sem chave). Diga "minha cidade é ..." para ela salvar a sua cidade.
+- **Memória no Obsidian** (`obsidian_vault` no `config.json`): a Jarvis grava fatos duráveis em `Jarvis/Memória` (uma nota por assunto) e as carrega em toda conversa. Editou ou apagou uma nota, ela passa a usar a versão nova.
+- **Lê as suas notas** (somente leitura) para responder sobre seus projetos, por exemplo "o que falta no MM System?".
+- **Diário** em `Jarvis/Diário/AAAA-MM-DD.md` com pedidos e ações do dia.
+- A Jarvis só escreve dentro da pasta `Jarvis/` do cofre.
+
+## Fase 4 (voz)
 
 - Diga **"Hey Jarvis"** (pronúncia em inglês), clique no 🎤 da janela ou use **Falar agora** na bandeja.
 - Transcrição **local** com faster-whisper (`base` por padrão; `small` acerta mais, mas é cerca de 3 vezes mais lento e pesado). Nenhum áudio sai do PC.

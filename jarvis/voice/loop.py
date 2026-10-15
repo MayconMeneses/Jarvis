@@ -79,6 +79,7 @@ class VoiceLoop(threading.Thread):
         self.paused = threading.Event()
         self._manual = threading.Event()
         self._stop = threading.Event()
+        self._speaking = threading.Event()
         self._frames: queue.Queue[np.ndarray] = queue.Queue(maxsize=200)
         self._noise = 300.0
 
@@ -92,6 +93,17 @@ class VoiceLoop(threading.Thread):
 
     def stop(self) -> None:
         self._stop.set()
+
+    def speak(self, text: str) -> None:
+        """Fala por iniciativa própria (ex.: saudação) sem ouvir a si mesma."""
+        self._speaking.set()
+        try:
+            self.speaker.say(text)
+        except Exception:
+            log.exception("falha ao falar")
+        finally:
+            self._drain()
+            self._speaking.clear()
 
     # ── thread ───────────────────────────────────────────────────────────
     def run(self) -> None:
@@ -131,6 +143,8 @@ class VoiceLoop(threading.Thread):
             frame = self._next_frame()
             if frame is None:
                 continue
+            if self._speaking.is_set():
+                continue  # falando a saudação: não ouvir a própria voz
             manual = self._manual.is_set()  # o botão funciona mesmo com a escuta pausada
             if self.paused.is_set() and not manual:
                 continue
