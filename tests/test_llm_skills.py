@@ -158,3 +158,16 @@ def test_mcp_tools_and_ui_bridge(motor):
     config.save(Config(llm_endpoint="http://127.0.0.1:1"))  # servidor externo configurado = pronto
     assert ponte.set_llm(True)["ligado"] is True and ponte.brains_status()["llm_local"] is True
     assert ponte.set_llm(False)["ligado"] is False
+
+
+def test_failing_generated_tests_go_back_to_the_model_for_a_fix():
+    respostas = iter(["calc.py: soma\ntest_calc.py: testes",
+                      "```python\ndef soma(a, b):\n    return a - b\n```",
+                      "```python\nfrom calc import soma\n\ndef test_soma():\n    assert soma(1, 2) == 3\n```",
+                      "```python\ndef soma(a, b):\n    return a + b\n```"])  # correção pedida depois que o teste falhou
+    status = []
+    r = pensar.criar("Calc", "soma", lambda m: next(respostas), None, status.append)
+    assert "a + b" in r.arquivos["calc.py"] and not r.avisos and any("testes falharam" in s for s in status)
+    assert pensar.rodar_testes({"test_x.py": "def test_a():\n    assert True\n"}) is None
+    assert "assert" in pensar.rodar_testes({"test_x.py": "def test_a():\n    assert 1 == 2\n"})
+    assert pensar.rodar_testes({"main.py": "x = 1"}) is None  # sem arquivo de teste: nada a rodar
