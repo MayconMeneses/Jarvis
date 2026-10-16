@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import dev_skills, habilidades_skills, skills, websearch
+from jarvis.local import dev_skills, engenharia_skills, habilidades_skills, skills, websearch
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
@@ -82,6 +82,10 @@ class LocalEngine:
         ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
                        r"^(recomend\w+|sugir\w+|indic\w+)\s+(uma?\s+)?(stack|tecnologia|linguagem|framework)\b.*|"
                        r"^(o que|qual)\s+(devo|eu devo|posso)\s+usar\b.*"),
+        # Engenharia, arquitetura e UX (jarvis/local/engenharia_skills.py).
+        ("padrao", r"\b(padroes? de projeto|design patterns?|padrao (strategy|observer|factory|decorator|adapter|repository|command|builder))\b"),
+        ("ux_ferramenta", r"^(?=.*(#[0-9a-f]{3}|\b[0-9a-f]{6}\b)).*\b(contraste|paleta|tokens?)\b|\b(escala tipografica|escala de tipos)\b"),
+        ("gerar", r"^(cri[ae]|ger[ae]|gerar|faca|escrev\w+|mont[ae])\s+(um|uma|o|a)?\s*(tabela|esquema sql|adr|registro de decisao|historia de usuario|openapi|swagger|workflow|pipeline|dockerfile|editorconfig)\b.*$"),
         ("algoritmo", r"^(como (fazer|faco|escrever|implementar|programar|criar|calcular)|escreva|escrever|mostre|mostra|me mostre|me de|exemplo de|algoritmo (de|para)|codigo (de|para)|implemente|programa (de|para))\b.+$"),
         ("logica", r"^(como (resolver|resolvo|pensar|raciocinar)\b.*|me ajuda(r)? a (resolver|pensar)\b.*|logica de programacao|quais (conceitos|algoritmos)\b.*|que (conceitos|algoritmos)\b.*)$"),
         ("tecnologia", r"^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+(?P<tema>.+)$"),
@@ -253,6 +257,15 @@ class LocalEngine:
 
     def _recomendar(self, text: str) -> str:
         return dev_skills.recommend(text)
+
+    def _padrao(self, text: str) -> str:
+        return engenharia_skills.padrao(text)
+
+    def _ux_ferramenta(self, text: str) -> str:
+        return engenharia_skills.ux_ferramenta(text)
+
+    def _gerar(self, text: str) -> str:
+        return engenharia_skills.gerar_artefato(text)
 
     def _algoritmo(self, text: str) -> str:
         """Algoritmo pronto, se for um clássico; senão, é uma pergunta comum e vai para a pesquisa."""

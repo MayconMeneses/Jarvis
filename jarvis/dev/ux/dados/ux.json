@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ux-ui", "nome": "UX e UI: a diferença e o processo", "aliases": ["ux", "ui", "ux ui", "user experience", "experiencia do usuario", "experiência do usuário", "interface do usuario", "interface do usuário", "design de interface", "design de produto", "design thinking", "ux design"],
+    "resumo": "UX (experiência do usuário) é como o produto resolve o problema de ponta a ponta; UI (interface) é a camada visual e de interação em que isso acontece. Bom design começa por entender as pessoas, não por escolher cores.",
+    "passos": ["Entenda: quem usa, o que quer fazer e em que contexto (pesquisa).", "Defina o problema e o sucesso (métricas: tarefa concluída, tempo, erros).", "Explore soluções em esboços e fluxos antes de telas bonitas.", "Prototipe (papel, Figma, HTML) e teste com 5 pessoas reais: acha-se a maioria dos problemas.", "Construa a UI com um sistema de design (tokens e componentes).", "Meça o uso real e melhore em ciclos."],
+    "analogia": "UX é o projeto da casa inteira e do jeito de morar nela; UI é o acabamento e a decoração.",
+    "exemplo": "Pesquisa -> Fluxos -> Esboços -> Protótipo -> Teste com usuários -> UI -> Medição -> (repete)",
+    "erros": ["pular a pesquisa e supor o que o usuário quer", "começar pelo visual", "testar só com colegas de equipe", "tratar design como etapa final"],
+    "exercicios": ["Escolha um app que você usa, liste 3 tarefas principais e onde há atrito."]
+  },
+  {
+    "id": "heuristicas-de-nielsen", "nome": "As 10 heurísticas de usabilidade de Nielsen", "aliases": ["heuristicas de nielsen", "heurísticas de nielsen", "nielsen", "heuristicas de usabilidade", "heurísticas de usabilidade", "usabilidade", "avaliacao heuristica", "avaliação heurística"],
+    "resumo": "Dez regras práticas para avaliar uma interface: visibilidade do estado, ligação com o mundo real, controle do usuário, consistência, prevenção de erros, reconhecer em vez de lembrar, flexibilidade, design minimalista, ajuda a se recuperar de erros e ajuda e documentação.",
+    "passos": ["1. Visibilidade do estado: mostre o que está acontecendo (carregando, salvo).", "2. Linguagem do usuário, não do sistema.", "3. Controle e liberdade: desfazer, cancelar, voltar.", "4. Consistência e padrões: o mesmo gesto tem o mesmo resultado.", "5. Prevenção de erros: confirme o destrutivo, limite entradas e dê valores padrão.", "6. Reconhecer em vez de lembrar: opções visíveis, histórico, sugestões.", "7. Flexibilidade e eficiência: atalhos para quem usa muito.", "8. Estética e design minimalista: cada elemento extra compete com os importantes.", "9. Ajudar a reconhecer, diagnosticar e corrigir erros: mensagens claras e com solução.", "10. Ajuda e documentação, curtas e no ponto da tarefa."],
+    "analogia": "Um checklist de inspeção: cada item pega um tipo de defeito que as pessoas sofrem em silêncio.",
+    "exemplo": "Ruim: \"Erro 500.\"\nBom: \"Não conseguimos salvar. Verifique sua conexão e tente de novo. Seus dados continuam aqui.\"",
+    "erros": ["avaliar só o visual", "mensagens de erro técnicas", "ações destrutivas sem confirmação nem desfazer"],
+    "exercicios": ["Avalie uma tela sua pelas 10 heurísticas e anote 3 problemas."]
+  },
+  {
+    "id": "hierarquia-visual", "nome": "Hierarquia visual e layout", "aliases": ["hierarquia visual", "layout", "grid", "grade", "espacamento", "espaçamento", "alinhamento", "proximidade", "whitespace", "espaco em branco", "espaço em branco", "composicao", "composição", "gestalt"],
+    "resumo": "Guiar o olhar para o mais importante primeiro. Ferramentas: tamanho, peso, cor, contraste, posição e espaço. Os princípios da Gestalt (proximidade, semelhança, alinhamento) mostram o que pertence junto.",
+    "passos": ["Decida a UMA ação principal da tela e deixe-a mais evidente que as demais.", "Agrupe o que se relaciona por proximidade; separe grupos com mais espaço.", "Use uma grade (12 colunas ou 4/8 px) e alinhe tudo a ela.", "Espaçamento em escala (4, 8, 12, 16, 24, 32, 48): consistência vale mais que valores perfeitos.", "Espaço em branco não é desperdício: dá respiro e foco.", "Limite os pesos e tamanhos de texto a poucos níveis.", "Teste apertando os olhos: o que se destaca é o que importa?"],
+    "analogia": "A capa de uma revista: o olhar pousa no título, depois na imagem, depois nos detalhes, sem esforço.",
+    "exemplo": "Título 32/700 | subtítulo 18/400 cinza | botão primário preenchido | botão secundário só contorno",
+    "erros": ["três botões chamativos competindo", "espaçamentos aleatórios", "tudo centralizado e alinhado de formas diferentes", "texto longo sem respiro"],
+    "exercicios": ["Redesenhe uma tela sua com um só ponto focal e uma escala de espaçamento."]
+  },
+  {
+    "id": "tipografia", "nome": "Tipografia", "aliases": ["tipografia", "fonte", "fontes", "escala tipografica", "escala tipográfica", "tamanho de fonte", "entrelinha", "legibilidade"],
+    "resumo": "A maior parte de uma interface é texto. Boa tipografia é legível, hierárquica e consistente: poucas famílias, uma escala de tamanhos e entrelinha confortável.",
+    "passos": ["Uma ou duas famílias de fonte; no sistema (system-ui) quando o desempenho importa.", "Corpo de texto de 16 px ou mais; nunca abaixo de 12 px.", "Escala modular (ex.: razão 1,25: 16, 20, 25, 31, 39) para títulos.", "Entrelinha de 1,4 a 1,6 no corpo e menor nos títulos; linhas de 45 a 75 caracteres.", "Use rem/em para respeitar a preferência de tamanho do usuário.", "Contraste de texto suficiente e peso adequado (evite finíssimo em fundo escuro).", "Alinhe à esquerda para ler; evite justificado e tudo em maiúsculas em textos longos."],
+    "analogia": "A voz de quem fala: o tom, o volume e o ritmo decidem se você presta atenção ou se cansa.",
+    "exemplo": "body { font: 1rem/1.5 system-ui, sans-serif; }\nh1 { font-size: 2.441rem; line-height: 1.2; }",
+    "erros": ["muitas fontes diferentes", "texto pequeno e cinza claro", "linhas longas demais", "tamanhos em px que ignoram o zoom do usuário"],
+    "exercicios": ["Monte uma escala tipográfica com razão 1,25 a partir de 16 px."]
+  },
+  {
+    "id": "cor-e-contraste", "nome": "Cor, contraste e temas", "aliases": ["cor", "cores", "paleta", "paleta de cores", "contraste", "wcag contraste", "modo escuro", "dark mode", "tema escuro", "daltonismo", "teoria das cores"],
+    "resumo": "A cor comunica estado e prioridade, mas não pode ser o único sinal. O contraste mínimo (WCAG AA) é 4,5:1 para texto normal, 3:1 para texto grande e componentes de interface. Use poucas cores e uma regra clara (60-30-10).",
+    "passos": ["Defina uma cor de marca e derive uma escala (50 a 900) dela.", "Regra 60-30-10: 60% neutros, 30% secundária, 10% de acento.", "Verifique o contraste de TODO par texto/fundo (use a ferramenta de contraste da Jarvis).", "Nunca use só a cor para informar (erro = ícone + texto + vermelho).", "Cores semânticas consistentes: sucesso, aviso, erro, informação.", "Modo escuro: não é inverter; reduza o brilho do branco, ajuste os acentos e confira o contraste de novo.", "Teste com simulador de daltonismo (cerca de 8% dos homens)."],
+    "analogia": "Os sinais de trânsito: poucas cores, significado fixo e legíveis de longe e no sol.",
+    "exemplo": ":root { --texto: #1c2430; --fundo: #ffffff; }\n@media (prefers-color-scheme: dark) { :root { --texto: #e8edf3; --fundo: #11161d; } }",
+    "erros": ["cinza claro sobre branco", "erro indicado só por vermelho", "inverter cores para o modo escuro", "arco-íris de acentos"],
+    "exercicios": ["Pergunte à Jarvis o contraste de #767676 sobre #ffffff e ajuste até passar em AA."]
+  },
+  {
+    "id": "acessibilidade-wcag", "nome": "Acessibilidade (WCAG)", "aliases": ["acessibilidade", "wcag", "a11y", "leitor de tela", "aria", "navegacao por teclado", "navegação por teclado", "foco visivel", "foco visível", "texto alternativo", "alt", "html semantico", "html semântico"],
+    "resumo": "Interfaces que todas as pessoas conseguem usar, incluindo quem tem deficiência visual, motora, auditiva ou cognitiva. As diretrizes WCAG se organizam em quatro princípios: perceptível, operável, compreensível e robusto.",
+    "passos": ["Use HTML semântico (header, nav, main, button, label): leitores de tela entendem sem ARIA.", "Tudo funciona só com teclado, com ordem de foco lógica e foco SEMPRE visível.", "Texto alternativo em imagens com informação; alt vazio em decorativas.", "Todo campo tem rótulo (label) e mensagens de erro ligadas ao campo.", "Contraste mínimo AA e texto redimensionável até 200% sem perder conteúdo.", "Alvos de toque de pelo menos 44 px e movimento respeitando prefers-reduced-motion.", "ARIA só quando o HTML não basta (aria-label, aria-live para avisos).", "Teste com teclado, leitor de tela (NVDA) e ferramentas automáticas (axe, Lighthouse)."],
+    "analogia": "Rampas e elevadores em um prédio: úteis para todos (carrinho, mala, perna quebrada), não só para quem tem deficiência permanente.",
+    "exemplo": "<button type=\"button\" aria-label=\"Fechar\">×</button>\n<label for=\"email\">E-mail</label><input id=\"email\" type=\"email\" autocomplete=\"email\">",
+    "erros": ["div clicável sem papel nem teclado", "outline: none sem substituto", "placeholder no lugar do rótulo", "ARIA demais ou incorreto (pior que nenhum)"],
+    "exercicios": ["Percorra uma página sua só com a tecla Tab e anote onde o foco some."]
+  },
+  {
+    "id": "formularios", "nome": "Formulários e entrada de dados", "aliases": ["formulario", "formulário", "formularios", "formulários", "form", "validacao de formulario", "validação de formulário", "campos", "mascara de entrada", "máscara de entrada", "cadastro"],
+    "resumo": "Formulários são onde a maioria dos usuários desiste. Peça o mínimo, deixe claro o que se espera, valide com gentileza e ajude a corrigir.",
+    "passos": ["Peça só o necessário; cada campo extra reduz a conversão.", "Uma coluna, rótulo acima do campo, sempre visível (não só placeholder).", "Tipo e teclado certos (email, tel, number) e autocomplete para preencher sozinho.", "Valide ao sair do campo e no envio; diga o QUE está errado e COMO corrigir, ao lado do campo.", "Não apague o que a pessoa digitou ao dar erro.", "Marque o opcional (não o obrigatório) quando a maioria é obrigatória.", "Botão com verbo claro (\"Criar conta\") e estado de envio (carregando, sucesso, erro).", "Prefira lista, seletor ou calendário a texto livre quando as opções são conhecidas."],
+    "analogia": "Um atendente simpático que pergunta só o necessário e ajuda quando você erra, em vez de um guichê que devolve a papelada inteira.",
+    "exemplo": "E-mail\n[ ana@exemplo ]\n  ⚠ Falta o domínio. Exemplo: ana@exemplo.com",
+    "erros": ["mensagem só no topo da página", "limpar o formulário ao dar erro", "senha com regras escondidas até errar", "placeholder como rótulo"],
+    "exercicios": ["Reduza um formulário de 10 campos para o mínimo e justifique cada campo que ficou."]
+  },
+  {
+    "id": "estados-da-interface", "nome": "Estados da interface (carregando, vazio, erro, sucesso)", "aliases": ["estados da interface", "estado vazio", "empty state", "loading", "carregando", "skeleton", "tratamento de erro na interface", "feedback", "feedback de interface", "estados de erro"],
+    "resumo": "Toda tela tem mais estados que o caminho feliz: carregando, vazio, erro, sucesso parcial, sem permissão e sem conexão. Projetar todos eles separa um produto polido de um protótipo.",
+    "passos": ["Carregando: mostre esqueleto (skeleton) ou indicador após ~300 ms; nunca tela em branco.", "Vazio: explique por que está vazio e ofereça a primeira ação (\"Adicione seu primeiro item\").", "Erro: diga o que houve, o que a pessoa pode fazer e ofereça tentar de novo.", "Sucesso: confirme o que aconteceu e o próximo passo; avise com aria-live.", "Parcial: mostre o que carregou e sinalize o que falhou.", "Offline e lento: guarde o que a pessoa fez e sincronize depois.", "Desative o botão (e mostre progresso) durante o envio para evitar duplicidade."],
+    "analogia": "O painel de um caixa eletrônico: sempre diz o que está acontecendo, mesmo quando está esperando ou deu defeito.",
+    "exemplo": "Lista vazia:\n  Nenhum pedido ainda.\n  [Criar o primeiro pedido]",
+    "erros": ["só desenhar o caminho feliz", "spinner infinito sem tempo limite nem erro", "erro técnico cru para o usuário", "tela vazia sem orientação"],
+    "exercicios": ["Liste os 6 estados de uma tela de listagem e desenhe cada um."]
+  },
+  {
+    "id": "microcopy", "nome": "Microcopy e conteúdo de interface", "aliases": ["microcopy", "texto de interface", "ux writing", "redacao de interface", "redação de interface", "mensagens de erro", "voz e tom", "rotulos", "rótulos", "textos de botao", "textos de botão"],
+    "resumo": "Os pequenos textos da interface (botões, rótulos, avisos, erros) decidem se a pessoa entende o que fazer. Seja claro, curto, humano e específico, na linguagem de quem usa.",
+    "passos": ["Botões com verbo e resultado: \"Salvar alterações\", não \"OK\".", "Erros: o que aconteceu + como resolver, sem culpar (\"Esse CPF parece incompleto\", não \"CPF inválido!\").", "Evite jargão e siglas; use o termo do usuário.", "Seja consistente: o mesmo nome para a mesma coisa em todo o produto.", "Confirmações destrutivas dizem o que será perdido (\"Excluir 12 fotos para sempre?\").", "Tom adequado ao contexto: leve em sucessos, calmo e direto em erros graves.", "Revise o texto em voz alta e corte metade."],
+    "analogia": "Um bom guia de museu: fala o necessário, no momento certo, sem fazer você se sentir bobo.",
+    "exemplo": "Ruim: \"Operação falhou. Código 0x80.\"\nBom: \"Não conseguimos enviar o arquivo. Ele passa de 10 MB. Reduza o tamanho e tente de novo.\"",
+    "erros": ["\"Clique aqui\" como link", "mensagens que culpam o usuário", "termos diferentes para a mesma coisa", "texto cheio de jargão"],
+    "exercicios": ["Reescreva 5 mensagens de erro de um sistema seu."]
+  },
+  {
+    "id": "responsividade", "nome": "Design responsivo e mobile-first", "aliases": ["responsividade", "design responsivo", "responsivo", "mobile first", "mobile-first", "breakpoints", "media query", "flexbox", "css grid", "pwa", "touch", "toque"],
+    "resumo": "A interface se adapta a qualquer tela, de 320 a 1920 px. Mobile-first: desenhe primeiro para o celular (conteúdo essencial, toque) e acrescente recursos nas telas maiores.",
+    "passos": ["Comece pela tela pequena e adicione regras com media queries (min-width).", "Layout fluido: flexbox e grid, unidades relativas (rem, %, fr, clamp()).", "Breakpoints por conteúdo (quando o layout quebra), não por aparelho.", "Alvos de toque de 44 px ou mais e espaço entre eles; evite depender de hover.", "Imagens responsivas (srcset) e leves; carregue o que está fora da tela depois.", "Sem rolagem horizontal; teste de 320 a 1920 px e em orientação horizontal.", "Considere PWA (instalável e com cache) quando o uso for recorrente."],
+    "analogia": "A água: toma a forma do recipiente, sem precisar de uma versão diferente para cada copo.",
+    "exemplo": ".cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }",
+    "erros": ["larguras fixas em pixels", "esconder conteúdo no celular em vez de priorizar", "menus que só funcionam com hover", "não testar em aparelho real"],
+    "exercicios": ["Faça uma página que não rola na horizontal de 320 a 1920 px."]
+  },
+  {
+    "id": "navegacao-e-arquitetura-da-informacao", "nome": "Navegação e arquitetura da informação", "aliases": ["navegacao", "navegação", "arquitetura da informacao", "arquitetura da informação", "menu", "menus", "fluxo de usuario", "fluxo de usuário", "user flow", "jornada do usuario", "jornada do usuário", "card sorting"],
+    "resumo": "Organizar o conteúdo e as ações para que as pessoas achem o que precisam sem pensar. Cobre a estrutura (categorias), a navegação (menus, trilhas) e os fluxos das tarefas.",
+    "passos": ["Liste as tarefas e o conteúdo; agrupe como os usuários agrupam (card sorting).", "Poucos itens no menu principal (5 a 7) com nomes na linguagem do usuário.", "Mostre onde a pessoa está (destaque do item atual, trilha de navegação).", "Tarefas frequentes em até 3 passos; esconda o raro, sem enterrar.", "Busca para catálogos grandes, com tolerância a erros de digitação.", "Desenhe o fluxo completo da tarefa, incluindo erros e voltas.", "Teste a navegação: peça uma tarefa e observe onde a pessoa hesita."],
+    "analogia": "As placas de um aeroporto: você acha o portão sem perguntar, porque os nomes e a ordem seguem o seu raciocínio.",
+    "exemplo": "Compra: Produto -> Carrinho -> Endereço -> Pagamento -> Confirmação (com 'voltar' e resumo em todos)",
+    "erros": ["menu com nomes internos da empresa", "mais de 3 níveis de profundidade", "usuário sem saber onde está", "fluxo que só funciona se tudo der certo"],
+    "exercicios": ["Desenhe o fluxo de recuperação de senha com os casos de erro."]
+  },
+  {
+    "id": "design-system", "nome": "Design system, tokens e componentes", "aliases": ["design system", "sistema de design", "design tokens", "tokens", "tokens de design", "biblioteca de componentes", "componentes", "storybook", "atomic design", "figma"],
+    "resumo": "Um conjunto de regras e peças reutilizáveis (tokens de cor, tipografia e espaçamento, mais componentes) que mantém o produto consistente e acelera o trabalho. Tokens são variáveis nomeadas de decisões de design.",
+    "passos": ["Defina tokens: cores (semânticas, não só 'azul'), tipografia, espaçamento, raios, sombras.", "Nomeie pelo PAPEL (--cor-texto, --cor-perigo), não pelo valor (--vermelho-500).", "Crie componentes pequenos e acessíveis (botão, campo, cartão, modal) com todos os estados.", "Documente cada componente com exemplos e quando usar (Storybook).", "Versione o sistema e comunique mudanças.", "Atomic design: átomos, moléculas, organismos, templates e páginas.", "Comece pequeno: o que já se repete no produto."],
+    "analogia": "As peças de um jogo de montar: poucas formas padronizadas que se combinam em muitas construções coerentes.",
+    "exemplo": ":root { --cor-primaria: #2563eb; --espaco-2: 8px; --raio: 8px; }\n.botao { background: var(--cor-primaria); padding: var(--espaco-2) 16px; border-radius: var(--raio); }",
+    "erros": ["tokens com nome do valor", "componentes sem estados (foco, desabilitado, erro)", "sistema grande demais antes de haver produto", "documentação que ninguém atualiza"],
+    "exercicios": ["Extraia 10 tokens de uma interface sua e use-os no CSS."]
+  },
+  {
+    "id": "pesquisa-com-usuarios", "nome": "Pesquisa e testes de usabilidade", "aliases": ["pesquisa com usuarios", "pesquisa com usuários", "teste de usabilidade", "testes de usabilidade", "entrevistas", "personas", "persona", "pesquisa ux", "ab test", "teste ab", "teste a/b", "analytics"],
+    "resumo": "Em vez de adivinhar, observe pessoas reais usando o produto. Entrevistas descobrem necessidades; testes de usabilidade mostram onde a interface atrapalha; métricas e testes A/B confirmam o impacto.",
+    "passos": ["Defina o que quer descobrir e com quem (perfil de usuário).", "Entrevistas: perguntas abertas sobre o que a pessoa FAZ hoje, não o que faria.", "Teste de usabilidade: 5 pessoas, uma tarefa realista por vez, \"pensando em voz alta\"; você observa em silêncio.", "Registre onde hesitam, erram ou desistem; priorize por gravidade e frequência.", "Corrija e teste de novo (ciclos curtos).", "Depois do lançamento: meça (conclusão de tarefa, tempo, erros) e compare com teste A/B quando houver volume.", "Personas são resumos de padrões reais de usuários, não pessoas inventadas."],
+    "analogia": "Ver alguém tentar abrir uma porta: dizem muito mais os empurrões errados do que perguntar 'a porta é fácil de abrir?'.",
+    "exemplo": "Tarefa: \"Encomende um presente para a sua mãe.\"\nObserve: onde clica primeiro? O que lê? Onde para?",
+    "erros": ["perguntar 'você usaria isso?' (todos dizem sim)", "ajudar durante o teste", "testar só com a equipe", "decidir com base numa única opinião"],
+    "exercicios": ["Planeje um teste de 15 minutos com 3 tarefas para um app seu."]
+  },
+  {
+    "id": "animacao-e-motion", "nome": "Animação e movimento na interface", "aliases": ["animacao", "animação", "motion", "transicao", "transição", "microinteracao", "microinteração", "microinteracoes", "microinterações", "prefers-reduced-motion", "easing"],
+    "resumo": "Movimento bem usado explica o que mudou e dá resposta imediata; mal usado distrai e cansa. Toda animação precisa de um propósito e deve respeitar quem prefere menos movimento.",
+    "passos": ["Pergunte: isso ajuda a entender, dar feedback ou orientar? Se não, corte.", "Durações curtas: 100 a 200 ms para respostas, até 300 a 400 ms para transições maiores.", "Easing natural (ease-out para entrar, ease-in para sair).", "Anime só transform e opacity (barato para o navegador); evite largura, altura e posição.", "Animações interrompíveis (o usuário pode agir no meio).", "Respeite @media (prefers-reduced-motion: reduce): reduza ou remova o movimento.", "Evite o que repete sem parar e o que bloqueia a tarefa."],
+    "analogia": "Os gestos de uma boa conversa: sublinham o que importa, sem teatro.",
+    "exemplo": ".card { transition: transform 150ms ease-out; }\n.card:hover { transform: translateY(-2px); }\n@media (prefers-reduced-motion: reduce) { .card { transition: none; } }",
+    "erros": ["animação longa que bloqueia o uso", "animar propriedades que forçam recálculo de layout", "ignorar prefers-reduced-motion", "movimento só por enfeite"],
+    "exercicios": ["Adicione feedback de 150 ms a um botão e uma regra de movimento reduzido."]
+  }
+]

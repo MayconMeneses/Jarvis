@@ -1,0 +1,83 @@
+[
+  {
+    "id": "arquitetura-de-software", "nome": "Arquitetura de software", "aliases": ["arquitetura", "arquitetura de software", "atributos de qualidade", "requisitos arquiteturais", "trade-offs"],
+    "resumo": "As decisões estruturais difíceis de mudar depois: como o sistema é dividido, como as partes conversam e onde ficam os dados. Boa arquitetura serve aos atributos de qualidade que importam (mudança fácil, desempenho, segurança, custo).",
+    "passos": ["Liste os atributos que mais importam e seus números (ex.: 500 usuários, resposta < 1 s, deploy diário).", "Escolha a estrutura mais simples que atende (comece com monólito modular).", "Defina fronteiras claras: cada parte com uma responsabilidade e uma interface pequena.", "Registre as decisões e as alternativas descartadas (ADR).", "Adie decisões caras e difíceis de desfazer até ter informação.", "Valide cedo com um protótipo da parte mais arriscada.", "Revise a arquitetura quando o uso real mostrar gargalos."],
+    "analogia": "A planta de uma cidade: ruas e zonas são difíceis de mudar depois; os prédios dentro de cada quadra podem ser trocados com facilidade.",
+    "exemplo": "Atributo: trocar o gateway de pagamento em 1 dia -> decisão: interface Pagamento + adaptadores por fornecedor.",
+    "erros": ["arquitetura de gigante para um problema pequeno", "decidir por moda e não por requisito", "não registrar as decisões", "ignorar custos de operar a solução"],
+    "exercicios": ["Para um sistema de pedidos, defina 3 atributos de qualidade com números."]
+  },
+  {
+    "id": "arquitetura-em-camadas", "nome": "Arquitetura em camadas e MVC", "aliases": ["camadas", "arquitetura em camadas", "mvc", "mvvm", "n camadas", "layered architecture", "controller service repository"],
+    "resumo": "Separa o sistema em camadas com responsabilidades: apresentação (rotas e telas), regras de negócio (serviços) e acesso a dados (repositórios). Cada camada só depende da de baixo.",
+    "passos": ["Apresentação: recebe a requisição, valida o formato e devolve a resposta; nunca tem regra de negócio.", "Serviço (domínio): concentra as regras e orquestra o caso de uso.", "Repositório: esconde como e onde os dados são guardados.", "A dependência aponta numa direção só (de cima para baixo).", "MVC: Model (dados e regras), View (interface), Controller (liga os dois).", "Teste cada camada isoladamente trocando a de baixo por um dublê."],
+    "analogia": "Um restaurante: o garçom (apresentação) leva o pedido à cozinha (regras), que usa a despensa (dados). O cliente não entra na despensa.",
+    "exemplo": "rota /pedidos -> PedidoService.criar() -> PedidoRepository.salvar()",
+    "erros": ["regra de negócio dentro da rota ou da tela", "camada de cima chamando o banco direto", "controllers gigantes", "repositório que vaza detalhes do banco para o serviço"],
+    "exercicios": ["Separe em três camadas uma rota que valida, calcula desconto e grava no banco."]
+  },
+  {
+    "id": "arquitetura-hexagonal", "nome": "Arquitetura hexagonal e limpa", "aliases": ["hexagonal", "arquitetura hexagonal", "ports and adapters", "portas e adaptadores", "clean architecture", "arquitetura limpa", "onion architecture", "inversao de dependencia", "inversão de dependência"],
+    "resumo": "O domínio fica no centro e não conhece frameworks, banco nem internet. Ele define portas (interfaces) e os adaptadores (banco, web, filas) as implementam, invertendo a dependência.",
+    "passos": ["Modele o domínio com regras puras, sem importar framework.", "Defina portas: interfaces do que o domínio precisa (RepositorioDePedidos, EnviadorDeEmail).", "Implemente adaptadores para cada tecnologia (SQLAlchemy, SMTP, REST).", "Injete os adaptadores de fora (composição na inicialização).", "Teste o domínio sem banco e sem rede, só com dublês simples.", "Troque tecnologia (banco, fornecedor) sem mexer nas regras."],
+    "analogia": "Uma tomada padrão na parede: o aparelho não sabe se a energia vem de hidrelétrica ou solar.",
+    "exemplo": "class RepositorioDePedidos(Protocol):\n    def salvar(self, pedido): ...\nclass CriarPedido:\n    def __init__(self, repositorio: RepositorioDePedidos): ...",
+    "erros": ["camadas demais para um sistema simples", "interface com um único uso sem necessidade", "domínio importando o ORM"],
+    "exercicios": ["Isole o envio de e-mail atrás de uma porta e teste o caso de uso com um falso."]
+  },
+  {
+    "id": "monolito-vs-microsservicos", "nome": "Monólito, monólito modular e microsserviços", "aliases": ["monolito", "monólito", "microsservicos", "microsserviços", "microservices", "monolito modular", "monólito modular", "servicos", "serviços", "arquitetura distribuida", "arquitetura distribuída"],
+    "resumo": "Monólito: uma aplicação só, simples de rodar e depurar. Microsserviços: vários serviços independentes, que escalam e implantam separadamente, ao custo de rede, consistência e operação mais difíceis. Comece pelo monólito modular.",
+    "passos": ["Monólito modular: módulos com fronteiras claras dentro de um mesmo deploy.", "Só divida em serviços quando houver motivo real: times independentes, escala diferente por parte, ciclos de entrega distintos.", "Cada serviço tem seu banco; compartilhar banco é um monólito disfarçado.", "Prepare o básico antes: CI/CD, observabilidade, contêineres e contratos de API.", "Aceite consistência eventual e falhas de rede (timeouts, retentativas, idempotência).", "Extraia o serviço mais independente primeiro (padrão strangler)."],
+    "analogia": "Uma loja única com seções versus um shopping com lojas independentes: o shopping escala melhor, mas precisa de administração, segurança e corredores.",
+    "exemplo": "Monólito modular: modulos/pedidos, modulos/estoque, modulos/pagamentos conversando por interfaces.",
+    "erros": ["microsserviços cedo demais para um time de 3 pessoas", "serviços que dependem de chamadas síncronas em cadeia", "banco compartilhado entre serviços", "sem observabilidade distribuída"],
+    "exercicios": ["Decida: um app com 2 pessoas e 1.000 usuários deve ser monólito ou microsserviços? Justifique."]
+  },
+  {
+    "id": "orientado-a-eventos", "nome": "Arquitetura orientada a eventos, filas e CQRS", "aliases": ["eventos", "orientada a eventos", "event driven", "event-driven", "mensageria", "filas", "fila de mensagens", "rabbitmq", "kafka", "pub sub", "pub/sub", "cqrs", "event sourcing", "saga"],
+    "resumo": "As partes se comunicam por eventos (\"pedido criado\") em vez de chamadas diretas. Desacopla quem produz de quem consome, absorve picos e permite processamento assíncrono. CQRS separa leitura e escrita; event sourcing guarda os eventos como fonte da verdade.",
+    "passos": ["Publique eventos que descrevem fatos já ocorridos, com os dados necessários.", "Consumidores processam no seu ritmo; o produtor não espera.", "Torne os consumidores idempotentes: o mesmo evento pode chegar duas vezes.", "Use fila de mensagens mortas (DLQ) para o que falha repetidamente.", "Sagas coordenam transações longas entre serviços com compensações.", "CQRS só quando leitura e escrita têm necessidades muito diferentes.", "Garanta ordem e entrega no nível que o negócio exige (pelo menos uma vez, no máximo uma vez)."],
+    "analogia": "O correio: você posta a carta e segue a vida; o destinatário lê quando puder.",
+    "exemplo": "PedidoCriado -> [estoque reserva] [email confirma] [fatura gera nota]",
+    "erros": ["consumidor que não é idempotente (cobra duas vezes)", "evento com dados de menos (todo mundo precisa chamar de volta)", "usar eventos onde uma chamada simples bastava", "não monitorar o tamanho da fila"],
+    "exercicios": ["Desenhe os eventos de um checkout e o que cada consumidor faz."]
+  },
+  {
+    "id": "ddd", "nome": "Domain-Driven Design (DDD)", "aliases": ["ddd", "domain driven design", "design orientado a dominio", "design orientado a domínio", "agregado", "agregados", "entidade", "value object", "objeto de valor", "linguagem ubiqua", "linguagem ubíqua", "contexto delimitado", "bounded context"],
+    "resumo": "Modelar o software a partir do domínio do negócio, junto com quem o conhece. Conceitos: linguagem ubíqua, contextos delimitados, entidades, objetos de valor e agregados que protegem as regras.",
+    "passos": ["Converse com especialistas e adote os MESMOS termos no código (linguagem ubíqua).", "Divida o domínio em contextos delimitados, cada um com seu modelo (\"cliente\" em vendas ≠ em cobrança).", "Entidade tem identidade (Pedido 42); objeto de valor não (Dinheiro 10 BRL) e é imutável.", "Agregado é um grupo coerente com uma raiz que garante as regras (Pedido controla seus itens).", "Mantenha as regras no domínio, não em serviços anêmicos ou na tela.", "Use DDD onde o domínio é complexo; para CRUD simples é exagero."],
+    "analogia": "Escrever o manual de um jogo com as regras de verdade: o código passa a falar a língua de quem joga.",
+    "exemplo": "class Dinheiro:  # objeto de valor imutável\n    def __init__(self, valor, moeda): ...\n    def somar(self, outro): ...",
+    "erros": ["modelar só tabelas (modelo anêmico)", "um modelo único para toda a empresa", "agregados enormes que travam tudo", "DDD em um CRUD sem regra"],
+    "exercicios": ["Liste a linguagem ubíqua e as entidades e objetos de valor de uma biblioteca."]
+  },
+  {
+    "id": "solid", "nome": "Princípios SOLID", "aliases": ["solid", "srp", "ocp", "lsp", "isp", "dip", "responsabilidade unica", "responsabilidade única", "aberto fechado", "substituicao de liskov", "substituição de liskov", "inversao de dependencia"],
+    "resumo": "Cinco princípios de orientação a objetos para código fácil de mudar: Responsabilidade única, Aberto/fechado, Substituição de Liskov, Segregação de interfaces e Inversão de dependência.",
+    "passos": ["S: uma classe, um motivo para mudar.", "O: estenda comportamento adicionando código novo (nova estratégia) em vez de editar o antigo.", "L: uma subclasse deve poder ser usada no lugar da classe base sem surpresas.", "I: prefira interfaces pequenas e específicas a uma grande e genérica.", "D: dependa de abstrações, não de implementações concretas; injete as dependências.", "Aplique quando a mudança dói; não os use como regra cega."],
+    "analogia": "Um conjunto de peças de encaixe padronizadas: troca-se uma sem quebrar as outras.",
+    "exemplo": "# D: depende da abstração\nclass Pedidos:\n    def __init__(self, notificador): self.notificador = notificador",
+    "erros": ["criar interfaces e classes para tudo (excesso de abstração)", "herança para reaproveitar código", "ler SOLID como lei em vez de guia"],
+    "exercicios": ["Refatore uma classe que valida, grava e envia e-mail para obedecer ao S."]
+  },
+  {
+    "id": "design-de-api", "nome": "Design de APIs", "aliases": ["design de api", "api design", "rest", "restful", "openapi", "swagger", "versionamento de api", "paginacao", "paginação", "idempotencia", "idempotência", "graphql", "grpc", "contrato de api"],
+    "resumo": "A API é um contrato difícil de mudar. Bom design é consistente, previsível, seguro e evolui sem quebrar quem usa: recursos claros, verbos corretos, erros padronizados, paginação, versionamento e documentação (OpenAPI).",
+    "passos": ["Recursos no plural e hierárquicos: /clientes/7/pedidos; verbos HTTP para a ação.", "Códigos corretos: 201 criado, 204 sem conteúdo, 400/422 entrada inválida, 401/403 acesso, 404, 409 conflito, 429 limite.", "Formato de erro único: { codigo, mensagem, detalhes }.", "Paginação (cursor ou página), filtros e ordenação nas listas.", "Idempotência: PUT/DELETE e POSTs repetidos com chave de idempotência não duplicam efeitos.", "Versione (/v1) e evolua de forma compatível; depreque com aviso.", "Documente com OpenAPI e valide com testes de contrato.", "GraphQL ou gRPC quando houver necessidade clara (consultas flexíveis, alto desempenho entre serviços)."],
+    "analogia": "O cardápio de um restaurante: precisa ser claro e estável; mudar os pratos sem avisar irrita todo mundo.",
+    "exemplo": "POST /v1/pedidos  { \"itens\": [{\"produto_id\": 3, \"qtd\": 2}] }\n-> 201 { \"id\": 91, \"status\": \"criado\" }\n-> 422 { \"codigo\": \"qtd_invalida\", \"mensagem\": \"qtd deve ser >= 1\" }",
+    "erros": ["verbos nas URLs (/criarPedido)", "200 com corpo de erro", "quebrar a API sem versionar", "listas sem paginação", "expor o modelo interno do banco"],
+    "exercicios": ["Desenhe as rotas, os códigos e o formato de erro de uma API de reservas."]
+  },
+  {
+    "id": "padroes-de-projeto", "nome": "Padrões de projeto (design patterns)", "aliases": ["padroes de projeto", "padrões de projeto", "design patterns", "gof", "patterns", "padrao de projeto", "padrão de projeto"],
+    "resumo": "Soluções reaproveitáveis para problemas de desenho que se repetem. Criacionais (Factory, Builder), estruturais (Adapter, Decorator) e comportamentais (Strategy, Observer, Command). Servem de vocabulário comum entre quem programa.",
+    "passos": ["Reconheça o problema antes de escolher o padrão (variar um algoritmo? notificar vários? adaptar uma API?).", "Strategy: troca o algoritmo sem mudar quem o usa.", "Observer: avisa vários interessados quando algo muda.", "Factory: centraliza a criação de objetos de tipos diferentes.", "Decorator: acrescenta comportamento embrulhando um objeto.", "Adapter: faz uma interface incompatível parecer a esperada.", "Repository: esconde o acesso a dados atrás de uma coleção.", "Command: transforma uma ação em objeto (desfazer, filas, histórico).", "Aplique o mais simples que resolve; padrão em excesso complica."],
+    "analogia": "Receitas clássicas de cozinha: você as adapta, mas todo mundo entende o nome do prato.",
+    "exemplo": "Peça \"strategy\" na Jarvis para ver o código em Python e JavaScript.",
+    "erros": ["usar padrão porque é moda", "Singleton como variável global disfarçada", "ignorar a solução simples (uma função)"],
+    "exercicios": ["Escolha o padrão certo: calcular frete por transportadora diferente."]
+  }
+]

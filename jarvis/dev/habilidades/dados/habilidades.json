@@ -72,11 +72,11 @@
     "treino": "Desenhe as rotas, os códigos de resposta e os erros de um sistema de biblioteca."
   },
   {
-    "id": "arquitetura", "nome": "Arquitetura e padrões de projeto", "medida": false,
+    "id": "arquitetura", "nome": "Arquitetura e padrões de projeto", "medida": true,
     "resumo": "Dividir o sistema em partes com responsabilidades claras que possam evoluir.",
     "niveis": ["Separa interface, regra e dados.", "Aplica camadas e padrões onde fazem sentido e depende de interfaces.", "Decide entre monólito e serviços, registra decisões e avalia custo de mudança."],
     "praticas": ["Camadas ou módulos com uma responsabilidade clara", "Regra de negócio fora das rotas e da interface", "Dependência de interfaces, não de implementações", "Começar com monólito organizado", "Registrar as decisões importantes (por que escolhemos X)"],
-    "estudar": ["arquitetura", "poo", "boas-praticas"],
+    "estudar": ["arquitetura-em-camadas", "arquitetura-hexagonal", "solid", "padroes-de-projeto", "monolito-vs-microsservicos"],
     "treino": "Desenhe as camadas de um sistema de pedidos e diga o que cada uma pode e não pode conhecer."
   },
   {
@@ -116,7 +116,7 @@
     "resumo": "Interfaces que qualquer pessoa consegue usar, em qualquer tela.",
     "niveis": ["Faz páginas que funcionam no celular.", "Usa HTML semântico, rótulos, contraste e navegação por teclado.", "Testa com leitores de tela, trata estados de carregamento e erro e mede a experiência."],
     "praticas": ["HTML semântico (header, main, nav, button)", "Atributo lang na página e meta viewport", "Texto alternativo em imagens com informação", "Rótulo em todo campo de formulário", "Foco visível e uso por teclado", "Layout testado de 320 a 1920 px"],
-    "estudar": ["html", "css", "react"],
+    "estudar": ["html", "css", "acessibilidade-wcag", "formularios", "responsividade"],
     "treino": "Audite uma página sua: teclado, rótulos, contraste e celular, e corrija o que falhar."
   },
   {
@@ -142,5 +142,45 @@
     "praticas": ["Uma pequena prática por semana (um algoritmo, um teste, uma refatoração)", "Ler código bom de outros projetos", "Pedir e dar revisão de código", "Anotar o que deu errado e o que se aprendeu", "Revisar este painel de habilidades todo mês"],
     "estudar": ["resolver-problemas"],
     "treino": "Escolha a habilidade mais fraca do seu painel e faça o treino dela esta semana."
+  },
+  {
+    "id": "engenharia", "nome": "Engenharia de software e processo", "medida": false,
+    "resumo": "Entregar software de forma previsível: método, revisão, qualidade e melhoria contínua.",
+    "niveis": ["Trabalha com tarefas pequenas e commits claros.", "Revisa código, estima com margem e entrega em ciclos curtos.", "Mede qualidade e prazo, gerencia dívida técnica e riscos e melhora o processo da equipe."],
+    "praticas": ["Quebrar o trabalho em entregas pequenas", "Revisão de código antes de integrar", "Registrar a dívida técnica e pagar um pouco a cada ciclo", "Versionar com semver e manter changelog", "Retrospectiva: o que manter, parar e melhorar"],
+    "estudar": ["engenharia-de-software", "metodologias-ageis", "revisao-de-codigo", "divida-tecnica", "qualidade-de-software"],
+    "treino": "Pegue uma tarefa grande sua, quebre em 5 entregas que funcionam sozinhas e estime cada uma com margem de erro."
+  },
+  {
+    "id": "requisitos", "nome": "Requisitos e produto", "medida": false,
+    "resumo": "Entender o problema certo antes de construir: quem usa, o que precisa e como saber que ficou pronto.",
+    "niveis": ["Anota o que o cliente pediu.", "Escreve histórias de usuário com critérios de aceite e separa o essencial do desejável.", "Descobre a necessidade real, prioriza por valor e risco e valida cedo com usuários."],
+    "praticas": ["Perguntar o 'para quê' por trás do pedido", "Histórias de usuário com critérios de aceite testáveis", "Separar o que é obrigatório do que é desejável", "Definir a menor versão que já gera valor (MVP)", "Validar com um usuário real antes de construir tudo"],
+    "estudar": ["requisitos", "historias-de-usuario", "estimativas", "gestao-de-riscos"],
+    "treino": "Escolha uma ideia de sistema, escreva 5 histórias de usuário com critérios de aceite e marque qual delas forma o MVP."
+  },
+  {
+    "id": "design-de-interface", "nome": "Design de interface e design system", "medida": true,
+    "resumo": "Interfaces claras, bonitas e consistentes: hierarquia, tipografia, cor, espaçamento e tokens reutilizáveis.",
+    "niveis": ["Usa CSS organizado e layout que funciona no celular.", "Define variáveis (tokens), escala de tipos e espaçamento e respeita o tema escuro e o movimento reduzido.", "Mantém um design system, mede contraste e testa a usabilidade com pessoas."],
+    "praticas": ["Variáveis CSS para cores, tamanhos e espaçamentos", "Media queries e layout fluido (mobile-first)", "Foco visível com :focus-visible", "Respeitar prefers-color-scheme e prefers-reduced-motion", "Escala tipográfica e grade de espaçamento", "Contraste de texto de pelo menos 4,5:1"],
+    "estudar": ["ux-ui", "hierarquia-visual", "tipografia", "cor-e-contraste", "design-system", "heuristicas-de-nielsen"],
+    "treino": "Monte os tokens (cores, tipos e espaçamentos) de uma tela sua com a ferramenta de paleta e escala e confira o contraste de cada texto."
+  },
+  {
+    "id": "sistemas-distribuidos", "nome": "Sistemas distribuídos e escalabilidade", "medida": false,
+    "resumo": "Fazer o sistema crescer e continuar de pé quando partes falham: cache, filas, réplicas e consistência.",
+    "niveis": ["Sabe que a rede falha e usa tempo limite.", "Usa cache, filas e réplicas e sabe o que é idempotência.", "Escolhe consistência por caso de uso, projeta para falhas e mede latência p95/p99."],
+    "praticas": ["Medir antes de escalar (achar o gargalo real)", "Toda chamada de rede com tempo limite e nova tentativa com espera crescente", "Operações idempotentes", "Cache com regra clara de invalidação", "Fila para o que não precisa responder na hora"],
+    "estudar": ["escalabilidade", "cache", "sistemas-distribuidos", "orientado-a-eventos", "banco-em-producao"],
+    "treino": "Desenhe o que acontece com um pedido quando o serviço de pagamento cai no meio: onde há nova tentativa, fila e idempotência?"
+  },
+  {
+    "id": "devops-nuvem", "nome": "DevOps, contêineres e nuvem", "medida": false,
+    "resumo": "Levar o código ao ar com segurança e repetibilidade: pipeline, contêiner, configuração e monitoramento.",
+    "niveis": ["Roda o projeto em outra máquina seguindo um passo a passo.", "Tem pipeline com testes, Dockerfile e configuração por variáveis de ambiente.", "Entrega com rollback, ambientes separados, infraestrutura como código e alertas."],
+    "praticas": ["Pipeline que roda os testes a cada push", "Dockerfile enxuto e sem rodar como administrador", "Configuração por variáveis de ambiente (12 fatores)", "Ambientes separados (desenvolvimento, teste, produção)", "Deploy com plano de volta (rollback)"],
+    "estudar": ["devops", "conteineres", "nuvem-e-12-fatores", "observabilidade-sre", "seguranca-owasp"],
+    "treino": "Gere o workflow de CI e o Dockerfile do seu projeto com os geradores e rode os dois de verdade."
   }
 ]

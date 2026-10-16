@@ -1,10 +1,11 @@
 """Habilidades de programador: o que a Jarvis precisa dominar, como mede cada uma e como evolui.
 
-- dados/habilidades.json: 18 habilidades (lógica, linguagens, estruturas, testes, depuração, código limpo,
+- dados/habilidades.json: 23 habilidades (lógica, linguagens, estruturas, testes, depuração, código limpo,
   segurança, bancos, APIs, arquitetura, versionamento, automação, desempenho, observabilidade,
-  acessibilidade, documentação, organização, aprendizado contínuo), cada uma com três níveis, práticas,
+  acessibilidade, documentação, organização, aprendizado contínuo, engenharia de processo, requisitos,
+  design de interface, sistemas distribuídos, DevOps), cada uma com três níveis, práticas,
   o que estudar e um treino.
-- analisar(): avalia um projeto, só leitura, nos aspectos que dão para medir sem IA (9 deles) e dá uma nota
+- analisar(): avalia um projeto, só leitura, nos aspectos que dão para medir sem IA (11 deles) e dá uma nota
   de 0 a 100 por aspecto, o que achou e o que melhorar.
 - A evolução fica na memória (historico.py): cada avaliação é guardada e comparada com a anterior, e a
   próxima habilidade a praticar é a mais fraca. Ao avaliar o código da própria Jarvis, as melhorias entram
@@ -116,7 +117,7 @@ def checklist(termo: str) -> str:
 
 def plano(termo_ou_analise) -> str:
     """Como evoluir uma habilidade: o que fazer, o que estudar e um treino."""
-    from jarvis.dev import conhecimento, logica
+    from jarvis.dev import conhecimento, saber
 
     item = habilidade(termo_ou_analise) if isinstance(termo_ou_analise, str) else None
     extra = ""
@@ -129,9 +130,10 @@ def plano(termo_ou_analise) -> str:
         return "Diga qual habilidade quer evoluir. " + visao_geral()
     estudar = []
     for ref in item["estudar"]:
-        achado = logica.concept(ref) or conhecimento.lookup(ref)
-        if achado:
-            estudar.append(achado["nome"])
+        tecnologia = conhecimento.lookup(ref)
+        achado = saber.procurar(ref)
+        if tecnologia or achado:
+            estudar.append((tecnologia or achado[1])["nome"])
     return (f"**Plano para evoluir: {item['nome']}**\n{extra}"
             f"1. Releia o checklist (peça \"checklist de {item['nome'].lower()}\") e marque o que você já faz.\n"
             f"2. Estude (peça \"explique <tema>\"): {', '.join(estudar) or 'prática direta'}.\n"
@@ -140,7 +142,7 @@ def plano(termo_ou_analise) -> str:
 
 
 def treino_da_semana(hoje: date | None = None) -> str:
-    """Uma habilidade por semana, em rodízio pelas 18: a prática pequena e constante que faz evoluir sempre."""
+    """Uma habilidade por semana, em rodízio por todas: a prática pequena e constante que faz evoluir sempre."""
     semana = (hoje or date.today()).isocalendar()[1]
     item = catalogo()[semana % len(catalogo())]
     return f"**Treino da semana: {item['nome']}**\n\n" + plano(item["id"])
