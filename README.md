@@ -81,16 +81,23 @@ A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem I
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).
 - A Jarvis lê cada anexo pela ferramenta `ler_anexo`. As imagens são **vistas** pelo Claude, o que serve para prints de erro, telas e diagramas.
 - Para criar ou melhorar algo, ela salva o resultado com `salvar_arquivo` em `Documentos\Jarvis`, **sem nunca sobrescrever** (cria "nome (2)").
-- As cópias dos anexos ficam em `%LOCALAPPDATA%\SuperJarvisnexos` por 30 dias. O arquivo original não é alterado.
+- As cópias dos anexos ficam em `%LOCALAPPDATA%\SuperJarvis\anexos` por 30 dias. O arquivo original não é alterado.
 
 ## Estado atual: Fase 8 (instalador)
 
 **Instalar:** rode `dist\SuperJarvis-Setup-0.8.0.exe` (131 MB).
 - Instala só para o seu usuário, em `%LOCALAPPDATA%\Programs\SuperJarvis`, sem pedir administrador.
 - Cria atalho no menu Iniciar. O atalho na área de trabalho e o "Abrir a Jarvis quando o Windows iniciar" são opcionais.
-- Avisa se o Claude Code não estiver instalado.
+- Avisa se o Claude Code não estiver instalado (e a janela da Jarvis avisa de novo, com o que muda, se faltar o Claude Code ou o git).
 - Desinstale em Configurações > Aplicativos. Suas configurações, chaves e a memória (`%APPDATA%\SuperJarvis\memoria.db`) **são mantidas**.
 - Só uma Jarvis abre por vez. Abrir de novo apenas avisa que ela já está na bandeja.
+
+**O que vai dentro do instalador e o que não vai**
+- **Dentro:** o programa e todas as bibliotecas, a memória (SQLite), o painel de dashboards, o modelo "Hey Jarvis" e o **modelo de voz Whisper**. O modelo fica em `<pasta do programa>\modelos` e a Jarvis o usa dali, **sem depender do cache de ninguém**.
+- **Para gerar o instalador com o modelo** (funciona offline desde a 1ª abertura, instalador ~0,5 GB maior): `python packaging\baixar_modelo.py` (copia o `small`, o padrão; use `base` para ~145 MB; `--nenhum` para um instalador pequeno). Depois: `python -m PyInstaller packaging\jarvis.spec --noconfirm --distpath dist --workpath build` e `ISCC packaging\installer.iss`.
+- **Sem o modelo no instalador**, a Jarvis baixa o `small` (~465 MB) uma vez, na primeira abertura, para `%LOCALAPPDATA%\SuperJarvis\modelos`, e mostra o andamento no topo da janela. Sem internet nessa hora, a voz avisa o que fazer (a conversa por texto continua funcionando).
+- **Fora (não dá para embutir):** o **Claude Code** (usa a sua assinatura e o seu login) e o **git**. A Jarvis os procura ao abrir, inclusive em `~\.local\bin`; se faltarem, mostra na janela o que muda e onde instalar. Sem o Claude Code, ela usa Gemini/NVIDIA (se tiver chave) ou o modo independente.
+- **Fica fora do instalador de propósito:** chaves, contas de e-mail e a memória do usuário (`%APPDATA%\SuperJarvis`), que sobrevivem a atualizar e desinstalar.
 
 Dois executáveis na pasta do programa:
 - `Jarvis.exe`: janela, bandeja e voz.

@@ -3,7 +3,11 @@
 ; Depois compile:              ISCC packaging\installer.iss
 ;
 ; Instala só para o usuário atual (sem administrador). A desinstalação remove o
-; programa, mas mantém configurações, chaves e as notas da Jarvis no Obsidian.
+; programa, mas mantém configurações, chaves e a memória da Jarvis (%APPDATA%\SuperJarvis).
+;
+; Modelo de voz: rode antes "python packaging/baixar_modelo.py" para levá-lo dentro do instalador
+; (funciona offline na 1ª abertura). Sem a pasta packaging\modelos o instalador fica pequeno e a
+; Jarvis baixa o modelo uma vez, na primeira abertura.
 
 #define AppName "Super Jarvis"
 #define AppVersion "0.14.0"
@@ -38,6 +42,7 @@ Name: "autostart"; Description: "Abrir a Jarvis quando o Windows iniciar"
 
 [Files]
 Source: "..\dist\SuperJarvis\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "modelos\*"; DestDir: "{app}\modelos"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"

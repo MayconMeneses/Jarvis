@@ -22,6 +22,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+from jarvis import environment
 from jarvis.brains.claude_cli import child_env
 from jarvis.config import ClaudeConfig, data_dir
 from jarvis.dev import projects
@@ -180,10 +181,8 @@ def enqueue(store: RunStore, cfg, projeto: str, modo: str, tarefa: str) -> Run:
 
 
 def command(run: Run, claude: ClaudeConfig) -> list[str]:
-    import shutil
-
     mode = MODES[run.modo]
-    exe = shutil.which(claude.executable) or claude.executable
+    exe = environment.find_claude(claude.executable) or claude.executable
     cmd = [
         exe, "-p", "--output-format", "json",
         "--tools", mode["tools"], "--allowedTools", mode["allowed"],
