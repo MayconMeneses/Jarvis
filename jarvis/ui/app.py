@@ -189,19 +189,24 @@ class Api:
 
     # ── cérebros (Claude, Gemini, NVIDIA) ─────────────────────────────────
     def brains_status(self) -> dict:
-        import shutil
-
-        from jarvis import keys
+        from jarvis import environment, keys
 
         cfg = config.load()
         return {
-            "claude": bool(shutil.which(cfg.claude.executable)),
+            "claude": bool(environment.find_claude(cfg.claude.executable)),
             "gemini": bool(keys.get_key("gemini")),
             "nvidia": bool(keys.get_key("nvidia")),
             "brave": bool(keys.get_key("brave")),
             "uso_gemini": cfg.uso_gemini,
             "modelo_gemini": cfg.gemini.model,
         }
+
+    def environment_notices(self) -> list[str]:
+        """Avisos de coisas externas que faltam (Claude Code, git), mostrados ao abrir a janela."""
+        from jarvis import environment, keys
+
+        cfg = config.load()
+        return environment.notices(cfg, has_other_brain=bool(keys.get_key("gemini") or keys.get_key("nvidia")))
 
     def save_key(self, provider: str, key: str) -> dict:
         """Testa a chave com uma pergunta mínima e só guarda se funcionar (nunca devolve a chave)."""
@@ -376,7 +381,8 @@ def build_voice(cfg: Config, api: Api, window):
         notify=notify,
         speaker=Speaker(cfg.voz.voz),
         transcriber=Transcriber(
-            cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos)
+            cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos),
+            on_status=lambda text: notify({"status": text}),
         ),
         sensitivity=cfg.voz.sensibilidade,
         speak_answers=cfg.voz.falar_respostas,

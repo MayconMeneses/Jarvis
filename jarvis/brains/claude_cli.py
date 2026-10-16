@@ -10,10 +10,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-import shutil
 import subprocess
 from pathlib import Path
 
+from jarvis import environment
 from jarvis.brains.base import Answer, BrainUnavailable, Message
 from jarvis.config import ClaudeConfig, data_dir
 
@@ -48,7 +48,7 @@ class ClaudeCLI:
         self.mcp_config = mcp_config
 
     def command(self, system: str) -> list[str]:
-        exe = shutil.which(self.cfg.executable) or self.cfg.executable
+        exe = environment.find_claude(self.cfg.executable) or self.cfg.executable
         cmd = [
             exe, "-p",
             "--output-format", "json",

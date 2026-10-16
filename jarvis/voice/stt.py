@@ -23,8 +23,9 @@ def vocabulary_hint(user_name: str = "", city: str = "", projects=()) -> str:
 
 
 class Transcriber:
-    def __init__(self, model_size: str = "small", hint: str = "") -> None:
+    def __init__(self, model_size: str = "small", hint: str = "", on_status=None) -> None:
         self.model_size = model_size
+        self.on_status = on_status  # avisa a janela quando o modelo precisa ser baixado
         self.hint = hint or vocabulary_hint()
         self._model = None
         self._lock = threading.Lock()
@@ -34,8 +35,11 @@ class Transcriber:
             if self._model is None:
                 from faster_whisper import WhisperModel
 
+                from jarvis.voice import models
+
+                path = models.resolve_whisper(self.model_size, self.on_status)
                 threads = max(1, (os.cpu_count() or 2) // 2)  # núcleos físicos
-                self._model = WhisperModel(self.model_size, device="cpu", compute_type="int8",
+                self._model = WhisperModel(path, device="cpu", compute_type="int8",
                                            cpu_threads=threads)
         return self._model
 
