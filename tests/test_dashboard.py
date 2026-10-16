@@ -98,11 +98,12 @@ def test_panel_without_bridge_is_refused(tmp_path):
         dashboard.build(str(doc), out_dir=tmp_path, panel=old)
 
 
-def test_mcp_tool_reports_errors_and_saves(tmp_path, monkeypatch):
+def test_mcp_tool_reports_errors_and_saves(tmp_path, monkeypatch, panel):
     pytest.importorskip("mcp")
     from jarvis.mcp_tools import document_tools as mcp_server
 
     monkeypatch.setattr(dashboard, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(dashboard, "PANEL", panel)
     opened = []
     monkeypatch.setattr(dashboard, "open_in_browser", opened.append)
     (tmp_path / "x.doc").write_bytes(b"x")
