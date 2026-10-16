@@ -3,6 +3,20 @@
 A Jarvis do celular é um **app web instalável (PWA)** que conversa com a Jarvis que roda no seu PC. Funciona no iPhone (Safari),
 no Android (Chrome) e em qualquer navegador, sem App Store e sem conta de desenvolvedor.
 
+## De qualquer lugar (4G, outro Wi-Fi): Tailscale, sem compartilhar rede
+
+O celular só alcança o PC fora do Wi-Fi de casa se os dois estiverem na mesma **rede privada**. O jeito mais simples e seguro é o
+**Tailscale** (grátis para uso pessoal): ele liga só os SEUS aparelhos entre si, sem abrir portas no roteador e sem expor nada na internet.
+
+1. Instale o Tailscale no PC e no iPhone (tailscale.com/download) e entre nos dois com a **mesma conta**.
+2. No site login.tailscale.com/admin/dns, ligue **MagicDNS** e **HTTPS Certificates** (uma vez).
+3. Na Jarvis, ligue o "Jarvis no celular". Ela detecta o Tailscale sozinha (`celular_acesso: "auto"`), pede o certificado HTTPS e passa a
+   escutar **só no endereço do Tailscale** (nem a rede local nem a internet alcançam). O endereço fica como `https://meu-pc.tailXXXX.ts.net:8765`.
+4. No iPhone, com o Tailscale ligado, abra esse endereço no Safari. Com HTTPS, o **ditado por voz funciona** e o app pode abrir offline.
+
+Sem Tailscale a Jarvis cai para o Wi-Fi local (só no mesmo Wi-Fi, HTTP, sem voz). Para exigir o Tailscale, use `celular_acesso: "tailscale"`.
+Limite honesto: algum canal entre os aparelhos é inevitável; sem um serviço como o Tailscale (ou um túnel), o celular não consegue achar o PC pela internet.
+
 ## Como ligar
 
 1. No PC, abra a janela da Jarvis → ⚙ **Cérebros** → ligue **Jarvis no celular**. Aparece o endereço, por exemplo `http://192.168.0.12:8765`.
