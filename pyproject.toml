@@ -43,6 +43,8 @@ include = ["jarvis*"]
 "jarvis.ui.web" = ["*.html", "css/*.css", "js/*.js"]
 "jarvis.dashboard" = ["*.html"]
 "jarvis.eval" = ["data/*.json"]
+"jarvis.dev.conhecimento" = ["dados/*.json"]
+"jarvis.dev.modelos" = ["arquivos/**/*.tpl"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

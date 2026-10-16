@@ -177,14 +177,17 @@ def propose_dev_task(store: ActionStore, cfg, projeto: str, tarefa: str, motivo:
 
 
 def propose_new_project(store: ActionStore, cfg, nome: str, pasta_pai: str, descricao: str,
-                        motivo: str) -> Action:
-    from jarvis.dev import projects
+                        motivo: str, modelo: str = "") -> Action:
+    from jarvis.dev import modelos, projects
 
     target = projects.plan_new(cfg, nome, pasta_pai)
+    modelo = modelos.normalize(modelo) if modelo.strip() else ""
+    conteudo = (f"um sistema inicial pronto para rodar ({modelos.descricao(modelo)}: API/tela de exemplo com testes e README)"
+                if modelo else "README.md")
     return store.save(Action(
         "criar_projeto",
-        {"nome": nome.strip()[:60], "pasta_pai": str(target.parent), "descricao": descricao.strip()[:1500]},
-        f"Criar o projeto '{nome.strip()}' na pasta nova {target} (README.md + git init, sem commit) "
+        {"nome": nome.strip()[:60], "pasta_pai": str(target.parent), "descricao": descricao.strip()[:1500], "modelo": modelo},
+        f"Criar o projeto '{nome.strip()}' na pasta nova {target} com {conteudo} e git init (sem commit), "
         "e cadastrá-lo na Jarvis. Nada existente é alterado.",
         motivo,
     ))
@@ -241,10 +244,18 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
 
         cfg = config.load()
         p = action.params
-        target = projects.create(cfg, p["nome"], p["pasta_pai"], p["descricao"])
+        modelo = p.get("modelo", "")
+        target = projects.create(cfg, p["nome"], p["pasta_pai"], p["descricao"], modelo=modelo)
         config.save(cfg)
+        mem = memory_db.open_memory(cfg)
         if p["descricao"]:
-            projects.add_info(cfg, memory_db.open_memory(cfg), p["nome"], p["descricao"], "Descrição")
+            projects.add_info(cfg, mem, p["nome"], p["descricao"], "Descrição")
+        if modelo:
+            from jarvis.dev import modelos
+
+            projects.add_info(cfg, mem, p["nome"], modelos.descricao(modelo), "Stack")
+            return (f"Projeto '{p['nome']}' criado em {target} com {modelos.descricao(modelo)} e cadastrado. "
+                    "O README.md explica como instalar, rodar e testar.")
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")

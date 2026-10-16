@@ -1,0 +1,74 @@
+[
+  {
+    "id": "site", "nome": "Site institucional ou landing page",
+    "palavras": ["site institucional", "landing page", "pagina de vendas", "portfolio", "site simples", "site"],
+    "front": ["html", "css", "javascript"], "back": [], "banco": [],
+    "modelo": "",
+    "motivo": "Conteúdo quase estático: HTML, CSS e um pouco de JavaScript bastam e carregam rápido. Se precisar de blog ou CMS, considere WordPress (PHP) ou Next.js.",
+    "alternativas": ["Next.js (SEO e blog)", "WordPress (conteúdo editável)"]
+  },
+  {
+    "id": "loja", "nome": "Loja virtual / e-commerce",
+    "palavras": ["loja virtual", "e-commerce", "ecommerce", "loja online", "carrinho", "vender produtos", "loja"],
+    "front": ["nextjs", "react"], "back": ["laravel", "django", "nodejs"], "banco": ["postgresql"],
+    "modelo": "",
+    "motivo": "Precisa de SEO, catálogo, carrinho, pagamento e painel de administração. Next.js cuida de SEO e desempenho; Laravel ou Django dão painel e cadastros prontos. Para algo pronto, avalie WooCommerce ou Shopify.",
+    "alternativas": ["WooCommerce (WordPress)", "Shopify", "Laravel + Vue"]
+  },
+  {
+    "id": "gestao", "nome": "Sistema de gestão / CRUD / ERP",
+    "palavras": ["sistema de gestao", "gestao", "erp", "crud", "cadastro", "cadastros", "controle de estoque", "estoque", "sistema administrativo", "painel administrativo", "sistema interno", "sistema"],
+    "front": ["react", "vue"], "back": ["fastapi", "django", "laravel"], "banco": ["postgresql", "sqlite"],
+    "modelo": "fastapi+react",
+    "motivo": "Muitas telas de cadastro, regras de negócio e relatórios. Python (FastAPI ou Django) e Laravel são muito produtivos para isso; comece com SQLite e migre para PostgreSQL quando crescer.",
+    "alternativas": ["Django (admin pronto)", "Laravel + Vue", "Spring Boot + Angular (corporativo)"]
+  },
+  {
+    "id": "api", "nome": "API / back-end para outro sistema",
+    "palavras": ["api", "back end", "backend", "servico", "microsservico", "rest"],
+    "front": [], "back": ["fastapi", "express", "nestjs", "spring"], "banco": ["postgresql", "sqlite"],
+    "modelo": "fastapi",
+    "motivo": "Sem interface: o foco é contrato (rotas, validação, autenticação) e desempenho. FastAPI (Python) e Express/NestJS (Node) são as escolhas mais rápidas de começar.",
+    "alternativas": ["Go (alto desempenho)", "Spring Boot (corporativo)", "ASP.NET Core"]
+  },
+  {
+    "id": "dashboard", "nome": "Dashboard / painel de indicadores",
+    "palavras": ["dashboard", "painel de indicadores", "relatorios", "graficos", "indicadores", "bi"],
+    "front": ["react", "vue"], "back": ["fastapi", "express"], "banco": ["postgresql"],
+    "modelo": "fastapi+react",
+    "motivo": "Foco em gráficos e filtros. React ou Vue com uma biblioteca de gráficos (Chart.js, Recharts) e uma API que entrega os dados já agregados. Para planilhas prontas, o dashboard da Jarvis já gera gráficos automaticamente.",
+    "alternativas": ["Dashboard Universal da Jarvis (planilha → painel)", "Power BI ou Metabase (sem programar)"]
+  },
+  {
+    "id": "mobile", "nome": "Aplicativo de celular",
+    "palavras": ["aplicativo de celular", "app de celular", "app mobile", "aplicativo mobile", "android", "ios", "app"],
+    "front": ["reactnative", "flutter"], "back": ["fastapi", "nodejs"], "banco": ["postgresql"],
+    "modelo": "",
+    "motivo": "Para Android e iOS com um código só: React Native (se você já sabe React/JS) ou Flutter (interface igual em tudo). Um PWA (site instalável) é a opção mais barata.",
+    "alternativas": ["PWA (React/Vue)", "Kotlin (só Android)"]
+  },
+  {
+    "id": "tempo-real", "nome": "Chat / aplicação em tempo real",
+    "palavras": ["chat", "tempo real", "notificacoes", "websocket", "multiplayer"],
+    "front": ["react"], "back": ["nodejs", "express"], "banco": ["redis", "postgresql"],
+    "modelo": "express+react",
+    "motivo": "Muitas conexões abertas ao mesmo tempo: Node.js com WebSocket (Socket.IO) é o caminho mais direto; Redis ajuda a distribuir mensagens.",
+    "alternativas": ["Go", "FastAPI com WebSocket"]
+  },
+  {
+    "id": "automacao", "nome": "Automação / scripts / dados",
+    "palavras": ["automacao", "script", "robo", "bot", "planilha", "analise de dados", "scraping", "inteligencia artificial", "ia"],
+    "front": [], "back": ["python"], "banco": ["sqlite"],
+    "modelo": "",
+    "motivo": "Python é a escolha natural: bibliotecas para planilhas, web, dados e IA, e scripts curtos.",
+    "alternativas": ["Node.js (se já usa JavaScript)", "PowerShell (tarefas do Windows)"]
+  },
+  {
+    "id": "blog", "nome": "Blog / site com conteúdo",
+    "palavras": ["blog", "site de noticias", "cms", "conteudo"],
+    "front": ["nextjs"], "back": ["laravel"], "banco": ["mysql"],
+    "modelo": "",
+    "motivo": "Para publicar sem programar, WordPress resolve. Para algo sob medida com bom SEO, Next.js com conteúdo em Markdown ou um CMS headless.",
+    "alternativas": ["WordPress", "Next.js + Markdown"]
+  }
+]

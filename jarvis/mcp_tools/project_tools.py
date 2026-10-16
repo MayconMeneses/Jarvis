@@ -65,15 +65,18 @@ def ficha_projeto(projeto: str) -> str:
 
 
 @server.tool()
-def propor_criar_projeto(nome: str, pasta_pai: str, descricao: str, motivo: str) -> str:
-    """Propõe criar um projeto NOVO: pasta <pasta_pai>/<nome> com README.md e git init (sem commit).
+def propor_criar_projeto(nome: str, pasta_pai: str, descricao: str, motivo: str, modelo: str = "") -> str:
+    """Propõe criar um projeto NOVO: pasta <pasta_pai>/<nome> com README.md (ou um sistema inicial pronto) e git init.
 
     Não executa: o usuário aprova na janela. pasta_pai é o caminho completo de uma pasta que
     já existe (pergunte ao usuário se ele não disse). Depois de criado, use
-    propor_executar_tarefa para o Claude Code montar a estrutura inicial.
+    propor_executar_tarefa para o Claude Code evoluir o sistema.
+
+    modelo (opcional): cria um sistema inicial pronto para rodar, com exemplo de CRUD, testes e README,
+    ex.: "fastapi+react", "express+html", "fastapi" (só API). Veja modelos_de_projeto e recomendar_stack.
     """
     try:
-        return proposal(actions.propose_new_project(store, config.load(), nome, pasta_pai, descricao, motivo))
+        return proposal(actions.propose_new_project(store, config.load(), nome, pasta_pai, descricao, motivo, modelo))
     except ValueError as exc:
         return f"Não é possível propor: {exc}"
 

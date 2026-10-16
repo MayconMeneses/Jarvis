@@ -1,0 +1,112 @@
+[
+  {
+    "id": "nodejs", "nome": "Node.js", "categoria": "back", "areas": ["back", "full"],
+    "aliases": ["node"],
+    "resumo": "Ambiente que executa JavaScript no servidor; base de Express, NestJS e Next.js.",
+    "usos": ["APIs REST", "aplicações em tempo real (chat)", "ferramentas de build"],
+    "fortes": ["mesma linguagem do front", "ótimo para muitas conexões simultâneas", "npm gigante"],
+    "fracos": ["não é ideal para cálculo pesado", "qualidade varia entre pacotes"],
+    "quando": ["API de uma equipe que já usa JavaScript/TypeScript"],
+    "curva": "fácil a média",
+    "comeco": ["node --version", "npm init -y"]
+  },
+  {
+    "id": "express", "nome": "Express", "categoria": "back", "areas": ["back"],
+    "aliases": ["expressjs", "express.js"],
+    "resumo": "Framework mínimo e popular para APIs em Node.js.",
+    "usos": ["APIs REST pequenas e médias", "protótipos"],
+    "fortes": ["simples e flexível", "muito material de estudo"],
+    "fracos": ["sem estrutura imposta: o projeto pode virar bagunça", "validação e segurança ficam por sua conta"],
+    "quando": ["API pequena e rápida de montar", "aprender back-end com JavaScript"],
+    "curva": "fácil",
+    "comeco": ["npm install express", "crie server.js com app.listen(8000)"]
+  },
+  {
+    "id": "nestjs", "nome": "NestJS", "categoria": "back", "areas": ["back"],
+    "aliases": ["nest"],
+    "resumo": "Framework estruturado para Node.js com TypeScript, módulos e injeção de dependência.",
+    "usos": ["APIs grandes e de longa vida", "microsserviços"],
+    "fortes": ["organização forte", "TypeScript por padrão", "bom para equipes"],
+    "fracos": ["curva maior que Express", "muito código base (boilerplate)"],
+    "quando": ["API que vai crescer, com várias pessoas"],
+    "curva": "média",
+    "comeco": ["npm i -g @nestjs/cli", "nest new minha-api"]
+  },
+  {
+    "id": "fastapi", "nome": "FastAPI", "categoria": "back", "areas": ["back"],
+    "aliases": ["fast api"],
+    "resumo": "Framework Python moderno para APIs: rápido, com validação e documentação automática.",
+    "usos": ["APIs REST", "serviços com IA/dados", "backends de SPAs"],
+    "fortes": ["documentação interativa automática (/docs)", "validação por tipos", "desempenho muito bom em Python"],
+    "fracos": ["sem painel administrativo pronto", "ecossistema menor que o do Django"],
+    "quando": ["API nova em Python", "back-end para React/Vue"],
+    "curva": "fácil a média",
+    "comeco": ["pip install fastapi uvicorn", "uvicorn main:app --reload"]
+  },
+  {
+    "id": "django", "nome": "Django", "categoria": "back", "areas": ["back", "full"],
+    "aliases": [],
+    "resumo": "Framework Python completo: banco, painel administrativo, autenticação e segurança incluídos.",
+    "usos": ["sistemas de gestão", "sites com conteúdo", "e-commerce", "painéis administrativos"],
+    "fortes": ["\"baterias incluídas\" (admin, ORM, login)", "seguro por padrão", "muito produtivo para CRUD"],
+    "fracos": ["mais rígido para APIs muito simples", "monolítico"],
+    "quando": ["sistema com muitas telas de cadastro e área administrativa"],
+    "curva": "média",
+    "comeco": ["pip install django", "django-admin startproject meusite"]
+  },
+  {
+    "id": "flask", "nome": "Flask", "categoria": "back", "areas": ["back"],
+    "aliases": [],
+    "resumo": "Microframework Python simples: você escolhe o resto das peças.",
+    "usos": ["APIs pequenas", "protótipos", "serviços internos"],
+    "fortes": ["mínimo e fácil de entender", "flexível"],
+    "fracos": ["tudo além do básico é escolha sua", "sem validação automática como o FastAPI"],
+    "quando": ["serviço pequeno ou para aprender back-end"],
+    "curva": "fácil",
+    "comeco": ["pip install flask", "flask --app app run"]
+  },
+  {
+    "id": "spring", "nome": "Spring Boot", "categoria": "back", "areas": ["back"],
+    "aliases": ["spring boot", "springboot"],
+    "resumo": "Framework Java líder em sistemas corporativos: APIs, segurança, dados e mensageria.",
+    "usos": ["APIs corporativas", "microsserviços", "sistemas bancários"],
+    "fortes": ["maturidade e ecossistema completo", "muitas vagas", "ótimo para regras de negócio complexas"],
+    "fracos": ["configuração e verbosidade", "consumo de memória maior"],
+    "quando": ["empresa grande ou sistema crítico de longa duração"],
+    "curva": "difícil",
+    "comeco": ["gere o projeto em start.spring.io", "./mvnw spring-boot:run"]
+  },
+  {
+    "id": "aspnet", "nome": "ASP.NET Core", "categoria": "back", "areas": ["back", "full"],
+    "aliases": ["asp.net", "aspnet core", "dotnet web", "blazor"],
+    "resumo": "Framework web do .NET (C#): APIs, sites e aplicações em tempo real, multiplataforma.",
+    "usos": ["APIs corporativas", "sistemas web", "serviços na nuvem Azure"],
+    "fortes": ["desempenho muito bom", "tipagem forte e ótimas ferramentas", "Blazor permite front em C#"],
+    "fracos": ["menos material gratuito em português", "ligação com o ecossistema Microsoft"],
+    "quando": ["empresa que usa Microsoft/Azure"],
+    "curva": "média",
+    "comeco": ["dotnet new webapi -n MinhaApi", "dotnet run"]
+  },
+  {
+    "id": "laravel", "nome": "Laravel", "categoria": "back", "areas": ["back", "full"],
+    "aliases": [],
+    "resumo": "Framework PHP elegante e completo: rotas, ORM, filas, autenticação e templates.",
+    "usos": ["sistemas de gestão", "e-commerce", "APIs", "SaaS pequenos e médios"],
+    "fortes": ["muito produtivo", "documentação excelente", "hospedagem barata"],
+    "fracos": ["depende de PHP", "desempenho abaixo de Go/Java em cargas extremas"],
+    "quando": ["sistema web completo com prazo curto e orçamento enxuto"],
+    "curva": "fácil a média",
+    "comeco": ["composer create-project laravel/laravel meu-app", "php artisan serve"]
+  },
+  {
+    "id": "rails", "nome": "Ruby on Rails", "categoria": "back", "areas": ["back", "full"],
+    "aliases": ["ruby on rails", "rails"],
+    "resumo": "Framework Ruby de convenção sobre configuração: web completo com pouco código.",
+    "usos": ["MVPs", "sistemas web completos"],
+    "fortes": ["velocidade de desenvolvimento", "convenções claras"],
+    "fracos": ["mercado menor hoje", "menos desempenho"],
+    "quando": ["validar uma ideia rapidamente"],
+    "curva": "média",
+    "comeco": ["gem install rails", "rails new meu_app", "rails server"]
+  }
+]

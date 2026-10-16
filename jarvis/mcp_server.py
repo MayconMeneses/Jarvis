@@ -14,10 +14,12 @@ from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     improve_tools,
     info_tools,
     launch_tools,
+    logica_tools,
     mail_tools,
     notes_tools,
     pc_tools,
     project_tools,
+    stack_tools,
 )
 from jarvis.mcp_tools.core import server
 
