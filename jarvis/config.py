@@ -103,6 +103,8 @@ class Config:
     # True = usa só o motor próprio (nenhuma IA, nenhuma chave, nenhum limite): comandos, memória,
     # dashboards, pesquisa na internet com resumo extrativo. Muda na hora, sem reiniciar.
     somente_independente: bool = False
+    # Jarvis instalada: procura, baixa e instala versões novas do GitHub sozinha (SHA-256 conferido).
+    atualizacao_automatica: bool = True
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)

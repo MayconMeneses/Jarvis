@@ -56,6 +56,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         if voice is not None:
             voice.stop()
         tasks.stop()
+        api.stop_update_loop()
         watcher.stop()
         conversation.router.stop()  # fecha a sessão do Claude
         icon.stop()
@@ -75,6 +76,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         icon.run_detached()
         tasks.start()
         watcher.start()
+        api.start_update_loop()
         if voice is not None:
             voice.start()
 

@@ -25,3 +25,9 @@ Assistente pessoal para Windows (Python 3.11, pywebview, servidor MCP). Veja o R
 - Toda mudança leva teste em `tests/` e a suíte inteira precisa passar: `python -m pytest -q`.
 - Não faça commit sem o usuário pedir.
 - Interface e mensagens em português do Brasil.
+
+## Instalador
+
+- A versão mais nova do instalador fica na raiz (`SuperJarvis-Setup-<versão>.exe`, fora do Git).
+- Depois de qualquer mudança no código que o usuário vá usar, suba a versão em `packaging/installer.iss`
+  e rode `gerar-instalador.ps1` para atualizar o instalador da raiz.

@@ -28,6 +28,7 @@
     if (ev.task) add("jarvis task", ev.task, "tarefa do Claude Code");
     if (ev.review) addReviewCard(ev.review);
     if (ev.verify) addVerifyCard(ev.verify);
+    if (ev.update) addUpdateCard(ev.update);
   };
   mic.addEventListener("click", () => window.pywebview.api.listen_now());
   document.getElementById("dash").addEventListener("click", async () => {
