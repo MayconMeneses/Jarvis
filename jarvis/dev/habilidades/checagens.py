@@ -12,6 +12,7 @@ import re
 import subprocess
 
 from jarvis.dev.habilidades.base import Resultado, codigo_de, limitar
+from jarvis.dev.habilidades.checagens_design import arquitetura, design_de_interface
 from jarvis.dev.habilidades.checagens_extras import acessibilidade, automacao, estrutura, observabilidade
 from jarvis.dev.habilidades.varredura import Projeto, eh_modelo, eh_teste
 
@@ -188,4 +189,5 @@ def codigo_limpo(p: Projeto) -> Resultado:
 
 CHECAGENS = {"testes": testes, "documentacao": documentacao, "versionamento": versionamento, "seguranca": seguranca,
              "codigo-limpo": codigo_limpo, "automacao": automacao, "observabilidade": observabilidade,
-             "acessibilidade": acessibilidade, "estrutura": estrutura}
+             "acessibilidade": acessibilidade, "estrutura": estrutura, "arquitetura": arquitetura,
+             "design-de-interface": design_de_interface}

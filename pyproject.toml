@@ -46,6 +46,8 @@ include = ["jarvis*"]
 "jarvis.dev.conhecimento" = ["dados/*.json"]
 "jarvis.dev.habilidades" = ["dados/*.json"]
 "jarvis.dev.logica" = ["*.json", "algoritmos/*.md"]
+"jarvis.dev.engenharia" = ["dados/*.json", "padroes/*.md"]
+"jarvis.dev.ux" = ["dados/*.json"]
 "jarvis.dev.modelos" = ["arquivos/**/*.tpl"]
 
 [tool.pytest.ini_options]

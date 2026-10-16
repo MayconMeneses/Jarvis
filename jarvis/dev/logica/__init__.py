@@ -18,13 +18,13 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
+from jarvis.dev.biblioteca import achar, parse_md
 from jarvis.dev.conhecimento import fold
 
 BASE = Path(__file__).parent
 LINGUAGENS = {"python": "Python", "javascript": "JavaScript", "go": "Go", "java": "Java", "csharp": "C#"}
 _APELIDOS = {"py": "python", "js": "javascript", "node": "javascript", "nodejs": "javascript", "golang": "go",
              "c#": "csharp", "c sharp": "csharp", "dotnet": "csharp", ".net": "csharp"}
-_CAMPOS = ("nome", "aliases", "problema", "complexidade", "funcoes", "casos", "go_teste", "go_saida")
 
 
 # ── conceitos ────────────────────────────────────────────────────────────
@@ -82,32 +82,9 @@ def concepts_overview() -> str:
 
 # ── algoritmos ───────────────────────────────────────────────────────────
 
-def _parse(path: Path) -> dict:
-    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
-    header, _, body = text.partition("\n\n")
-    data: dict = {"id": path.stem}
-    for line in header.splitlines():
-        key, _, value = line.partition(":")
-        if key.strip() in _CAMPOS:
-            data[key.strip()] = value.strip()
-    data["aliases"] = [a.strip() for a in data.get("aliases", "").split(",") if a.strip()]
-    data["funcoes"] = dict(p.strip().split("=") for p in data.get("funcoes", "").split(";") if "=" in p)
-    data["casos"] = json.loads(data.get("casos", "[]"))
-    sections = re.split(r"^## ", body, flags=re.M)
-    for section in sections[1:]:
-        title, _, content = section.partition("\n")
-        if title.strip() == "Ideia":
-            data["ideia"] = [l[2:].strip() for l in content.splitlines() if l.startswith("- ")]
-        elif title.strip().startswith("Pseudoc"):
-            data["pseudocodigo"] = re.search(r"```\n(.*?)\n```", content, re.S).group(1)
-        elif title.strip().startswith("C"):
-            data["codigo"] = {m.group(1): m.group(2) for m in re.finditer(r"```(\w+)\n(.*?)\n```", content, re.S)}
-    return data
-
-
 @lru_cache(maxsize=1)
 def algoritmos() -> tuple[dict, ...]:
-    return tuple(_parse(p) for p in sorted((BASE / "algoritmos").glob("*.md")))
+    return tuple(parse_md(p) for p in sorted((BASE / "algoritmos").glob("*.md")))
 
 
 def language_in(text: str, default: str = "python") -> str:
@@ -123,14 +100,7 @@ def language_in(text: str, default: str = "python") -> str:
 
 def algorithm(term: str) -> dict | None:
     """O algoritmo cujo nome ou apelido aparece no texto (o apelido mais longo vence)."""
-    low = fold(term)
-    best, best_len = None, 0
-    for item in algoritmos():
-        for name in [item["nome"], item["id"].replace("_", " "), *item["aliases"]]:
-            name = fold(name)
-            if len(name) > best_len and re.search(rf"(?<!\w){re.escape(name)}(?!\w)", low):
-                best, best_len = item, len(name)
-    return best
+    return achar(algoritmos(), term)
 
 
 def show(item: dict, lang: str = "python", with_idea: bool = True) -> str:

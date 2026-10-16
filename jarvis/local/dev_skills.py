@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 
-from jarvis.dev import conhecimento, logica, modelos
+from jarvis.dev import conhecimento, logica, modelos, saber
 
 AREAS = (r"front[\s-]?end", r"back[\s-]?end", r"full[\s-]?stack", r"mobile", r"celular", r"bancos? de dados?", r"linguagens?", r"stacks?")
 _AREA = re.compile(r"(?<!\w)(" + "|".join(AREAS) + r")(?!\w)", re.I)
@@ -19,9 +19,8 @@ HINT = "\n\nQuer saber mais? Pergunte \"compare <A> e <B>\" ou \"qual stack para
 def info(tema: str) -> str | None:
     """Descrição da tecnologia citada, ou None se não estiver na base (aí vale pesquisar na internet)."""
     entry = conhecimento.lookup(tema)
-    if entry is None:  # não é uma tecnologia: talvez seja um conceito de lógica ("recursão", "pilha", "Big-O")
-        item = logica.concept(tema)
-        return logica.describe_concept(item) if item else None
+    if entry is None:  # não é uma tecnologia: talvez seja lógica, engenharia, arquitetura, UX ou um padrão ("SOLID", "Observer")
+        return saber.explicar(tema, logica.language_in(tema))
     return conhecimento.describe(entry) + "\n\nSe quiser mais detalhes ou novidades, diga \"pesquise sobre " + entry["nome"] + "\"."
 
 
@@ -35,7 +34,7 @@ def logic(text: str) -> str:
     """Método de resolução de problemas, ou a lista de conceitos/algoritmos que conheço."""
     low = conhecimento.fold(text)
     if re.search(r"\b(algoritmos|conceitos)\b", low):
-        return logica.concepts_overview() + "\n\n" + logica.algorithms_overview()
+        return saber.resumo() + "\n\n" + logica.algorithms_overview()
     return logica.method(re.sub(r"^(como|me ajuda a|me ajudar a)\s+(resolver|resolvo|pensar|raciocinar)\s*(sobre|para|o problema de)?\s*", "", text, flags=re.I))
 
 
@@ -43,7 +42,7 @@ def compare(text: str) -> str:
     found = conhecimento.mentioned(text)
     if len(found) >= 2:
         return conhecimento.compare(found[0], found[1])
-    ideas = logica.mentioned_concepts(text)  # "pilha e fila", "recursão ou laço"
+    ideas = [item for _, item in saber.citados(text)]  # "pilha e fila", "monólito ou microsserviços", "SOLID e DDD"
     if len(ideas) >= 2:
         return logica.compare_concepts(ideas[0], ideas[1])
     return "Diga os dois itens, por exemplo: \"compare React e Vue\", \"Django ou FastAPI?\" ou \"diferença entre pilha e fila\"."

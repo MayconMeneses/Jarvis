@@ -6,7 +6,7 @@ import pytest
 
 from jarvis import memory_db
 from jarvis.config import Config
-from jarvis.dev import conhecimento, habilidades as H, logica
+from jarvis.dev import conhecimento, habilidades as H, logica, saber
 from jarvis.dev.habilidades import checagens, evolucao, varredura
 from jarvis.local.engine import LocalEngine
 
@@ -63,12 +63,12 @@ def bom(tmp_path):
 
 def test_catalog_is_complete_and_consistent_with_the_checks():
     items = H.catalogo()
-    assert len(items) == 18 and len({i["id"] for i in items}) == 18
+    assert len(items) == 23 and len({i["id"] for i in items}) == 23
     assert {i["id"] for i in items if i["medida"]} == set(checagens.CHECAGENS)
     for item in items:
         assert len(item["niveis"]) == 3 and len(item["praticas"]) >= 4 and item["treino"] and item["resumo"], item["id"]
         for ref in item["estudar"]:
-            assert logica.concept(ref) or conhecimento.lookup(ref), (item["id"], ref)
+            assert saber.procurar(ref) or conhecimento.lookup(ref), (item["id"], ref)
 
 
 def test_lookup_levels_checklist_and_plan():
@@ -257,6 +257,6 @@ def test_weekly_training_rotates_through_all_skills(engine):
     from datetime import date
 
     first_line = lambda w: H.treino_da_semana(date.fromisocalendar(2026, w, 1)).split("\n")[0]  # noqa: E731
-    assert len({first_line(w) for w in range(1, 19)}) == 18  # uma habilidade diferente por semana, nas 18
-    assert first_line(1) == first_line(19)  # e o rodízio recomeça
+    assert len({first_line(w) for w in range(1, 24)}) == 23  # uma habilidade diferente por semana, nas 23
+    assert first_line(1) == first_line(24)  # e o rodízio recomeça
     assert engine.classify("qual o treino da semana")[0] == "evoluir" and "Treino da semana" in engine.handle("treino da semana")

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     document_tools,
+    engenharia_tools,
     habilidades_tools,
     improve_tools,
     info_tools,

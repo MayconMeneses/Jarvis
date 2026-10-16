@@ -1,0 +1,56 @@
+[
+  {
+    "id": "escalabilidade", "nome": "Escalabilidade e desempenho de sistemas", "aliases": ["escalabilidade", "escalar", "escala", "escalonamento", "escalabilidade horizontal", "escalabilidade vertical", "balanceador de carga", "load balancer", "gargalo", "throughput", "latencia", "latência"],
+    "resumo": "Capacidade de atender mais carga sem perder qualidade. Vertical: máquina maior. Horizontal: mais máquinas atrás de um balanceador. Antes de escalar, ache o gargalo real medindo.",
+    "passos": ["Meça: latência (p95/p99), vazão e saturação de CPU, memória, disco e rede.", "Otimize o que é barato primeiro: consultas e índices, cache e chamadas desnecessárias.", "Torne a aplicação sem estado (stateless) para poder replicar: sessões e arquivos fora do servidor.", "Escale horizontalmente com balanceador de carga e verificação de saúde.", "O banco costuma ser o gargalo: réplicas de leitura, cache, e só depois particionamento (sharding).", "Tire trabalho pesado do caminho da requisição (filas e processamento assíncrono).", "Faça teste de carga antes do pico e defina limites (rate limit)."],
+    "analogia": "Um restaurante cheio: abrir mais caixas (horizontal), contratar um cozinheiro mais rápido (vertical), ou pré-preparar os pratos (cache).",
+    "exemplo": "cliente -> balanceador -> [app 1][app 2][app 3] -> cache -> banco (réplica de leitura)",
+    "erros": ["escalar antes de medir", "estado guardado na memória do servidor", "ignorar o banco como gargalo", "sem teste de carga até o dia do pico"],
+    "exercicios": ["Descreva 3 passos para um site de 200 para 20.000 usuários."]
+  },
+  {
+    "id": "cache", "nome": "Cache", "aliases": ["cache", "caching", "redis", "cdn", "memoizacao", "memoização", "invalidacao de cache", "invalidação de cache", "ttl"],
+    "resumo": "Guardar o resultado de algo caro para reusar. Acelera e alivia o banco, mas traz o problema difícil de manter os dados atuais (invalidação).",
+    "passos": ["Cache onde o dado é caro de calcular e muda pouco.", "Níveis: navegador, CDN (arquivos estáticos), aplicação (Redis) e banco.", "Defina o TTL (tempo de vida) conforme quão defasado o dado pode ficar.", "Estratégias: cache-aside (a aplicação consulta e preenche), write-through e invalidação por evento.", "Proteja contra a avalanche (muitas chaves expirando juntas) e a corrida de reconstrução.", "Meça a taxa de acerto; cache com baixa taxa só complica."],
+    "analogia": "A geladeira: busca-se ali o que se usa muito; precisa-se jogar fora o que venceu.",
+    "exemplo": "def produto(id):\n    p = cache.get(id)\n    if p is None:\n        p = banco.buscar(id)\n        cache.set(id, p, ttl=60)\n    return p",
+    "erros": ["cache sem regra de invalidação (dados velhos para sempre)", "guardar dados por usuário numa chave compartilhada", "cachear o que é barato", "tratar o cache como fonte da verdade"],
+    "exercicios": ["Escolha o TTL e a estratégia de invalidação de uma lista de produtos."]
+  },
+  {
+    "id": "sistemas-distribuidos", "nome": "Sistemas distribuídos (CAP, consistência e resiliência)", "aliases": ["sistemas distribuidos", "sistemas distribuídos", "cap", "teorema cap", "consistencia eventual", "consistência eventual", "resiliencia", "resiliência", "circuit breaker", "retry", "timeout", "idempotente", "falhas de rede", "consenso"],
+    "resumo": "Vários computadores trabalhando juntos, onde a rede falha e o tempo é incerto. O teorema CAP diz que, havendo partição de rede, é preciso escolher entre consistência e disponibilidade. Projete para a falha.",
+    "passos": ["Assuma que tudo falha: rede, disco, serviço vizinho.", "Use timeouts em toda chamada externa e limite as retentativas, com espera crescente e aleatória (backoff com jitter).", "Torne operações idempotentes para poder repetir sem efeito duplo.", "Circuit breaker: pare de chamar um serviço doente e responda com plano B.", "Escolha consistência forte (saldo bancário) ou eventual (contador de curtidas) conforme o negócio.", "Evite transações distribuídas; prefira sagas com compensação.", "Observe com traces distribuídos e IDs de correlação."],
+    "analogia": "Um grupo de pessoas que combina por mensagem num lugar sem sinal: algumas mensagens somem, chegam fora de ordem ou duplicadas.",
+    "exemplo": "chamar pagamento: timeout 2 s, até 3 tentativas com backoff; se o circuito abrir -> mostrar 'pagamento pendente'",
+    "erros": ["chamada sem timeout (trava tudo)", "retentativa infinita que derruba o serviço doente", "supor que a rede é confiável", "consistência forte onde a eventual bastava (e custa caro)"],
+    "exercicios": ["Projete o que acontece quando o serviço de e-mail cai durante um cadastro."]
+  },
+  {
+    "id": "conteineres", "nome": "Contêineres e orquestração (Docker e Kubernetes)", "aliases": ["docker", "conteiner", "contêiner", "conteineres", "contêineres", "container", "containers", "kubernetes", "k8s", "docker compose", "imagem docker", "dockerfile"],
+    "resumo": "Contêiner empacota a aplicação com suas dependências para rodar igual em qualquer lugar. Docker constrói e executa; Compose junta vários serviços; Kubernetes orquestra muitos contêineres em produção.",
+    "passos": ["Dockerfile: imagem base enxuta, copie primeiro o arquivo de dependências (aproveita cache), depois o código.", "Um processo por contêiner; configuração por variáveis de ambiente, nunca segredos na imagem.", "Imagens pequenas e fixas por versão (não use latest em produção); rode sem root.", "Compose para ambiente local: app, banco e cache com um comando.", "Kubernetes quando precisar de várias réplicas, atualizações graduais e autorrecuperação.", "Health checks (liveness e readiness) e limites de CPU e memória.", "Dados que precisam persistir ficam em volumes, não no contêiner."],
+    "analogia": "Um contêiner de navio: a carga viaja em caixas padronizadas, não importa o navio nem o porto.",
+    "exemplo": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nUSER nobody\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\"]",
+    "erros": ["segredos dentro da imagem", "rodar como root", "imagem gigante com ferramentas de build", "Kubernetes para um sistema que cabe em um servidor"],
+    "exercicios": ["Escreva o Dockerfile de uma API Python e liste 3 coisas que não devem entrar nele."]
+  },
+  {
+    "id": "nuvem-e-12-fatores", "nome": "Nuvem e as doze fatores (12-factor)", "aliases": ["nuvem", "cloud", "aws", "azure", "gcp", "12 fatores", "doze fatores", "12 factor", "twelve-factor", "serverless", "iac", "infraestrutura como codigo", "infraestrutura como código", "terraform"],
+    "resumo": "Aplicações feitas para a nuvem seguem o método dos doze fatores: código em um repositório, dependências declaradas, configuração no ambiente, serviços de apoio como recursos, processos sem estado e logs como fluxo. Infraestrutura como código torna o ambiente reproduzível.",
+    "passos": ["Uma base de código por aplicação; muitos deploys dela.", "Declare todas as dependências; configuração em variáveis de ambiente.", "Banco, fila e cache são recursos anexados e trocáveis por configuração.", "Separe build, release e execução; processos sem estado e descartáveis (iniciam rápido e morrem sem dor).", "Logs vão para a saída padrão; a plataforma coleta.", "Paridade entre desenvolvimento e produção.", "Infraestrutura como código (Terraform) versionada e revisada.", "Serviços gerenciados (banco, fila) reduzem a operação; avalie o custo e a dependência de fornecedor.", "Serverless para cargas irregulares e curtas; atenção a partida a frio e limites."],
+    "analogia": "Alugar um apartamento mobiliado em vez de construir a casa: você paga pelo uso e cuida só do que é seu.",
+    "exemplo": "DATABASE_URL=postgres://...  (variável de ambiente, não arquivo no código)",
+    "erros": ["configuração dentro do código", "estado no disco do servidor", "console clicado em vez de código (ambiente irreproduzível)", "custo de nuvem sem monitoramento"],
+    "exercicios": ["Liste o que mudaria numa aplicação sua para obedecer a 12 fatores."]
+  },
+  {
+    "id": "banco-em-producao", "nome": "Bancos de dados em produção (migrações, backup e desempenho)", "aliases": ["migracoes", "migrações", "backup", "restauracao", "restauração", "replicacao", "replicação", "indices", "índices", "plano de execucao", "plano de execução", "n+1", "transacoes", "transações", "acid", "isolamento", "sharding", "particionamento"],
+    "resumo": "Operar dados com segurança: migrações versionadas, backups testados, transações corretas, índices e consultas medidas.",
+    "passos": ["Migrações versionadas (Alembic, Flyway, Prisma), aplicadas pelo pipeline, compatíveis com a versão anterior do código (expandir e depois contrair).", "Backups automáticos e TESTE de restauração: backup que nunca foi restaurado não é backup.", "Transações (ACID) quando várias gravações andam juntas; escolha o nível de isolamento sabendo o custo.", "Índices nas colunas filtradas e juntadas; leia o plano de execução (EXPLAIN).", "Evite o problema N+1 (uma consulta por item): use JOIN ou carregamento em lote.", "Pool de conexões dimensionado; consultas pesadas em réplica de leitura.", "Sharding só como último recurso."],
+    "analogia": "Os livros contábeis de uma empresa: cada lançamento é registrado com regra, e há cópia de segurança em outro prédio.",
+    "exemplo": "EXPLAIN ANALYZE SELECT * FROM pedidos WHERE cliente_id = 7;\n-- Seq Scan? crie: CREATE INDEX ON pedidos(cliente_id);",
+    "erros": ["alterar o banco de produção à mão", "backup sem teste", "SELECT * em tabelas grandes", "índice em tudo (deixa as gravações lentas)"],
+    "exercicios": ["Descreva uma migração segura para renomear uma coluna sem derrubar o sistema."]
+  }
+]

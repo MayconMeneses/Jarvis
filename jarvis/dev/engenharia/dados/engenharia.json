@@ -1,0 +1,128 @@
+[
+  {
+    "id": "engenharia-de-software", "nome": "Engenharia de software", "aliases": ["engenharia de software", "se", "ciclo de vida", "ciclo de vida de software", "sdlc"],
+    "resumo": "Disciplina de construir software de forma previsível, com qualidade e que possa evoluir. Cobre requisitos, desenho, construção, testes, entrega e manutenção.",
+    "passos": ["Entenda o problema e quem vai usar (requisitos) antes de escolher tecnologia.", "Desenhe uma solução simples e registre as decisões importantes.", "Construa em fatias pequenas e entregáveis, com testes.", "Entregue com automação (CI/CD) e acompanhe o uso em produção.", "Mantenha: corrija, refatore e pague a dívida técnica aos poucos.", "Meça (qualidade, prazo, satisfação) e ajuste o processo."],
+    "analogia": "Construir uma casa: levantamento do terreno e das necessidades, planta, obra por etapas, vistoria e manutenção. Pular etapas sai mais caro depois.",
+    "exemplo": "Requisitos -> Desenho -> Código + Testes -> Revisão -> Entrega -> Operação -> Aprendizado -> (volta aos requisitos)",
+    "erros": ["começar pelo código sem entender o problema", "escopo que cresce sem controle", "entregar tudo no fim em vez de em fatias", "tratar manutenção como detalhe: ela é a maior parte da vida do software"],
+    "exercicios": ["Descreva o ciclo de vida de um sistema que você conhece e onde ele mais falha.", "Liste 3 requisitos e 3 riscos de um sistema de agendamento."]
+  },
+  {
+    "id": "requisitos", "nome": "Levantamento de requisitos", "aliases": ["requisitos", "requisitos funcionais", "requisitos nao funcionais", "requisitos não funcionais", "engenharia de requisitos", "prd", "escopo"],
+    "resumo": "Descobrir e escrever o que o sistema precisa fazer (funcionais) e como precisa se comportar (não funcionais: desempenho, segurança, disponibilidade, usabilidade).",
+    "passos": ["Converse com quem usa: o problema real, não a solução que a pessoa imagina.", "Separe funcionais (\"o usuário cadastra um pedido\") de não funcionais (\"responde em até 2 s\").", "Escreva cada requisito de forma verificável (dá para testar?).", "Priorize com MoSCoW: Must, Should, Could, Won't (agora).", "Defina o MVP: o menor conjunto que já resolve a dor principal.", "Registre o que ficou FORA do escopo e as suposições."],
+    "analogia": "A lista de compras antes de cozinhar: sem ela, você volta ao mercado várias vezes ou compra o que não precisa.",
+    "exemplo": "RF-01: O cliente pode cancelar um pedido até 1 hora antes da entrega.\nRNF-01: A tela de pedidos carrega em até 2 s com 100 usuários simultâneos.\nFora do escopo (v1): pagamento por parcelas.",
+    "erros": ["requisito vago (\"o sistema deve ser rápido\")", "misturar solução com problema", "não priorizar: tudo é urgente", "não registrar o que foi combinado"],
+    "exercicios": ["Reescreva 'o sistema deve ser fácil de usar' como requisito verificável.", "Faça a lista MoSCoW de um app de entregas."]
+  },
+  {
+    "id": "historias-de-usuario", "nome": "Histórias de usuário e critérios de aceitação", "aliases": ["historia de usuario", "história de usuário", "historias de usuario", "user story", "user stories", "criterios de aceitacao", "critérios de aceitação", "gherkin", "bdd"],
+    "resumo": "Uma história descreve uma necessidade do ponto de vista de quem usa: \"Como <papel>, quero <objetivo>, para <benefício>\". Os critérios de aceitação dizem quando está pronta.",
+    "passos": ["Escreva no formato Como / Quero / Para.", "Mantenha pequena: cabe em poucos dias de trabalho (INVEST: independente, negociável, valiosa, estimável, pequena, testável).", "Acrescente critérios em Dado / Quando / Então (Gherkin).", "Inclua o caminho feliz, os erros e os limites.", "Revise com quem usa e com quem vai testar antes de começar."],
+    "analogia": "Um pedido no restaurante: o que a pessoa quer, e como ela confere que veio certo.",
+    "exemplo": "Como cliente, quero cancelar um pedido, para não pagar por algo que não preciso.\nDado um pedido com entrega em mais de 1 hora\nQuando eu cancelo\nEntão o pedido muda para \"cancelado\" e o valor é estornado.",
+    "erros": ["história grande demais (épico disfarçado)", "sem critério de aceitação", "descrever tela em vez de necessidade", "ignorar os casos de erro"],
+    "exercicios": ["Escreva 3 histórias e os critérios de um login.", "Divida a história 'gerenciar produtos' em 4 menores."]
+  },
+  {
+    "id": "metodologias-ageis", "nome": "Métodos ágeis (Scrum e Kanban)", "aliases": ["agil", "ágil", "agile", "scrum", "kanban", "sprint", "metodologia agil", "metodologias ageis", "metodologias ágeis", "xp"],
+    "resumo": "Entregar valor em ciclos curtos, aprender com o uso real e ajustar o rumo. Scrum organiza em sprints com papéis e cerimônias; Kanban visualiza o fluxo e limita o trabalho em andamento.",
+    "passos": ["Mantenha um backlog priorizado de histórias.", "Scrum: sprint de 1 a 4 semanas, planejamento, daily curta, revisão com demonstração e retrospectiva.", "Kanban: quadro (a fazer, fazendo, feito) e limite de itens em andamento (WIP).", "Defina o 'pronto' (código revisado, testado, documentado, implantável).", "Meça fluxo (tempo de ciclo, vazão), não só horas.", "Na retrospectiva, escolha UMA melhoria e acompanhe."],
+    "analogia": "Dirigir com GPS: você ajusta a rota a cada curva em vez de traçar tudo no início e torcer.",
+    "exemplo": "Quadro: A fazer | Fazendo (máx. 3) | Em revisão | Pronto",
+    "erros": ["usar as cerimônias sem a mentalidade (agilidade de fachada)", "sprints sem entrega utilizável", "WIP sem limite: tudo começado, nada terminado", "retrospectiva sem ação"],
+    "exercicios": ["Monte um quadro Kanban com limite de WIP para os seus estudos.", "Defina o seu 'pronto'."]
+  },
+  {
+    "id": "estimativas", "nome": "Estimativas de esforço e prazo", "aliases": ["estimativa", "estimativas", "estimar", "story points", "pontos de historia", "prazo", "planning poker"],
+    "resumo": "Estimar é prever com incerteza. Boas estimativas usam faixas, histórico real e fatias pequenas; as grandes são quase sempre otimistas.",
+    "passos": ["Quebre em pedaços pequenos: quanto menor, mais precisa a estimativa.", "Dê uma faixa (otimista, provável, pessimista) em vez de um número só.", "Compare com trabalhos parecidos que já fez e use o tempo REAL deles.", "Some imprevistos: revisão, testes, integração e reuniões entram na conta.", "Reestime quando aprender algo novo e comunique cedo.", "Pontos de história medem esforço relativo; use a velocidade média do time para prever."],
+    "analogia": "Previsão do tempo: dá a chance de chuva, não a hora exata da primeira gota.",
+    "exemplo": "Tarefa: cadastro de clientes -> otimista 2 dias, provável 4, pessimista 8 -> planeje 5 e avise a faixa.",
+    "erros": ["estimar sem quebrar a tarefa", "ignorar testes e revisão", "tratar a estimativa como promessa", "não aprender com o que passou"],
+    "exercicios": ["Estime e depois meça o tempo real de 5 tarefas suas e compare."]
+  },
+  {
+    "id": "revisao-de-codigo", "nome": "Revisão de código", "aliases": ["code review", "pull request", "revisao de codigo", "revisão de código", "pr"],
+    "resumo": "Outra pessoa lê a mudança antes de entrar. Pega defeitos cedo, espalha conhecimento e mantém o padrão. Foco em correção, clareza, segurança e testes, não em gosto pessoal.",
+    "passos": ["Mudanças pequenas (idealmente menos de 400 linhas) e com descrição do porquê.", "Revisor: entenda a intenção, depois procure defeitos, casos de borda, segurança e testes.", "Comente o código, não a pessoa; pergunte antes de afirmar.", "Separe o que bloqueia (bug, risco) do que é sugestão (nit).", "Automatize o que máquina faz melhor: formatação, lint e testes no CI.", "Autor: revise o próprio diff antes de pedir revisão."],
+    "analogia": "Um corretor de provas de um colega: o objetivo é o texto ficar melhor, não ganhar a discussão.",
+    "exemplo": "bloqueia: esta consulta concatena o nome digitado (risco de injeção de SQL); use parâmetros.\nnit: dá para renomear `d` para `desconto`.",
+    "erros": ["PR gigante que ninguém consegue revisar", "revisão superficial (aprovar sem ler)", "discutir estilo que o formatador resolve", "críticas pessoais"],
+    "exercicios": ["Revise o seu próprio último commit como se fosse de outra pessoa."]
+  },
+  {
+    "id": "divida-tecnica", "nome": "Dívida técnica e refatoração", "aliases": ["divida tecnica", "dívida técnica", "refatoracao", "refatoração", "refactoring", "legado", "codigo legado", "código legado"],
+    "resumo": "Dívida técnica é o custo futuro de atalhos tomados hoje. Pode ser consciente e útil (entregar logo e pagar depois), mas rende juros: cada mudança fica mais lenta e arriscada.",
+    "passos": ["Torne a dívida visível: liste e dê um custo (o que ela atrasa ou arrisca).", "Pague as que estão no caminho das mudanças frequentes primeiro.", "Antes de refatorar, escreva testes que protejam o comportamento atual.", "Refatore em passos pequenos, rodando os testes a cada um.", "Reserve uma fração fixa de cada ciclo para pagar dívida (ex.: 15 a 20%).", "Regra do escoteiro: deixe o código um pouco melhor do que encontrou."],
+    "analogia": "Um empréstimo: usar para aproveitar uma oportunidade é válido; nunca pagar faz os juros comerem tudo.",
+    "exemplo": "Dívida: regra de desconto copiada em 4 telas. Custo: toda mudança exige 4 edições e já gerou 2 bugs. Plano: extrair uma função com testes.",
+    "erros": ["reescrever tudo do zero (quase sempre sai mais caro)", "refatorar sem testes", "esconder a dívida do negócio", "misturar refatoração com mudança de comportamento no mesmo passo"],
+    "exercicios": ["Liste 5 dívidas técnicas de um projeto seu e ordene por custo."]
+  },
+  {
+    "id": "versionamento-semantico", "nome": "Versionamento semântico e releases", "aliases": ["semver", "versionamento semantico", "versionamento semântico", "versoes", "versões", "changelog", "release", "releases"],
+    "resumo": "Números de versão MAJOR.MINOR.PATCH que comunicam o impacto: PATCH corrige sem mudar o contrato, MINOR adiciona de forma compatível, MAJOR quebra compatibilidade.",
+    "passos": ["Corrigiu bug sem mudar a interface: aumente o PATCH (1.4.2 → 1.4.3).", "Adicionou função compatível: aumente o MINOR (1.4.3 → 1.5.0).", "Quebrou a compatibilidade: aumente o MAJOR (1.5.0 → 2.0.0).", "Mantenha um CHANGELOG com o que mudou, por versão e em linguagem de quem usa.", "Marque cada release com uma tag no git e automatize a publicação.", "Avise com antecedência o que será removido (depreciação)."],
+    "analogia": "A edição de um livro: erratas, nova edição com capítulos extras, ou uma obra reescrita.",
+    "exemplo": "## 1.5.0 - 2026-10-16\n### Adicionado\n- exportação em PDF\n### Corrigido\n- total errado com desconto de 100%",
+    "erros": ["quebrar compatibilidade em uma versão MINOR", "changelog escrito para desenvolvedores em vez de quem usa", "sem tags: ninguém sabe o que está em produção"],
+    "exercicios": ["Decida o próximo número de versão para: renomear um campo da API."]
+  },
+  {
+    "id": "qualidade-de-software", "nome": "Qualidade de software e estratégia de testes", "aliases": ["qualidade", "qualidade de software", "piramide de testes", "pirâmide de testes", "estrategia de testes", "estratégia de testes", "qa", "cobertura de testes", "teste de integracao", "teste de integração", "teste e2e"],
+    "resumo": "Qualidade é cumprir o que o usuário precisa, sem defeitos graves e de forma fácil de manter. A pirâmide de testes guia o investimento: muitos testes unitários rápidos, alguns de integração e poucos ponta a ponta.",
+    "passos": ["Base: testes unitários rápidos para as regras de negócio.", "Meio: testes de integração (banco, APIs, filas) para as junções.", "Topo: poucos testes ponta a ponta (E2E) para os fluxos críticos.", "Teste comportamento, não detalhes de implementação.", "Cobertura é um indicador, não um objetivo: 100% pode testar nada importante.", "Rode no CI a cada mudança; teste instável (flaky) deve ser consertado ou removido.", "Inclua testes de desempenho e segurança onde o risco justificar."],
+    "analogia": "Inspeções de uma fábrica de carros: peça por peça (unitário), montagem (integração) e teste de estrada (E2E).",
+    "exemplo": "70% unitários (ms) | 20% integração (s) | 10% E2E (min)",
+    "erros": ["pirâmide invertida (quase só E2E, lentos e frágeis)", "testes acoplados à implementação", "tolerar testes flaky", "perseguir cobertura em vez de risco"],
+    "exercicios": ["Para um checkout de loja, diga o que testaria em cada camada."]
+  },
+  {
+    "id": "documentacao-tecnica", "nome": "Documentação técnica e decisões (ADR, C4)", "aliases": ["adr", "registro de decisao", "registro de decisão", "decisoes de arquitetura", "decisões de arquitetura", "c4", "modelo c4", "documentacao tecnica", "documentação técnica", "diagramas"],
+    "resumo": "Documente o que ajuda a decidir e a manter: o porquê das decisões (ADR), a visão em níveis (C4: contexto, contêineres, componentes, código) e como rodar e contribuir.",
+    "passos": ["ADR: Título, Contexto, Decisão, Consequências e Alternativas descartadas, uma por arquivo e datada.", "C4: comece pelo diagrama de contexto (quem usa e quais sistemas se ligam) e desça só se precisar.", "README: o que é, como instalar, rodar, testar e contribuir.", "Mantenha a documentação perto do código e revisada junto com ele.", "Prefira poucos documentos vivos a muitos desatualizados."],
+    "analogia": "O manual e o diário de bordo de um navio: um explica como funciona, o outro por que a rota foi mudada.",
+    "exemplo": "# ADR 0007: Usar PostgreSQL\n- Contexto: dados relacionais e relatórios complexos\n- Decisão: PostgreSQL gerenciado\n- Consequências: consultas SQL ricas; precisamos de backup e migrações\n- Alternativas: MongoDB (descartado: muitos JOINs)",
+    "erros": ["documento enorme que ninguém atualiza", "decisão sem registrar o porquê", "diagrama bonito que não bate com o código"],
+    "exercicios": ["Escreva um ADR para uma escolha de tecnologia que você fez."]
+  },
+  {
+    "id": "gestao-de-riscos", "nome": "Gestão de riscos em projetos de software", "aliases": ["riscos", "gestao de riscos", "gestão de riscos", "mitigacao", "mitigação", "plano b"],
+    "resumo": "Risco é algo incerto que pode atrapalhar o projeto. Gerenciar é listar cedo, avaliar probabilidade e impacto, e decidir o que fazer antes de acontecer.",
+    "passos": ["Liste riscos técnicos (tecnologia nova), de pessoas (dependência de alguém), de requisitos (mudam) e externos (API de terceiros).", "Avalie probabilidade e impacto e foque nos de maior valor.", "Escolha a resposta: evitar, reduzir (protótipo), transferir (seguro, serviço pronto) ou aceitar.", "Ataque o maior risco PRIMEIRO (spike ou protótipo rápido).", "Reveja a lista a cada ciclo."],
+    "analogia": "Guarda-chuva e rota alternativa: você os prepara enquanto o céu ainda está aberto.",
+    "exemplo": "Risco: a API de pagamento pode mudar. Prob. média, impacto alto. Resposta: camada de adaptação + testes de contrato.",
+    "erros": ["só olhar riscos depois que viram problema", "deixar o risco mais difícil para o fim", "lista de riscos feita uma vez e esquecida"],
+    "exercicios": ["Liste 5 riscos de um projeto seu e a resposta para cada."]
+  },
+  {
+    "id": "devops", "nome": "DevOps, CI/CD e entrega contínua", "aliases": ["devops", "ci/cd", "cicd", "ci cd", "integracao continua", "integração contínua", "entrega continua", "entrega contínua", "deploy", "pipeline", "github actions"],
+    "resumo": "Cultura e práticas para entregar software com frequência e segurança: integração contínua roda build e testes a cada mudança; entrega contínua deixa a versão sempre pronta para publicar.",
+    "passos": ["Todo commit dispara build, testes, lint e verificação de segurança no CI.", "Gere um artefato versionado (imagem, pacote) uma vez e promova o MESMO artefato entre ambientes.", "Automatize o deploy e o rollback (voltar atrás rápido).", "Use ambientes parecidos com produção (staging).", "Libere aos poucos: feature flags, canário ou azul-verde.", "Monitore depois do deploy e tenha alertas.", "Infraestrutura como código (Terraform, scripts) versionada."],
+    "analogia": "Uma linha de montagem com controle de qualidade em cada estação: erro aparece cedo e barato.",
+    "exemplo": "push -> instalar -> lint -> testes -> build da imagem -> deploy em staging -> testes de fumaça -> deploy em produção",
+    "erros": ["deploy manual e raro, com grande risco", "pipeline lento que ninguém espera", "sem plano de rollback", "segredos dentro do pipeline em texto"],
+    "exercicios": ["Descreva o pipeline de um projeto seu e onde ele pode falhar."]
+  },
+  {
+    "id": "observabilidade-sre", "nome": "Observabilidade, confiabilidade e operação (SRE)", "aliases": ["observabilidade", "sre", "metricas", "métricas", "logs", "tracing", "alertas", "slo", "sla", "confiabilidade", "monitoramento", "incidentes"],
+    "resumo": "Saber o que o sistema está fazendo por dentro. Três sinais: logs (eventos), métricas (números ao longo do tempo) e traces (caminho de uma requisição). SLOs definem a confiabilidade prometida.",
+    "passos": ["Logs estruturados (JSON) com nível e identificador da requisição.", "Métricas dos quatro sinais de ouro: latência, tráfego, erros e saturação.", "Defina SLOs (ex.: 99,9% das requisições abaixo de 500 ms) e alerte quando o orçamento de erro estiver queimando.", "Alerte no que exige ação humana; o resto vira painel.", "Em incidente: mitigue primeiro, descubra a causa depois, e escreva um post-mortem sem culpados.", "Pratique falhas controladas (caos) quando o sistema for crítico."],
+    "analogia": "O painel de um avião: velocidade, altitude e alertas, para agir antes de o problema virar acidente.",
+    "exemplo": "{\"nivel\":\"error\",\"rota\":\"/pedidos\",\"id\":\"a1b2\",\"msg\":\"timeout no pagamento\",\"ms\":3012}",
+    "erros": ["logar senhas ou dados pessoais", "alerta demais (ninguém mais olha)", "medir média em vez de percentis (p95, p99)", "post-mortem que procura culpado"],
+    "exercicios": ["Defina um SLO e o alerta correspondente para a rota de login."]
+  },
+  {
+    "id": "seguranca-owasp", "nome": "Segurança de aplicações (OWASP, autenticação e ameaças)", "aliases": ["owasp", "owasp top 10", "modelagem de ameacas", "modelagem de ameaças", "threat modeling", "autenticacao e autorizacao", "autenticação e autorização", "oauth", "jwt", "csrf", "cors", "seguranca de aplicacoes", "segurança de aplicações"],
+    "resumo": "Proteger a aplicação pensando como quem ataca. O OWASP Top 10 lista os riscos mais comuns: controle de acesso quebrado, falhas de criptografia, injeção, desenho inseguro, configuração errada, componentes vulneráveis, falhas de autenticação, integridade, logs insuficientes e SSRF.",
+    "passos": ["Modele ameaças: quais dados valem a pena proteger, quem ataca e por onde entra (STRIDE).", "Autenticação: senha com hash lento (argon2/bcrypt), MFA e limite de tentativas.", "Autorização: verifique no servidor, por recurso, a cada requisição (o usuário só vê o que é dele).", "JWT/OAuth: tokens curtos, validados (assinatura, expiração, audiência) e guardados com cuidado.", "Proteja contra CSRF (token ou SameSite) e configure CORS só para origens conhecidas.", "Valide e escape toda entrada; use consultas parametrizadas.", "Cabeçalhos de segurança, HTTPS, dependências atualizadas e segredos fora do código.", "Registre eventos de segurança e teste (SAST, DAST, revisão)."],
+    "analogia": "Um prédio com porteiro, crachá, câmeras e cofres: cada camada cobre a falha da outra.",
+    "exemplo": "GET /pedidos/42\n-> carregar pedido 42\n-> se pedido.usuario_id != usuario_logado.id: 404 (nunca devolver dados de outro usuário)",
+    "erros": ["autorização só no front-end", "confiar em IDs enviados pelo cliente", "JWT sem expiração", "CORS com origem * e credenciais", "segredos no repositório"],
+    "exercicios": ["Liste as ameaças de um login e uma defesa para cada."]
+  }
+]
