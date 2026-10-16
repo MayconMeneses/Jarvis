@@ -55,7 +55,10 @@
       adicionar(r.texto, "jarvis", [r.cerebro, aviso].filter(Boolean).join(" · "));
       falar(r.texto);
     } catch (e) {
-      adicionar("Não consegui falar com o PC: " + e.message, "jarvis erro");
+      const rede = e instanceof TypeError;  // fetch sem resposta: PC desligado, outro Wi-Fi, firewall ou servidor parado
+      adicionar(rede ? "Não encontrei o PC. Confira: 1) a Jarvis está aberta no PC; 2) “Jarvis no celular” está ligado em ⚙ Cérebros; "
+        + "3) o celular está no mesmo Wi-Fi (ou no Tailscale); 4) o Firewall do Windows permitiu a Jarvis na rede privada." : "Não consegui falar com o PC: " + e.message,
+      "jarvis erro");
     } finally {
       $("orb").classList.remove("pensando");
       $("enviar").disabled = false;
