@@ -162,6 +162,29 @@ python -m jarvis --chave nvidia
 > do projeto Dashboard Universal e **não fica no Git**. Sem ele, o recurso avisa que o painel não foi encontrado e o resto da
 > Jarvis funciona normalmente. Para ativar, copie o `dist/index.html` gerado pelo `npm run build` do Dashboard Universal para esse caminho.
 
+## Programação: linguagens, lógica, sistemas e evolução
+
+A Jarvis tem uma base própria de conhecimento de programação, **curada à mão, offline e sem IA**. Ela funciona nos dois modos (com ou sem IA). Com o Claude ligado, as mesmas ferramentas (MCP) servem de guia para o Claude Code. **Limite honesto:** isto não é conhecimento ilimitado. Ela resolve com certeza o que está na base e ensina o método para o resto; sistemas sob medida, além dos modelos prontos, continuam sendo feitos pelo Claude Code (a Jarvis propõe e você aprova).
+
+**1. Tecnologias** (`jarvis/dev/conhecimento/`): 42 linguagens, frameworks, bancos e stacks de **front end, back end, full stack e mobile** (JavaScript, TypeScript, Python, Java, C#, PHP, Go, SQL, React, Vue, Angular, Next.js, Node, Express, FastAPI, Django, Spring, Laravel, PostgreSQL, MongoDB, MERN...). Para cada uma: o que é, usos, pontos fortes e fracos, quando escolher e como começar.
+- "o que é React?", "compare Django e FastAPI", "Python ou Node?", "quais linguagens para back end?"
+- "qual stack para uma loja virtual?": recomenda front, back e banco para 9 tipos de sistema, com o porquê e alternativas.
+
+**2. Sistemas prontos para rodar** (`jarvis/dev/modelos/`): "crie um sistema chamado Loja com FastAPI e React em C:\Projetos". Combinações de back-end **FastAPI** ou **Express** com front-end **React (Vite)** ou **HTML/CSS/JS**, ou cada peça sozinha. Cada projeto traz exemplo de CRUD com testes, README (instalar, rodar, testar) e `.gitignore`.
+- **Só depois do seu "Aprovar" no cartão**: a Jarvis só propõe. Nunca usa uma pasta que já existe, faz `git init` sem commit e anota a stack na ficha do projeto.
+- Os quatro modelos foram **executados de verdade** na criação: `pytest` do FastAPI, `node --test` do Express, verificação do JavaScript do front HTML e `vite build` do React.
+
+**3. Lógica de programação** (`jarvis/dev/logica/`): 28 conceitos (variáveis, condicionais, laços, funções, recursão, listas, dicionários, pilha, fila, árvores, grafos, ordenação, busca, Big-O, POO, testes, depuração, banco de dados, APIs, git, segurança, arquitetura...) e **15 algoritmos clássicos** (fatorial, Fibonacci, primo, MDC, palíndromo, inverter, maior elemento, média, busca linear e binária, bolha, quicksort, contar palavras, FizzBuzz, decimal→binário) com ideia, pseudocódigo, complexidade e código em **Python, JavaScript, Go, Java e C#**.
+- "explique recursão", "qual a diferença entre pilha e fila", "busca binária em Java", "como resolver um problema de programação?" (roteiro de 9 passos).
+- Python, JavaScript e Go são **executados nos testes** contra casos de entrada e saída. Java e C# seguem a mesma lógica, mas **não são compilados aqui** (a resposta avisa).
+
+**4. Habilidades que evoluem** (`jarvis/dev/habilidades/`): 18 habilidades de um bom programador (lógica, linguagens, estruturas, testes, depuração, código limpo, segurança, bancos, APIs, arquitetura, versionamento, automação, desempenho, logs, acessibilidade, documentação, organização, aprendizado contínuo), cada uma com três níveis, práticas, o que estudar e um treino.
+- **"avalie o projeto X"** (ou "avalie o seu código", ou `avalie C:\pasta`): avalia, **só lendo**, 9 aspectos (testes, documentação, versionamento, segurança, código limpo, automação, logs, acessibilidade, organização), dá nota de 0 a 100 por aspecto, mostra o que achou e o que melhorar, e **compara com a avaliação anterior** para mostrar a evolução. O histórico fica na memória (`Habilidades/Avaliações/<projeto>`). São heurísticas, não um veredito.
+- **Evolução da própria Jarvis**: ao avaliar o código dela, as melhorias entram no **caderno de melhorias**; "Jarvis, melhore-se" propõe a próxima (com seu aprovo e a verificação por testes). Depois, avaliar de novo mostra se a nota subiu.
+- **"o que devo estudar?"** indica a habilidade mais fraca da última avaliação; quando tudo que dá para medir está ótimo, passa a sugerir as que não se medem, em rodízio. **"treino da semana"** dá uma habilidade por semana, nas 18. Também: "checklist de segurança", "plano de evolução em testes", "quais habilidades de programador?".
+
+Ferramentas MCP para o Claude: `consultar_tecnologia`, `listar_tecnologias`, `comparar_tecnologias`, `recomendar_stack`, `modelos_de_projeto`, `propor_criar_projeto(modelo=...)`, `explicar_conceito`, `exemplo_de_algoritmo`, `como_resolver_problema`, `listar_conceitos_e_algoritmos`, `habilidades_de_programador`, `avaliar_projeto`, `proxima_habilidade`, `treino_da_semana`, `checklist_de_revisao` e `plano_de_evolucao`.
+
 ## Anexos (ler, analisar e criar arquivos)
 
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).
@@ -208,6 +231,7 @@ A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem I
 - **perfil e projetos**: "meu nível é pleno", "minha stack é Python e React", "minha cidade é Fortaleza", "quero evitar PHP", "meus projetos", "anota no projeto Loja que decidimos usar Postgres", "ficha do projeto Loja";
 - **dashboards**: "crie um dashboard de C:\pasta\vendas.xlsx";
 - **sessões do Claude Code**: "alguma sessão está me esperando?".
+- **programação**: consultar, comparar e recomendar tecnologias, criar sistemas prontos, explicar lógica e algoritmos e avaliar projetos (seção "Programação" acima).
 
 Sem IA ela não conversa livremente, não escreve textos novos, não classifica e-mails, não analisa imagens nem executa tarefas de código (isso continua com o Claude). O reconhecimento de voz ("Hey Jarvis" e transcrição) usa modelos pequenos que rodam no seu PC, sem API; não é o "cérebro".
 

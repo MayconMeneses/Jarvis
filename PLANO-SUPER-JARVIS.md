@@ -170,6 +170,14 @@ Objetivo do dono: a Jarvis vira um aplicativo com instalador e **tudo que ela pr
 O dono quer que a Jarvis funcione **sem API e sem nenhuma IA**, só com a inteligência dela e a internet, sem depender de terceiros. Feito: o interruptor `somente_independente` (⚙ Cérebros) deixa só o motor próprio (`jarvis/local/`) no roteador, e o motor ganhou habilidades próprias em `jarvis/local/skills.py` (memória, perfil, projetos, dashboards, sessões do Claude Code), além do que já tinha (abrir, PC, clima, notícias, vagas, pesquisa com resumo extrativo).
 Avaliado e **não adotado**: o OpenJarvis (open-jarvis/OpenJarvis, Apache 2.0). A configuração dele gira em torno de modelos locais (Ollama/vLLM; os exemplos vão de `qwen3.5:4b` a um servidor com 8 A100) e o resumo diário usa voz paga da OpenAI, o que contradiz "sem IA" e os limites do PC de 8 GB. A licença permitiria reaproveitar partes que não são modelo (catálogo de skills, `doctor`, personas) com atribuição; fica como ideia futura. Próximo passo natural: mais habilidades por regras (e-mail por filtros do dono, agenda, lembretes) e melhor extração de texto na pesquisa.
 
+### Programadora completa: conhecimento, lógica, sistemas e evolução (decisão de 2026-10-16)
+O dono quer que a Jarvis conheça as principais linguagens (front, back e full stack), seja especialista em lógica de programação, saiba criar sistemas com esse conhecimento e tenha habilidades que a façam evoluir sempre. Feito, sem IA e sem internet:
+1. **Conhecimento** (`jarvis/dev/conhecimento`): 42 tecnologias e 9 tipos de sistema; consulta, comparação e recomendação.
+2. **Sistemas** (`jarvis/dev/modelos`): FastAPI ou Express com React ou HTML/JS, com CRUD, testes e README; criação só após aprovação; os quatro modelos foram executados de verdade.
+3. **Lógica** (`jarvis/dev/logica`): 28 conceitos e 15 algoritmos em Python, JavaScript, Go, Java e C#; Python, JavaScript e Go são executados nos testes.
+4. **Habilidades** (`jarvis/dev/habilidades`): 18 habilidades com níveis; avaliação somente leitura de 9 aspectos de um projeto, histórico e comparação na memória, plano da próxima habilidade e treino da semana; para o código da própria Jarvis, as melhorias entram no caderno de melhorias.
+Limite assumido: a base cobre o que foi escrito e testado; problemas e sistemas novos, além dos modelos, continuam com o Claude Code, que recebe estas ferramentas como guia. Próximos passos naturais: mais modelos (Django, Laravel, Spring), mais algoritmos e estruturas (pilha, fila, árvore, grafo), e um julgador que rode o código do usuário contra casos de teste (exige cartão de aprovação).
+
 ### Rotina ao abrir (briefing)
 Sempre que a Jarvis abre (ou no primeiro uso do dia), ela fala com você:
 

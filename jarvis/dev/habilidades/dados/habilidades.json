@@ -1,0 +1,146 @@
+[
+  {
+    "id": "logica", "nome": "Lógica e algoritmos", "medida": false,
+    "resumo": "Transformar problemas em passos corretos e eficientes.",
+    "niveis": ["Resolve exercícios clássicos com condicionais, laços e funções.", "Escolhe a estrutura de dados certa e analisa a complexidade (Big-O).", "Modela problemas novos, prova a correção e otimiza com medição."],
+    "praticas": ["Escrever o pseudocódigo antes do código", "Testar à mão com caso vazio, mínimo e máximo", "Saber dizer a complexidade do que escreveu", "Escolher lista, dicionário, pilha, fila ou árvore pelo problema", "Resolver um problema novo por semana e revisar a solução depois"],
+    "estudar": ["logica", "algoritmo", "complexidade", "recursao", "ordenacao", "busca"],
+    "treino": "Resolva 'palavra mais frequente de um texto' seguindo os 9 passos de como_resolver_problema, e depois diga a complexidade."
+  },
+  {
+    "id": "linguagens", "nome": "Linguagens e ecossistemas", "medida": false,
+    "resumo": "Dominar bem uma linguagem de cada lado (front e back) e reconhecer o jeito idiomático das outras.",
+    "niveis": ["Escreve programas simples numa linguagem.", "Usa bem a biblioteca padrão, gerenciador de pacotes e ferramentas da linguagem.", "Escolhe a linguagem pelo problema e escreve código idiomático em várias."],
+    "praticas": ["Ler a documentação oficial antes de procurar blogs", "Usar o formatador e o analisador da linguagem", "Aprender o que é idiomático (list comprehension, async/await, goroutines)", "Conhecer o gerenciador de pacotes e o ambiente virtual", "Ter pelo menos uma linguagem de front (JS/TS) e uma de back (Python, Java, C#, Go)"],
+    "estudar": ["python", "javascript", "typescript", "go", "java", "csharp"],
+    "treino": "Reescreva o mesmo algoritmo (busca binária) em Python, JavaScript e Go e compare os idiomas de cada um."
+  },
+  {
+    "id": "estruturas", "nome": "Estruturas de dados", "medida": false,
+    "resumo": "Guardar e acessar dados do jeito certo para cada problema.",
+    "niveis": ["Usa listas e dicionários.", "Usa pilhas, filas, conjuntos e árvores e sabe o custo de cada operação.", "Escolhe e implementa estruturas (heap, grafo, trie) conforme o problema."],
+    "praticas": ["Trocar busca em lista por dicionário quando buscar muito", "Usar conjunto para duplicados", "Usar fila para tarefas em ordem e pilha para desfazer", "Modelar relações com grafos", "Medir antes de trocar estrutura"],
+    "estudar": ["listas", "dicionarios", "pilha", "fila", "arvores", "grafos"],
+    "treino": "Implemente o desfazer/refazer de um editor de texto com duas pilhas."
+  },
+  {
+    "id": "testes", "nome": "Testes automatizados", "medida": true,
+    "resumo": "Provar que o código funciona e continua funcionando depois de mudar.",
+    "niveis": ["Escreve alguns testes unitários.", "Cobre casos de borda e erros, e roda os testes em toda mudança.", "Pratica TDD, testes de integração e mantém a suíte rápida e confiável."],
+    "praticas": ["Um teste para o caminho feliz e outros para vazio, extremo e inválido", "Ver o teste falhar antes de fazê-lo passar", "Testes independentes e sem depender de internet ou hora", "Rodar tudo antes de cada commit", "Corrigir um bug sempre com um teste que o reproduz"],
+    "estudar": ["testes", "depuracao"],
+    "treino": "Escreva testes para uma função que valida CPF, incluindo entradas inválidas e com pontuação."
+  },
+  {
+    "id": "depuracao", "nome": "Depuração", "medida": false,
+    "resumo": "Achar a causa real de um defeito com método, não por tentativa e erro.",
+    "niveis": ["Lê a mensagem de erro e usa print para investigar.", "Isola o problema, usa o depurador e escreve um teste para o bug.", "Diagnostica falhas de concorrência, desempenho e produção usando logs e métricas."],
+    "praticas": ["Reproduzir antes de mexer", "Ler a pilha de erro de baixo para cima", "Dividir e conquistar para achar o trecho culpado", "Mudar uma coisa por vez", "Corrigir a causa e registrar um teste"],
+    "estudar": ["depuracao"],
+    "treino": "Pegue um bug que você já teve, reproduza num teste mínimo e explique a causa em uma frase."
+  },
+  {
+    "id": "codigo-limpo", "nome": "Código limpo e refatoração", "medida": true,
+    "resumo": "Escrever código que outra pessoa entende e consegue mudar com segurança.",
+    "niveis": ["Usa nomes claros e funções que cabem numa tela.", "Elimina repetição, mantém uma responsabilidade por função e refatora com testes.", "Projeta módulos coesos e simples, e sabe quando NÃO abstrair."],
+    "praticas": ["Nomes que explicam a intenção", "Funções curtas com uma tarefa", "Arquivos pequenos e coesos (limite de ~300 linhas)", "Sem except vazio, sem código morto, sem TODO esquecido", "Refatorar em passos pequenos com testes passando", "Comentar o porquê, não o quê"],
+    "estudar": ["boas-praticas", "funcoes", "poo"],
+    "treino": "Pegue uma função de 40 linhas e divida em três funções com nomes que dispensem comentários."
+  },
+  {
+    "id": "seguranca", "nome": "Segurança", "medida": true,
+    "resumo": "Proteger dados e sistemas desde o desenho, não depois do problema.",
+    "niveis": ["Não deixa senhas no código e valida entradas.", "Usa consultas parametrizadas, hash de senha, autorização no servidor e HTTPS.", "Modela ameaças, audita dependências e responde a incidentes."],
+    "praticas": ["Segredos só em variáveis de ambiente, nunca no Git", "Consultas parametrizadas (nada de SQL concatenado)", "textContent ou escape ao exibir dados do usuário", "Senhas com bcrypt/argon2", "Autorizar cada ação no servidor", "Atualizar dependências e rodar um verificador (pip-audit, npm audit)", "Validar entrada na borda do sistema"],
+    "estudar": ["seguranca", "erros"],
+    "treino": "Reescreva uma consulta SQL vulnerável usando parâmetros e explique o ataque que ela evita."
+  },
+  {
+    "id": "banco-de-dados", "nome": "Bancos de dados", "medida": false,
+    "resumo": "Modelar, consultar e manter dados com consistência e bom desempenho.",
+    "niveis": ["Cria tabelas e faz consultas com SELECT, JOIN e GROUP BY.", "Normaliza, cria índices e usa transações.", "Planeja migrações, replicação e escolhe entre relacional, documentos e cache."],
+    "praticas": ["Chave primária em toda tabela", "Chaves estrangeiras para os relacionamentos", "Índices nas colunas muito filtradas", "Transação quando várias gravações precisam andar juntas", "Migrações versionadas em vez de alterar o banco à mão", "Ler o plano de execução de consultas lentas"],
+    "estudar": ["banco-de-dados", "sql", "postgresql", "sqlite"],
+    "treino": "Modele clientes, produtos e pedidos e escreva a consulta do total comprado por cliente."
+  },
+  {
+    "id": "apis", "nome": "APIs e integração", "medida": false,
+    "resumo": "Projetar interfaces claras entre sistemas e consumir as dos outros com segurança.",
+    "niveis": ["Cria e consome rotas REST simples.", "Valida entradas, devolve códigos HTTP corretos, autentica e documenta.", "Versiona, pagina, trata falhas e idempotência, e projeta contratos estáveis."],
+    "praticas": ["Recursos no plural e verbos HTTP certos", "422/400 para entrada inválida, 404 para não encontrado, nunca 200 com erro", "Autenticação e autorização em cada rota", "Documentação OpenAPI/Swagger", "Timeout e tratamento de falha ao chamar APIs externas", "Versionamento (/v1) e paginação"],
+    "estudar": ["api-rest", "fastapi", "express"],
+    "treino": "Desenhe as rotas, os códigos de resposta e os erros de um sistema de biblioteca."
+  },
+  {
+    "id": "arquitetura", "nome": "Arquitetura e padrões de projeto", "medida": false,
+    "resumo": "Dividir o sistema em partes com responsabilidades claras que possam evoluir.",
+    "niveis": ["Separa interface, regra e dados.", "Aplica camadas e padrões onde fazem sentido e depende de interfaces.", "Decide entre monólito e serviços, registra decisões e avalia custo de mudança."],
+    "praticas": ["Camadas ou módulos com uma responsabilidade clara", "Regra de negócio fora das rotas e da interface", "Dependência de interfaces, não de implementações", "Começar com monólito organizado", "Registrar as decisões importantes (por que escolhemos X)"],
+    "estudar": ["arquitetura", "poo", "boas-praticas"],
+    "treino": "Desenhe as camadas de um sistema de pedidos e diga o que cada uma pode e não pode conhecer."
+  },
+  {
+    "id": "versionamento", "nome": "Controle de versão e colaboração", "medida": true,
+    "resumo": "Guardar o histórico, trabalhar em paralelo e revisar o código dos outros.",
+    "niveis": ["Faz commits e usa o .gitignore.", "Trabalha com branches, commits pequenos e mensagens que explicam o porquê.", "Conduz revisões de código, resolve conflitos e mantém um histórico limpo."],
+    "praticas": ["Commits pequenos com mensagem clara", "Um branch por tarefa", ".gitignore com dependências, builds e segredos", "Nunca commitar chaves ou senhas", "git diff antes de cada commit", "Revisar o próprio diff como se fosse de outra pessoa"],
+    "estudar": ["git"],
+    "treino": "Crie um branch, faça dois commits pequenos e junte na principal revisando o diff."
+  },
+  {
+    "id": "automacao", "nome": "Automação, CI/CD e entrega", "medida": true,
+    "resumo": "Testar, construir e publicar de forma automática e repetível.",
+    "niveis": ["Roda os testes à mão antes de publicar.", "Tem integração contínua que roda testes e verificações em cada mudança.", "Entrega contínua com ambientes, rollback e monitoramento."],
+    "praticas": ["Pipeline de CI que roda testes e formatação", "Build reproduzível (dependências travadas)", "Dockerfile quando o ambiente importa", "Variáveis de ambiente para configuração", "Deploy com possibilidade de voltar atrás"],
+    "estudar": ["git"],
+    "treino": "Crie um fluxo de GitHub Actions que roda os testes do projeto em cada push."
+  },
+  {
+    "id": "desempenho", "nome": "Desempenho", "medida": false,
+    "resumo": "Fazer o sistema ser rápido o suficiente medindo antes de otimizar.",
+    "niveis": ["Evita laços e consultas desnecessários.", "Mede com perfilador, usa índices e cache, e corrige o gargalo certo.", "Projeta para escala, cargas e custo com testes de carga."],
+    "praticas": ["Medir antes de otimizar", "Melhorar o algoritmo antes dos detalhes", "Evitar o problema N+1 de consultas", "Cache com regra de invalidação", "Paginar e processar em partes o que é grande"],
+    "estudar": ["desempenho", "complexidade"],
+    "treino": "Meça o tempo de achar duplicados numa lista de 100 mil itens com dois laços e depois com um conjunto."
+  },
+  {
+    "id": "observabilidade", "nome": "Logs, erros e observabilidade", "medida": true,
+    "resumo": "Saber o que o sistema está fazendo e por que falhou, sem adivinhar.",
+    "niveis": ["Trata exceções e mostra mensagens úteis.", "Registra logs com nível e contexto e não engole erros.", "Usa métricas, rastreamento e alertas para detectar problemas antes dos usuários."],
+    "praticas": ["Logging com níveis em vez de print", "Mensagens de erro com contexto (o quê, onde, com quais dados)", "Nunca registrar senhas ou dados pessoais", "Tratar só o que sabe resolver", "Alertas para o que realmente exige ação"],
+    "estudar": ["erros", "depuracao"],
+    "treino": "Troque os print de um script por logging com níveis e inclua o contexto nos erros."
+  },
+  {
+    "id": "acessibilidade", "nome": "Interface, acessibilidade e UX", "medida": true,
+    "resumo": "Interfaces que qualquer pessoa consegue usar, em qualquer tela.",
+    "niveis": ["Faz páginas que funcionam no celular.", "Usa HTML semântico, rótulos, contraste e navegação por teclado.", "Testa com leitores de tela, trata estados de carregamento e erro e mede a experiência."],
+    "praticas": ["HTML semântico (header, main, nav, button)", "Atributo lang na página e meta viewport", "Texto alternativo em imagens com informação", "Rótulo em todo campo de formulário", "Foco visível e uso por teclado", "Layout testado de 320 a 1920 px"],
+    "estudar": ["html", "css", "react"],
+    "treino": "Audite uma página sua: teclado, rótulos, contraste e celular, e corrija o que falhar."
+  },
+  {
+    "id": "documentacao", "nome": "Documentação e comunicação", "medida": true,
+    "resumo": "Explicar o sistema para quem vai usar, manter ou revisar.",
+    "niveis": ["Tem um README com o que é e como rodar.", "Documenta decisões, API e como contribuir.", "Escreve para públicos diferentes e mantém a documentação viva com o código."],
+    "praticas": ["README com o que é, como instalar, rodar e testar", "Comentários que explicam o porquê", "Documentação da API (OpenAPI)", "Registro de decisões de arquitetura", "Changelog das mudanças importantes"],
+    "estudar": ["boas-praticas", "api-rest"],
+    "treino": "Reescreva o README de um projeto seu para que um desconhecido o rode em 5 minutos."
+  },
+  {
+    "id": "estrutura", "nome": "Organização do projeto e dependências", "medida": true,
+    "resumo": "Pastas claras, dependências declaradas e builds repetíveis.",
+    "niveis": ["Separa código, testes e documentação.", "Declara e trava as dependências e mantém a raiz limpa.", "Padroniza a estrutura entre projetos e automatiza a configuração do ambiente."],
+    "praticas": ["Pastas por assunto (src, tests, docs)", "Arquivo de dependências (requirements, package.json, go.mod)", "Dependências travadas (lockfile)", "Raiz do projeto enxuta", "Script ou comando único para preparar o ambiente"],
+    "estudar": ["arquitetura", "git"],
+    "treino": "Reorganize um projeto bagunçado em src/, tests/ e docs/ sem quebrar os testes."
+  },
+  {
+    "id": "aprendizado", "nome": "Aprendizado contínuo", "medida": false,
+    "resumo": "Evoluir sempre: estudar, praticar, receber feedback e revisar o que aprendeu.",
+    "niveis": ["Estuda quando precisa.", "Mantém uma rotina de prática e anota o que aprende.", "Ensina, contribui com projetos e revisa o próprio caminho com metas."],
+    "praticas": ["Uma pequena prática por semana (um algoritmo, um teste, uma refatoração)", "Ler código bom de outros projetos", "Pedir e dar revisão de código", "Anotar o que deu errado e o que se aprendeu", "Revisar este painel de habilidades todo mês"],
+    "estudar": ["resolver-problemas"],
+    "treino": "Escolha a habilidade mais fraca do seu painel e faça o treino dela esta semana."
+  }
+]
