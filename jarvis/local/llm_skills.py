@@ -11,8 +11,15 @@ _PASTA = re.compile(r"\b(?:em|na pasta|dentro de)\s+(?P<p>[A-Za-z]:\\[^:]+?)\s*(
 
 
 def _modelo(texto: str) -> str:
+    """O pedido escolhe ("7b", "3b", "maior"); sem escolha, o melhor para este aparelho (mais memória, modelo maior)."""
+    from jarvis.llm import perfil
+
     baixo = texto.lower()
-    return "qwen2.5-3b" if re.search(r"\b3\s*b\b|maior|melhor", baixo) else catalogo.PADRAO
+    if re.search(r"\b7\s*b\b", baixo):
+        return "qwen2.5-coder-7b"
+    if re.search(r"\b3\s*b\b|maior|melhor", baixo):
+        return "qwen2.5-coder-3b" if perfil.recomendado() == "qwen2.5-coder-1.5b" else perfil.recomendado()
+    return perfil.recomendado()
 
 
 def instalar(texto: str, cfg) -> str:
@@ -34,6 +41,31 @@ def instalar(texto: str, cfg) -> str:
         f"Usa cerca de {item.ram_gb:g} GB de memória enquanto responde. {item.descricao}",
         "pedido do usuário: ter uma IA generativa própria, sem depender de ninguém"))
     return "Preparei a instalação. Confira e aprove o cartão abaixo para eu baixar:\n" + acao.descricao
+
+
+def avaliar(texto: str, cfg) -> str:
+    """Roda a régua de tarefas no modelo local (leva alguns minutos) e guarda a nota para comparar com a próxima vez."""
+    from jarvis import memory_db
+    from jarvis.llm import avaliar as regua
+    from jarvis.llm.cerebro import conversa_local
+
+    if not (cfg.llm_local and catalogo.estado(cfg.llm_modelo, cfg.llm_endpoint)["pronto"]):
+        return 'Para avaliar eu preciso do cérebro local ligado. Peça: "instalar cérebro local".'
+    conversa = conversa_local(cfg)
+    try:
+        r = regua.avaliar(conversa)
+    except RuntimeError as exc:
+        return str(exc)
+    finally:
+        conversa.servidor.parar()
+    nome = catalogo.modelo(cfg.llm_modelo).nome
+    return regua.relatorio(nome, r) + regua.registrar(memory_db.open_memory(cfg), nome, r)
+
+
+def aprender(texto: str, cfg) -> str:
+    from jarvis import aprender as web
+
+    return web.aprender(texto, cfg)
 
 
 def status(texto: str, cfg) -> str:

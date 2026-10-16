@@ -107,6 +107,16 @@ class Config:
     atualizacao_automatica: bool = True
     # Cérebro generativo local (jarvis/llm): um modelo pequeno rodando no PC, sem API. Instalado por cartão aprovado.
     llm_local: bool = False
+    # Iniciativa própria: avisos sem ser chamada (bom dia, treino da semana, memória alta, projeto parado).
+    proativo: bool = True
+    # Jarvis no celular (app web instalável): desligado por padrão. "rede" True = alcançável na rede local/Tailscale.
+    celular_ativo: bool = False
+    celular_porta: int = 8765
+    celular_rede: bool = True
+    celular_certificado: str = ""  # opcional: HTTPS (ex.: certificado do Tailscale); vazio = HTTP
+    celular_chave: str = ""
+    proativo_hora: int = 8       # a partir de que hora o "bom dia" pode aparecer (se a Jarvis já estiver aberta)
+    proativo_voz: bool = False   # falar sozinha (nunca entre 22h e 7h)
     llm_modelo: str = "qwen2.5-coder-1.5b"
     llm_endpoint: str = ""  # opcional: servidor já rodando (Ollama/LM Studio), ex.: http://127.0.0.1:11434
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)

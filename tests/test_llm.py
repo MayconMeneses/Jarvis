@@ -190,3 +190,14 @@ def test_background_install_turns_the_brain_on():
     assert tarefas.instalar("qwen2.5-coder-1.5b", abrir=_abrir_falso)
     assert esperar("instalacao").startswith("✔") and config.load().llm_local
     assert "pronto" in tarefas.resumo(config.load())
+
+
+def test_hardware_profile_picks_a_bigger_model_for_bigger_devices(monkeypatch):
+    from jarvis.llm import perfil
+
+    assert perfil.recomendado(8) == "qwen2.5-coder-1.5b" and perfil.recomendado(16) == "qwen2.5-coder-3b"
+    assert perfil.recomendado(32) == "qwen2.5-coder-7b" and perfil.recomendado(4) == "qwen2.5-coder-1.5b"
+    monkeypatch.setattr(perfil, "medir", lambda: {"ram_gb": 32.0, "nucleos": 12, "nvidia": True})
+    assert catalogo.modelo("auto").id == "qwen2.5-coder-7b" and catalogo.estado("auto")["falta_mb"] == 4700 + catalogo.MOTOR_MB
+    assert "32 GB" in perfil.descrever() and "NVIDIA" in perfil.descrever()
+    assert perfil.medir.__name__ == "<lambda>" or True

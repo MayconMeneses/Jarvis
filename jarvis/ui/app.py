@@ -16,7 +16,7 @@ from jarvis.config import Config
 from jarvis.ui import tray, web
 from jarvis.ui.api import Api
 from jarvis.ui.window import claim_single_instance, show_already_open, window_geometry
-from jarvis.ui.workers import build_session_watcher, build_task_worker, build_voice
+from jarvis.ui.workers import build_proactive, build_session_watcher, build_task_worker, build_voice
 
 RESTART_WAIT_SECONDS = 12.0  # a Jarvis nova espera a antiga fechar
 
@@ -43,6 +43,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     api._voice = voice
     tasks = build_task_worker(cfg, api, window)
     watcher = build_session_watcher(api, window)
+    proactive = build_proactive(cfg, api, window)
 
     def on_closing() -> bool:
         if quitting:
@@ -58,6 +59,8 @@ def run(cfg: Config, conversation: Conversation) -> int:
         tasks.stop()
         api.stop_update_loop()
         watcher.stop()
+        proactive.stop()
+        api.mobile_stop()
         conversation.router.stop()  # fecha a sessão do Claude
         icon.stop()
         window.destroy()
@@ -76,7 +79,13 @@ def run(cfg: Config, conversation: Conversation) -> int:
         icon.run_detached()
         tasks.start()
         watcher.start()
+        proactive.start()
         api.start_update_loop()
+        if cfg.celular_ativo:
+            try:
+                api.mobile_start()
+            except OSError:
+                pass  # porta ocupada: o painel mostra e o usuário religa
         if voice is not None:
             voice.start()
 
