@@ -1,0 +1,26 @@
+  /* painel de cérebros */
+  dialog {
+    width: min(400px, calc(100vw - 24px)); max-height: calc(100vh - 40px); overflow: auto; padding: 16px;
+    color: var(--text); background: var(--panel-solid); border: 1px solid var(--line-strong);
+    box-shadow: 0 0 30px -10px var(--cyan);
+  }
+  dialog::backdrop { background: rgba(2, 6, 10, .7); }
+  dialog h2 { margin: 0 0 12px; font: 600 13px var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--cyan); }
+  .brain { padding: 10px 0; border-top: 1px solid var(--line); }
+  .brain h3 { display: flex; justify-content: space-between; margin: 0 0 6px; font: 600 13px var(--mono); letter-spacing: .08em; }
+  .brain h3 small { font-weight: 500; }
+  .brain p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+  .on-ok { color: var(--ok); } .on-no { color: var(--orange); }
+  .key-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .key-row input {
+    flex: 1; min-width: 0; padding: 7px 9px; font: 12.5px var(--mono); color: var(--text);
+    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  .key-row input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .modes { display: grid; gap: 6px; margin: 6px 0 2px; font-size: 13px; }
+  .modes label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+  .modes input { margin-top: 3px; accent-color: var(--cyan); }
+  .modes small { display: block; color: var(--muted); }
+  .feedback { min-height: 1.2em; margin: 0; font-size: 12.5px; }
+  .linklike { padding: 0; border: 0; text-transform: none; letter-spacing: 0; font: 12.5px "Segoe UI", sans-serif; text-decoration: underline; }
+  .dialog-actions { display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }

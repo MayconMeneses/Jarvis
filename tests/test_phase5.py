@@ -15,8 +15,8 @@ from jarvis.info import news, weather
 
 @pytest.fixture
 def vault(tmp_path):
-    (tmp_path / "MM System Creator").mkdir()
-    (tmp_path / "MM System Creator" / "_Next Steps.md").write_text("Falta a tela de login do MM System.", encoding="utf-8")
+    (tmp_path / "MeuSistema").mkdir()
+    (tmp_path / "MeuSistema" / "_Next Steps.md").write_text("Falta a tela de login do MeuSistema.", encoding="utf-8")
     (tmp_path / ".obsidian").mkdir()
     (tmp_path / ".obsidian" / "segredo.md").write_text("login token", encoding="utf-8")
     return memory.Vault(tmp_path)
@@ -56,8 +56,8 @@ def test_titles_cannot_escape_the_memory_folder(vault):
 
 def test_search_reads_whole_vault_but_skips_obsidian_config(vault):
     hits = vault.search("tela de login")
-    assert [h["nota"] for h in hits] == ["MM System Creator\\_Next Steps.md"] or \
-           [h["nota"] for h in hits] == ["MM System Creator/_Next Steps.md"]
+    assert [h["nota"] for h in hits] == ["MeuSistema\\_Next Steps.md"] or \
+           [h["nota"] for h in hits] == ["MeuSistema/_Next Steps.md"]
     assert "login" in hits[0]["trecho"]
 
 
@@ -67,8 +67,8 @@ def test_search_ignores_accents(vault):
 
 
 def test_read_is_restricted_to_vault_markdown(vault):
-    assert "tela de login" in vault.read("MM System Creator/_Next Steps.md")
-    for bad in ("../fora.md", ".obsidian/segredo.md", "MM System Creator"):
+    assert "tela de login" in vault.read("MeuSistema/_Next Steps.md")
+    for bad in ("../fora.md", ".obsidian/segredo.md", "MeuSistema"):
         with pytest.raises(ValueError):
             vault.read(bad)
 

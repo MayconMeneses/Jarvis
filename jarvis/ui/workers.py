@@ -1,0 +1,90 @@
+"""Tarefas em segundo plano da janela: voz, fila do Claude Code e monitor de sessões.
+
+Cada fábrica devolve um objeto com start()/stop() e avisa a janela por push().
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from typing import TYPE_CHECKING
+
+from jarvis.config import Config
+
+if TYPE_CHECKING:  # evita importar a API (e o pywebview) só para tipar
+    from jarvis.ui.api import Api
+
+log = logging.getLogger(__name__)
+
+
+def push(window, payload: dict) -> None:
+    """Envia um evento para a janela (window.onVoice). Ignora se a janela já fechou."""
+    try:
+        window.evaluate_js(f"window.onVoice({json.dumps(payload, ensure_ascii=False)})")
+    except Exception:
+        log.debug("janela indisponível", exc_info=True)
+
+
+def build_voice(cfg: Config, api: Api, window):
+    from jarvis.voice.loop import VoiceLoop
+    from jarvis.voice.stt import Transcriber, vocabulary_hint
+    from jarvis.voice.tts import Speaker
+
+    return VoiceLoop(
+        respond=api.send,
+        notify=lambda payload: push(window, payload),
+        speaker=Speaker(cfg.voz.voz),
+        transcriber=Transcriber(
+            cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos)
+        ),
+        sensitivity=cfg.voz.sensibilidade,
+        speak_answers=cfg.voz.falar_respostas,
+    )
+
+
+def _task_texts(run, labels: dict) -> tuple[str, str]:
+    """(título, corpo) do aviso de uma tarefa que terminou."""
+    mark, state = ("✅", "concluída") if run.status == "concluida" else ("⚠️", "falhou")
+    if run.modo == "pesquisar":
+        head = f"{mark} {run.projeto} {state}: {run.tarefa[:80]}"
+        extra = f"\n({run.alteracoes})" if run.alteracoes else ""
+        return head, f"{head}{extra}\n\n{run.resultado}"
+    head = f"{mark} {labels[run.modo]} do projeto {run.projeto} {state}"
+    body = f"{head}:\n{run.resultado}"
+    if run.alteracoes:
+        body += f"\n\nArquivos alterados:\n{run.alteracoes}"
+    return head, body
+
+
+def build_task_worker(cfg: Config, api: Api, window):
+    from jarvis.dev import runs
+
+    def notify(run) -> None:
+        head, body = _task_texts(run, runs.LABELS)
+        if run.revisao == "pendente":
+            review = {"id": run.id, "projeto": run.projeto, "diff": run.diff, "arquivos": run.mudancas,
+                      "propria": run.projeto == "Super Jarvis"}
+            push(window, {"review": review})
+        api._conversation.note(f"{head}. Pedido: {run.tarefa[:200]}. Resultado: {run.resultado[:2000]}")
+        api._diary(f"{head}: {run.tarefa[:120]}")
+        push(window, {"task": body})
+        if api._voice is not None:
+            api._voice.speak(f"{head}. Os detalhes estão na janela.")
+
+    return runs.RunWorker(runs.RunStore(), cfg.claude, notify, vault=api._vault)
+
+
+def build_session_watcher(api: Api, window):
+    """Avisa quando uma sessão do Claude Code no PC passa a esperar o usuário."""
+    from jarvis.dev import sessions
+
+    def notify(session) -> None:
+        text = "⏳ " + session.frase()
+        api._conversation.note(text)
+        push(window, {"task": text})
+        if api._voice is not None:
+            talvez = "talvez " if session.motivo.startswith("talvez") else ""
+            api._voice.speak(f"A sessão {session.nome}, do projeto {session.projeto}, "
+                             f"{talvez}está {sessions.DESCRICAO[session.estado]}.")
+
+    return sessions.SessionWatcher(notify)

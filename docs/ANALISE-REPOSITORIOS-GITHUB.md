@@ -25,7 +25,7 @@ Data: 15/10/2026. Clones em `_referencias/` (somente para estudo). O foco da an�
 
 ## Próximas melhorias recomendadas (em ordem)
 
-1. **Abrir projetos, programas, sites e pastas por voz.** "Jarvis, abre o projeto Comandiva" → VS Code + terminal na pasta. Vem do ctaylo21, do Jarvis-AI e do code-a2z.
+1. **Abrir projetos, programas, sites e pastas por voz.** "Jarvis, abre o projeto MeuApp" → VS Code + terminal na pasta. Vem do ctaylo21, do Jarvis-AI e do code-a2z.
 2. **Prévia das mudanças do Claude Code**, inspirada no danilofalcao: depois de uma "execução", mostrar o `git diff` na janela com os botões **Manter** e **Desfazer** (`git restore`).
 3. **"Olha minha tela"**: capturar a tela ou a janela ativa e mandar para o Claude, para erros, layouts e mensagens.
 4. **Sistema de plugins**, como no code-a2z: cada comando novo vira um arquivo em `jarvis/plugins/`, sem mexer no núcleo.

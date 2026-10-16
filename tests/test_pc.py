@@ -163,7 +163,7 @@ class ProposingBrain:
 
 def test_api_returns_new_proposals_and_records_decision(store):
     pytest.importorskip("webview")
-    from jarvis.ui.app import Api
+    from jarvis.ui.api import Api
 
     conv = Conversation(Router([ProposingBrain(store)]), "sys")
     api = Api(Config(), conv, store)
