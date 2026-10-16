@@ -118,7 +118,11 @@ def test_build_router_appends_local_engine_last(monkeypatch, tmp_path):
     monkeypatch.setattr(brains, "write_mcp_config", lambda path=None: tmp_path / "m.json")
     router = brains.build_router(Config())
     assert [b.name for b in router.brains] == ["claude", "gemini", "nvidia", "local"]
-    assert [b.name for b in brains.build_router(Config(modo_independente=False)).brains] == ["claude", "gemini", "nvidia"]
+    # Com modo_independente desligado o motor existe, mas fica invisível (não entra como reserva).
+    off = Config(modo_independente=False)
+    monkeypatch.setattr("jarvis.config.load", lambda: off)
+    router = brains.build_router(off)
+    assert [b.name for b in router.order([{"role": "user", "content": "oi"}])] == ["claude", "gemini", "nvidia"]
 
 
 # ── pesquisa sem IA ──────────────────────────────────────────────────────

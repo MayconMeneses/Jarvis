@@ -198,5 +198,5 @@ def test_mentioning_jobs_is_not_a_job_search():
     from jarvis.local.engine import LocalEngine
 
     engine = LocalEngine(load_config=lambda: None, brave_key=lambda: None)
-    assert engine.classify("lembre que eu prefiro vagas remotas") is None
+    assert engine.classify("lembre que eu prefiro vagas remotas")[0] == "lembrar"  # vira memória, não busca de vagas
     assert engine.classify("tem vagas de python?")[0] == "vagas"

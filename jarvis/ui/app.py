@@ -198,6 +198,7 @@ class Api:
             "nvidia": bool(keys.get_key("nvidia")),
             "brave": bool(keys.get_key("brave")),
             "uso_gemini": cfg.uso_gemini,
+            "somente_independente": cfg.somente_independente,
             "modelo_gemini": cfg.gemini.model,
         }
 
@@ -274,6 +275,17 @@ class Api:
         cfg.uso_gemini = mode
         config.save(cfg)
         return {"ok": True}
+
+    def set_standalone(self, on: bool) -> dict:
+        """Liga/desliga o modo "sem nenhuma IA". Vale no próximo pedido (o roteador relê a configuração)."""
+        cfg = config.load()
+        cfg.somente_independente = bool(on)
+        config.save(cfg)
+        if on:
+            self._diary("Modo sem IA ligado")
+            return {"ok": True, "mensagem": "Ligado: só a inteligência da Jarvis responde a partir de agora."}
+        self._diary("Modo sem IA desligado")
+        return {"ok": True, "mensagem": "Desligado: o Claude, o Gemini e a NVIDIA voltam a ajudar."}
 
     def reset(self) -> None:
         self._conversation.reset()

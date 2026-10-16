@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import websearch
+from jarvis.local import skills, websearch
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
 MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
@@ -20,11 +20,15 @@ MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "
 NOTE = "\n\n_(modo independente: respondido sem IA)_"
 
 HELP = (
-    "Estou no **modo independente** (sem IA disponível agora). Ainda consigo:\n"
+    "Estou no **modo independente** (respondo com a minha própria inteligência, sem IA). Consigo:\n"
     "- **abrir** programas, sites, pastas e projetos (\"abre o WhatsApp\", \"abre github.com\")\n"
     "- **estado do PC** e programas pesados (\"como está o PC?\")\n"
     "- **clima**, **notícias** (gerais ou de tecnologia) e **vagas**\n"
     "- **hora e data**\n"
+    "- **memória**: \"lembre que eu prefiro vagas remotas\", \"o que você sabe sobre mim?\", \"busque na memória sobre ...\"\n"
+    "- **perfil e projetos**: \"meu nível é pleno\", \"minha stack é Python\", \"meus projetos\", \"anota no projeto X que ...\", \"ficha do projeto X\"\n"
+    "- **dashboards**: \"crie um dashboard de C:\\\\pasta\\\\vendas.xlsx\"\n"
+    "- **sessões do Claude Code**: \"alguma sessão está me esperando?\"\n"
     "- **pesquisar na internet** e resumir com frases dos próprios sites (\"pesquise sobre ...\")"
 )
 
@@ -67,6 +71,15 @@ class LocalEngine:
 
     # ── classificação ────────────────────────────────────────────────────
     PATTERNS = [
+        # Habilidades próprias (jarvis/local/skills.py). Ordem importa: antes do "pesquisa" genérico.
+        ("sessoes", r"\bsess(ao|oes)\b.*\b(claude|code|esperando|aguardando|parada)\b|\bclaude code\b.*\b(esperando|aguardando)\b"),
+        ("dashboard", r"^(cri[ae]|faca|fazer|faz|ger[ae]|gerar|mont[ae]|montar)\s+(um\s+|o\s+)?dashboard(\s+(de|do|da|dos|das|com|para|pra)(\s+.+)?)?$"),
+        ("anotar_projeto", r"^anot\w*\s+(no|na|ao|em)\s+(projeto\s+)?.+?\s+que\s+.+$"),
+        ("ficha", r"^(ficha|anotacoes)\s+(do\s+)?projeto\s+.+$"),
+        ("projetos", r"^(meus projetos|quais (sao )?(os )?(meus )?projetos|lista\w*\s+(os\s+)?(meus\s+)?projetos)$"),
+        ("perfil", r"^((meu|minha)\s+(stack|nivel|modalidade|ingles|cidade)\s*(e|eh|sao|:|=)\s*.+|(quero\s+)?evit\w+\s+.+)$"),
+        ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
+        ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
         ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
         ("hora", r"\b(que horas?|hora atual|horas sao)\b"),
         ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
@@ -81,7 +94,8 @@ class LocalEngine:
         ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
                      r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
     ]
-    DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias"}
+    DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias",
+              "sessoes", "dashboard", "ficha", "projetos", "perfil"}
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)
@@ -93,10 +107,11 @@ class LocalEngine:
 
     def is_direct_command(self, text: str) -> bool:
         """Comando curto que o motor local resolve sozinho (vai antes da IA, sem gastar limite)."""
-        if len(text) > 80 or " e " in clean(text):  # "abre X e analisa Y" fica com a IA
-            return False
         found = self.classify(text)
-        return bool(found and found[0] in self.DIRECT)
+        if not found or found[0] not in self.DIRECT or len(text) > 80:
+            return False
+        # "abre X e analisa Y" fica com a IA; em "meu nível é pleno" o "é" faz parte do comando.
+        return found[0] == "perfil" or " e " not in clean(text)
 
     # ── execução ─────────────────────────────────────────────────────────
     def ask(self, messages: list[Message], system: str = "") -> Answer:
@@ -186,6 +201,30 @@ class LocalEngine:
             return "Não achei vagas novas compatíveis agora."
         return "**Vagas para você:**\n" + "\n".join(
             f"- {j['titulo']} — {j['local']} (nota {j['nota']}, {j['fonte']}) {j['link']}" for j in found)
+
+    def _sessoes(self, text: str) -> str:
+        return skills.sessions_waiting()
+
+    def _dashboard(self, text: str) -> str:
+        return skills.dashboard(text)
+
+    def _anotar_projeto(self, text: str) -> str:
+        return skills.project_note(text, self._load_config())
+
+    def _ficha(self, text: str) -> str:
+        return skills.project_card(text, self._load_config())
+
+    def _projetos(self, text: str) -> str:
+        return skills.projects_list(self._load_config())
+
+    def _perfil(self, text: str) -> str:
+        return skills.profile(text, self._load_config())
+
+    def _memoria(self, text: str) -> str:
+        return skills.recall(text, self._load_config())
+
+    def _lembrar(self, text: str) -> str:
+        return skills.remember(text, self._load_config()) + "\n\n" + skills.forget_hint()
 
     def _ajuda(self, text: str) -> str:
         return HELP

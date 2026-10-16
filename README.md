@@ -36,6 +36,14 @@ O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respost
 
 A Jarvis **não para quando o limite do Claude acaba**. Um motor próprio, sem IA generativa, fica sempre como o último cérebro.
 
+**Só a inteligência da Jarvis (sem nenhuma IA).** No painel **⚙ Cérebros**, marque "Só a inteligência da Jarvis (sem nenhuma IA)": a partir do próximo pedido nada chama Claude, Gemini ou NVIDIA, não abre a sessão do Claude (poupa RAM) e não precisa de chave, assinatura nem limite. Desmarque e eles voltam a ajudar. (No `config.json`: `somente_independente`.) Além dos comandos abaixo, o motor próprio entende:
+- **memória**: "lembre que eu prefiro vagas remotas", "o que você sabe sobre mim?", "busque na memória sobre ...";
+- **perfil e projetos**: "meu nível é pleno", "minha stack é Python e React", "minha cidade é Fortaleza", "quero evitar PHP", "meus projetos", "anota no projeto Loja que decidimos usar Postgres", "ficha do projeto Loja";
+- **dashboards**: "crie um dashboard de C:\pasta\vendas.xlsx";
+- **sessões do Claude Code**: "alguma sessão está me esperando?".
+
+  Sem IA ela não conversa livremente, não escreve textos novos, não lê e-mail para classificar, não analisa imagens nem executa tarefas de código (isso continua com o Claude). O reconhecimento de voz ("Hey Jarvis" e transcrição) usa modelos pequenos que rodam no seu PC, sem API; não é o "cérebro".
+
 - **Comandos diretos** são atendidos na hora, sem gastar limite de nenhuma IA: abrir programas, sites, pastas e projetos; estado do PC e programas pesados; clima; notícias; vagas; hora e data.
 - **Pesquisa na internet sem IA** usando fontes oficiais:
   - a Wikipedia (pt/en), com checagem de relevância;
