@@ -177,16 +177,22 @@ def propose_dev_task(store: ActionStore, cfg, projeto: str, tarefa: str, motivo:
 
 
 def propose_new_project(store: ActionStore, cfg, nome: str, pasta_pai: str, descricao: str,
-                        motivo: str, modelo: str = "") -> Action:
+                        motivo: str, modelo: str = "", arquivos: dict | None = None) -> Action:
     from jarvis.dev import modelos, projects
 
     target = projects.plan_new(cfg, nome, pasta_pai)
     modelo = modelos.normalize(modelo) if modelo.strip() else ""
-    conteudo = (f"um sistema inicial pronto para rodar ({modelos.descricao(modelo)}: API/tela de exemplo com testes e README)"
+    if arquivos:
+        from jarvis.llm import arquivos as seguro
+
+        arquivos = seguro.validar(arquivos)
+    conteudo = (f"{len(arquivos)} arquivos escritos pela IA local ({', '.join(arquivos)}), para você revisar" if arquivos else
+                f"um sistema inicial pronto para rodar ({modelos.descricao(modelo)}: API/tela de exemplo com testes e README)"
                 if modelo else "README.md")
     return store.save(Action(
         "criar_projeto",
-        {"nome": nome.strip()[:60], "pasta_pai": str(target.parent), "descricao": descricao.strip()[:1500], "modelo": modelo},
+        {"nome": nome.strip()[:60], "pasta_pai": str(target.parent), "descricao": descricao.strip()[:1500], "modelo": modelo,
+         **({"arquivos": arquivos} if arquivos else {})},
         f"Criar o projeto '{nome.strip()}' na pasta nova {target} com {conteudo} e git init (sem commit), "
         "e cadastrá-lo na Jarvis. Nada existente é alterado.",
         motivo,
@@ -246,6 +252,10 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
         p = action.params
         modelo = p.get("modelo", "")
         target = projects.create(cfg, p["nome"], p["pasta_pai"], p["descricao"], modelo=modelo)
+        if p.get("arquivos"):
+            from jarvis.llm import arquivos as seguro
+
+            seguro.escrever(target, p["arquivos"])
         config.save(cfg)
         mem = memory_db.open_memory(cfg)
         if p["descricao"]:
@@ -257,6 +267,12 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
             return (f"Projeto '{p['nome']}' criado em {target} com {modelos.descricao(modelo)} e cadastrado. "
                     "O README.md explica como instalar, rodar e testar.")
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
+
+    if action.kind == "instalar_llm":
+        from jarvis.llm import tarefas
+
+        tarefas.instalar(action.params["modelo"])
+        return "Comecei a instalar o cérebro local em segundo plano. Pergunte \"status do cérebro local\" para acompanhar."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")
 

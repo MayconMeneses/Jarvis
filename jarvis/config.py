@@ -105,6 +105,10 @@ class Config:
     somente_independente: bool = False
     # Jarvis instalada: procura, baixa e instala versões novas do GitHub sozinha (SHA-256 conferido).
     atualizacao_automatica: bool = True
+    # Cérebro generativo local (jarvis/llm): um modelo pequeno rodando no PC, sem API. Instalado por cartão aprovado.
+    llm_local: bool = False
+    llm_modelo: str = "qwen2.5-coder-1.5b"
+    llm_endpoint: str = ""  # opcional: servidor já rodando (Ollama/LM Studio), ex.: http://127.0.0.1:11434
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)

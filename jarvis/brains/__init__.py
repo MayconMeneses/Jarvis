@@ -43,16 +43,21 @@ def build_router(cfg: Config) -> Router:
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }
     brains = [available[name]() for name in cfg.brains if name in available]
+    from jarvis import config as config_module
+    from jarvis.llm.cerebro import LLMLocal
     from jarvis.local.engine import LocalEngine
 
-    local = LocalEngine()
-    brains.append(local)  # último cérebro: a Jarvis nunca fica sem resposta
+    local, llm = LocalEngine(), LLMLocal(config_module.load)
+    brains += [llm, local]  # o modelo local vem depois das IAs externas; o motor próprio é o último: nunca fica sem resposta
 
     def prefer(text: str) -> str | None:
         from jarvis import config
 
         if local.is_direct_command(text):
             return "local"  # comando direto: na hora, sem gastar limite de nenhuma IA
+        found, now = local.classify(text), config.load()
+        if found and (found[0] in ("criar_com_ia", "llm_instalar", "llm_status") or (now.llm_local and now.somente_independente)):
+            return "local"  # gerenciar o cérebro local é com o motor próprio; sem IA externa, o motor só pega o que sabe fazer
         return policy.preferred(text, config.load().uso_gemini)  # lido a cada pedido: muda na hora
 
     seen = {"at": 0.0, "cfg": cfg}
@@ -65,6 +70,8 @@ def build_router(cfg: Config) -> Router:
         if time.monotonic() - seen["at"] > 1.0:  # relê a cada pedido (não a cada cérebro): o botão vale na hora
             seen["at"], seen["cfg"] = time.monotonic(), config.load()
         current = seen["cfg"]
+        if brain is llm:
+            return current.llm_local
         if brain is local:
             return current.modo_independente or current.somente_independente
         return not current.somente_independente

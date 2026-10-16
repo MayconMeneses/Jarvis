@@ -14,6 +14,7 @@ class BrainsMixin:
 
     def brains_status(self) -> dict:
         from jarvis import environment, keys
+        from jarvis.llm import catalogo
 
         cfg = config.load()
         return {
@@ -23,6 +24,8 @@ class BrainsMixin:
             "brave": bool(keys.get_key("brave")),
             "uso_gemini": cfg.uso_gemini,
             "somente_independente": cfg.somente_independente,
+            "llm_local": cfg.llm_local,
+            "llm_pronto": catalogo.estado(cfg.llm_modelo, cfg.llm_endpoint)["pronto"],
             "modelo_gemini": cfg.gemini.model,
         }
 
@@ -36,6 +39,18 @@ class BrainsMixin:
             return {"ok": True, "mensagem": "Ligado: só a inteligência da Jarvis responde a partir de agora."}
         self._diary("Modo sem IA desligado")
         return {"ok": True, "mensagem": "Desligado: o Claude, o Gemini e a NVIDIA voltam a ajudar."}
+
+    def set_llm(self, on: bool) -> dict:
+        """Liga/desliga o cérebro generativo local. Só liga se já estiver instalado (a instalação é por cartão)."""
+        from jarvis.llm import catalogo
+
+        cfg = config.load()
+        if on and not catalogo.estado(cfg.llm_modelo, cfg.llm_endpoint)["pronto"]:
+            return {"ok": False, "ligado": False, "mensagem": "Ainda não está instalado. Diga: \"instalar cérebro local\" e aprove o cartão."}
+        cfg.llm_local = bool(on)
+        config.save(cfg)
+        self._diary("Cérebro local " + ("ligado" if on else "desligado"))
+        return {"ok": True, "ligado": cfg.llm_local, "mensagem": "Ligado: a Jarvis conversa e cria com o modelo local." if on else "Desligado."}
 
     def environment_notices(self) -> list[str]:
         """Avisos de coisas externas que faltam (Claude Code, git), mostrados ao abrir a janela."""
