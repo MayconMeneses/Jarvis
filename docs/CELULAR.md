@@ -10,7 +10,7 @@ no Android (Chrome) e em qualquer navegador, sem App Store e sem conta de desenv
 3. No PC, toque em **Gerar código de pareamento**. No iPhone, digite o código de 6 dígitos (vale 5 minutos, uso único) e toque em **Conectar**.
 4. Para virar app: no Safari, **Compartilhar → Adicionar à Tela de Início**. A Jarvis abre em tela cheia, com ícone próprio.
 
-Dentro do app: conversa por texto, atalhos (Bom dia, PC, Pendências, Notícias, Treino), ditado por voz em português (🎤) e opção de ler as
+Dentro do app: conversa por texto, atalhos (Bom dia, PC, Pendências, Notícias, Treino), ditado por voz em português (🎤, só em HTTPS: o Safari bloqueia o microfone em http://) e opção de ler as
 respostas em voz alta. Para remover um aparelho (celular perdido), use **Remover** na lista do mesmo painel: ele perde o acesso na hora.
 
 ## Segurança
