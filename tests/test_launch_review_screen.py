@@ -74,7 +74,7 @@ def test_open_folder_special_absolute_and_missing(tmp_path, monkeypatch):
 def test_open_project_in_vscode_and_terminal(tmp_path, monkeypatch):
     rec = Recorder()
     monkeypatch.setattr(launcher.shutil, "which", lambda name: f"C:/bin/{name}")
-    msg = launcher.open_project(Config(projetos={"Comandiva": str(tmp_path)}), "comandiva", True, runner=rec)
+    msg = launcher.open_project(Config(projetos={"MeuApp": str(tmp_path)}), "meuapp", True, runner=rec)
     assert rec.calls == [["C:/bin/code", str(tmp_path)], ["wt", "-d", str(tmp_path)]]
     assert "VS Code" in msg and "Terminal" in msg
 

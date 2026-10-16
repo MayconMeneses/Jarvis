@@ -22,6 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ias", default="", help="cérebros a avaliar: claude,gemini,nvidia,local")
     parser.add_argument("--juiz", default="", help="cérebro que faz a avaliação por rubrica")
     parser.add_argument("--sem-semantica", action="store_true")
+    parser.add_argument("--json", default="", help="grava um resumo numérico (para a verificação automática)")
     args = parser.parse_args(argv)
 
     encoder = None
@@ -51,6 +52,14 @@ def main(argv: list[str] | None = None) -> int:
         for brain in by_name.values():
             if hasattr(brain, "stop"):
                 brain.stop()
+
+    if args.json:
+        import json
+        from pathlib import Path
+
+        Path(args.json).write_text(json.dumps(bench.numeric_summary(commands, summaries)), encoding="utf-8")
+        print(f"Resumo numérico em {args.json}")
+        return 0
 
     report = bench.report_markdown(commands, summaries, answers, encoder is not None)
     print("\n" + report)

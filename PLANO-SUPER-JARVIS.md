@@ -112,7 +112,7 @@ Regra do roteador: tarefa simples vai para Gemini Flash ou NIM; tarefa que preci
 - Voz de resposta pt-BR com edge-tts (gratuita e natural), Piper offline como reserva e ElevenLabs como opção paga.
 
 ### Memória ligada ao Obsidian
-O cofre que você já usa é `C:\Users\maico\OneDrive\Área de Trabalho\Obisidian projetos\Projetos` (CONFIRMADO, Obsidian instalado). Um cofre do Obsidian é só uma pasta de arquivos Markdown, então a Jarvis grava a memória **direto nele**, sem plugin e sem servidor extra:
+O cofre que você já usa é a pasta do seu cofre do Obsidian (CONFIRMADO, Obsidian instalado). Um cofre do Obsidian é só uma pasta de arquivos Markdown, então a Jarvis grava a memória **direto nele**, sem plugin e sem servidor extra:
 
 ```
 Projetos/                      (seu cofre)
@@ -125,7 +125,7 @@ Projetos/                      (seu cofre)
 ```
 
 - **Você enxerga e corrige tudo** no Obsidian: editou uma nota, a Jarvis passa a usar a versão nova. Os `[[links]]` aparecem no grafo.
-- **Leitura do resto do cofre** (ex.: `MM System Creator/`) para contexto quando você pedir ("Jarvis, o que falta no MM System?"). Ela **não escreve** fora da pasta `Jarvis/` sem aprovação.
+- **Leitura do resto do cofre** (ex.: `MeuSistema/`) para contexto quando você pedir ("Jarvis, o que falta no MeuSistema?"). Ela **não escreve** fora da pasta `Jarvis/` sem aprovação.
 - Busca nas notas por palavra-chave primeiro (rápido e leve); busca por significado só se o volume crescer.
 - Abrir uma nota direto no app via link `obsidian://open?vault=Projetos&file=...`.
 - SQLite fica só para dados técnicos (log de ações e uso dos cérebros), não para a memória.
@@ -197,8 +197,8 @@ Tudo é mostrado na tela e lido em voz alta numa versão curta. O briefing compl
 
 ### Parceira de desenvolvimento de sistemas
 - Para programar, a Jarvis **chama o Claude Code** (`claude -p`) dentro da pasta do projeto, com a sua assinatura, no mesmo modelo do ethanplusai/jarvis: conversa sobre a ideia, grava a especificação, você aprova e o Claude Code executa.
-- Ela lê as notas do projeto no Obsidian (ex.: `MM System Creator/_Current State.md`, `_Next Steps.md`) para saber onde você parou.
-- Comandos como "Jarvis, o que falta no MM System?" ou "Jarvis, cria um plano para a tela de login" viram respostas baseadas nas suas notas e no código.
+- Ela lê as notas do projeto no Obsidian (ex.: `MeuSistema/_Current State.md`, `_Next Steps.md`) para saber onde você parou.
+- Comandos como "Jarvis, o que falta no MeuSistema?" ou "Jarvis, cria um plano para a tela de login" viram respostas baseadas nas suas notas e no código.
 - Ela avisa quando uma sessão do Claude Code está esperando a sua resposta.
 
 ## 7. Fases de construção
@@ -214,7 +214,7 @@ Cada fase termina com algo funcionando e testado.
 | **4. Voz** | Ativação + transcrição + fala | Medir o atraso real no seu notebook |
 | **5. Memória e rotina** | Memória no Obsidian; saudação ao abrir; clima, notícias gerais e de tecnologia | Reiniciar e verificar se ela lembra; briefing aparece e é salvo no Obsidian |
 | **6. Vagas** | Busca em fontes legais, nota de compatibilidade com o seu perfil, sem repetir | Conferir 10 vagas sugeridas e se fazem sentido para você |
-| **7. Parceira de desenvolvimento** | Ponte com o Claude Code nos seus projetos + leitura das notas do projeto | Pedir o status do MM System e um plano de tarefa |
+| **7. Parceira de desenvolvimento** | Ponte com o Claude Code nos seus projetos + leitura das notas do projeto | Pedir o status do MeuSistema e um plano de tarefa |
 | **8. Instalador** | `.exe` com Inno Setup, iniciar com o Windows, desinstalador | Instalar num usuário limpo do Windows |
 
 ## 8. Decisões pendentes

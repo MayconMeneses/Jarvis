@@ -40,7 +40,7 @@ build-backend = "setuptools.build_meta"
 include = ["jarvis*"]
 
 [tool.setuptools.package-data]
-"jarvis.ui" = ["*.html"]
+"jarvis.ui.web" = ["*.html", "css/*.css", "js/*.js"]
 "jarvis.dashboard" = ["*.html"]
 "jarvis.eval" = ["data/*.json"]
 

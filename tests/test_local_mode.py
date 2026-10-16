@@ -20,7 +20,7 @@ def local():
 # ── entender comandos ────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("text,intent", [
-    ("Jarvis, abre o WhatsApp", "abrir"), ("abra o projeto Comandiva", "abrir"), ("abrir github.com", "abrir"),
+    ("Jarvis, abre o WhatsApp", "abrir"), ("abra o projeto MeuApp", "abrir"), ("abrir github.com", "abrir"),
     ("que horas são?", "hora"), ("que dia é hoje", "data"),
     ("como está o meu PC?", "pc"), ("quanto de ram estou usando", "pc"),
     ("quais programas estão mais pesados", "processos"),

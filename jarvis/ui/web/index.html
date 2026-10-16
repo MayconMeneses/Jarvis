@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis</title>
+<!--ESTILOS-->
+</head>
+<body data-state="idle">
+  <header class="hud">
+    <svg class="reactor" viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <radialGradient id="coreGlow">
+          <stop offset="0" stop-color="#bff2ff" stop-opacity=".9"/>
+          <stop offset=".45" stop-color="#3fd0ff" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#3fd0ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g class="ticks" id="ticks"></g>
+      <circle class="ring" cx="100" cy="100" r="84" stroke-width="1"/>
+      <circle class="arc-a" cx="100" cy="100" r="74"/>
+      <circle class="dots" cx="100" cy="100" r="62"/>
+      <circle class="arc-b" cx="100" cy="100" r="52"/>
+      <circle class="ring" cx="100" cy="100" r="40" stroke-width="1"/>
+      <circle class="core" cx="100" cy="100" r="34"/>
+      <circle class="core-ring" cx="100" cy="100" r="26"/>
+      <text x="100" y="106" text-anchor="middle">J</text>
+    </svg>
+    <div class="readout">
+      <div class="brand"><h1>JARVIS</h1><span id="clock"></span></div>
+      <span id="voice-status" role="status"></span>
+      <div class="gauge"><span>CPU</span><span class="bar"><i id="g-cpu"></i></span><b id="v-cpu">--</b></div>
+      <div class="gauge"><span>RAM</span><span class="bar"><i id="g-ram"></i></span><b id="v-ram">--</b></div>
+      <div class="gauge"><span>DISCO</span><span class="bar"><i id="g-disco"></i></span><b id="v-disco">--</b></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <span class="label">Canal de comunicação</span>
+    <span>
+      <button type="button" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros</button>
+      <button type="button" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória</button>
+      <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
+    </span>
+  </div>
+
+  <dialog id="memory" aria-labelledby="memory-title">
+    <h2 id="memory-title">Memória da Jarvis</h2>
+    <label for="mem-search" class="sr-only">Buscar na memória</label>
+    <input id="mem-search" type="search" placeholder="Buscar na memória…" autocomplete="off">
+    <ul id="mem-list" aria-label="Notas da memória"></ul>
+    <p class="feedback" id="mem-info" role="status"></p>
+    <label for="mem-text" class="sr-only">Texto da nota selecionada</label>
+    <textarea id="mem-text" hidden spellcheck="false"></textarea>
+    <div class="mem-actions">
+      <button type="button" id="mem-save" hidden>Salvar</button>
+      <button type="button" id="mem-delete" class="danger" hidden>Apagar</button>
+      <span class="spacer"></span>
+      <button type="button" id="mem-export" title="Grava uma cópia em Markdown (por exemplo, para o Obsidian)">Exportar…</button>
+      <button type="button" id="close-memory">Fechar</button>
+    </div>
+  </dialog>
+
+  <dialog id="brains" aria-labelledby="brains-title">
+    <h2 id="brains-title">Cérebros da Jarvis</h2>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="standalone" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Só a inteligência da Jarvis (sem nenhuma IA)</b>
+          <small>Nada de Claude, Gemini ou NVIDIA: sem chave, sem assinatura, sem limite. Ela obedece comandos (abrir, PC, clima, notícias, vagas, memória, projetos, dashboards) e pesquisa na internet resumindo frases dos próprios sites. Muda na hora.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-standalone" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <h3>Claude <small id="st-claude"></small></h3>
+      <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
+    </section>
+
+    <section class="brain" data-provider="gemini">
+      <h3>Gemini <small id="st-gemini"></small></h3>
+      <p>Chave gratuita do Google AI Studio. <button type="button" class="ghost linklike" data-link="https://aistudio.google.com/apikey">Criar chave grátis</button></p>
+      <div class="key-row">
+        <label for="key-gemini" class="sr-only">Chave de API do Gemini</label>
+        <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Gemini">
+        <button type="button" class="primary" data-save="gemini">Salvar e testar</button>
+      </div>
+      <fieldset class="modes" style="border:0;padding:0;margin:0">
+        <legend class="label" style="margin-bottom:4px">Quando usar</legend>
+        <label><input type="radio" name="uso" value="reserva"><span>Só como reserva<small>Quando o limite do Claude acabar ou ele falhar.</small></span></label>
+        <label><input type="radio" name="uso" value="simples"><span>Perguntas simples<small>Conversa rápida vai para o Gemini e economiza o limite do Claude.</small></span></label>
+      </fieldset>
+      <p style="margin-top:6px">Em qualquer modo: diga <b>"Gemini, ..."</b> ou <b>"pergunte ao Gemini ..."</b>.</p>
+      <p class="feedback" id="fb-gemini" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="gemini">Remover chave</button>
+    </section>
+
+    <section class="brain" data-provider="nvidia">
+      <h3>NVIDIA <small id="st-nvidia"></small></h3>
+      <p>Reserva extra (grátis, ~40 pedidos/min). <button type="button" class="ghost linklike" data-link="https://build.nvidia.com">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-nvidia" class="sr-only">Chave de API da NVIDIA</label>
+        <input id="key-nvidia" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave da NVIDIA">
+        <button type="button" class="primary" data-save="nvidia">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-nvidia" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="nvidia">Remover chave</button>
+    </section>
+
+    <section class="brain" data-provider="local">
+      <h3>Modo independente <small class="on-ok">● sempre ativo</small></h3>
+      <p>Sem IA: abre programas e sites, mostra o estado do PC, clima, notícias, vagas, hora e data, e pesquisa
+        na internet resumindo com frases dos próprios sites. Responde na hora os comandos diretos e assume
+        quando nenhuma IA está disponível.</p>
+    </section>
+
+    <section class="brain" data-provider="brave">
+      <h3>Brave Search <small id="st-brave"></small></h3>
+      <p>Buscador (não é IA): deixa a pesquisa do modo independente com a web completa. Grátis, ~2.000
+        buscas/mês. Sem ela, usa Wikipedia e DuckDuckGo. <button type="button" class="ghost linklike" data-link="https://brave.com/search/api/">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-brave" class="sr-only">Chave da Brave Search API</label>
+        <input id="key-brave" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Brave">
+        <button type="button" class="primary" data-save="brave">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-brave" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="brave">Remover chave</button>
+    </section>
+
+    <div class="dialog-actions"><button type="button" id="close-brains">Fechar</button></div>
+  </dialog>
+
+  <main id="log" role="log" aria-live="polite" aria-label="Conversa com a Jarvis"></main>
+
+  <div id="chips" aria-label="Arquivos anexados"></div>
+  <div class="drop-overlay" aria-hidden="true">Solte para anexar</div>
+  <form id="form">
+    <button type="button" id="attach" class="icon-btn" title="Anexar arquivos (PDF, Word, Excel, código, imagens)" aria-label="Anexar arquivos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.9-8.9a3.7 3.7 0 0 1 5.2 5.2l-8.9 8.9a1.8 1.8 0 0 1-2.6-2.6l8.2-8.2"/>
+      </svg>
+    </button>
+    <label for="input" class="sr-only">Mensagem para a Jarvis</label>
+    <textarea id="input" rows="1" placeholder="Fale com a Jarvis…" autofocus aria-describedby="hint"></textarea>
+    <span id="hint" class="sr-only">Enter envia, Shift+Enter quebra a linha.</span>
+    <button type="button" id="dash" class="icon-btn" title="Criar dashboard de um documento (CSV, Excel, Word, PDF, JSON, KML...)" aria-label="Criar dashboard de um documento">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+      </svg>
+    </button>
+    <button type="button" id="mic" class="icon-btn" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>
+      </svg>
+    </button>
+    <button type="submit" id="send" class="primary">Enviar</button>
+  </form>
+
+<!--SCRIPTS-->
+</body>
+</html>

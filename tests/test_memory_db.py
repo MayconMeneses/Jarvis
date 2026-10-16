@@ -2,7 +2,7 @@ import threading
 
 import pytest
 
-from jarvis import memory_db
+from jarvis import memory_db, memory_obsidian
 from jarvis.config import Config
 from jarvis.memory_db import MemoryDB
 
@@ -122,14 +122,14 @@ def cofre(tmp_path):
 
 def test_import_copies_jarvis_folder_once_without_touching_the_vault(db, cofre):
     before = {p: p.read_bytes() for p in cofre.rglob("*") if p.is_file()}
-    assert memory_db.import_obsidian(db, cofre) == 4
+    assert memory_obsidian.import_obsidian(db, cofre) == 4
     assert {p: p.read_bytes() for p in cofre.rglob("*") if p.is_file()} == before
     assert db.read("Memória/Preferência de vagas") == "Prefere vagas remotas de back-end.\n"
     assert db.index_text() == "- Preferência de vagas: Prefere vagas remotas de back-end."
     assert "Python" in db.read("Projetos/Loja/Sobre") and db.search("clima")
     assert not db.exists("Fora do Jarvis") and not db.exists("00 - Índice")
     db.put("Memória/Preferência de vagas", "Editado depois no banco.")
-    assert memory_db.import_obsidian(db, cofre) == 0  # nunca sobrescreve o que já está no banco
+    assert memory_obsidian.import_obsidian(db, cofre) == 0  # nunca sobrescreve o que já está no banco
     assert db.read("Memória/Preferência de vagas") == "Editado depois no banco."
 
 
@@ -155,7 +155,7 @@ def test_export_round_trips_through_an_obsidian_vault_folder(db, tmp_path):
     db.diary("Pedido: clima")
     db.put("Projetos/Loja/Sobre", "## Stack\n- Python")
     out = tmp_path / "copia"
-    assert memory_db.export_markdown(db, out) == 3
+    assert memory_obsidian.export_markdown(db, out) == 3
     note = (out / "Memória" / "Cidade.md").read_text(encoding="utf-8")
     assert note.startswith("---\ntipo: memoria\nresumo: Mora no CE\n") and "# Cidade\n\nMora no Ceará." in note
     assert (out / "Projetos" / "Loja" / "Sobre.md").exists() and "Cidade" in (out / "00 - Índice.md").read_text(encoding="utf-8")
@@ -163,7 +163,7 @@ def test_export_round_trips_through_an_obsidian_vault_folder(db, tmp_path):
     (tmp_path / "cofre2").mkdir()
     out.rename(tmp_path / "cofre2" / "Jarvis")
     other = MemoryDB(tmp_path / "outro.db")
-    memory_db.import_obsidian(other, tmp_path / "cofre2")
+    memory_obsidian.import_obsidian(other, tmp_path / "cofre2")
     assert other.read("Memória/Cidade") == "Mora no Ceará.\n" and other.memories() == [("Cidade", "Mora no CE")]
 
 
@@ -171,7 +171,7 @@ def test_export_ignores_refs_that_would_escape(db, tmp_path):
     with db._tx() as conn:
         conn.execute("INSERT INTO notas VALUES ('../fora', 'nota', 'fora', 'x', '', '2026-01-01', '2026-01-01')")
     out = tmp_path / "copia"
-    assert memory_db.export_markdown(db, out) == 0 and not (tmp_path / "fora.md").exists()
+    assert memory_obsidian.export_markdown(db, out) == 0 and not (tmp_path / "fora.md").exists()
 
 
 # ── edição pela janela ───────────────────────────────────────────────────

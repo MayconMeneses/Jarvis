@@ -130,7 +130,7 @@ def test_dashboard_command_builds_and_opens(engine, tmp_path, monkeypatch):
 def test_sessions_question_is_answered_locally(engine, monkeypatch):
     from jarvis.dev import sessions
 
-    waiting = sessions.Session("s1", "Loja", "C:\\x", "Teste", sessions.PERMISSAO, "permission prompt")
+    waiting = sessions.Session("s1", "Loja", "C:\\x", "Teste", "permissao", "permission prompt")
     monkeypatch.setattr(sessions.SessionReader, "sessions", lambda self: [waiting])
     assert "Teste" in say(engine, "alguma sessão do Claude Code está me esperando?")
     monkeypatch.setattr(sessions.SessionReader, "sessions", lambda self: [])
