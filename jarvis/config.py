@@ -100,6 +100,9 @@ class Config:
     uso_gemini: str = "reserva"
     # Motor local sem IA: comandos diretos na hora e reserva final quando nenhuma IA responde.
     modo_independente: bool = True
+    # True = usa só o motor próprio (nenhuma IA, nenhuma chave, nenhum limite): comandos, memória,
+    # dashboards, pesquisa na internet com resumo extrativo. Muda na hora, sem reiniciar.
+    somente_independente: bool = False
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)

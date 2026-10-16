@@ -307,6 +307,15 @@
     <h2 id="brains-title">Cérebros da Jarvis</h2>
 
     <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="standalone" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Só a inteligência da Jarvis (sem nenhuma IA)</b>
+          <small>Nada de Claude, Gemini ou NVIDIA: sem chave, sem assinatura, sem limite. Ela obedece comandos (abrir, PC, clima, notícias, vagas, memória, projetos, dashboards) e pesquisa na internet resumindo frases dos próprios sites. Muda na hora.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-standalone" role="status"></p>
+    </section>
+
+    <section class="brain">
       <h3>Claude <small id="st-claude"></small></h3>
       <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
     </section>
@@ -796,7 +805,15 @@
     setStatus("st-nvidia", s.nvidia, "● chave ok", "● sem chave");
     setStatus("st-brave", s.brave, "● chave ok", "● opcional");
     document.querySelectorAll('input[name="uso"]').forEach((r) => { r.checked = r.value === s.uso_gemini; });
+    document.getElementById("standalone").checked = !!s.somente_independente;
   }
+
+  document.getElementById("standalone").addEventListener("change", async (ev) => {
+    const res = await window.pywebview.api.set_standalone(ev.target.checked);
+    const fb = document.getElementById("fb-standalone");
+    fb.textContent = res.mensagem;
+    fb.className = "feedback on-ok";
+  });
 
   document.getElementById("open-brains").addEventListener("click", async () => {
     await refreshBrains();

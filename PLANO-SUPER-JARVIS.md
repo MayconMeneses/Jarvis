@@ -166,6 +166,10 @@ Objetivo do dono: a Jarvis vira um aplicativo com instalador e **tudo que ela pr
 4. Visualizador de memória na janela.
 5. Fechar o levantamento de empacotamento (modelo Whisper, wake word, detecção do Claude Code e do git) no instalador.
 
+### Jarvis independente, sem nenhuma IA (decisão de 2026-10-16)
+O dono quer que a Jarvis funcione **sem API e sem nenhuma IA**, só com a inteligência dela e a internet, sem depender de terceiros. Feito: o interruptor `somente_independente` (⚙ Cérebros) deixa só o motor próprio (`jarvis/local/`) no roteador, e o motor ganhou habilidades próprias em `jarvis/local/skills.py` (memória, perfil, projetos, dashboards, sessões do Claude Code), além do que já tinha (abrir, PC, clima, notícias, vagas, pesquisa com resumo extrativo).
+Avaliado e **não adotado**: o OpenJarvis (open-jarvis/OpenJarvis, Apache 2.0). A configuração dele gira em torno de modelos locais (Ollama/vLLM; os exemplos vão de `qwen3.5:4b` a um servidor com 8 A100) e o resumo diário usa voz paga da OpenAI, o que contradiz "sem IA" e os limites do PC de 8 GB. A licença permitiria reaproveitar partes que não são modelo (catálogo de skills, `doctor`, personas) com atribuição; fica como ideia futura. Próximo passo natural: mais habilidades por regras (e-mail por filtros do dono, agenda, lembretes) e melhor extração de texto na pesquisa.
+
 ### Rotina ao abrir (briefing)
 Sempre que a Jarvis abre (ou no primeiro uso do dia), ela fala com você:
 
