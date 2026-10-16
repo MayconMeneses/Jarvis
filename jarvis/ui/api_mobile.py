@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from jarvis import config
+from jarvis.mobile import tailscale
 
 log = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ log = logging.getLogger(__name__)
 class MobileMixin:
     _mobile = None  # ServidorCelular, quando ligado
     _pareamento = None
+    mobile_modo = ""  # como o servidor está alcançável agora: tailscale | rede | local
 
     def _pair(self):
         from jarvis.mobile.pareamento import Pareamento
@@ -28,6 +30,21 @@ class MobileMixin:
         if self._mobile is not None and self._mobile.ativo:
             return self._mobile.url
         self._mobile = ServidorCelular(self._pair(), self.send, lambda: len(self._store.pending_since(0)), cfg.user_name)
+        ts = tailscale.estado() if cfg.celular_acesso in ("auto", "tailscale") else None
+        self.mobile_modo = "rede" if cfg.celular_rede else "local"
+        if ts and ts["ligado"]:  # de qualquer lugar: só o endereço do Tailscale, nada exposto na rede local nem na internet
+            cert, chave = cfg.celular_certificado, cfg.celular_chave
+            if not (cert and chave):
+                try:
+                    cert, chave = tailscale.certificado(ts["nome"])
+                except OSError as exc:
+                    log.info("celular sem HTTPS: %s", exc)
+                    cert = chave = ""
+            self.mobile_modo = "tailscale"
+            return self._mobile.iniciar(cfg.celular_porta, False, cert, chave, host=ts["ip"], nome=ts["nome"] if cert else "")
+        if cfg.celular_acesso == "tailscale":
+            self._mobile = None
+            raise OSError("o Tailscale não está instalado ou ligado. " + tailscale.INSTALAR)
         return self._mobile.iniciar(cfg.celular_porta, cfg.celular_rede, cfg.celular_certificado, cfg.celular_chave)
 
     def mobile_stop(self) -> None:
@@ -37,7 +54,7 @@ class MobileMixin:
     def mobile_status(self) -> dict:
         cfg = config.load()
         return {"ligado": bool(self._mobile and self._mobile.ativo), "url": self._mobile.url if self._mobile else "",
-                "aparelhos": self._pair().listar(), "rede": cfg.celular_rede, "porta": cfg.celular_porta}
+                "aparelhos": self._pair().listar(), "modo": self.mobile_modo, "porta": cfg.celular_porta}
 
     def mobile_set(self, on: bool) -> dict:
         cfg = config.load()
@@ -46,8 +63,10 @@ class MobileMixin:
         try:
             if on:
                 url = self.mobile_start()
-                aviso = " Rede local: use só em Wi-Fi de casa ou no Tailscale." if url.startswith("http://") else ""
-                return {"ok": True, "mensagem": f"Ligado. No celular, abra {url}.{aviso}", **self.mobile_status()}
+                dicas = {"tailscale": " Funciona de qualquer lugar (4G ou outro Wi-Fi) pelo Tailscale, com o celular também conectado a ele.",
+                         "rede": " Só funciona no mesmo Wi-Fi. Para usar de qualquer lugar, instale o Tailscale (veja docs/CELULAR.md).",
+                         "local": " Só neste PC."}
+                return {"ok": True, "mensagem": f"Ligado. No celular, abra {url}.{dicas.get(self.mobile_modo, '')}", **self.mobile_status()}
             self.mobile_stop()
             return {"ok": True, "mensagem": "Desligado: o celular não alcança mais a Jarvis.", **self.mobile_status()}
         except OSError as exc:

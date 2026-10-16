@@ -113,6 +113,9 @@ class Config:
     celular_ativo: bool = False
     celular_porta: int = 8765
     celular_rede: bool = True
+    # Como o celular alcança o PC: "auto" (Tailscale se estiver ligado, senão o Wi-Fi), "tailscale" (de qualquer lugar,
+    # criptografado) ou "rede" (só no mesmo Wi-Fi).
+    celular_acesso: str = "auto"
     celular_certificado: str = ""  # opcional: HTTPS (ex.: certificado do Tailscale); vazio = HTTP
     celular_chave: str = ""
     proativo_hora: int = 8       # a partir de que hora o "bom dia" pode aparecer (se a Jarvis já estiver aberta)

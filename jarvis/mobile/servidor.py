@@ -44,7 +44,8 @@ class ServidorCelular:
         self._conversa = threading.Lock()  # uma conversa por vez: o PC é fraco e o Claude tem uma sessão só
         self.url = ""
 
-    def iniciar(self, porta: int = 8765, rede: bool = True, certificado: str = "", chave: str = "") -> str:
+    def iniciar(self, porta: int = 8765, rede: bool = True, certificado: str = "", chave: str = "", host: str = "", nome: str = "") -> str:
+        """`host` prende o servidor a UM endereço (o do Tailscale); `nome` é o nome que o celular digita (DNS do Tailscale)."""
         servidor = self
 
         class Tratador(BaseHTTPRequestHandler):
@@ -119,7 +120,7 @@ class ServidorCelular:
                                             "cerebro": resposta.get("brain", ""), "pendentes": servidor.pendentes()})
                 self._json(404, {"erro": "não encontrado"})
 
-        host = "0.0.0.0" if rede else "127.0.0.1"
+        host = host or ("0.0.0.0" if rede else "127.0.0.1")
         self._http = ThreadingHTTPServer((host, porta), Tratador)
         esquema = "http"
         if certificado and chave:
@@ -128,7 +129,8 @@ class ServidorCelular:
             self._http.socket = contexto.wrap_socket(self._http.socket, server_side=True)
             esquema = "https"
         threading.Thread(target=self._http.serve_forever, daemon=True, name="jarvis-celular").start()
-        self.url = f"{esquema}://{ip_local() if rede else '127.0.0.1'}:{self._http.server_port}"
+        alvo = nome or (ip_local() if rede and host == "0.0.0.0" else host)
+        self.url = f"{esquema}://{alvo}:{self._http.server_port}"
         log.info("app do celular em %s", self.url)
         return self.url
 

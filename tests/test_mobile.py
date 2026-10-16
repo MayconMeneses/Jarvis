@@ -176,3 +176,86 @@ def test_window_panel_turns_the_server_on_and_off(tmp_path):
     assert status == 200 and ponte.mobile_status()["aparelhos"][0]["nome"] == "iPhone"
     assert ponte.mobile_revoke(ponte.mobile_status()["aparelhos"][0]["id"])["aparelhos"] == []
     assert ponte.mobile_set(False)["ligado"] is False and not config.load().celular_ativo
+
+
+# ── Tailscale: de qualquer lugar, sem expor nada ─────────────────────────
+
+class Saida:
+    def __init__(self, texto="", codigo=0):
+        self.stdout, self.returncode = texto, codigo
+
+
+def test_tailscale_state_is_read_from_its_status_json(monkeypatch):
+    from jarvis.mobile import tailscale
+
+    monkeypatch.setattr(tailscale, "achar", lambda: "tailscale.exe")
+    ok = json.dumps({"BackendState": "Running", "Self": {"DNSName": "meu-pc.tail1234.ts.net.", "TailscaleIPs": ["fd7a::1", "100.64.0.5"]}})
+    assert tailscale.estado(lambda *a, **k: Saida(ok)) == {"instalado": True, "ligado": True, "nome": "meu-pc.tail1234.ts.net", "ip": "100.64.0.5"}
+    parado = json.dumps({"BackendState": "Stopped", "Self": {}})
+    assert tailscale.estado(lambda *a, **k: Saida(parado))["ligado"] is False
+    assert tailscale.estado(lambda *a, **k: Saida("lixo"))["ligado"] is False
+    monkeypatch.setattr(tailscale, "achar", lambda: None)
+    assert tailscale.estado() == {"instalado": False, "ligado": False, "nome": "", "ip": ""}
+
+
+def test_tailscale_certificate_errors_explain_what_to_enable(monkeypatch, tmp_path):
+    from jarvis.mobile import tailscale
+
+    monkeypatch.setattr(tailscale, "achar", lambda: "tailscale.exe")
+
+    def gera(cmd, **kw):
+        Path(cmd[cmd.index("--cert-file") + 1]).write_text("c")
+        Path(cmd[cmd.index("--key-file") + 1]).write_text("k")
+        return Saida()
+
+    cert, chave = tailscale.certificado("pc.ts.net", tmp_path, gera)
+    assert cert.endswith("pc.ts.net.crt") and chave.endswith("pc.ts.net.key")
+    with pytest.raises(OSError, match="HTTPS Certificates"):
+        tailscale.certificado("pc.ts.net", tmp_path / "x", lambda *a, **k: Saida("", 1))
+
+
+def _ponte(tmp_path):
+    from jarvis.ui.api_mobile import MobileMixin
+
+    class Ponte(MobileMixin):
+        def __init__(self):
+            self._store = type("S", (), {"pending_since": lambda s, t: []})()
+            self._pareamento = Pareamento(tmp_path / "c.json")
+
+        def send(self, texto):
+            return {"text": "ok", "brain": "local"}
+
+    return Ponte()
+
+
+def test_phone_binds_only_to_the_tailscale_address_when_it_is_on(tmp_path, monkeypatch):
+    from jarvis.mobile import tailscale
+
+    monkeypatch.setattr(tailscale, "estado", lambda: {"instalado": True, "ligado": True, "nome": "meu-pc.ts.net", "ip": "127.0.0.1"})
+    monkeypatch.setattr(tailscale, "certificado", lambda nome: (_ for _ in ()).throw(OSError("sem HTTPS")))  # cai para HTTP no IP do Tailscale
+    config.save(Config(celular_porta=0))
+    ponte = _ponte(tmp_path)
+    res = ponte.mobile_set(True)
+    assert res["ok"] and res["modo"] == "tailscale" and res["url"].startswith("http://127.0.0.1:") and "qualquer lugar" in res["mensagem"]
+    assert chamar(ponte._mobile, "/")[0] == 200
+    ponte.mobile_stop()
+
+
+def test_explicit_tailscale_mode_without_tailscale_explains_how_to_install(tmp_path, monkeypatch):
+    from jarvis.mobile import tailscale
+
+    monkeypatch.setattr(tailscale, "estado", lambda: {"instalado": False, "ligado": False, "nome": "", "ip": ""})
+    config.save(Config(celular_porta=0, celular_acesso="tailscale"))
+    res = _ponte(tmp_path).mobile_set(True)
+    assert res["ok"] is False and "Tailscale" in res["mensagem"] and "HTTPS Certificates" in res["mensagem"] and not config.load().celular_ativo
+
+
+def test_auto_mode_falls_back_to_the_local_network_with_a_hint(tmp_path, monkeypatch):
+    from jarvis.mobile import tailscale
+
+    monkeypatch.setattr(tailscale, "estado", lambda: {"instalado": False, "ligado": False, "nome": "", "ip": ""})
+    config.save(Config(celular_porta=0, celular_rede=False))
+    ponte = _ponte(tmp_path)
+    res = ponte.mobile_set(True)
+    assert res["ok"] and res["modo"] == "local" and "Só neste PC" in res["mensagem"]
+    ponte.mobile_stop()
