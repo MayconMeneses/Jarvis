@@ -12,27 +12,13 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import dev_skills, skills, websearch
+from jarvis.local import dev_skills, habilidades_skills, skills, websearch
+from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
 MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
           "outubro", "novembro", "dezembro"]
 NOTE = "\n\n_(modo independente: respondido sem IA)_"
-
-HELP = (
-    "Estou no **modo independente** (respondo com a minha própria inteligência, sem IA). Consigo:\n"
-    "- **abrir** programas, sites, pastas e projetos (\"abre o WhatsApp\", \"abre github.com\")\n"
-    "- **estado do PC** e programas pesados (\"como está o PC?\")\n"
-    "- **clima**, **notícias** (gerais ou de tecnologia) e **vagas**\n"
-    "- **hora e data**\n"
-    "- **memória**: \"lembre que eu prefiro vagas remotas\", \"o que você sabe sobre mim?\", \"busque na memória sobre ...\"\n"
-    "- **perfil e projetos**: \"meu nível é pleno\", \"minha stack é Python\", \"meus projetos\", \"anota no projeto X que ...\", \"ficha do projeto X\"\n"
-    "- **programação**: \"quais linguagens para back end?\", \"o que é React?\", \"compare Django e FastAPI\", \"qual stack para uma loja virtual?\" e **criar um sistema pronto para rodar**: \"crie um sistema chamado Loja com FastAPI e React em C:\\pasta\"\n"
-    "- **lógica e algoritmos**: \"como resolver um problema de programação?\", \"explique recursão\", \"busca binária em Java\", \"como fazer fatorial em Go\" (código em Python, JavaScript, Go, Java e C#)\n"
-    "- **dashboards**: \"crie um dashboard de C:\\\\pasta\\\\vendas.xlsx\"\n"
-    "- **sessões do Claude Code**: \"alguma sessão está me esperando?\"\n"
-    "- **pesquisar na internet** e resumir com frases dos próprios sites (\"pesquise sobre ...\")"
-)
 
 
 # Palavras que disparam comandos: corrigidas por semelhança se vierem com erro de digitação.
@@ -82,6 +68,14 @@ class LocalEngine:
         ("perfil", r"^((meu|minha)\s+(stack|nivel|modalidade|ingles|cidade)\s*(e|eh|sao|:|=)\s*.+|(quero\s+)?evit\w+\s+.+)$"),
         ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
         ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
+        # Habilidades de programador (jarvis/local/habilidades_skills.py): avaliar projetos, evoluir, checklists.
+        ("avaliar_projeto", r"^(avali\w+|revis\w+|analis\w+|audit\w+)\s+(o\s+|a\s+)?(projeto|codigo|repositorio|sistema|[a-z]:\\).*$|"
+                            r"^(avali\w+|revis\w+)\s+(o\s+|a\s+)?(voce mesma|a si mesma|si mesma|seu proprio codigo|seu codigo|proprio codigo)\b.*$"),
+        ("habilidades", r"^(quais (sao )?(as )?(minhas |suas )?habilidades.*|minhas habilidades|suas habilidades|habilidades de programador.*|"
+                        r"que habilidades.*|lista de habilidades)$"),
+        ("evoluir", r"^(o que (devo|eu devo|posso|preciso) (estudar|evoluir|melhorar|praticar).*|qual (e )?(a )?(minha |sua )?proxima habilidade.*|"
+                    r"proxima habilidade.*|(qual (e )?(o )?|me de (o )?)?treino (da|de) semana.*|como (evoluir|melhorar|praticar)( como programador| minhas habilidades)?.*|plano de (estudo|evolucao).*)$"),
+        ("checklist", r"^(checklist|lista de verificacao)\s+.+$"),
         # Programação (jarvis/local/dev_skills.py): criar sistemas, comparar, recomendar e explicar tecnologias.
         ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
         ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
@@ -236,6 +230,20 @@ class LocalEngine:
 
     def _lembrar(self, text: str) -> str:
         return skills.remember(text, self._load_config()) + "\n\n" + skills.forget_hint()
+
+    def _avaliar_projeto(self, text: str) -> str:
+        return habilidades_skills.evaluate(text, self._load_config())
+
+    def _habilidades(self, text: str) -> str:
+        return habilidades_skills.overview()
+
+    def _evoluir(self, text: str) -> str:
+        if "plano" in clean(text):
+            return habilidades_skills.plan(text)
+        return habilidades_skills.evolve(text, self._load_config())
+
+    def _checklist(self, text: str) -> str:
+        return habilidades_skills.checklist(text)
 
     def _criar_sistema(self, text: str) -> str:
         return dev_skills.create_system(text, self._load_config())
