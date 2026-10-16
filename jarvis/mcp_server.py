@@ -16,6 +16,7 @@ from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     improve_tools,
     info_tools,
     launch_tools,
+    llm_tools,
     logica_tools,
     mail_tools,
     notes_tools,

@@ -74,6 +74,15 @@
     </section>
 
     <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="llm-local" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Cérebro generativo local</b> <small id="st-llm"></small>
+          <small>Um modelo de linguagem pequeno rodando no seu PC (sem API e sem nuvem): conversa livre e cria sistemas pensando. É lento e bem menos capaz que o Claude. Para instalar, diga à Jarvis: "instalar cérebro local" e aprove o cartão (download de cerca de 1,1 GB).</small></span>
+      </span></label>
+      <p class="feedback" id="fb-llm" role="status"></p>
+    </section>
+
+    <section class="brain">
       <h3>Claude <small id="st-claude"></small></h3>
       <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
     </section>

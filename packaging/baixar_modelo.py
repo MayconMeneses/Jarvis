@@ -22,7 +22,8 @@ TARGET = ROOT / "modelos"
 
 def main(argv: list[str]) -> int:
     if argv[:1] == ["--nenhum"]:
-        shutil.rmtree(TARGET, ignore_errors=True)
+        for pasta in TARGET.glob("whisper-*"):
+            shutil.rmtree(pasta, ignore_errors=True)
         print("Modelo removido do pacote; o instalador baixará na primeira abertura.")
         return 0
     size = argv[0] if argv else "small"
@@ -35,7 +36,8 @@ def main(argv: list[str]) -> int:
         print(f"Baixando o modelo {size}...")
         source = Path(download_model(size, output_dir=str(Path(tempfile.mkdtemp(prefix="jarvis-modelo-")) / size)))
     folder = TARGET / f"whisper-{size}"
-    shutil.rmtree(TARGET, ignore_errors=True)  # só um tamanho por instalador
+    for antigo in TARGET.glob("whisper-*"):  # só um tamanho por instalador (o cérebro local, em llm/, fica)
+        shutil.rmtree(antigo, ignore_errors=True)
     folder.mkdir(parents=True)
     for item in source.iterdir():
         if item.is_file():

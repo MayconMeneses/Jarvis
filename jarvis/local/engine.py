@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import dev_skills, engenharia_skills, habilidades_skills, skills, websearch
+from jarvis.local import dev_skills, engenharia_skills, habilidades_skills, llm_skills, skills, websearch
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
@@ -77,6 +77,10 @@ class LocalEngine:
                     r"proxima habilidade.*|(qual (e )?(o )?|me de (o )?)?treino (da|de) semana.*|como (evoluir|melhorar|praticar)( como programador| minhas habilidades)?.*|plano de (estudo|evolucao).*)$"),
         ("checklist", r"^(checklist|lista de verificacao)\s+.+$"),
         # Programação (jarvis/local/dev_skills.py): criar sistemas, comparar, recomendar e explicar tecnologias.
+        # Cérebro generativo local (jarvis/local/llm_skills.py): instalar, estado e criar sistemas pensando.
+        ("criar_com_ia", r"^(cri[ae]|desenvolv\w+|programe)\b.*\b(com (a )?ia( local)?|com o (cerebro|modelo) local|com a llm|pensando)\b.*$"),
+        ("llm_instalar", r"^(instal\w+|baix\w+|lig\w+|ativ\w+)\s+(o |a )?(cerebro|modelo|ia|llm)( generativ\w+)? (local|proprio|proprio)\b.*$"),
+        ("llm_status", r"(cerebro|modelo|llm) local"),
         ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
         ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
         ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
@@ -103,6 +107,9 @@ class LocalEngine:
         ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
                      r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
     ]
+    MODULOS = {"padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
+               "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
+               "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status}
     DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias",
               "sessoes", "dashboard", "ficha", "projetos", "perfil"}
 
@@ -130,9 +137,10 @@ class LocalEngine:
     def handle(self, text: str) -> str:
         found = self.classify(text)
         intent, args = found if found else ("pergunta", {})
-        handler = getattr(self, f"_{intent}")
         try:
-            return handler(text, **args)
+            if intent in self.MODULOS:
+                return self.MODULOS[intent](text, self._load_config())
+            return getattr(self, f"_{intent}")(text, **args)
         except Exception as exc:  # nunca derruba a conversa
             return f"Tentei, mas não consegui: {exc}"
 
@@ -257,15 +265,6 @@ class LocalEngine:
 
     def _recomendar(self, text: str) -> str:
         return dev_skills.recommend(text)
-
-    def _padrao(self, text: str) -> str:
-        return engenharia_skills.padrao(text)
-
-    def _ux_ferramenta(self, text: str) -> str:
-        return engenharia_skills.ux_ferramenta(text)
-
-    def _gerar(self, text: str) -> str:
-        return engenharia_skills.gerar_artefato(text)
 
     def _algoritmo(self, text: str) -> str:
         """Algoritmo pronto, se for um clássico; senão, é uma pergunta comum e vai para a pesquisa."""
