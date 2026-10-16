@@ -22,11 +22,12 @@ from jarvis.ui.api_learning import LearningMixin
 from jarvis.ui.api_memory import MemoryMixin
 from jarvis.ui.api_review import ReviewMixin
 from jarvis.ui.api_selfupdate import SelfUpdateMixin
+from jarvis.ui.api_update import UpdateMixin
 
 log = logging.getLogger(__name__)
 
 
-class Api(FilesMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin):
+class Api(FilesMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(

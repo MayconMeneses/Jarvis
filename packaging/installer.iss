@@ -10,7 +10,7 @@
 ; Jarvis baixa o modelo uma vez, na primeira abertura.
 
 #define AppName "Super Jarvis"
-#define AppVersion "0.15.0"
+#define AppVersion "0.16.0"
 #define AppExe "Jarvis.exe"
 
 [Setup]
@@ -53,6 +53,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "Abrir a Jarvis agora"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent
 
 [UninstallRun]
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM {#AppExe} /F"; Flags: runhidden; RunOnceId: "FecharJarvis"
