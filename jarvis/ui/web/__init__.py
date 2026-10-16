@@ -10,7 +10,7 @@ from pathlib import Path
 
 BASE = Path(__file__).parent
 CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'brains', 'review', 'attachments', 'memory']
-JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'results', 'inputs', 'brains', 'memory', 'main']
+JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'results', 'inputs', 'brains', 'memory', 'mobile', 'main']
 
 
 def _join(folder: str, ext: str, names: list[str]) -> str:

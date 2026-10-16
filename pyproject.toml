@@ -1,6 +1,6 @@
 [project]
 name = "super-jarvis"
-version = "0.17.0"
+version = "0.18.0"
 description = "Assistente pessoal para Windows com o Claude como cérebro principal"
 requires-python = ">=3.11,<3.13"
 dependencies = [
@@ -48,6 +48,7 @@ include = ["jarvis*"]
 "jarvis.dev.logica" = ["*.json", "algoritmos/*.md"]
 "jarvis.dev.engenharia" = ["dados/*.json", "padroes/*.md"]
 "jarvis.dev.ux" = ["dados/*.json"]
+"jarvis.mobile" = ["web/*"]
 "jarvis.dev.modelos" = ["arquivos/**/*.tpl"]
 
 [tool.pytest.ini_options]

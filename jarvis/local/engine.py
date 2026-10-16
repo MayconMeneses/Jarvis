@@ -77,8 +77,10 @@ class LocalEngine:
                     r"proxima habilidade.*|(qual (e )?(o )?|me de (o )?)?treino (da|de) semana.*|como (evoluir|melhorar|praticar)( como programador| minhas habilidades)?.*|plano de (estudo|evolucao).*)$"),
         ("checklist", r"^(checklist|lista de verificacao)\s+.+$"),
         # Programação (jarvis/local/dev_skills.py): criar sistemas, comparar, recomendar e explicar tecnologias.
-        # Cérebro generativo local (jarvis/local/llm_skills.py): instalar, estado e criar sistemas pensando.
+        # Engenharia e UX (engenharia_skills.py) e cérebro local, aprender e avaliar (llm_skills.py).
         ("criar_com_ia", r"^(cri[ae]|desenvolv\w+|programe)\b.*\b(com (a )?ia( local)?|com o (cerebro|modelo) local|com a llm|pensando)\b.*$"),
+        ("avaliar_llm", r"^(avali\w+|test\w+)\s+(o |a )?(cerebro|modelo|llm)( local)?\b.*$"),
+        ("aprender", r"^(aprend\w+|estud\w+)\s+(sobre|a respeito de)\s+.{3,}$"),
         ("llm_instalar", r"^(instal\w+|baix\w+|lig\w+|ativ\w+)\s+(o |a )?(cerebro|modelo|ia|llm)( generativ\w+)? (local|proprio|proprio)\b.*$"),
         ("llm_status", r"(cerebro|modelo|llm) local"),
         ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
@@ -86,7 +88,6 @@ class LocalEngine:
         ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
                        r"^(recomend\w+|sugir\w+|indic\w+)\s+(uma?\s+)?(stack|tecnologia|linguagem|framework)\b.*|"
                        r"^(o que|qual)\s+(devo|eu devo|posso)\s+usar\b.*"),
-        # Engenharia, arquitetura e UX (jarvis/local/engenharia_skills.py).
         ("padrao", r"\b(padroes? de projeto|design patterns?|padrao (strategy|observer|factory|decorator|adapter|repository|command|builder))\b"),
         ("ux_ferramenta", r"^(?=.*(#[0-9a-f]{3}|\b[0-9a-f]{6}\b)).*\b(contraste|paleta|tokens?)\b|\b(escala tipografica|escala de tipos)\b"),
         ("gerar", r"^(cri[ae]|ger[ae]|gerar|faca|escrev\w+|mont[ae])\s+(um|uma|o|a)?\s*(tabela|esquema sql|adr|registro de decisao|historia de usuario|openapi|swagger|workflow|pipeline|dockerfile|editorconfig)\b.*$"),
@@ -109,7 +110,8 @@ class LocalEngine:
     ]
     MODULOS = {"padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
-               "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status}
+               "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status,
+               "avaliar_llm": llm_skills.avaliar, "aprender": llm_skills.aprender}
     DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias",
               "sessoes", "dashboard", "ficha", "projetos", "perfil"}
 

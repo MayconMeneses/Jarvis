@@ -25,6 +25,7 @@
     if (ev.listening !== undefined) mic.classList.toggle("on", ev.listening);
     if (ev.user) add("user", ev.user, "por voz");
     if (ev.answer) showResult(ev.answer);
+    if (ev.aviso) add("jarvis task", ev.aviso, "a Jarvis lembrou");
     if (ev.task) add("jarvis task", ev.task, "tarefa do Claude Code");
     if (ev.review) addReviewCard(ev.review);
     if (ev.verify) addVerifyCard(ev.verify);

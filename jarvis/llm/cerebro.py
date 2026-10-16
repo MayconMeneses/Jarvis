@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 from jarvis.brains.base import Answer, BrainUnavailable, Message
-from jarvis.llm import catalogo, cliente, contexto
+from jarvis.llm import catalogo, cliente, contexto, ferramentas
 from jarvis.llm.servidor import Servidor
 
 
 class LLMLocal:
     name = "llm"
 
-    def __init__(self, load_config, servidor: Servidor | None = None) -> None:
+    def __init__(self, load_config, servidor: Servidor | None = None, motor=None) -> None:
         self._load_config = load_config
+        self._motor = motor
         self._servidor: Servidor | None = servidor
 
     def _servidor_para(self, cfg) -> Servidor:
@@ -32,9 +33,22 @@ class LLMLocal:
             raise BrainUnavailable("o cérebro local está desligado")
         servidor = self._servidor_para(cfg)
         pergunta = messages[-1]["content"] if messages else ""
-        prompt = [{"role": "system", "content": contexto.sistema(system, pergunta, cfg)}, *contexto.historico(list(messages))]
+        from jarvis.local.engine import LocalEngine
+
+        motor = self._motor or LocalEngine(self._load_config)
+        com_ferramentas = ferramentas.modelo_usa_ferramentas(catalogo.modelo(cfg.llm_modelo).id)
+        dados = ferramentas.consultar_antes(pergunta, motor) or ""
+        prompt = [{"role": "system", "content": contexto.sistema(system, pergunta, cfg, dados, com_ferramentas)},
+                  *contexto.historico(list(messages))]
         url = servidor.garantir()
-        texto = cliente.conversar(url, prompt, modelo=cfg.llm_modelo)
+
+        def conversa(mensagens: list[dict]) -> str:
+            return cliente.conversar(url, mensagens, modelo=cfg.llm_modelo)
+
+        if com_ferramentas:
+            texto, _ = ferramentas.rodar(conversa, prompt, motor)
+        else:
+            texto = conversa(prompt)
         servidor.marcar_uso()
         if not texto:
             raise BrainUnavailable("o modelo local não gerou resposta")

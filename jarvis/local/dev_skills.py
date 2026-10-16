@@ -20,7 +20,13 @@ def info(tema: str) -> str | None:
     """Descrição da tecnologia citada, ou None se não estiver na base (aí vale pesquisar na internet)."""
     entry = conhecimento.lookup(tema)
     if entry is None:  # não é uma tecnologia: talvez seja lógica, engenharia, arquitetura, UX ou um padrão ("SOLID", "Observer")
-        return saber.explicar(tema, logica.language_in(tema))
+        achado = saber.explicar(tema, logica.language_in(tema))
+        if achado is None:  # algo que a Jarvis aprendeu na internet antes (nota Aprendizado/...)
+            from jarvis import aprender, config
+
+            sabido = aprender.consultar(tema, config.load())
+            return f"Do que aprendi na internet (não verificado):" + chr(10) + chr(10) + sabido if sabido else None
+        return achado
     return conhecimento.describe(entry) + "\n\nSe quiser mais detalhes ou novidades, diga \"pesquise sobre " + entry["nome"] + "\"."
 
 

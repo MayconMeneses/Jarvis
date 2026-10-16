@@ -9,7 +9,7 @@ from PyInstaller.utils.hooks import (
 )
 
 datas = []
-datas += collect_data_files("jarvis", includes=["**/*.html", "**/*.json", "**/*.css", "**/*.js", "**/*.tpl", "**/*.md"])
+datas += collect_data_files("jarvis", includes=["**/*.html", "**/*.json", "**/*.css", "**/*.js", "**/*.tpl", "**/*.md", "**/*.webmanifest"])
 datas += collect_data_files("openwakeword")       # modelo "hey jarvis" e de áudio
 datas += collect_data_files("faster_whisper")     # VAD silero
 datas += collect_data_files("webview")

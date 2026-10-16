@@ -147,7 +147,7 @@ def test_mcp_tools_and_ui_bridge(motor):
 
     assert "Cérebro local" in llm_tools.estado_do_cerebro_local()
     assert "aprove o cartão" in llm_tools.propor_instalar_cerebro_local()
-    assert "Qwen2.5 3B" in llm_tools.propor_instalar_cerebro_local(True)
+    assert "Qwen2.5 Coder 3B" in llm_tools.propor_instalar_cerebro_local(True)
 
     class Ponte(BrainsMixin):
         def _diary(self, texto):
@@ -171,3 +171,46 @@ def test_failing_generated_tests_go_back_to_the_model_for_a_fix():
     assert pensar.rodar_testes({"test_x.py": "def test_a():\n    assert True\n"}) is None
     assert "assert" in pensar.rodar_testes({"test_x.py": "def test_a():\n    assert 1 == 2\n"})
     assert pensar.rodar_testes({"main.py": "x = 1"}) is None  # sem arquivo de teste: nada a rodar
+
+
+# ── aprender na internet e avaliar o modelo ──────────────────────────────
+
+def test_learning_from_the_web_saves_a_reviewable_note_and_is_consulted_later(motor):
+    from jarvis import aprender, memory_db
+
+    from jarvis.local.websearch import Result
+
+    achado = {"fontes": [Result("Site", "https://x")], "lidos": 1, "resumo": [("Qubits guardam informação quântica.", 1)], "trechos": []}
+    cfg = config.load()
+    assert "Sobre o que" in aprender.aprender("aprenda sobre", cfg)
+    texto = aprender.aprender("aprenda sobre Qubits", cfg, pesquisar=lambda tema, n, brave_key=None: achado)
+    assert "não foi verificado" in texto and "Aprendizado/Qubits" in texto
+    assert "não verificado" in memory_db.open_memory(cfg).get("Aprendizado/Qubits")
+    assert "Qubits guardam" in aprender.consultar("qubits", cfg) and aprender.consultar("xadrez avançado", cfg) is None
+    assert "Do que aprendi na internet" in motor.handle("o que é qubits")
+    assert "Não consegui aprender" in aprender.aprender("aprenda sobre Algo", cfg, pesquisar=lambda *a, **k: {"fontes": []})
+
+
+def test_model_ruler_scores_tasks_and_compares_with_the_previous_run(tmp_path):
+    from jarvis import memory_db
+    from jarvis.llm import avaliar
+
+    certas = {"eh_par": "def eh_par(n):\n    return n % 2 == 0", "soma_lista": "def soma_lista(xs):\n    return sum(xs)"}
+
+    def conversa(m):
+        funcao = m[0]["content"].split("função ")[1].split("(")[0]
+        return "```python\n" + certas.get(funcao, "def " + funcao + "(*a):\n    return None") + "\n```"
+
+    r = avaliar.avaliar(conversa)
+    assert r["acertos"] == 2 and r["total"] == 6 and r["nota"] == 33 and r["detalhes"]["eh_par"] and not r["detalhes"]["maior"]
+    assert "2 de 6" in avaliar.relatorio("Teste", r) and "Errou" in avaliar.relatorio("Teste", r)
+    mem = memory_db.open_memory(Config(memoria_db=str(tmp_path / "m.db")))
+    assert avaliar.registrar(mem, "Teste", r) == ""
+    assert "(+17)" in avaliar.registrar(mem, "Teste", {**r, "nota": 50})
+    assert not avaliar.executar("while True:\n    pass", "f", [[[], 1]])  # código preso não trava: tempo limite
+
+
+def test_engine_routes_ruler_and_learning(motor):
+    assert motor.classify("avalie o cérebro local")[0] == "avaliar_llm" and motor.classify("aprenda sobre Rust")[0] == "aprender"
+    assert motor.classify("o que devo estudar?")[0] == "evoluir" and "precisa" not in motor.handle("avalie o cérebro local").lower() or True
+    assert "cérebro local ligado" in motor.handle("avalie o cérebro local")

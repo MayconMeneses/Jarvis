@@ -75,6 +75,27 @@ def build_task_worker(cfg: Config, api: Api, window):
     return runs.RunWorker(runs.RunStore(), cfg.claude, notify, mem=api._memory)
 
 
+def build_proactive(cfg: Config, api: Api, window):
+    """Iniciativa própria: avisos sem ser chamada (ver jarvis/proativo)."""
+    import psutil
+
+    from jarvis import briefing, config
+    from jarvis.dev import habilidades
+    from jarvis.proativo import projetos_sem_commit
+    from jarvis.proativo.agendador import Agendador
+
+    def entregar(aviso, falar: bool) -> None:
+        api._conversation.note(aviso.texto)
+        api._diary("Aviso da Jarvis: " + aviso.texto[:120])
+        push(window, {"aviso": aviso.texto})
+        if falar and aviso.falar and api._voice is not None:
+            api._voice.speak(aviso.falar)
+
+    return Agendador(config.load, api._memory, entregar, lambda: round(psutil.virtual_memory().percent),
+                     briefing=lambda: briefing.build(config.load()), treino=habilidades.treino_da_semana,
+                     projetos_parados=projetos_sem_commit)
+
+
 def build_session_watcher(api: Api, window):
     """Avisa quando uma sessão do Claude Code no PC passa a esperar o usuário."""
     from jarvis.dev import sessions

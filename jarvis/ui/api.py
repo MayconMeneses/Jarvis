@@ -19,6 +19,7 @@ from jarvis.pc import actions
 from jarvis.ui.api_brains import BrainsMixin
 from jarvis.ui.api_files import FilesMixin
 from jarvis.ui.api_learning import LearningMixin
+from jarvis.ui.api_mobile import MobileMixin
 from jarvis.ui.api_memory import MemoryMixin
 from jarvis.ui.api_review import ReviewMixin
 from jarvis.ui.api_selfupdate import SelfUpdateMixin
@@ -27,7 +28,7 @@ from jarvis.ui.api_update import UpdateMixin
 log = logging.getLogger(__name__)
 
 
-class Api(FilesMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
+class Api(FilesMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(
@@ -52,6 +53,7 @@ class Api(FilesMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, Self
         """Saudação + clima (+ manchetes na 1ª abertura do dia), também falada."""
         try:
             result = briefing.build(config.load())
+            self._memory.set_meta(f"proativo:bomdia:{time.strftime('%Y-%m-%d')}", "saudacao")  # o bom dia já foi dado
         except Exception:
             log.exception("falha no briefing")
             return f"Olá, {self._cfg.user_name}! Como você está?"

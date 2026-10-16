@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Jarvis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#04070c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Jarvis">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icone-180.png">
+  <link rel="icon" href="/icone-180.png">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <main id="app">
+    <header>
+      <span class="orb" id="orb" aria-hidden="true"></span>
+      <h1>Jarvis</h1>
+      <span id="estado" role="status">conectando…</span>
+    </header>
+
+    <section id="parear" hidden>
+      <h2>Conectar ao seu PC</h2>
+      <p>Na janela da Jarvis, no PC, abra ⚙ Cérebros, ligue o “Jarvis no celular” e toque em “Gerar código”. Digite o código aqui (vale 5 minutos).</p>
+      <label for="codigo">Código de 6 dígitos</label>
+      <input id="codigo" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code">
+      <label for="nome">Nome deste aparelho</label>
+      <input id="nome" value="iPhone" maxlength="40" autocomplete="off">
+      <button id="entrar" type="button">Conectar</button>
+      <p id="erro-parear" class="erro" role="alert"></p>
+      <details>
+        <summary>Instalar como app no iPhone</summary>
+        <p>No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”. A Jarvis abre em tela cheia, como um app.</p>
+      </details>
+    </section>
+
+    <section id="chat" hidden>
+      <div id="mensagens" aria-live="polite"></div>
+      <div id="atalhos">
+        <button type="button" data-texto="bom dia">Bom dia</button>
+        <button type="button" data-texto="como está o PC">PC</button>
+        <button type="button" data-texto="quais são as pendências">Pendências</button>
+        <button type="button" data-texto="notícias de tecnologia">Notícias</button>
+        <button type="button" data-texto="treino da semana">Treino</button>
+      </div>
+      <form id="form" autocomplete="off">
+        <button type="button" id="mic" aria-label="Falar">🎤</button>
+        <input id="texto" placeholder="Fale com a Jarvis" enterkeyhint="send" aria-label="Mensagem">
+        <button type="submit" id="enviar" aria-label="Enviar">➤</button>
+      </form>
+      <label class="voz"><input type="checkbox" id="falar"> Ler as respostas em voz alta</label>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
