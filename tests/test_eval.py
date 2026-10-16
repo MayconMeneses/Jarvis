@@ -164,7 +164,7 @@ def test_every_answer_gets_quality_and_is_logged(tmp_path, monkeypatch):
     from jarvis.brains.base import Answer
     from jarvis.brains.router import Router
     from jarvis.chat import Conversation
-    from jarvis.ui.app import Api
+    from jarvis.ui.api import Api
 
     monkeypatch.setattr(config, "data_dir", lambda: tmp_path)
 

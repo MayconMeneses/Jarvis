@@ -135,7 +135,7 @@ def test_message_lists_attachment_ids_for_the_ai(tmp_path):
     from jarvis.brains.router import Router
     from jarvis.chat import Conversation
     from jarvis.config import Config
-    from jarvis.ui.app import Api
+    from jarvis.ui.api import Api
 
     seen = []
 
@@ -157,7 +157,7 @@ def test_message_lists_attachment_ids_for_the_ai(tmp_path):
 def test_mcp_tool_returns_image_for_pictures(tmp_path, monkeypatch):
     from PIL import Image as PILImage
 
-    from jarvis import mcp_server
+    from jarvis.mcp_tools import document_tools as mcp_server
 
     store = files.AttachmentStore(tmp_path)
     monkeypatch.setattr(files, "AttachmentStore", lambda: store)

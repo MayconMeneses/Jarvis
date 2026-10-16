@@ -16,7 +16,7 @@ def test_installed_mode_uses_console_exe_next_to_app(monkeypatch, tmp_path):
 
 
 def test_second_instance_is_detected():
-    from jarvis.ui.app import claim_single_instance
+    from jarvis.ui.window import claim_single_instance
 
     name = "Local\\SuperJarvisTeste"
     first = claim_single_instance(name)

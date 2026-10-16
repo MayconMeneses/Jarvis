@@ -10,7 +10,7 @@
 ; Jarvis baixa o modelo uma vez, na primeira abertura.
 
 #define AppName "Super Jarvis"
-#define AppVersion "0.14.0"
+#define AppVersion "0.15.0"
 #define AppExe "Jarvis.exe"
 
 [Setup]

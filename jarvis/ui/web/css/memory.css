@@ -1,0 +1,22 @@
+  /* memória da Jarvis */
+  #memory { width: min(460px, calc(100vw - 24px)); }
+  #mem-search {
+    width: 100%; padding: 8px 10px; margin-bottom: 8px; font: 13px var(--mono); color: var(--text);
+    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  #mem-search:focus-visible, #mem-text:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  #mem-list { list-style: none; margin: 0 0 10px; padding: 0; max-height: 190px; overflow: auto; border: 1px solid var(--line); }
+  #mem-list:empty::after { content: "Nada guardado ainda."; display: block; padding: 10px; color: var(--muted); font-size: 13px; }
+  #mem-list button {
+    display: block; width: 100%; text-align: left; text-transform: none; letter-spacing: 0; border: 0;
+    border-bottom: 1px solid var(--line); padding: 6px 10px; font: 12.5px "Segoe UI", system-ui, sans-serif; color: var(--text);
+  }
+  #mem-list button[aria-current="true"] { background: var(--cyan-soft); box-shadow: inset 2px 0 var(--cyan); }
+  #mem-list small { display: block; color: var(--muted); font: 11.5px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #mem-text {
+    width: 100%; min-height: 150px; max-height: 260px; resize: vertical; padding: 9px 10px; margin-bottom: 8px;
+    font: 12.5px/1.5 var(--mono); color: var(--text); background: rgba(0, 0, 0, .35); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  .mem-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .mem-actions .spacer { flex: 1; }
+  .danger { color: var(--danger); border-color: var(--danger); }

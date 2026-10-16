@@ -1,0 +1,14 @@
+  /* ── botões ───────────────────────────────────────────────── */
+  button {
+    font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--cyan);
+    background: transparent; border: 1px solid var(--line-strong); border-radius: 2px; padding: 6px 12px; cursor: pointer;
+    transition: background-color .18s var(--ease), box-shadow .18s, color .18s, transform .12s var(--ease);
+  }
+  button:hover:not(:disabled) { background: var(--cyan-soft); box-shadow: 0 0 12px -2px var(--cyan); }
+  button:active:not(:disabled) { transform: scale(.97); }
+  button:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  button:disabled { opacity: .4; cursor: default; }
+  .primary { background: var(--cyan); color: #022233; border-color: var(--cyan); font-weight: 700; }
+  .primary:hover:not(:disabled) { background: #74ddff; }
+  .icon-btn { display: inline-grid; place-items: center; width: 44px; padding: 0; }
+  .icon-btn svg { width: 20px; height: 20px; }

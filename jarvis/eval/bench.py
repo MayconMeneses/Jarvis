@@ -161,6 +161,20 @@ def judge_answer(judge, question: str, answer: str, reference: str) -> dict | No
         return None
 
 
+def numeric_summary(commands: dict, summaries: dict) -> dict:
+    """Números-chave (maior = melhor) para comparar uma versão com a anterior."""
+    jarvis = summaries["metricas"]["Jarvis (extrativo)"]
+    return {
+        "comandos_acuracia": commands["relatorio"]["acuracia"],
+        "comandos_f1_macro": commands["relatorio"]["macro"]["f1"],
+        "validacao_acuracia": commands["validacao"]["acuracia"],
+        "validacao_f1_macro": commands["validacao"]["macro"]["f1"],
+        "robustez_media": sum(commands["robustez"].values()) / len(commands["robustez"]),
+        "resumo_rougeL": jarvis["rougeL"],
+        "resumo_meteor": jarvis["meteor"],
+    }
+
+
 # ── relatório ────────────────────────────────────────────────────────────
 
 def _pct(v) -> str:

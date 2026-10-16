@@ -47,9 +47,13 @@ def _js_string(text: str) -> str:
     return json.dumps(text, ensure_ascii=False).replace("</", "<\\/")
 
 
-def build(arquivo: str, out_dir: Path | None = None, panel: Path = PANEL) -> Path:
+def build(arquivo: str, out_dir: Path | None = None, panel: Path | None = None) -> Path:
     """Gera o HTML do dashboard e devolve o caminho. Só lê o documento; escreve só em out_dir."""
     doc = check_document(arquivo)
+    panel = panel or PANEL
+    if not panel.is_file():
+        raise ValueError("o painel do dashboard não está instalado: copie o dist/index.html do Dashboard "
+                         f"Universal para {panel} (veja o README)")
     html = panel.read_text(encoding="utf-8")
     end = html.lower().rfind("</body>")
     if BRIDGE not in html or end < 0:

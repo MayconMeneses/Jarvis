@@ -178,8 +178,8 @@ def test_whisper_hallucinations_are_dropped():
 def test_vocabulary_includes_user_city_and_projects():
     from jarvis.voice.stt import vocabulary_hint
 
-    hint = vocabulary_hint("Maycon", "Fortaleza, Ceará", ["Comandiva", "MM System"])
-    assert hint.startswith("Maycon, Fortaleza, Comandiva, MM System, Jarvis")
+    hint = vocabulary_hint("Maycon", "Fortaleza, Ceará", ["MeuApp", "MeuSistema"])
+    assert hint.startswith("Maycon, Fortaleza, MeuApp, MeuSistema, Jarvis")
 
 
 def test_chime_is_heard_before_recording_and_its_audio_is_discarded():

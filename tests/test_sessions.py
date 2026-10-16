@@ -248,7 +248,7 @@ def test_watcher_survives_notify_errors(home):
 
 def test_mcp_tool_lists_sessions(home, monkeypatch):
     pytest.importorskip("mcp")
-    from jarvis import mcp_server
+    from jarvis.mcp_tools import project_tools as mcp_server
 
     write_transcript(home, "s1", [assistant(tool("Bash"))])
     write_roster(home, "s1", status="waiting", waiting_for="permission prompt")

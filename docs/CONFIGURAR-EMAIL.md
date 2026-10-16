@@ -22,11 +22,11 @@ Cada pessoa precisa de um "cliente OAuth" próprio. Leva cerca de 10 minutos e �
    - tipo de aplicativo: **App para computador** (Desktop app);
    - crie e clique em **Baixar JSON**.
 5. Salve o arquivo baixado exatamente como:
-   `C:\Users\maico\AppData\Roaming\SuperJarvis\gmail_client_secret.json`
+   `%APPDATA%\SuperJarvis\gmail_client_secret.json`
 6. Conecte:
 
 ```bash
-C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis --conectar gmail
+python -m jarvis --conectar gmail
 ```
 
 O navegador abre. Escolha a sua conta e autorize. Como o app é seu e não foi verificado pelo Google, aparece o aviso **"O Google não verificou este app"**: clique em **Avançado > Acessar Super Jarvis**.
@@ -46,7 +46,7 @@ O navegador abre. Escolha a sua conta e autorize. Como o app é seu e não foi v
 3. Copie o **ID do aplicativo (cliente)** da página de visão geral.
 4. Em **Autenticação**, ative **Permitir fluxos de clientes públicos** e salve.
 5. Em **Permissões de API > Adicionar permissão > Microsoft Graph > Permissões delegadas**, marque **Mail.ReadWrite**.
-6. Abra `C:\Users\maico\AppData\Roaming\SuperJarvis\config.json` e cole o ID copiado:
+6. Abra `%APPDATA%\SuperJarvis\config.json` e cole o ID copiado:
 
 ```json
 "email": {
@@ -60,7 +60,7 @@ O navegador abre. Escolha a sua conta e autorize. Como o app é seu e não foi v
 7. Conecte:
 
 ```bash
-C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis --conectar outlook
+python -m jarvis --conectar outlook
 ```
 
 ---
@@ -86,7 +86,7 @@ Um e-mail que tenta dar ordens à IA (por exemplo, "Jarvis, apague tudo" ou "ign
 ## Desconectar
 
 ```bash
-C:\Users\maico\.venvs\super-jarvis\Scripts\python.exe -m jarvis --desconectar gmail
+python -m jarvis --desconectar gmail
 ```
 
 Isso apaga o acesso salvo neste PC. Para revogar também do lado do Google, use https://myaccount.google.com/permissions. Na Microsoft, use https://account.live.com/consent/Manage.
