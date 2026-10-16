@@ -1,0 +1,254 @@
+[
+  {
+    "id": "logica", "nome": "Lógica de programação", "aliases": ["logica de programacao", "logica", "raciocinio logico"],
+    "resumo": "A habilidade de transformar um problema em passos claros, ordenados e sem ambiguidade que um computador consegue executar.",
+    "passos": ["Entenda o problema com suas palavras: o que entra, o que deve sair e quais são as regras.", "Teste à mão com exemplos pequenos (inclusive o caso vazio e o caso extremo).", "Divida em partes menores e resolva uma por vez.", "Escreva em pseudocódigo (português estruturado) antes do código.", "Implemente em uma linguagem e confira com os mesmos exemplos do início."],
+    "analogia": "É como uma receita de bolo: ingredientes (entradas), passos em ordem (algoritmo) e o bolo pronto (saída). Se faltar um passo ou a ordem errar, o resultado muda.",
+    "exemplo": "# somar os números de 1 a 5\ntotal = 0\nfor n in range(1, 6):\n    total += n\nprint(total)  # 15",
+    "erros": ["começar a programar sem entender o problema", "não testar o caso vazio ou o extremo", "tentar resolver tudo de uma vez em vez de dividir"],
+    "exercicios": ["Some os números de 1 a 100.", "Diga se um número é par ou ímpar.", "Calcule a média de 3 notas."]
+  },
+  {
+    "id": "algoritmo", "nome": "Algoritmo", "aliases": ["algoritmos", "pseudocodigo", "pseudocódigo"],
+    "resumo": "Uma sequência finita de passos bem definidos que resolve um problema. Pseudocódigo é o algoritmo escrito em linguagem humana estruturada, antes de virar código.",
+    "passos": ["Defina a entrada e a saída.", "Liste os passos na ordem em que acontecem.", "Garanta que termina (finito) e que cada passo é claro (sem ambiguidade).", "Confirme que para toda entrada válida produz a saída certa."],
+    "analogia": "Uma receita ou as instruções de montagem de um móvel.",
+    "exemplo": "função maior(a, b)\n    se a > b: retorne a\n    senão: retorne b",
+    "erros": ["passo ambíguo (\"arrume a lista\" sem dizer como)", "laço que nunca termina", "esquecer algum caso de entrada"],
+    "exercicios": ["Escreva em pseudocódigo como trocar uma lâmpada.", "Algoritmo para achar o menor de 3 números."]
+  },
+  {
+    "id": "variaveis", "nome": "Variáveis e tipos de dados", "aliases": ["variavel", "variável", "tipos de dados", "tipos", "constantes"],
+    "resumo": "Variável é um nome para um valor guardado na memória. O tipo diz que valor é (inteiro, decimal, texto, verdadeiro/falso) e quais operações fazem sentido.",
+    "passos": ["Escolha nomes que dizem o que o valor representa (idade, total_pedido).", "Use o tipo certo: inteiro para contagens, decimal para medidas, texto para nomes, booleano para sim/não.", "Prefira constantes (valores que não mudam) com nome em MAIÚSCULAS.", "Cuidado ao misturar tipos: \"5\" + 3 pode dar erro ou \"53\", dependendo da linguagem."],
+    "analogia": "Uma caixa etiquetada: a etiqueta é o nome, o conteúdo é o valor e o formato da caixa é o tipo.",
+    "exemplo": "nome = \"Ana\"      # texto\nidade = 30        # inteiro\naltura = 1.65     # decimal\nmaior_de_idade = idade >= 18  # booleano",
+    "erros": ["nomes como x1, a, temp que não dizem nada", "dinheiro em decimal binário (use inteiros em centavos ou Decimal)", "usar texto onde devia ser número"],
+    "exercicios": ["Guarde nome, idade e altura e mostre uma frase.", "Troque o valor de duas variáveis."]
+  },
+  {
+    "id": "condicionais", "nome": "Condicionais (se / senão)", "aliases": ["condicional", "if", "if else", "se senao", "se senão", "decisao", "decisão"],
+    "resumo": "Permitem que o programa escolha um caminho conforme uma condição verdadeira ou falsa.",
+    "passos": ["Escreva a condição como uma pergunta de sim/não (idade >= 18).", "Combine condições com E (and), OU (or) e NÃO (not).", "Ordene da mais específica para a mais geral (o primeiro que for verdadeiro vence).", "Cubra o \"senão\": o que acontece quando nada se aplica?"],
+    "analogia": "Uma bifurcação na estrada com uma placa: se chover, pegue o caminho coberto; senão, o da praça.",
+    "exemplo": "if nota >= 7:\n    resultado = \"aprovado\"\nelif nota >= 5:\n    resultado = \"recuperação\"\nelse:\n    resultado = \"reprovado\"",
+    "erros": ["usar = (atribuição) no lugar de == (comparação)", "ordem errada: testar a regra geral antes da específica (veja o FizzBuzz)", "esquecer o limite (>= versus >)"],
+    "exercicios": ["Classifique uma nota em aprovado, recuperação ou reprovado.", "Diga se um ano é bissexto."]
+  },
+  {
+    "id": "lacos", "nome": "Laços de repetição (for, while)", "aliases": ["laco", "laço", "lacos", "loop", "loops", "for", "while", "repeticao", "repetição"],
+    "resumo": "Repetem um bloco de código. for é usado quando se sabe quantas vezes ou quais itens percorrer; while, quando se repete até uma condição mudar.",
+    "passos": ["Use for para percorrer uma lista ou contar de a até b.", "Use while quando o número de voltas depende de uma condição.", "Garanta que a condição de parada acontece (algo dentro do laço precisa mudar).", "Evite alterar a lista que você está percorrendo."],
+    "analogia": "Lavar uma pilha de pratos: enquanto houver prato sujo, pegue um, lave e coloque de lado.",
+    "exemplo": "soma = 0\nfor n in [4, 8, 15]:\n    soma += n\nprint(soma)  # 27",
+    "erros": ["laço infinito (a condição nunca vira falsa)", "erro de um a menos (off-by-one): range(1, n) não inclui n", "recalcular dentro do laço algo que podia ser feito uma vez fora"],
+    "exercicios": ["Imprima a tabuada do 7.", "Some os números pares de 1 a 50."]
+  },
+  {
+    "id": "funcoes", "nome": "Funções", "aliases": ["funcao", "função", "metodo", "método", "procedimento", "parametros", "parâmetros"],
+    "resumo": "Um bloco com nome que recebe entradas (parâmetros), faz uma tarefa e devolve um resultado. Evita repetir código e deixa o programa em partes testáveis.",
+    "passos": ["Dê um nome de verbo que descreve a tarefa (calcular_total).", "Faça uma coisa só por função.", "Receba o que precisa por parâmetros e devolva o resultado com return (evite depender de variáveis globais).", "Teste cada função sozinha com entradas conhecidas."],
+    "analogia": "Uma máquina de café: você coloca a entrada (pó e água) e ela devolve o resultado (café), sem você saber o interior.",
+    "exemplo": "def calcular_total(preco, quantidade, desconto=0):\n    return preco * quantidade * (1 - desconto)",
+    "erros": ["função gigante que faz tudo", "alterar uma lista recebida sem avisar (efeito colateral)", "esquecer o return e receber None"],
+    "exercicios": ["Crie uma função que converte Celsius em Fahrenheit.", "Crie uma função que diz se um número é primo."]
+  },
+  {
+    "id": "recursao", "nome": "Recursão", "aliases": ["recursivo", "recursiva", "recursividade"],
+    "resumo": "Quando uma função chama a si mesma para resolver uma versão menor do mesmo problema. Precisa de um caso base (quando para) e de um passo que se aproxima dele.",
+    "passos": ["Ache o caso base: a versão tão pequena que a resposta é direta (fatorial de 0 é 1).", "Defina o passo recursivo: como o problema de tamanho n vira um de tamanho menor.", "Confirme que cada chamada chega mais perto do caso base.", "Se houver muitas chamadas repetidas (Fibonacci), guarde resultados (memoização) ou use um laço."],
+    "analogia": "Bonecas russas: para saber quantas bonecas há, abra a primeira e pergunte à de dentro, até chegar na menor.",
+    "exemplo": "def fatorial(n):\n    if n <= 1:        # caso base\n        return 1\n    return n * fatorial(n - 1)  # passo recursivo",
+    "erros": ["esquecer o caso base (estouro de pilha)", "passo que não diminui o problema", "recursão onde um laço simples bastaria"],
+    "exercicios": ["Some os dígitos de um número recursivamente.", "Inverta um texto com recursão."]
+  },
+  {
+    "id": "listas", "nome": "Listas e vetores (arrays)", "aliases": ["lista", "vetor", "vetores", "array", "arrays", "matriz", "matrizes"],
+    "resumo": "Coleção ordenada de valores acessados por posição (índice), que começa em 0 na maioria das linguagens.",
+    "passos": ["Acesse por índice (lista[0] é o primeiro).", "Percorra com for; use enumerate quando precisar do índice.", "Para transformar ou filtrar, use compreensões (Python) ou map/filter (JavaScript).", "Matriz é uma lista de listas: acesse por [linha][coluna]."],
+    "analogia": "Uma fila de casas numa rua: cada casa tem um número (índice) e você chega nela direto pelo número.",
+    "exemplo": "numeros = [4, 8, 15]\nnumeros.append(16)\npares = [n for n in numeros if n % 2 == 0]  # [4, 8, 16]",
+    "erros": ["índice fora do limite (último índice é tamanho - 1)", "copiar a referência em vez da lista (as duas mudam juntas)", "remover itens enquanto percorre"],
+    "exercicios": ["Ache o maior e o menor de uma lista.", "Remova os duplicados de uma lista."]
+  },
+  {
+    "id": "dicionarios", "nome": "Dicionários, mapas e conjuntos", "aliases": ["dicionario", "dicionário", "mapa", "map", "hash", "tabela hash", "hashmap", "conjunto", "set", "objeto"],
+    "resumo": "Dicionário (mapa/objeto) guarda pares chave → valor com acesso quase instantâneo pela chave. Conjunto guarda valores únicos e responde rápido \"este valor está aqui?\".",
+    "passos": ["Use dicionário para contar, agrupar e buscar por nome ou id.", "Use conjunto para remover duplicados e testar pertencimento.", "Chaves precisam ser únicas e imutáveis.", "Acesso por chave é O(1) em média; procurar numa lista é O(n)."],
+    "analogia": "Uma agenda de contatos: você procura pelo nome (chave) e recebe o telefone (valor), sem ler a agenda inteira.",
+    "exemplo": "estoque = {\"maca\": 10, \"pera\": 4}\nestoque[\"maca\"] += 5\nunicos = set([1, 2, 2, 3])  # {1, 2, 3}",
+    "erros": ["ler chave que não existe (use get / ?? / in)", "usar lista para busca frequente quando um dicionário seria instantâneo"],
+    "exercicios": ["Conte a frequência de cada letra de um texto.", "Agrupe uma lista de alunos por turma."]
+  },
+  {
+    "id": "pilha", "nome": "Pilha (stack)", "aliases": ["pilhas", "stack", "lifo"],
+    "resumo": "Estrutura onde o último a entrar é o primeiro a sair (LIFO). Operações: empilhar (push) e desempilhar (pop).",
+    "passos": ["Empilhe no topo e desempilhe do topo: nunca do meio.", "Use para desfazer (undo), histórico de navegação e verificar parênteses balanceados.", "A chamada de funções e a recursão usam uma pilha por baixo dos panos.", "Em Python, uma lista com append/pop já funciona como pilha."],
+    "analogia": "Uma pilha de pratos: você pega sempre o de cima, que foi o último colocado.",
+    "exemplo": "pilha = []\npilha.append(\"a\")\npilha.append(\"b\")\npilha.pop()  # \"b\"",
+    "erros": ["desempilhar de pilha vazia", "confundir com fila"],
+    "exercicios": ["Verifique se os parênteses de uma expressão estão balanceados.", "Implemente o desfazer de um editor de texto."]
+  },
+  {
+    "id": "fila", "nome": "Fila (queue)", "aliases": ["filas", "queue", "fifo"],
+    "resumo": "Estrutura onde o primeiro a entrar é o primeiro a sair (FIFO). Operações: enfileirar (enqueue) e desenfileirar (dequeue).",
+    "passos": ["Adicione no fim e remova do início.", "Use para tarefas em ordem de chegada, impressão, mensagens e busca em largura em grafos.", "Em Python use collections.deque (remover do início de uma lista é lento).", "Fila de prioridade (heap) tira o mais importante, não o mais antigo."],
+    "analogia": "A fila do caixa de um mercado: quem chegou primeiro é atendido primeiro.",
+    "exemplo": "from collections import deque\nfila = deque()\nfila.append(\"Ana\")\nfila.append(\"Bia\")\nfila.popleft()  # \"Ana\"",
+    "erros": ["usar lista.pop(0) em filas grandes", "confundir com pilha"],
+    "exercicios": ["Simule o atendimento de um caixa com uma fila de clientes."]
+  },
+  {
+    "id": "arvores", "nome": "Árvores", "aliases": ["arvore", "árvore", "arvores binarias", "árvore binária", "arvore binaria", "tree", "bst"],
+    "resumo": "Estrutura hierárquica de nós: cada nó tem filhos. Em uma árvore binária de busca, menores vão à esquerda e maiores à direita, o que permite buscar em O(log n) quando equilibrada.",
+    "passos": ["Raiz é o nó de cima; folha é um nó sem filhos.", "Percorra com recursão: em-ordem, pré-ordem ou pós-ordem.", "Em uma árvore binária de busca, compare e desça para a esquerda ou direita.", "Pastas do computador e o HTML (DOM) são árvores."],
+    "analogia": "Um organograma da empresa ou as pastas e subpastas do seu computador.",
+    "exemplo": "class No:\n    def __init__(self, valor):\n        self.valor = valor\n        self.esq = None\n        self.dir = None",
+    "erros": ["árvore desequilibrada que vira uma lista (pior caso O(n))", "esquecer o caso do nó vazio na recursão"],
+    "exercicios": ["Conte os nós de uma árvore.", "Ache a altura de uma árvore binária."]
+  },
+  {
+    "id": "grafos", "nome": "Grafos", "aliases": ["grafo", "graph", "busca em largura", "busca em profundidade", "bfs", "dfs"],
+    "resumo": "Conjunto de vértices (pontos) ligados por arestas. Modelam mapas, redes sociais e dependências. Busca em largura (BFS) acha o caminho com menos passos; em profundidade (DFS) explora até o fim cada ramo.",
+    "passos": ["Represente com dicionário de listas de vizinhos (lista de adjacência).", "Marque os vértices visitados para não andar em círculos.", "BFS usa uma fila; DFS usa pilha (ou recursão).", "Para caminhos com pesos, use Dijkstra."],
+    "analogia": "Um mapa de metrô: estações (vértices) e linhas (arestas).",
+    "exemplo": "grafo = {\"A\": [\"B\", \"C\"], \"B\": [\"D\"], \"C\": [\"D\"], \"D\": []}",
+    "erros": ["não marcar visitados (laço infinito em grafos com ciclo)", "usar matriz de adjacência em grafos grandes e esparsos"],
+    "exercicios": ["Ache o menor número de passos entre duas estações.", "Detecte se há ciclo."]
+  },
+  {
+    "id": "ordenacao", "nome": "Ordenação", "aliases": ["ordenar", "sort", "algoritmos de ordenacao", "algoritmos de ordenação"],
+    "resumo": "Colocar itens em ordem. Bolha e inserção (O(n²)) ensinam a lógica; merge sort e quicksort (O(n log n)) são os usados na prática. No dia a dia, use o sorted/sort da linguagem.",
+    "passos": ["Defina o critério (número, texto, data, vários campos).", "Para poucos itens ou aprendizado, bolha ou inserção.", "Para muitos itens, quicksort ou merge sort (ou o sort pronto).", "Ordenar é pré-requisito da busca binária."],
+    "analogia": "Organizar as cartas da mão num jogo de baralho.",
+    "exemplo": "alunos.sort(key=lambda a: (a[\"turma\"], a[\"nome\"]))",
+    "erros": ["ordenar texto numérico (\"10\" < \"9\" como texto)", "esquecer que sort() altera a lista original em algumas linguagens"],
+    "exercicios": ["Ordene uma lista de alunos por nota e depois por nome."]
+  },
+  {
+    "id": "busca", "nome": "Busca", "aliases": ["buscar", "pesquisa em lista", "algoritmos de busca"],
+    "resumo": "Achar um item numa coleção. Linear: confere um por um (qualquer lista, O(n)). Binária: exige lista ordenada e descarta metade a cada passo (O(log n)). Dicionário: acesso direto pela chave (O(1)).",
+    "passos": ["Se a lista é pequena ou desordenada: busca linear.", "Se está ordenada e é grande: busca binária.", "Se vai buscar muitas vezes pelo mesmo critério: monte um dicionário ou índice."],
+    "analogia": "Procurar uma palavra no dicionário de papel: você abre no meio e vai metade por metade (busca binária), em vez de ler página por página.",
+    "exemplo": "indice = {p[\"id\"]: p for p in produtos}\nproduto = indice.get(42)",
+    "erros": ["usar busca binária em lista desordenada", "buscar na lista dentro de um laço (vira O(n²))"],
+    "exercicios": ["Implemente a busca binária.", "Ache dois números que somam um alvo."]
+  },
+  {
+    "id": "complexidade", "nome": "Complexidade (Big-O)", "aliases": ["big o", "big-o", "notacao o", "notação o", "complexidade de algoritmos", "desempenho de algoritmo"],
+    "resumo": "Mede como o tempo (ou a memória) cresce quando a entrada cresce. O(1) constante, O(log n) logarítmico, O(n) linear, O(n log n), O(n²) quadrático.",
+    "passos": ["Conte quantas vezes o trecho mais repetido roda em função de n.", "Um laço sobre n itens é O(n); dois laços aninhados são O(n²).", "Dividir o problema ao meio a cada passo é O(log n).", "Ignore constantes: 3n e n são ambos O(n).", "Prefira clareza; otimize só o que a medição mostrou ser lento."],
+    "analogia": "Procurar um nome numa lista: de cima para baixo (O(n)) versus abrindo o dicionário no meio (O(log n)).",
+    "exemplo": "for a in lista:\n    for b in lista:   # n × n = O(n²)\n        comparar(a, b)",
+    "erros": ["otimizar antes de medir", "ignorar o custo escondido de funções prontas (in em lista é O(n))"],
+    "exercicios": ["Qual a complexidade de achar duplicados com dois laços? E com um conjunto?"]
+  },
+  {
+    "id": "poo", "nome": "Programação orientada a objetos", "aliases": ["orientacao a objetos", "orientação a objetos", "oop", "classes", "classe", "objetos", "heranca", "herança", "polimorfismo", "encapsulamento"],
+    "resumo": "Organiza o código em objetos que juntam dados (atributos) e comportamentos (métodos). Pilares: encapsulamento, abstração, herança e polimorfismo.",
+    "passos": ["Classe é o molde; objeto é uma instância dele.", "Encapsule: esconda os detalhes e exponha só o necessário.", "Prefira composição (um objeto USA outro) a herança profunda.", "Polimorfismo: tratar objetos diferentes pela mesma interface (ex.: pagar() em Cartao e Pix)."],
+    "analogia": "A planta de uma casa (classe) e as casas construídas a partir dela (objetos).",
+    "exemplo": "class Conta:\n    def __init__(self, saldo=0):\n        self._saldo = saldo\n    def depositar(self, valor):\n        if valor <= 0:\n            raise ValueError(\"valor deve ser positivo\")\n        self._saldo += valor",
+    "erros": ["herança só para reaproveitar código", "classes que fazem de tudo", "atributos públicos alterados de qualquer lugar"],
+    "exercicios": ["Modele uma conta bancária com depositar e sacar.", "Crie Forma, Círculo e Retângulo com área()."]
+  },
+  {
+    "id": "erros", "nome": "Tratamento de erros e validação", "aliases": ["excecoes", "exceções", "try catch", "try except", "validacao", "validação", "tratamento de erro"],
+    "resumo": "Todo programa recebe entradas inesperadas. Valide na borda do sistema, falhe cedo com mensagens claras e trate só as exceções que você sabe resolver.",
+    "passos": ["Valide a entrada do usuário e de APIs antes de usar.", "Levante erros específicos com mensagem útil.", "Capture só o que sabe tratar; nunca engula erros em silêncio.", "Registre (log) o que aconteceu para investigar depois."],
+    "analogia": "O alarme de um carro: avisa cedo e diz o que está errado, em vez de o motor quebrar depois.",
+    "exemplo": "try:\n    idade = int(entrada)\nexcept ValueError:\n    print(\"Digite um número inteiro.\")",
+    "erros": ["except vazio que esconde bugs", "confiar em dados vindos do usuário", "mensagens como \"erro\" sem contexto"],
+    "exercicios": ["Leia um número do usuário e peça de novo até ser válido."]
+  },
+  {
+    "id": "testes", "nome": "Testes automatizados", "aliases": ["teste", "tdd", "testes unitarios", "testes unitários", "pytest", "teste de software"],
+    "resumo": "Código que verifica se outro código funciona. Teste unitário checa uma função; de integração checa partes juntas. TDD: escrever o teste antes do código.",
+    "passos": ["Escolha entradas e a saída esperada (inclua vazio, extremo e inválido).", "Escreva o teste e veja ele falhar pelo motivo certo.", "Faça o código passar com a menor mudança.", "Refatore com a segurança de que o teste avisa se quebrar algo."],
+    "analogia": "Um corretor ortográfico que roda toda vez que você edita: pega erros na hora.",
+    "exemplo": "def test_fatorial():\n    assert fatorial(5) == 120\n    assert fatorial(0) == 1",
+    "erros": ["testar só o caminho feliz", "testes que dependem de internet ou da hora", "nunca ver o teste falhar (pode estar testando nada)"],
+    "exercicios": ["Escreva testes para uma função que valida CPF."]
+  },
+  {
+    "id": "depuracao", "nome": "Depuração (debug)", "aliases": ["debug", "debugar", "depurar", "achar bug", "encontrar erro", "bug"],
+    "resumo": "Método para achar e corrigir defeitos: reproduzir, isolar, entender a causa e só então corrigir.",
+    "passos": ["Reproduza o erro de forma confiável e anote os passos.", "Leia a mensagem e a pilha de erro de baixo para cima: a causa costuma estar perto da última linha sua.", "Divida e conquiste: comente ou isole metade do código para descobrir onde falha.", "Confira os valores (print, log ou depurador) em vez de supor.", "Corrija a CAUSA, escreva um teste que pegue esse bug e rode tudo de novo."],
+    "analogia": "Um detetive: junta pistas, levanta hipótese e testa uma por vez, em vez de mexer em tudo ao mesmo tempo.",
+    "exemplo": "# valores no meio do caminho\nprint(f\"{total=} {desconto=}\")",
+    "erros": ["mudar várias coisas ao mesmo tempo", "corrigir o sintoma em vez da causa", "não escrever um teste para o bug"],
+    "exercicios": ["Ache o erro: for i in range(1, len(lista)): soma += lista[i] (o que falta?)."]
+  },
+  {
+    "id": "banco-de-dados", "nome": "Banco de dados e modelagem", "aliases": ["banco de dados", "modelagem", "normalizacao", "normalização", "chave primaria", "chave primária", "chave estrangeira", "join", "relacionamento"],
+    "resumo": "Bancos relacionais guardam dados em tabelas ligadas por chaves. Modelar bem evita duplicação e inconsistência (normalização).",
+    "passos": ["Liste as entidades (cliente, pedido, produto) e seus atributos.", "Dê a cada tabela uma chave primária (id).", "Ligue tabelas com chave estrangeira (pedido.cliente_id).", "Evite repetir o mesmo dado em vários lugares (normalização).", "Crie índices nas colunas usadas para buscar e filtrar muito.", "Use transações quando várias alterações precisam acontecer juntas."],
+    "analogia": "Fichários separados (clientes, pedidos) com um número de ficha para ligar um ao outro, em vez de reescrever o cliente em cada pedido.",
+    "exemplo": "SELECT c.nome, COUNT(*) AS pedidos\nFROM clientes c JOIN pedidos p ON p.cliente_id = c.id\nGROUP BY c.nome;",
+    "erros": ["guardar lista separada por vírgulas numa coluna", "esquecer índices", "montar SQL juntando texto do usuário (injeção de SQL): use parâmetros"],
+    "exercicios": ["Modele uma loja com clientes, produtos e pedidos."]
+  },
+  {
+    "id": "api-rest", "nome": "APIs REST", "aliases": ["api", "rest", "http", "endpoint", "rotas", "json", "restful"],
+    "resumo": "Interface pela qual sistemas conversam por HTTP. Recursos têm URLs (/clientes/7) e os verbos dizem a ação: GET lê, POST cria, PUT/PATCH altera, DELETE apaga. As respostas usam códigos (200, 201, 400, 404, 500) e normalmente JSON.",
+    "passos": ["Nomeie recursos no plural (/itens) e use o verbo HTTP certo.", "Valide a entrada e devolva o código certo (422 para dado inválido, 404 para não encontrado).", "Autentique e autorize cada rota que mexe em dados.", "Documente (OpenAPI/Swagger) e versione (/v1).", "Pagine listas grandes."],
+    "analogia": "O garçom de um restaurante: você faz o pedido pelo cardápio (contrato) e ele leva à cozinha (sistema) e traz o prato (resposta).",
+    "exemplo": "GET    /api/itens        -> 200 [lista]\nPOST   /api/itens        -> 201 {criado}\nDELETE /api/itens/7      -> 204",
+    "erros": ["devolver 200 mesmo quando deu erro", "expor dados sensíveis na resposta", "rotas sem autenticação"],
+    "exercicios": ["Desenhe as rotas de um sistema de biblioteca."]
+  },
+  {
+    "id": "git", "nome": "Git e versionamento", "aliases": ["controle de versao", "controle de versão", "versionamento", "commit", "branch", "github", "merge"],
+    "resumo": "Guarda o histórico do projeto e permite trabalhar em paralelo com segurança. Commit é uma foto; branch é um caminho paralelo; merge junta os caminhos.",
+    "passos": ["Faça commits pequenos, com mensagem que explica o PORQUÊ.", "Trabalhe em um branch por tarefa e junte (merge/pull request) depois da revisão.", "Use .gitignore para segredos, dependências e builds.", "Nunca faça commit de senhas ou chaves; se vazou, troque a chave.", "git status e git diff antes de cada commit."],
+    "analogia": "Pontos de salvamento de um videogame, com a vantagem de poder voltar a qualquer um deles.",
+    "exemplo": "git switch -c minha-tarefa\ngit add .\ngit commit -m \"Valida o CPF antes de salvar\"",
+    "erros": ["commit gigante misturando assuntos", "segredos no repositório", "git add . sem olhar o que entra"],
+    "exercicios": ["Crie um branch, faça dois commits e junte na principal."]
+  },
+  {
+    "id": "boas-praticas", "nome": "Código limpo e boas práticas", "aliases": ["codigo limpo", "código limpo", "clean code", "solid", "refatoracao", "refatoração", "boas praticas", "boas práticas", "dry", "kiss"],
+    "resumo": "Código é lido muito mais do que escrito. Nomes claros, funções pequenas, sem repetição (DRY), simples (KISS) e com responsabilidade única (SOLID).",
+    "passos": ["Dê nomes que explicam a intenção.", "Uma função, uma tarefa; um módulo, um assunto.", "Elimine repetição, mas só quando o padrão se repetiu de verdade (3 vezes).", "Comente o PORQUÊ, não o que o código já diz.", "Refatore em passos pequenos, com testes passando.", "Prefira a solução mais simples que resolve o problema real."],
+    "analogia": "Uma cozinha organizada: cada coisa no seu lugar e com nome na etiqueta; qualquer cozinheiro entra e trabalha.",
+    "exemplo": "# ruim\nd = p * q * 0.9\n# bom\nPRECO_COM_DESCONTO = preco * quantidade * (1 - DESCONTO_PADRAO)",
+    "erros": ["abstrair cedo demais", "comentários que mentem (código mudou, o comentário não)", "nomes genéricos (dados, info, temp)"],
+    "exercicios": ["Pegue uma função de 40 linhas e divida em três."]
+  },
+  {
+    "id": "seguranca", "nome": "Segurança no código", "aliases": ["seguranca", "segurança", "injecao de sql", "injeção de sql", "xss", "senhas", "owasp", "autenticacao", "autenticação", "criptografia", "hash de senha"],
+    "resumo": "Trate toda entrada como não confiável. Os riscos mais comuns: injeção (SQL), XSS, senhas fracas, segredos vazados e falta de autorização.",
+    "passos": ["Use consultas parametrizadas, nunca monte SQL concatenando texto.", "Escape ou use textContent ao mostrar dados do usuário na página (evita XSS).", "Guarde senhas só como hash lento com sal (bcrypt, argon2), nunca em texto.", "Segredos ficam em variáveis de ambiente, fora do Git.", "Autorize cada ação no servidor; esconder o botão não protege.", "Mantenha dependências atualizadas e use HTTPS."],
+    "analogia": "A porta de um prédio: de nada adianta uma fechadura forte se a janela dos fundos fica aberta.",
+    "exemplo": "cursor.execute(\"SELECT * FROM usuarios WHERE email = ?\", (email,))  # nunca f\"...{email}\"",
+    "erros": ["senha ou token no código", "confiar em validação só no front-end", "mensagens de erro que revelam a estrutura do sistema"],
+    "exercicios": ["Reescreva uma consulta SQL vulnerável usando parâmetros."]
+  },
+  {
+    "id": "desempenho", "nome": "Desempenho e otimização", "aliases": ["performance", "otimizacao", "otimização", "lento", "cache", "gargalo"],
+    "resumo": "Meça antes de otimizar. O ganho grande costuma estar em algoritmo, consultas ao banco e chamadas de rede, não em micro-detalhes.",
+    "passos": ["Meça com um perfilador ou cronômetro; ache o gargalo real.", "Melhore o algoritmo primeiro (O(n²) → O(n log n)).", "Evite consultas repetidas no banco (problema N+1) e use índices.", "Use cache para o que é caro e muda pouco.", "Meça de novo: confirme que melhorou."],
+    "analogia": "Num engarrafamento, de nada adianta um carro mais rápido; descubra onde está o gargalo da pista.",
+    "exemplo": "import time\ninicio = time.perf_counter()\nprocessar()\nprint(time.perf_counter() - inicio)",
+    "erros": ["otimizar sem medir", "cache sem regra de invalidação", "carregar tudo na memória quando dava para processar aos poucos"],
+    "exercicios": ["Reduza o tempo de achar duplicados numa lista de 100 mil itens."]
+  },
+  {
+    "id": "arquitetura", "nome": "Arquitetura e padrões de projeto", "aliases": ["padroes de projeto", "padrões de projeto", "design patterns", "mvc", "camadas", "microsservicos", "microsserviços", "monolito", "monólito", "arquitetura de software"],
+    "resumo": "Como dividir um sistema em partes com responsabilidades claras. Comece simples (monólito em camadas) e só divida quando houver motivo.",
+    "passos": ["Separe interface, regras de negócio e acesso a dados (camadas ou MVC).", "Dependa de interfaces, não de implementações concretas (fica fácil trocar e testar).", "Use padrões (Factory, Strategy, Observer, Repository) para problemas que se repetem, não por enfeite.", "Monólito bem organizado é melhor que microsserviços mal motivados.", "Registre as decisões importantes (por que escolhemos X)."],
+    "analogia": "A planta de um prédio: define onde ficam os canos e a fiação antes de levantar as paredes, para a obra não virar bagunça.",
+    "exemplo": "rotas  ->  serviços (regras)  ->  repositórios (banco)",
+    "erros": ["microsserviços cedo demais", "regra de negócio dentro da tela ou da rota", "padrão aplicado sem necessidade"],
+    "exercicios": ["Desenhe as camadas de um sistema de pedidos."]
+  },
+  {
+    "id": "resolver-problemas", "nome": "Como resolver um problema de programação", "aliases": ["como resolver problemas", "como resolver", "resolver problemas", "metodo de resolucao", "método de resolução", "como pensar"],
+    "resumo": "Um roteiro que funciona para qualquer problema, do exercício ao sistema completo.",
+    "passos": ["1. Entenda: reescreva o problema com suas palavras e liste entradas, saídas e restrições.", "2. Exemplos: resolva à mão 2 ou 3 casos, incluindo vazio, mínimo e máximo.", "3. Estratégia: já viu um problema parecido? (busca, ordenação, contagem, recursão, estrutura de dados)", "4. Divida: quebre em subproblemas pequenos e nomeie cada um como função.", "5. Pseudocódigo: escreva os passos em português.", "6. Implemente a versão mais simples que funciona.", "7. Teste com os exemplos do passo 2 e com casos de borda.", "8. Melhore: clareza primeiro, desempenho só se medir que precisa.", "9. Reflita: o que aprendi? o que faria diferente?"],
+    "analogia": "O método de um engenheiro: planta, maquete, obra e inspeção, nessa ordem.",
+    "exemplo": "Problema: \"quantas vezes cada palavra aparece?\" -> estrutura certa: dicionário palavra -> contagem.",
+    "erros": ["pular direto para o código", "não testar casos de borda", "complicar antes de ter a versão simples funcionando"],
+    "exercicios": ["Aplique os 9 passos a: dado um texto, diga a palavra mais frequente."]
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "id": "html", "nome": "HTML", "categoria": "front", "areas": ["front"],
+    "aliases": ["html5"],
+    "resumo": "A estrutura de toda página web: títulos, textos, formulários, imagens e links.",
+    "usos": ["estrutura de qualquer site", "formulários", "conteúdo acessível"],
+    "fortes": ["base de tudo na web", "simples", "SEO e acessibilidade começam aqui"],
+    "fracos": ["sozinho não tem estilo nem lógica"],
+    "quando": ["sempre; use tags semânticas (header, main, nav, section)"],
+    "curva": "fácil",
+    "comeco": ["crie index.html e abra no navegador"]
+  },
+  {
+    "id": "css", "nome": "CSS", "categoria": "front", "areas": ["front"],
+    "aliases": ["css3", "estilos"],
+    "resumo": "O visual da página: cores, tipografia, espaçamento e layout responsivo.",
+    "usos": ["layout (Flexbox e Grid)", "responsividade para celular", "animações simples"],
+    "fortes": ["controle total do visual", "variáveis e modo escuro nativos"],
+    "fracos": ["difícil de manter em projetos grandes sem organização"],
+    "quando": ["sempre; combine com Tailwind ou módulos CSS em projetos grandes"],
+    "curva": "fácil o básico, média o layout",
+    "comeco": ["crie styles.css e ligue no HTML com <link rel=\"stylesheet\">"]
+  },
+  {
+    "id": "react", "nome": "React", "categoria": "front", "areas": ["front", "full"],
+    "aliases": ["reactjs", "react.js"],
+    "resumo": "Biblioteca do Facebook/Meta para montar interfaces com componentes reutilizáveis.",
+    "usos": ["aplicações de página única (SPA)", "painéis e dashboards", "base do Next.js e do React Native"],
+    "fortes": ["maior mercado de trabalho no front-end", "comunidade e bibliotecas enormes", "componentes reutilizáveis"],
+    "fracos": ["só cuida da interface: roteamento, estado e dados exigem escolhas", "muita variedade de ferramentas"],
+    "quando": ["interface dinâmica e rica", "equipe que quer o ecossistema mais popular"],
+    "curva": "média",
+    "comeco": ["npm create vite@latest meu-app -- --template react", "cd meu-app && npm install && npm run dev"]
+  },
+  {
+    "id": "vue", "nome": "Vue.js", "categoria": "front", "areas": ["front", "full"],
+    "aliases": ["vue", "vuejs", "nuxt"],
+    "resumo": "Framework progressivo e fácil de aprender para interfaces reativas.",
+    "usos": ["SPAs e painéis", "adicionar interatividade a páginas existentes", "sites com Nuxt"],
+    "fortes": ["curva de aprendizado suave", "documentação excelente", "organização clara por componente"],
+    "fracos": ["mercado menor que React", "ecossistema um pouco menor"],
+    "quando": ["equipe iniciante", "projetos médios que precisam de produtividade"],
+    "curva": "fácil a média",
+    "comeco": ["npm create vue@latest", "cd meu-app && npm install && npm run dev"]
+  },
+  {
+    "id": "angular", "nome": "Angular", "categoria": "front", "areas": ["front", "full"],
+    "aliases": ["angularjs"],
+    "resumo": "Framework completo do Google com TypeScript, roteamento, formulários e injeção de dependência.",
+    "usos": ["sistemas corporativos grandes", "painéis administrativos"],
+    "fortes": ["tudo incluído", "estrutura rígida que ajuda equipes grandes", "TypeScript por padrão"],
+    "fracos": ["curva de aprendizado alta", "mais verboso"],
+    "quando": ["equipe grande e projeto longo", "empresas que já adotam Angular"],
+    "curva": "difícil",
+    "comeco": ["npm install -g @angular/cli", "ng new meu-app", "ng serve"]
+  },
+  {
+    "id": "svelte", "nome": "Svelte", "categoria": "front", "areas": ["front"],
+    "aliases": ["sveltekit"],
+    "resumo": "Compila os componentes em JavaScript enxuto: pouco código e muito desempenho.",
+    "usos": ["sites e apps leves", "projetos pequenos e médios"],
+    "fortes": ["sintaxe simples", "arquivos finais pequenos", "rápido"],
+    "fracos": ["mercado e comunidade menores"],
+    "quando": ["projeto novo em que simplicidade e velocidade importam"],
+    "curva": "fácil",
+    "comeco": ["npx sv create meu-app", "cd meu-app && npm install && npm run dev"]
+  },
+  {
+    "id": "nextjs", "nome": "Next.js", "categoria": "full", "areas": ["front", "full"],
+    "aliases": ["next", "next.js"],
+    "resumo": "Framework sobre React com rotas, renderização no servidor e API na mesma aplicação.",
+    "usos": ["sites com bom SEO", "e-commerce", "aplicações full stack em um só projeto"],
+    "fortes": ["SEO e desempenho de fábrica", "front e back no mesmo repositório", "deploy fácil (Vercel e outros)"],
+    "fracos": ["mudanças frequentes de padrões", "mais complexo que um React simples"],
+    "quando": ["site público que precisa ser encontrado no Google", "equipe pequena fazendo full stack em JS/TS"],
+    "curva": "média",
+    "comeco": ["npx create-next-app@latest meu-app", "cd meu-app && npm run dev"]
+  },
+  {
+    "id": "tailwind", "nome": "Tailwind CSS", "categoria": "front", "areas": ["front"],
+    "aliases": ["tailwindcss"],
+    "resumo": "CSS por classes utilitárias: você monta o visual direto no HTML.",
+    "usos": ["interfaces consistentes com rapidez", "design systems"],
+    "fortes": ["muito rápido para prototipar", "tamanho final pequeno", "padroniza espaçamentos e cores"],
+    "fracos": ["HTML cheio de classes", "exige aprender o vocabulário"],
+    "quando": ["projeto com componentes (React/Vue) e prazo curto"],
+    "curva": "fácil a média",
+    "comeco": ["npm install tailwindcss @tailwindcss/vite"]
+  },
+  {
+    "id": "reactnative", "nome": "React Native", "categoria": "mobile", "areas": ["mobile", "front"],
+    "aliases": ["react native", "expo"],
+    "resumo": "Apps Android e iOS com React e JavaScript/TypeScript.",
+    "usos": ["apps mobile multiplataforma"],
+    "fortes": ["reaproveita o conhecimento de React", "um código para duas lojas"],
+    "fracos": ["recursos nativos avançados exigem código nativo"],
+    "quando": ["já existe time React e o app precisa de Android e iOS"],
+    "curva": "média",
+    "comeco": ["npx create-expo-app meu-app", "npx expo start"]
+  },
+  {
+    "id": "flutter", "nome": "Flutter", "categoria": "mobile", "areas": ["mobile", "front"],
+    "aliases": [],
+    "resumo": "Framework do Google (Dart) para apps Android, iOS, web e desktop com a mesma interface.",
+    "usos": ["apps mobile multiplataforma", "protótipos rápidos"],
+    "fortes": ["interface idêntica em todas as plataformas", "hot reload", "bom desempenho"],
+    "fracos": ["exige aprender Dart", "tamanho do app maior"],
+    "quando": ["app com identidade visual própria para Android e iOS"],
+    "curva": "média",
+    "comeco": ["flutter doctor", "flutter create meu_app", "flutter run"]
+  }
+]

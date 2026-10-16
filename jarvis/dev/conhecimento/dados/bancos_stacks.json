@@ -1,0 +1,112 @@
+[
+  {
+    "id": "postgresql", "nome": "PostgreSQL", "categoria": "banco", "areas": ["back", "full"],
+    "aliases": ["postgres", "pg"],
+    "resumo": "Banco relacional open source muito completo e confiável.",
+    "usos": ["sistemas de gestão", "e-commerce", "dados geográficos e JSON"],
+    "fortes": ["recursos avançados (JSON, índices, extensões)", "confiável", "gratuito"],
+    "fracos": ["configuração um pouco maior que SQLite"],
+    "quando": ["padrão recomendado para a maioria dos sistemas web novos"],
+    "curva": "média",
+    "comeco": ["instale o PostgreSQL", "psql -U postgres"]
+  },
+  {
+    "id": "mysql", "nome": "MySQL / MariaDB", "categoria": "banco", "areas": ["back", "full"],
+    "aliases": ["mariadb"],
+    "resumo": "Banco relacional muito difundido, comum em hospedagens e no WordPress.",
+    "usos": ["sites e sistemas em PHP", "WordPress", "aplicações web em geral"],
+    "fortes": ["disponível em qualquer hospedagem", "simples e rápido para leituras"],
+    "fracos": ["menos recursos avançados que o PostgreSQL"],
+    "quando": ["hospedagem compartilhada ou ecossistema PHP/WordPress"],
+    "curva": "fácil a média",
+    "comeco": ["instale o MySQL ou use XAMPP", "mysql -u root -p"]
+  },
+  {
+    "id": "sqlite", "nome": "SQLite", "categoria": "banco", "areas": ["back", "full"],
+    "aliases": [],
+    "resumo": "Banco relacional em um único arquivo, sem servidor: ótimo para começar e apps pequenos.",
+    "usos": ["protótipos", "apps desktop e mobile", "sistemas pequenos com pouco acesso simultâneo"],
+    "fortes": ["zero configuração", "vem com o Python", "backup é copiar o arquivo"],
+    "fracos": ["pouca escrita simultânea", "não é para muitos usuários ao mesmo tempo"],
+    "quando": ["protótipo, aplicativo local ou sistema para uma pessoa/equipe pequena"],
+    "curva": "fácil",
+    "comeco": ["python: import sqlite3"]
+  },
+  {
+    "id": "mongodb", "nome": "MongoDB", "categoria": "banco", "areas": ["back", "full"],
+    "aliases": ["mongo"],
+    "resumo": "Banco de documentos (JSON) flexível, sem esquema fixo.",
+    "usos": ["dados que mudam de formato", "catálogos", "logs e eventos"],
+    "fortes": ["flexível", "combina bem com JavaScript", "escala horizontalmente"],
+    "fracos": ["relacionamentos complexos são mais difíceis", "consistência exige cuidado"],
+    "quando": ["dados em documentos, sem muitos relacionamentos entre eles"],
+    "curva": "fácil a média",
+    "comeco": ["use o MongoDB Atlas (grátis) ou instale o MongoDB Community"]
+  },
+  {
+    "id": "redis", "nome": "Redis", "categoria": "banco", "areas": ["back"],
+    "aliases": [],
+    "resumo": "Armazenamento em memória, muito rápido, usado como cache, fila e sessão.",
+    "usos": ["cache de consultas", "sessões de login", "filas simples"],
+    "fortes": ["velocidade extrema", "estruturas de dados úteis"],
+    "fracos": ["dados em memória (custo)", "não substitui o banco principal"],
+    "quando": ["o sistema já funciona e precisa ficar mais rápido"],
+    "curva": "fácil",
+    "comeco": ["docker run -p 6379:6379 redis"]
+  },
+  {
+    "id": "mern", "nome": "MERN (MongoDB + Express + React + Node)", "categoria": "stack", "areas": ["full"],
+    "aliases": ["mern stack"],
+    "resumo": "Stack full stack 100% JavaScript: React no front, Node/Express na API, MongoDB nos dados.",
+    "usos": ["aplicações web completas", "MVPs", "portfólios"],
+    "fortes": ["uma linguagem só", "muito conteúdo e vagas"],
+    "fracos": ["MongoDB nem sempre é a melhor escolha para dados relacionais"],
+    "quando": ["equipe pequena que domina JavaScript"],
+    "curva": "média",
+    "comeco": ["crie backend/ (Express) e frontend/ (Vite + React)"]
+  },
+  {
+    "id": "python-react", "nome": "Python + React (FastAPI + React)", "categoria": "stack", "areas": ["full"],
+    "aliases": ["fastapi react", "fastapi+react"],
+    "resumo": "API em Python (FastAPI) com interface em React: boa para sistemas com dados, IA ou automação.",
+    "usos": ["painéis e sistemas de gestão", "produtos com IA/dados", "SaaS"],
+    "fortes": ["back-end produtivo em Python", "front-end moderno", "documentação automática da API"],
+    "fracos": ["duas linguagens e dois projetos para manter"],
+    "quando": ["o back-end tem dados, cálculos ou IA e o front precisa ser rico"],
+    "curva": "média",
+    "comeco": ["a Jarvis pode criar esse projeto: \"crie um sistema full stack com FastAPI e React\""]
+  },
+  {
+    "id": "nextjs-prisma", "nome": "Next.js full stack", "categoria": "stack", "areas": ["full"],
+    "aliases": ["next full stack", "t3"],
+    "resumo": "Um único projeto Next.js (React + TypeScript) com páginas, API e banco via ORM (Prisma/Drizzle).",
+    "usos": ["SaaS", "e-commerce", "sites com área logada"],
+    "fortes": ["um só repositório", "SEO e desempenho", "deploy simples"],
+    "fracos": ["acopla front e back", "mudanças frequentes do framework"],
+    "quando": ["time pequeno em TypeScript querendo entregar rápido"],
+    "curva": "média",
+    "comeco": ["npx create-next-app@latest"]
+  },
+  {
+    "id": "laravel-vue", "nome": "Laravel + Vue", "categoria": "stack", "areas": ["full"],
+    "aliases": ["laravel vue", "laravel inertia"],
+    "resumo": "Back-end PHP produtivo (Laravel) com interface reativa (Vue), muito usada no Brasil.",
+    "usos": ["sistemas de gestão", "e-commerce", "SaaS"],
+    "fortes": ["produtividade", "hospedagem barata", "comunidade brasileira grande"],
+    "fracos": ["depende de PHP e do ecossistema Laravel"],
+    "quando": ["sistema web completo com orçamento enxuto"],
+    "curva": "fácil a média",
+    "comeco": ["composer create-project laravel/laravel meu-app"]
+  },
+  {
+    "id": "spring-angular", "nome": "Spring Boot + Angular", "categoria": "stack", "areas": ["full"],
+    "aliases": ["java angular"],
+    "resumo": "Stack corporativa: API Java robusta com interface Angular estruturada.",
+    "usos": ["sistemas corporativos", "bancos e seguradoras"],
+    "fortes": ["estrutura rígida e previsível", "muitas vagas corporativas"],
+    "fracos": ["curva alta e muito código base"],
+    "quando": ["empresa grande com equipe grande e projeto longo"],
+    "curva": "difícil",
+    "comeco": ["gere o back em start.spring.io e o front com ng new"]
+  }
+]

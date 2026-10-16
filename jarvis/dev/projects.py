@@ -15,6 +15,7 @@ from pathlib import Path
 
 from jarvis import memory_db
 from jarvis.config import Config
+from jarvis.dev import modelos
 
 
 def _fold(text: str) -> str:
@@ -262,7 +263,6 @@ def read_info(cfg: Config, mem, name: str) -> str:
     return mem.get(info_ref(registered)) or ""
 
 
-
 # ── projeto novo (só executado depois da aprovação) ──────────────────────
 
 _BAD_FOLDER = re.compile(r'[\\/:*?"<>|]')
@@ -285,14 +285,15 @@ def plan_new(cfg: Config, name: str, parent: str) -> Path:
     return target
 
 
-def create(cfg: Config, name: str, parent: str, description: str = "", git: bool = True) -> Path:
-    """Cria a pasta com README (e git init, sem commit) e cadastra o projeto."""
+def create(cfg: Config, name: str, parent: str, description: str = "", git: bool = True, modelo: str = "") -> Path:
+    """Cria a pasta (README, ou um modelo pronto de sistema), git init sem commit, e cadastra o projeto."""
     target = plan_new(cfg, name, parent)
+    modelo = modelos.normalize(modelo) if modelo else ""  # modelo inválido falha ANTES de criar a pasta
     target.mkdir()
-    readme = f"# {name.strip()}\n"
-    if description.strip():
-        readme += f"\n{description.strip()}\n"
-    (target / "README.md").write_text(readme, encoding="utf-8")
+    if modelo:
+        modelos.generate(target, modelo, name, description)
+    else:
+        (target / "README.md").write_text(f"# {name.strip()}\n" + (f"\n{description.strip()}\n" if description.strip() else ""), encoding="utf-8")
     if git:
         _git(target, "init", "-q", "-b", "main")
     cfg.projetos[name.strip()[:60]] = str(target)

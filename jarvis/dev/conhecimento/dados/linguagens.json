@@ -1,0 +1,134 @@
+[
+  {
+    "id": "javascript", "nome": "JavaScript", "categoria": "linguagem", "areas": ["front", "back", "full"],
+    "aliases": ["js", "ecmascript"],
+    "resumo": "A linguagem da web: roda no navegador e, com Node.js, também no servidor.",
+    "usos": ["interatividade em páginas", "aplicações web inteiras", "APIs com Node.js", "apps mobile (React Native)"],
+    "fortes": ["única linguagem nativa do navegador", "ecossistema enorme (npm)", "uma linguagem só para front e back"],
+    "fracos": ["tipagem fraca facilita erros", "muitas ferramentas e modos de fazer a mesma coisa"],
+    "quando": ["qualquer interface web", "equipe pequena que quer usar uma linguagem só"],
+    "curva": "fácil de começar, difícil de dominar",
+    "comeco": ["node --version", "npm init -y"]
+  },
+  {
+    "id": "typescript", "nome": "TypeScript", "categoria": "linguagem", "areas": ["front", "back", "full"],
+    "aliases": ["ts"],
+    "resumo": "JavaScript com tipos: o editor e o compilador apontam erros antes de rodar.",
+    "usos": ["projetos web médios e grandes", "front com React/Angular/Vue", "back com NestJS ou Express"],
+    "fortes": ["menos erros em produção", "autocompletar excelente", "refatoração segura"],
+    "fracos": ["configuração e build a mais", "tipos exigem disciplina"],
+    "quando": ["o projeto vai crescer ou ter mais de uma pessoa", "código que precisa durar"],
+    "curva": "média (exige saber JavaScript)",
+    "comeco": ["npm install -D typescript", "npx tsc --init"]
+  },
+  {
+    "id": "python", "nome": "Python", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": ["py"],
+    "resumo": "Linguagem legível e versátil: back-end, automação, dados e inteligência artificial.",
+    "usos": ["APIs e sites (FastAPI, Django, Flask)", "automação e scripts", "análise de dados e IA"],
+    "fortes": ["sintaxe simples", "bibliotecas para quase tudo", "ótima para aprender"],
+    "fracos": ["mais lenta que linguagens compiladas", "não roda no navegador"],
+    "quando": ["API ou sistema de gestão com prazo curto", "quando há dados, automação ou IA no projeto"],
+    "curva": "fácil",
+    "comeco": ["python -m venv .venv", ".venv\\Scripts\\activate", "pip install fastapi uvicorn"]
+  },
+  {
+    "id": "java", "nome": "Java", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": [],
+    "resumo": "Linguagem tipada e madura, muito usada em sistemas corporativos e bancos.",
+    "usos": ["sistemas corporativos", "APIs robustas com Spring Boot", "apps Android (junto com Kotlin)"],
+    "fortes": ["desempenho e estabilidade", "mercado de trabalho amplo", "ferramentas e bibliotecas maduras"],
+    "fracos": ["código mais verboso", "configuração pesada para começar"],
+    "quando": ["sistema grande, com regras complexas e equipe grande", "empresas que já usam Java"],
+    "curva": "média a difícil",
+    "comeco": ["java --version", "use o Spring Initializr (start.spring.io)"]
+  },
+  {
+    "id": "csharp", "nome": "C#", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": ["c sharp", "c#", "dotnet", ".net"],
+    "resumo": "Linguagem moderna da Microsoft (.NET) para web, desktop, jogos (Unity) e nuvem.",
+    "usos": ["APIs com ASP.NET Core", "sistemas Windows", "jogos com Unity"],
+    "fortes": ["linguagem muito bem projetada", "excelente ferramenta (Visual Studio)", "bom desempenho"],
+    "fracos": ["ecossistema ligado à Microsoft", "menos material gratuito em português que JS/Python"],
+    "quando": ["empresa que usa Microsoft/Azure", "sistema web robusto com tipagem forte"],
+    "curva": "média",
+    "comeco": ["dotnet --version", "dotnet new webapi -n MinhaApi"]
+  },
+  {
+    "id": "php", "nome": "PHP", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": [],
+    "resumo": "Linguagem criada para a web; move grande parte dos sites (WordPress, Laravel).",
+    "usos": ["sites e blogs (WordPress)", "sistemas de gestão com Laravel", "lojas virtuais"],
+    "fortes": ["hospedagem barata em qualquer lugar", "Laravel é muito produtivo", "muito conteúdo em português"],
+    "fracos": ["herança de código antigo e más práticas", "menos usada em startups novas"],
+    "quando": ["site ou sistema que será hospedado em hospedagem compartilhada", "WordPress/WooCommerce"],
+    "curva": "fácil a média",
+    "comeco": ["php --version", "composer create-project laravel/laravel meu-app"]
+  },
+  {
+    "id": "go", "nome": "Go", "categoria": "linguagem", "areas": ["back"],
+    "aliases": ["golang"],
+    "resumo": "Linguagem compilada, simples e muito rápida, feita para serviços e infraestrutura.",
+    "usos": ["APIs de alto desempenho", "microsserviços", "ferramentas de linha de comando"],
+    "fortes": ["desempenho e baixo consumo de memória", "concorrência simples", "um único executável"],
+    "fracos": ["menos recursos de linguagem", "ecossistema web menor"],
+    "quando": ["serviço que precisa atender muita gente com pouco servidor", "ferramentas de infraestrutura"],
+    "curva": "média",
+    "comeco": ["go version", "go mod init meuapp"]
+  },
+  {
+    "id": "ruby", "nome": "Ruby", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": ["rails", "ror"],
+    "resumo": "Linguagem expressiva; o framework Rails popularizou o desenvolvimento web rápido.",
+    "usos": ["MVPs e startups com Rails", "sistemas web completos"],
+    "fortes": ["muito produtivo para protótipos", "convenções claras"],
+    "fracos": ["mercado menor hoje", "desempenho inferior a Go/Java"],
+    "quando": ["validar uma ideia rápido com poucas pessoas"],
+    "curva": "média",
+    "comeco": ["ruby --version", "gem install rails", "rails new meu_app"]
+  },
+  {
+    "id": "rust", "nome": "Rust", "categoria": "linguagem", "areas": ["back"],
+    "aliases": [],
+    "resumo": "Linguagem de sistemas com segurança de memória e desempenho de C/C++.",
+    "usos": ["serviços críticos", "WebAssembly", "ferramentas de linha de comando"],
+    "fortes": ["desempenho e segurança", "sem coletor de lixo"],
+    "fracos": ["curva de aprendizado alta", "desenvolvimento mais lento no começo"],
+    "quando": ["desempenho e segurança são requisitos centrais"],
+    "curva": "difícil",
+    "comeco": ["rustc --version", "cargo new meuapp"]
+  },
+  {
+    "id": "kotlin", "nome": "Kotlin", "categoria": "linguagem", "areas": ["back", "mobile"],
+    "aliases": [],
+    "resumo": "Linguagem moderna da JVM, oficial para Android e boa também no back-end (Ktor, Spring).",
+    "usos": ["apps Android", "APIs na JVM"],
+    "fortes": ["mais concisa que Java", "interoperável com Java"],
+    "fracos": ["ecossistema web menor que Java/JS"],
+    "quando": ["app Android nativo", "equipe que já usa Java e quer algo mais moderno"],
+    "curva": "média",
+    "comeco": ["instale o Android Studio ou o IntelliJ IDEA"]
+  },
+  {
+    "id": "dart", "nome": "Dart", "categoria": "linguagem", "areas": ["mobile", "front"],
+    "aliases": [],
+    "resumo": "Linguagem do Flutter: um código só para Android, iOS, web e desktop.",
+    "usos": ["apps mobile multiplataforma com Flutter"],
+    "fortes": ["desempenho bom", "hot reload", "interface consistente em todas as plataformas"],
+    "fracos": ["pouco usada fora do Flutter"],
+    "quando": ["app mobile para Android e iOS com um único time"],
+    "curva": "fácil a média",
+    "comeco": ["flutter doctor", "flutter create meu_app"]
+  },
+  {
+    "id": "sql", "nome": "SQL", "categoria": "linguagem", "areas": ["back", "full"],
+    "aliases": ["consultas"],
+    "resumo": "Linguagem de consulta de bancos relacionais; quase todo sistema precisa dela.",
+    "usos": ["consultar e alterar dados", "relatórios", "modelagem de tabelas"],
+    "fortes": ["padrão há décadas", "poderosa para relatórios e filtros"],
+    "fracos": ["dialetos diferentes entre bancos"],
+    "quando": ["sempre que os dados têm estrutura e relacionamentos"],
+    "curva": "fácil o básico, média o avançado",
+    "comeco": ["SELECT * FROM tabela WHERE ...;"]
+  }
+]

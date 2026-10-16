@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import skills, websearch
+from jarvis.local import dev_skills, skills, websearch
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
 MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
@@ -27,6 +27,8 @@ HELP = (
     "- **hora e data**\n"
     "- **memória**: \"lembre que eu prefiro vagas remotas\", \"o que você sabe sobre mim?\", \"busque na memória sobre ...\"\n"
     "- **perfil e projetos**: \"meu nível é pleno\", \"minha stack é Python\", \"meus projetos\", \"anota no projeto X que ...\", \"ficha do projeto X\"\n"
+    "- **programação**: \"quais linguagens para back end?\", \"o que é React?\", \"compare Django e FastAPI\", \"qual stack para uma loja virtual?\" e **criar um sistema pronto para rodar**: \"crie um sistema chamado Loja com FastAPI e React em C:\\pasta\"\n"
+    "- **lógica e algoritmos**: \"como resolver um problema de programação?\", \"explique recursão\", \"busca binária em Java\", \"como fazer fatorial em Go\" (código em Python, JavaScript, Go, Java e C#)\n"
     "- **dashboards**: \"crie um dashboard de C:\\\\pasta\\\\vendas.xlsx\"\n"
     "- **sessões do Claude Code**: \"alguma sessão está me esperando?\"\n"
     "- **pesquisar na internet** e resumir com frases dos próprios sites (\"pesquise sobre ...\")"
@@ -80,6 +82,15 @@ class LocalEngine:
         ("perfil", r"^((meu|minha)\s+(stack|nivel|modalidade|ingles|cidade)\s*(e|eh|sao|:|=)\s*.+|(quero\s+)?evit\w+\s+.+)$"),
         ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
         ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
+        # Programação (jarvis/local/dev_skills.py): criar sistemas, comparar, recomendar e explicar tecnologias.
+        ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
+        ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
+        ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
+                       r"^(recomend\w+|sugir\w+|indic\w+)\s+(uma?\s+)?(stack|tecnologia|linguagem|framework)\b.*|"
+                       r"^(o que|qual)\s+(devo|eu devo|posso)\s+usar\b.*"),
+        ("algoritmo", r"^(como (fazer|faco|escrever|implementar|programar|criar|calcular)|escreva|escrever|mostre|mostra|me mostre|me de|exemplo de|algoritmo (de|para)|codigo (de|para)|implemente|programa (de|para))\b.+$"),
+        ("logica", r"^(como (resolver|resolvo|pensar|raciocinar)\b.*|me ajuda(r)? a (resolver|pensar)\b.*|logica de programacao|quais (conceitos|algoritmos)\b.*|que (conceitos|algoritmos)\b.*)$"),
+        ("tecnologia", r"^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+(?P<tema>.+)$"),
         ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
         ("hora", r"\b(que horas?|hora atual|horas sao)\b"),
         ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
@@ -226,15 +237,41 @@ class LocalEngine:
     def _lembrar(self, text: str) -> str:
         return skills.remember(text, self._load_config()) + "\n\n" + skills.forget_hint()
 
+    def _criar_sistema(self, text: str) -> str:
+        return dev_skills.create_system(text, self._load_config())
+
+    def _comparar(self, text: str) -> str:
+        return dev_skills.compare(text)
+
+    def _recomendar(self, text: str) -> str:
+        return dev_skills.recommend(text)
+
+    def _algoritmo(self, text: str) -> str:
+        """Algoritmo pronto, se for um clássico; senão, é uma pergunta comum e vai para a pesquisa."""
+        return dev_skills.algorithm(text) or self._pesquisa(text, tema=clean(text))
+
+    def _logica(self, text: str) -> str:
+        return dev_skills.logic(text)
+
+    def _tecnologia(self, text: str, tema: str = "") -> str:
+        """Explica a tecnologia se ela estiver na base; senão, pesquisa na internet como antes."""
+        return dev_skills.info(tema) or self._pesquisa(text, tema=clean(text))  # a pergunta inteira vai para a busca
+
     def _ajuda(self, text: str) -> str:
         return HELP
 
     def _pesquisa(self, text: str, tema: str = "") -> str:
+        if re.match(r"^busc", clean(text)) and dev_skills.algorithm(text):
+            return dev_skills.algorithm(text)  # "busca binária em Java" é um algoritmo, não uma pesquisa na web
         return websearch.format_answer(tema, websearch.research(tema, 5, brave_key=self._brave_key()))
 
     def _pergunta(self, text: str) -> str:
         """Sem comando reconhecido: perguntas viram pesquisa na internet; o resto, ajuda."""
         low = clean(text)
+        if dev_skills.algorithm(text):
+            return dev_skills.algorithm(text)  # "quicksort em C#": só o nome do algoritmo e a linguagem
+        if re.search(r"\bou\b", low) and (len(dev_skills.conhecimento.mentioned(text)) >= 2 or len(dev_skills.logica.mentioned_concepts(text)) >= 2):
+            return dev_skills.compare(text)  # "Python ou Node?", "pilha ou fila?"
         if len(low.split()) >= 2 and (text.strip().endswith("?") or re.match(
                 r"^(o que|quem|qual|quais|como|quando|onde|por que|porque|quanto|explique|defina)\b", low)):
             return self._pesquisa(text, tema=low)
