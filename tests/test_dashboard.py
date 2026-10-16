@@ -23,12 +23,17 @@ def loader_args(html: str) -> tuple[str, bytes]:
     return json.loads(m.group(1).replace("<\\/", "</")), base64.b64decode(m.group(2))
 
 
+needs_panel = pytest.mark.skipif(not dashboard.PANEL.is_file(), reason="painel.html (build gerado) não está no repositório")
+
+
+@needs_panel
 def test_bundled_panel_is_inside_jarvis_and_has_the_bridge():
     assert dashboard.PANEL.parent == dashboard.PANEL.parent.parent / "dashboard"
     html = dashboard.PANEL.read_text(encoding="utf-8")
     assert "window.__abrirArquivo" in html and "</body>" in html.lower()
 
 
+@needs_panel
 def test_build_uses_the_bundled_panel_by_default(tmp_path):
     doc = tmp_path / "vendas.csv"
     doc.write_text("mes;total\njan;10\n", encoding="utf-8")
@@ -95,7 +100,7 @@ def test_panel_without_bridge_is_refused(tmp_path):
 
 def test_mcp_tool_reports_errors_and_saves(tmp_path, monkeypatch):
     pytest.importorskip("mcp")
-    from jarvis import mcp_server
+    from jarvis.mcp_tools import document_tools as mcp_server
 
     monkeypatch.setattr(dashboard, "data_dir", lambda: tmp_path)
     opened = []
@@ -106,3 +111,10 @@ def test_mcp_tool_reports_errors_and_saves(tmp_path, monkeypatch):
     doc.write_text("a\n1\n", encoding="utf-8")
     answer = mcp_server.criar_dashboard(str(doc))
     assert "aberto no navegador" in answer and len(opened) == 1 and opened[0].parent == tmp_path / "dashboards"
+
+
+def test_missing_panel_gives_a_clear_message(tmp_path):
+    doc = tmp_path / "dados.csv"
+    doc.write_text("a,b\n1,2\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="painel do dashboard não está instalado"):
+        dashboard.build(str(doc), out_dir=tmp_path / "saida", panel=tmp_path / "nao-existe.html")

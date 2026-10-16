@@ -28,7 +28,7 @@ def test_simple_chat_goes_to_gemini_only_in_simple_mode(text):
 @pytest.mark.parametrize("text", [
     "como está meu PC?", "abre o WhatsApp", "resuma meus e-mails", "olha minha tela",
     "tem vagas para mim?", "pesquisa sobre frameworks", "qual o clima hoje?",
-    "cria uma planilha de gastos", "o que falta no projeto Comandiva?",
+    "cria uma planilha de gastos", "o que falta no projeto MeuApp?",
     "Analise os arquivos anexados.\n\n[Arquivos anexados pelo usuário — leia com ler_anexo(id):]",
     "x" * 200,
 ])
@@ -61,7 +61,7 @@ def test_router_tries_preferred_first_then_falls_back():
 @pytest.fixture
 def api(tmp_path, monkeypatch):
     pytest.importorskip("webview")
-    from jarvis.ui.app import Api
+    from jarvis.ui.api import Api
 
     monkeypatch.setattr(config, "config_dir", lambda: tmp_path)
     monkeypatch.setattr(config, "detect_obsidian_vault", lambda *a: "")
@@ -120,7 +120,7 @@ def test_unknown_model_is_replaced_by_newest_flash(api, monkeypatch):
 
 
 def test_pick_model_prefers_stable_newest_flash():
-    from jarvis.ui.app import pick_model
+    from jarvis.ui.api_brains import pick_model
 
     assert pick_model(["gemini-3.6-flash", "gemini-3.8-flash-preview", "gemini-3.8-flash"], "gemini") == "gemini-3.8-flash"
     assert pick_model(["meta/llama-3.3-70b-instruct"], "nvidia") == "meta/llama-3.3-70b-instruct"

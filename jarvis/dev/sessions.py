@@ -27,241 +27,31 @@ HEURÍSTICA (pode errar)
 
 from __future__ import annotations
 
-import json
 import logging
 import os
-import re
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from jarvis.dev.sessions_model import (  # noqa: F401 (DESCRICAO e Session também são pegos de fora)
+    AGUARDANDO,
+    DESCRICAO,
+    ESPERANDO,
+    RECENT_SECONDS,
+    Session,
+    claude_home,
+)
+from jarvis.dev.sessions_parse import (  # noqa: F401 (read_tail também é pego de fora)
+    Tail,
+    _claude_alive,
+    _state,
+    parse_tail,
+    read_roster,
+    read_tail,
+)
+
 log = logging.getLogger(__name__)
-
-TAIL_BYTES = 64 * 1024     # títulos e últimos eventos ficam sempre perto do fim
-RECENT_SECONDS = 30 * 60   # transcrito sem processo vivo: só se mexeu há pouco
-STALE_SECONDS = 60         # ferramenta parada há mais que isso: talvez permissão
-QUESTION_TOOLS = ("AskUserQuestion", "ExitPlanMode")
-LONG_TOOLS = ("Agent", "Task")  # subagentes demoram por natureza: não contam como espera
-
-# Estados
-PERMISSAO = "permissao"    # pedido de permissão ou diálogo aberto
-PERGUNTA = "pergunta"      # pergunta ao usuário
-AGUARDANDO = "aguardando"  # turno encerrado, esperando a próxima mensagem
-TRABALHANDO = "trabalhando"
-NOVA = "nova"              # aberta, mas ainda sem conversa
-DESCONHECIDO = "desconhecido"
-ESPERANDO = (PERMISSAO, PERGUNTA, AGUARDANDO)
-
-DESCRICAO = {
-    PERMISSAO: "esperando sua permissão",
-    PERGUNTA: "com uma pergunta para você",
-    AGUARDANDO: "terminou e está esperando sua resposta",
-    TRABALHANDO: "trabalhando",
-    NOVA: "aberta, sem conversa",
-    DESCONHECIDO: "estado desconhecido",
-}
-
-
-def claude_home() -> Path:
-    return Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
-
-
-@dataclass
-class Session:
-    session_id: str
-    projeto: str
-    pasta: str
-    nome: str
-    estado: str
-    motivo: str = ""
-    fonte: str = "ficha"          # "ficha" (sessions/<pid>.json) ou "transcrito" (só o .jsonl)
-    atualizada_em: float = 0.0
-    marca: str = ""               # muda quando começa um novo episódio de espera
-
-    @property
-    def esperando(self) -> bool:
-        return self.estado in ESPERANDO
-
-    def frase(self) -> str:
-        texto = f"A sessão \"{self.nome}\" do projeto {self.projeto} está {DESCRICAO[self.estado]}"
-        return texto + (f" ({self.motivo})." if self.motivo else ".")
-
-    def to_dict(self) -> dict:
-        data = asdict(self)
-        data.pop("marca")
-        data["descricao"] = DESCRICAO[self.estado]
-        data["atualizada_em"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.atualizada_em))
-        return data
-
-
-# ── fichas dos processos (sessions/<pid>.json) ───────────────────────────
-
-def _claude_alive(pid) -> bool:
-    """O processo existe e é um claude (a ficha pode sobrar de um PID reaproveitado).
-
-    Não usa os.kill(pid, 0): no Windows o sinal 0 é CTRL_C_EVENT.
-    """
-    import psutil
-
-    try:
-        return psutil.Process(int(pid)).name().lower().startswith("claude")
-    except (psutil.Error, TypeError, ValueError):
-        return False
-
-
-def read_roster(home: Path, alive: Callable[[int], bool] = _claude_alive) -> dict[str, dict]:
-    """sessionId → ficha mais recente entre os processos vivos."""
-    found: dict[str, dict] = {}
-    try:
-        files = list((home / "sessions").glob("*.json"))
-    except OSError:
-        return found
-    for path in files:
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            sid, pid = str(data["sessionId"]), int(data["pid"])
-        except (OSError, ValueError, KeyError, TypeError):
-            continue  # ilegível ou pega no meio da escrita
-        if not alive(pid):
-            continue
-        old = found.get(sid)
-        if old is None or (data.get("statusUpdatedAt") or 0) > (old.get("statusUpdatedAt") or 0):
-            found[sid] = data
-    return found
-
-
-# ── transcritos (projects/<pasta>/<sessionId>.jsonl) ─────────────────────
-
-@dataclass
-class Tail:
-    """O que interessa do fim do transcrito."""
-    cwd: str = ""
-    titulo: str = ""
-    entrypoint: str = ""
-    conversa: bool = False        # há alguma mensagem user/assistant
-    pendentes: list[str] = field(default_factory=list)  # ferramentas sem resultado
-    ultimo: str = ""              # "assistant" | "user" | ""
-    fim_de_turno: bool = False
-    texto_final: str = ""
-    interrompido: bool = False
-    uuid: str = ""
-
-
-def read_tail(path: Path, nbytes: int = TAIL_BYTES) -> list[dict]:
-    """Objetos JSON dos últimos `nbytes`. A 1ª linha (cortada) e linhas inválidas são ignoradas."""
-    try:
-        with open(path, "rb") as fh:
-            fh.seek(0, os.SEEK_END)
-            size = fh.tell()
-            fh.seek(max(0, size - nbytes))
-            if size > nbytes:
-                fh.readline()
-            raw = fh.read()
-    except OSError:
-        return []
-    objs = []
-    for line in raw.decode("utf-8", "replace").splitlines():
-        try:
-            obj = json.loads(line)
-        except ValueError:
-            continue  # linha sendo escrita agora
-        if isinstance(obj, dict):
-            objs.append(obj)
-    return objs
-
-
-def _blocks(obj: dict) -> list:
-    content = (obj.get("message") or {}).get("content")
-    if isinstance(content, str):
-        return [{"type": "text", "text": content}]
-    return content if isinstance(content, list) else []
-
-
-def parse_tail(objs: list[dict]) -> Tail:
-    tail = Tail()
-    pending: dict[str, str] = {}
-    for obj in objs:
-        kind = obj.get("type")
-        if kind == "agent-name" and obj.get("agentName"):
-            tail.titulo = str(obj["agentName"])
-        elif kind == "custom-title" and obj.get("customTitle"):
-            tail.titulo = str(obj["customTitle"])
-        elif kind == "ai-title" and obj.get("aiTitle") and not tail.titulo:
-            tail.titulo = str(obj["aiTitle"])
-        if obj.get("cwd"):
-            tail.cwd = str(obj["cwd"])
-        if obj.get("entrypoint"):
-            tail.entrypoint = str(obj["entrypoint"])
-        if kind not in ("assistant", "user") or obj.get("isSidechain") or obj.get("isMeta"):
-            continue
-        tail.conversa, tail.ultimo, tail.uuid = True, kind, str(obj.get("uuid") or "")
-        blocks = [b for b in _blocks(obj) if isinstance(b, dict)]
-        if kind == "assistant":
-            for b in blocks:
-                if b.get("type") == "tool_use" and b.get("id"):
-                    pending[b["id"]] = str(b.get("name") or "")
-            stop = (obj.get("message") or {}).get("stop_reason")
-            tail.fim_de_turno = stop in ("end_turn", "stop_sequence")
-            texts = [b.get("text", "") for b in blocks if b.get("type") == "text"]
-            if texts:
-                tail.texto_final = str(texts[-1])
-            tail.interrompido = False
-        else:
-            for b in blocks:
-                if b.get("type") == "tool_result":
-                    pending.pop(b.get("tool_use_id"), None)
-            text = " ".join(str(b.get("text", "")) for b in blocks if b.get("type") == "text")
-            tail.interrompido = text.startswith("[Request interrupted")
-            tail.fim_de_turno, tail.texto_final = False, ""
-    tail.pendentes = list(pending.values())
-    return tail
-
-
-_URL = re.compile(r"\S+://\S+|\bwww\.\S+")
-
-
-def looks_like_question(text: str) -> bool:
-    """Termina em pergunta? Ignora "?" de URLs; aceita pergunta seguida de opções."""
-    cleaned = _URL.sub(" ", text or "").rstrip()
-    if not cleaned:
-        return False
-    return any(line.rstrip().endswith("?") for line in cleaned.splitlines()[-6:])
-
-
-def _from_tail(tail: Tail, idle_seconds: float, roster_status: str | None) -> tuple[str, str]:
-    """(estado, motivo) a partir do transcrito; roster_status ajusta a leitura."""
-    if not tail.conversa:
-        return NOVA, ""
-    questions = [n for n in tail.pendentes if n in QUESTION_TOOLS]
-    if questions:
-        return PERGUNTA, questions[0]
-    if tail.pendentes:
-        waiting = [n for n in tail.pendentes if n not in LONG_TOOLS]
-        if waiting and idle_seconds > STALE_SECONDS:
-            return PERMISSAO, f"talvez: {waiting[0]} sem resposta há {int(idle_seconds)} s; pode ser só um comando demorado"
-        return TRABALHANDO, ""
-    if roster_status == "busy":
-        return TRABALHANDO, ""
-    if tail.ultimo == "assistant" and tail.fim_de_turno:
-        if looks_like_question(tail.texto_final):
-            return PERGUNTA, ""
-        return AGUARDANDO, ""
-    if tail.ultimo == "user" and tail.interrompido:
-        return AGUARDANDO, "interrompida"
-    if roster_status == "idle":
-        return AGUARDANDO, ""
-    return TRABALHANDO if roster_status is None else DESCONHECIDO, ""
-
-
-def _state(roster: dict | None, tail: Tail, idle_seconds: float) -> tuple[str, str]:
-    if roster is not None and roster.get("status") == "waiting":
-        reason = str(roster.get("waitingFor") or "")
-        if reason in ("input needed", "goal proposal"):
-            return PERGUNTA, reason
-        return PERMISSAO, reason or "diálogo aberto"
-    return _from_tail(tail, idle_seconds, roster.get("status") if roster else None)
 
 
 class SessionReader:

@@ -16,3 +16,6 @@ dist/
 
 # Build e instalador
 build-pyinstaller.log
+
+# Build gerado de outro projeto (Dashboard Universal), nao versionado: veja o README
+jarvis/dashboard/painel.html

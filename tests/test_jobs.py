@@ -135,7 +135,7 @@ def test_find_ranks_marks_seen_and_only_new_hides_repeats(tmp_path):
 
 def test_open_link_only_allows_http(monkeypatch):
     pytest.importorskip("webview")
-    from jarvis.ui.app import Api
+    from jarvis.ui.api import Api
     from jarvis.config import Config
 
     opened = []
