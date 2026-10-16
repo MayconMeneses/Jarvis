@@ -79,8 +79,13 @@
 
   // Ditado (Safari no iPhone aceita webkitSpeechRecognition).
   const Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Reconhecimento) $("mic").hidden = true;
-  else $("mic").addEventListener("click", () => {
+  // O Safari só libera o microfone em HTTPS: em http:// o botão some e o app explica como ligar a voz.
+  const semVoz = !Reconhecimento || !window.isSecureContext;
+  if (semVoz) {
+    $("mic").hidden = true;
+    if (Reconhecimento) $("falar").parentElement.insertAdjacentHTML("afterend",
+      '<p class="voz">🎤 O ditado por voz precisa de HTTPS (veja “Tailscale” no guia do celular). Digitar funciona normalmente.</p>');
+  } else $("mic").addEventListener("click", () => {
     const rec = new Reconhecimento();
     rec.lang = "pt-BR";
     rec.interimResults = false;
