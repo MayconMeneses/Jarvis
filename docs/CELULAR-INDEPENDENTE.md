@@ -44,5 +44,5 @@ Enquanto o Pages não for ligado, nada é publicado. Para testar no PC antes: `c
 ## Para quem mexe no código
 
 - `movel/js/` tem módulos pequenos (memória, saber, motor, design, gerar, aprender, cérebro, contexto, proativo, interface).
-- Testes: `node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs` (o cérebro é testado com um WebLLM falso) e
+- Testes: `node --test movel/testes/*.test.mjs` (o cérebro é testado com um WebLLM falso) e
   `python -m pytest tests/test_movel.py` (confere que os cálculos do celular dão o mesmo resultado que os do PC e que a base está em dia).
