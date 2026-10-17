@@ -2,6 +2,9 @@
 import { aprender, consultarAprendido, pesquisar } from "./aprender.js";
 import * as design from "./design.js";
 import * as gerar from "./gerar.js";
+import { Habilidades } from "./habilidades.js";
+import { instalarExtras } from "./motor-extra.js";
+import { Stack } from "./stack.js";
 import { dataPorExtenso, dois, fold, isoData } from "./util.js";
 
 export const limpar = (texto) => fold(texto).trim().replace(/^(ei|ok|hey|oi|ola)?[\s,]*jarvis[\s,:!.]*/, "").replace(/[?!.]+$/, "").trim()
@@ -29,6 +32,8 @@ export const PADROES = [
 export const CONSULTAS_PARA_IA = new Set(["hora", "data", "memoria", "ux", "comparar"]);
 
 export const AJUDA = "Estou no **modo independente** (rodo só neste celular, sem servidor). Consigo:\n"
+  + "- **clima, notícias, vagas** (\"clima em Fortaleza\", \"notícias de tecnologia\", \"vagas\" depois de \"minha stack é Python e React\"), **projetos** (\"anota no projeto Loja que ...\", \"ficha do projeto Loja\")\n"
+  + "- **evoluir**: \"quais habilidades de programador\", \"treino da semana\", \"checklist de segurança\", \"revise este diff\" (cole o diff na linha seguinte), \"qual stack para uma loja virtual\"\n"
   + "- **hora e data**, **memória** (\"lembre que...\", \"me lembre de ligar para o João amanhã\", \"o que você sabe sobre mim\", \"apague a nota X\")\n"
   + "- **programação**: \"explique SOLID\", \"mostre o padrão Observer em JavaScript\", \"como fazer fatorial em Go\", \"compare React e Vue\"\n"
   + "- **design**: \"contraste #767676 sobre #ffffff\", \"paleta a partir de #3b82f6\", \"tokens css para #3b82f6\", \"escala tipográfica\"\n"
@@ -39,7 +44,11 @@ export const AJUDA = "Estou no **modo independente** (rodo só neste celular, se
 const para = (limpo, regex) => regex.exec(limpo);
 
 export class Motor {
-  constructor({ saber, memoria, buscar, agora = () => new Date(), brave = null }) { Object.assign(this, { saber, memoria, buscar, agora, brave }); }
+  constructor({ saber, memoria, buscar, agora = () => new Date(), brave = null }) {
+    Object.assign(this, { saber, memoria, buscar, agora, brave });
+    this.stack = new Stack(saber.tecnologias, saber.tipos);
+    this.habil = new Habilidades(saber.habilidades, saber);
+  }
 
   classificar(texto) {
     const baixo = limpar(texto);
@@ -160,7 +169,9 @@ export class Motor {
   }
 
   _comparar(texto) {
-    const itens = [...this.saber.citadosTopicos(texto), ...this.saber.constructor.citados(this.saber.tecnologias, texto)];
+    const tecnologias = this.saber.constructor.citados(this.saber.tecnologias, texto);
+    if (tecnologias.length >= 2) return this.stack.comparar(tecnologias[0], tecnologias[1]);  // "React e Vue", "Django ou FastAPI"
+    const itens = [...this.saber.citadosTopicos(texto), ...tecnologias];
     return itens.length >= 2 ? this.saber.comparar(itens[0], itens[1]) : 'Diga os dois itens, por exemplo: "compare React e Vue" ou "diferença entre pilha e fila".';
   }
 
@@ -179,7 +190,10 @@ export class Motor {
 
   async _explicar(texto, limpo) {
     const tema = limpo.replace(/^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+/, "");
-    const achado = this.saber.explicar(tema, this.saber.linguagem(texto)) || await this._aprendido(tema);
+    const tecnologia = this.saber.tecnologia(tema);
+    const achado = (tecnologia && this.stack.descrever(tecnologia)) || this.saber.explicar(tema, this.saber.linguagem(texto)) || await this._aprendido(tema);
     return achado || pesquisar(tema, this.buscar, this.brave);
   }
 }
+
+instalarExtras(Motor, PADROES);

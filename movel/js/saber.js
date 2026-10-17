@@ -20,6 +20,8 @@ export class Saber {
     this.algoritmos = dados.algoritmos || [];
     this.padroes = dados.padroes || [];
     this.estruturas = dados.estruturas || [];
+    this.tipos = dados.tipos || [];
+    this.habilidades = dados.habilidades || [];
   }
 
   static nomes(item) { return new Set([fold(item.id), fold(item.nome), ...(item.aliases || []).map(fold)]); }

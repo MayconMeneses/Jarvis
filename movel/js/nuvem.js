@@ -8,8 +8,8 @@ export const PROVEDORES = {
   openai: { nome: "OpenAI", base: "https://api.openai.com/v1", modelo: "gpt-4o-mini", dica: "Chave em platform.openai.com/api-keys" },
   groq: { nome: "Groq", base: "https://api.groq.com/openai/v1", modelo: "llama-3.3-70b-versatile", dica: "Chave grátis em console.groq.com/keys" },
   openrouter: { nome: "OpenRouter", base: "https://openrouter.ai/api/v1", modelo: "meta-llama/llama-3.3-70b-instruct:free", dica: "Chave em openrouter.ai/keys (tem modelos grátis)" },
-  brave: { nome: "Brave Search (por proxy)", base: "", modelo: "", tipo: "busca", dica: "Busca na web (para pesquisar e aprender). O Brave bloqueia o navegador: informe a URL do SEU proxy (o mesmo da NVIDIA, sem /v1)", exigeBase: true },
-  nvidia: { nome: "NVIDIA (por proxy)", base: "", modelo: "nvidia/llama-3.1-nemotron-70b-instruct", dica: "A NVIDIA bloqueia o navegador: informe a URL do SEU proxy (ex.: https://seu-proxy.workers.dev/v1)", exigeBase: true },
+  brave: { nome: "Brave Search (por proxy)", base: "", modelo: "", tipo: "busca", dica: "Busca na web. O Brave bloqueia o navegador: a URL base é a do SEU proxy, SEM /v1 (veja o passo a passo abaixo)", exigeBase: true },
+  nvidia: { nome: "NVIDIA (por proxy)", base: "", modelo: "nvidia/llama-3.1-nemotron-70b-instruct", dica: "A NVIDIA bloqueia o navegador: a URL base é a do SEU proxy COM /v1 no fim (veja o passo a passo abaixo)", exigeBase: true },
   personalizado: { nome: "Outro (compatível com OpenAI)", base: "", modelo: "", dica: "Informe a URL base (…/v1) e o modelo", exigeBase: true },
 };
 const SEGREDO = "segredo:";

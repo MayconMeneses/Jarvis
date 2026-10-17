@@ -14,9 +14,10 @@ RAIZ = Path(__file__).resolve().parent
 sys.path.insert(0, str(RAIZ.parent))
 
 TOPICO = ("id", "nome", "aliases", "resumo", "passos", "analogia", "exemplo", "erros", "exercicios")
-TECNOLOGIA = ("id", "nome", "categoria", "aliases", "resumo", "usos", "fortes", "fracos", "quando", "curva", "comeco")
+TECNOLOGIA = ("id", "nome", "categoria", "areas", "aliases", "resumo", "usos", "fortes", "fracos", "quando", "curva", "comeco")
 ALGORITMO = ("id", "nome", "aliases", "problema", "complexidade", "ideia", "pseudocodigo", "codigo")
 PADRAO = ("id", "nome", "aliases", "problema", "ideia", "pseudocodigo", "codigo")
+HABILIDADE = ("id", "nome", "medida", "resumo", "niveis", "praticas", "estudar", "treino")
 
 
 def _campos(item: dict, nomes: tuple[str, ...]) -> dict:
@@ -24,7 +25,7 @@ def _campos(item: dict, nomes: tuple[str, ...]) -> dict:
 
 
 def montar() -> dict:
-    from jarvis.dev import conhecimento, engenharia, logica, ux
+    from jarvis.dev import conhecimento, engenharia, habilidades, logica, ux
 
     topicos = ([{**_campos(i, TOPICO), "area": "logica"} for i in logica.conceitos()]
                + [{**_campos(i, TOPICO), "area": "engenharia"} for i in engenharia.itens()]
@@ -35,6 +36,8 @@ def montar() -> dict:
         "algoritmos": [_campos(i, ALGORITMO) for i in logica.algoritmos()],
         "padroes": [_campos(i, PADRAO) for i in engenharia.padroes()],
         "estruturas": [_campos(i, (*PADRAO, "complexidade")) for i in engenharia.estruturas()],
+        "tipos": list(conhecimento.system_types()),
+        "habilidades": [_campos(i, HABILIDADE) for i in habilidades.catalogo()],
     }
 
 

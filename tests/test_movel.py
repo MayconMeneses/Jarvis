@@ -88,4 +88,19 @@ def test_everything_runs_on_the_phone_without_the_pc():
     destinos = set()
     for arquivo in (MOVEL / "js").glob("*.js"):
         destinos |= set(re.findall(r"https://([a-z0-9.\-]+)", arquivo.read_text(encoding="utf-8")))
-    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
+    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev", "geocoding-api.open-meteo.com", "api.open-meteo.com", "api.rss2json.com", "hacker-news.firebaseio.com", "news.ycombinator.com", "api.github.com", "remotive.com", "g1.globo.com", "feeds.bbci.co.uk", "agenciabrasil.ebc.com.br", "tecnoblog.net", "canaltech.com.br", "olhardigital.com.br", "github.com"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
+
+
+def test_stack_and_habilidades_text_matches_the_pc():
+    """Mesmos textos do PC: tecnologias, comparação, visão por área, recomendação e checklist de habilidades."""
+    from jarvis.dev import conhecimento, habilidades
+
+    js = json.loads(node(
+        'import { readFileSync } from "node:fs"; import { Saber } from "./js/saber.js"; import { Stack } from "./js/stack.js"; import { Habilidades } from "./js/habilidades.js";'
+        'const d = JSON.parse(readFileSync("./dados/saber.json", "utf8")); const s = new Saber(d); const st = new Stack(d.tecnologias, d.tipos); const h = new Habilidades(d.habilidades, s);'
+        'const r = st.tecnologias.find((t) => t.id === "react"), v = st.tecnologias.find((t) => t.id === "vue");'
+        'console.log(JSON.stringify({desc: st.descrever(r), comp: st.comparar(r, v), area: st.visaoGeral("back end"), tipos: st.visaoTipos(), check: h.checklist("segurança"), geral: h.visaoGeral()}));'))
+    assert js["desc"] == conhecimento.describe(conhecimento.lookup("react"))
+    assert js["comp"] == conhecimento.compare(conhecimento.lookup("react"), conhecimento.lookup("vue"))
+    assert js["area"] == conhecimento.overview("back end") and js["tipos"] == conhecimento.types_overview()
+    assert js["check"] == habilidades.checklist("segurança") and js["geral"] == habilidades.visao_geral().replace(" (medido automaticamente)", "")  # o celular não mede projetos
