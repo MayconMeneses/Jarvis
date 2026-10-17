@@ -69,6 +69,7 @@ class LocalEngine:
         ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
         ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
         # Habilidades de programador (jarvis/local/habilidades_skills.py): avaliar projetos, evoluir, checklists.
+        ("revisar", r"^(revis\w+|analis\w+|avali\w+)\s+(este|esse|o|a)\s+(diff|patch|trecho|pull request|codigo abaixo|codigo a seguir)\b[\s\S]*$"),
         ("avaliar_projeto", r"^(avali\w+|revis\w+|analis\w+|audit\w+)\s+(o\s+|a\s+)?(projeto|codigo|repositorio|sistema|[a-z]:\\).*$|"
                             r"^(avali\w+|revis\w+)\s+(o\s+|a\s+)?(voce mesma|a si mesma|si mesma|seu proprio codigo|seu codigo|proprio codigo)\b.*$"),
         ("habilidades", r"^(quais (sao )?(as )?(minhas |suas )?habilidades.*|minhas habilidades|suas habilidades|habilidades de programador.*|"
@@ -110,10 +111,9 @@ class LocalEngine:
     ]
     MODULOS = {"padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
-               "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status,
-               "avaliar_llm": llm_skills.avaliar, "aprender": llm_skills.aprender}
-    DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias",
-              "sessoes", "dashboard", "ficha", "projetos", "perfil"}
+               "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status, "avaliar_llm": llm_skills.avaliar,
+               "aprender": llm_skills.aprender, "revisar": lambda t, c: engenharia_skills.revisar(t)}
+    DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil"}
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)

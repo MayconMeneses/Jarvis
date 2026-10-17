@@ -1,0 +1,55 @@
+:root {
+  --fundo: #04070c; --painel: #0b121c; --linha: #16324a; --ciano: #00e5ff; --texto: #dff6ff; --suave: #8fb0c4;
+  --erro: #ff6b6b; --ok: #4be3a0; --laranja: #ff9a3c;
+  --topo: env(safe-area-inset-top, 0px); --base: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: var(--fundo); color: var(--texto); font: 16px/1.45 -apple-system, system-ui, "Segoe UI", sans-serif; }
+body { -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+[hidden] { display: none !important; }
+#app { display: flex; flex-direction: column; height: 100dvh; padding: calc(var(--topo) + 8px) 16px calc(var(--base) + 8px); max-width: 760px; margin: 0 auto; }
+header { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
+h1 { margin: 0; font-size: 1.1rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ciano); }
+h2 { margin: 8px 0 4px; font-size: 1.05rem; }
+#estado { margin-left: auto; font-size: .8rem; color: var(--suave); }
+.orb { width: 14px; height: 14px; border-radius: 50%; background: var(--ciano); box-shadow: 0 0 12px var(--ciano); }
+.orb.pensando { animation: pulsa 1s ease-in-out infinite; background: var(--laranja); box-shadow: 0 0 12px var(--laranja); }
+@keyframes pulsa { 50% { transform: scale(1.5); opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .orb.pensando { animation: none; } }
+#abas { display: flex; gap: 6px; border-bottom: 1px solid var(--linha); padding-bottom: 8px; }
+#abas button { flex: 1; border-radius: 10px; }
+#abas button[aria-selected="true"] { background: #0d2a3a; border-color: var(--ciano); color: var(--ciano); }
+.aba { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding-top: 8px; -webkit-overflow-scrolling: touch; }
+#conversa { overflow: hidden; }
+#mensagens { flex: 1; overflow-y: auto; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; -webkit-overflow-scrolling: touch; }
+.msg { max-width: 92%; padding: 10px 12px; border-radius: 14px; overflow-wrap: anywhere; background: var(--painel); border: 1px solid var(--linha); }
+.msg.eu { align-self: flex-end; background: #0d2a3a; border-color: #1b5a78; white-space: pre-wrap; }
+.msg.aviso { border-color: var(--laranja); }
+.msg.erro { border-color: var(--erro); color: var(--erro); }
+.msg p { margin: 0 0 4px; } .msg ul { margin: 4px 0; padding-left: 20px; }
+.msg pre { margin: 6px 0; padding: 8px; background: #050a10; border: 1px solid var(--linha); border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+.msg code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .88em; }
+.msg small { display: block; margin-top: 4px; color: var(--suave); font-size: .72rem; }
+#atalhos { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; }
+#atalhos button { flex: none; }
+button, select { font: inherit; color: var(--texto); background: var(--painel); border: 1px solid var(--linha); border-radius: 999px; padding: 10px 14px; min-height: 44px; }
+button:active { background: #123248; }
+button:disabled { opacity: .5; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--ciano); outline-offset: 2px; }
+#form { display: flex; gap: 8px; align-items: center; }
+#form input { flex: 1; min-width: 0; }
+input, textarea, select { font-size: 16px; /* 16px evita o zoom automático do iPhone */ color: var(--texto); background: var(--painel); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; min-height: 44px; width: 100%; }
+select { border-radius: 12px; }
+label { display: block; margin-top: 10px; color: var(--suave); font-size: .85rem; }
+.voz { display: flex; gap: 8px; align-items: center; font-size: .8rem; margin: 8px 0 0; }
+.voz input { width: 20px; min-height: 20px; }
+#mic.ativo { background: var(--laranja); color: #2a1500; }
+#notas { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#notas li { padding: 10px 12px; background: var(--painel); border: 1px solid var(--linha); border-radius: 12px; }
+#notas small { display: block; color: var(--suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#editor { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.linha { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.nota { color: var(--suave); font-size: .8rem; }
+.aviso { color: var(--laranja); }
+progress { width: 100%; height: 10px; accent-color: var(--ciano); }
+details { margin-top: 12px; color: var(--suave); }

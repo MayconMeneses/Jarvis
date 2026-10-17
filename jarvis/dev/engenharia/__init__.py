@@ -33,12 +33,22 @@ def padroes() -> tuple[dict, ...]:
     return tuple(parse_md(p) for p in sorted((BASE / "padroes").glob("*.md")))
 
 
+@lru_cache(maxsize=1)
+def estruturas() -> tuple[dict, ...]:
+    """Estruturas de dados (pilha, fila, lista ligada, hash, árvore de busca, heap, grafo, trie, union-find), em Python e JavaScript."""
+    return tuple(parse_md(p) for p in sorted((BASE / "estruturas").glob("*.md")))
+
+
 def padrao(texto: str) -> dict | None:
     return achar(padroes(), texto)
 
 
+def estrutura(texto: str) -> dict | None:
+    return achar(estruturas(), texto)
+
+
 def mostrar_padrao(item: dict, lang: str = "python") -> str:
-    saida = [f"**{item['nome']}**", item["problema"], "", "**Ideia:**"] + [f"- {p}" for p in item["ideia"]]
+    saida = [f"**{item['nome']}**", item["problema"], *([f"- **Complexidade:** {item['complexidade']}"] if item.get("complexidade") else []), "", "**Ideia:**"] + [f"- {p}" for p in item["ideia"]]
     saida += ["", "**Pseudocódigo:**", "```", item["pseudocodigo"], "```"]
     codigo = item["codigo"].get(lang)
     if codigo is None:
@@ -50,6 +60,11 @@ def mostrar_padrao(item: dict, lang: str = "python") -> str:
 def visao_padroes() -> str:
     return "**Padrões de projeto que eu sei escrever (Python e JavaScript):**\n" + "\n".join(
         f"- **{p['nome']}**: {p['problema'].removeprefix('Quando usar: ').split(';')[0].rstrip('.')}." for p in padroes())
+
+
+def visao_estruturas() -> str:
+    return "**Estruturas de dados que eu sei escrever (Python e JavaScript):**\n" + "\n".join(
+        f"- **{e['nome']}**: {e['problema'].split('. ')[0].rstrip('.')}." for e in estruturas())
 
 
 def visao_geral() -> str:

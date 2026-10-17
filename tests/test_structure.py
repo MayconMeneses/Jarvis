@@ -10,8 +10,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_LINES = 300
-EXTENSIONS = {".py", ".html", ".css", ".js"}
-FOLDERS = ("jarvis", "tests", "packaging")
+EXTENSIONS = {".py", ".html", ".css", ".js", ".mjs"}
+FOLDERS = ("jarvis", "tests", "packaging", "movel")
 # Arquivos GERADOS (build de outro projeto), não escritos à mão: fora da regra e fora do Git.
 GENERATED = {"jarvis/dashboard/painel.html"}
 

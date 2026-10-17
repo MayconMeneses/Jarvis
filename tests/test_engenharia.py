@@ -10,7 +10,7 @@ import pytest
 from jarvis.dev import engenharia, gerar, logica, saber, ux
 from jarvis.dev.ux import cores
 
-PADROES = engenharia.padroes()
+PADROES = (*engenharia.padroes(), *engenharia.estruturas())  # padrões de projeto e estruturas de dados, mesmo formato e mesmo teste
 NODE = shutil.which("node")
 CAMPOS = ("resumo", "passos", "analogia", "exemplo", "erros", "exercicios")
 
@@ -45,11 +45,11 @@ def test_unified_lookup_unknown_and_explain():
 # ── padrões de projeto ───────────────────────────────────────────────────
 
 def test_pattern_library_is_complete():
-    assert len(PADROES) >= 8
+    assert len(engenharia.padroes()) >= 8 and len(engenharia.estruturas()) >= 9
     for p in PADROES:
         assert {"nome", "problema", "ideia", "pseudocodigo", "codigo", "casos", "funcoes"} <= set(p), p["id"]
         assert set(p["codigo"]) == {"python", "javascript"} and len(p["ideia"]) >= 3 and p["casos"], p["id"]
-        assert p["problema"].startswith("Quando usar"), p["id"]
+        assert p["problema"].startswith("Quando usar") or p in engenharia.estruturas(), p["id"]
 
 
 @pytest.mark.parametrize("p", PADROES, ids=lambda p: p["id"])

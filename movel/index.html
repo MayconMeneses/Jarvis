@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Jarvis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#04070c">
+  <meta name="description" content="Jarvis: assistente pessoal e parceira de programação que roda só no seu celular.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Jarvis">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icones/icone-180.png">
+  <link rel="icon" href="icones/icone-180.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main id="app">
+    <header>
+      <span class="orb" id="orb" aria-hidden="true"></span>
+      <h1>Jarvis</h1>
+      <span id="estado" role="status">pronta</span>
+    </header>
+    <nav id="abas" aria-label="Seções">
+      <button type="button" data-aba="conversa" aria-selected="true">Conversa</button>
+      <button type="button" data-aba="memoria" aria-selected="false">Memória</button>
+      <button type="button" data-aba="cerebro" aria-selected="false">Cérebro</button>
+    </nav>
+
+    <section id="conversa" class="aba">
+      <div id="mensagens" aria-live="polite"></div>
+      <div id="atalhos">
+        <button type="button" data-texto="que horas são">Hora</button>
+        <button type="button" data-texto="o que você sabe sobre mim">Memória</button>
+        <button type="button" data-texto="quais padrões de projeto você sabe">Padrões</button>
+        <button type="button" data-texto="escala tipográfica">Escala</button>
+        <button type="button" data-texto="ajuda">Ajuda</button>
+      </div>
+      <form id="form" autocomplete="off">
+        <button type="button" id="mic" aria-label="Falar" hidden>🎤</button>
+        <input id="texto" placeholder="Fale com a Jarvis" enterkeyhint="send" aria-label="Mensagem">
+        <button type="submit" id="enviar" aria-label="Enviar">➤</button>
+      </form>
+      <label class="voz"><input type="checkbox" id="falar"> Ler as respostas em voz alta</label>
+    </section>
+
+    <section id="memoria" class="aba" hidden>
+      <input id="busca" type="search" placeholder="Buscar nas notas" aria-label="Buscar nas notas">
+      <ul id="notas"></ul>
+      <div id="editor" hidden>
+        <input id="nota-ref" aria-label="Nome da nota">
+        <textarea id="nota-corpo" rows="8" aria-label="Conteúdo da nota"></textarea>
+        <div class="linha"><button type="button" id="nota-salvar">Salvar</button><button type="button" id="nota-apagar">Apagar</button><button type="button" id="nota-fechar">Fechar</button></div>
+      </div>
+      <div class="linha">
+        <button type="button" id="nova-nota">Nova nota</button>
+        <input id="senha-copia" type="password" placeholder="Senha da cópia (8+ caracteres)" autocomplete="off" aria-label="Senha da cópia">
+        <button type="button" id="exportar">Salvar cópia segura</button>
+        <button type="button" id="importar">Restaurar cópia</button>
+        <input id="arquivo" type="file" accept="application/json,.json" hidden>
+      </div>
+      <p class="nota">Tudo fica só neste aparelho. A cópia é um arquivo criptografado (AES-256) que você guarda onde quiser (Arquivos, iCloud Drive) e que também abre na Jarvis do PC. Sem a senha ela não abre: não há como recuperar.</p>
+    </section>
+
+    <section id="cerebro" class="aba" hidden>
+      <h2>Cérebro de IA no celular</h2>
+      <p>Um modelo de linguagem pequeno roda <b>dentro do seu iPhone</b>, sem servidor e sem enviar suas conversas para fora. Sem ele, o motor de regras já responde a tudo que está na Ajuda.</p>
+      <p id="suporte" class="aviso"></p>
+      <label for="modelo">Modelo</label>
+      <select id="modelo"></select>
+      <p id="modelo-nota" class="nota"></p>
+      <div class="linha"><button type="button" id="ligar">Baixar e ligar</button><button type="button" id="desligar" hidden>Desligar</button></div>
+      <progress id="progresso" max="1" value="0" hidden></progress>
+      <p id="cerebro-status" role="status"></p>
+      <p class="nota">O download é feito uma vez (use Wi-Fi) e fica guardado no aparelho. Exige Safari com WebGPU (iOS 26 ou mais novo) e deixa o celular mais quente e a bateria mais curta enquanto responde.</p>
+      <details><summary>Instalar como app no iPhone</summary><p>No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p></details>
+    </section>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

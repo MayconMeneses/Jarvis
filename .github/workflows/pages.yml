@@ -1,0 +1,39 @@
+name: Publicar a Jarvis do celular (GitHub Pages)
+
+# Só roda quando você mandar (Actions > este fluxo > Run workflow), e só depois de ligar o GitHub Pages em
+# Settings > Pages > Source: "GitHub Actions". Enquanto isso, nada é publicado.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Testes do app do celular
+        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs
+      - name: Montar o site (só a pasta movel, sem testes nem scripts Python)
+        run: |
+          mkdir site
+          cp -r movel/index.html movel/sw.js movel/manifest.webmanifest movel/css movel/js movel/dados movel/icones site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

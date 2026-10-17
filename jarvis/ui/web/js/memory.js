@@ -69,6 +69,16 @@
     await memRefresh();
     memSay(res.error || "Nota apagada.", !res.error);
   });
+  for (const [id, metodo] of [["mem-backup", "memory_backup"], ["mem-restore", "memory_restore"]]) {
+    document.getElementById(id).addEventListener("click", async () => {
+      const campo = document.getElementById("mem-senha");
+      const res = await window.pywebview.api[metodo](campo.value);
+      campo.value = "";  // a senha não fica na tela
+      if (res.cancelado) return;
+      memSay(res.error || res.text, !res.error);
+      if (!res.error) memRefresh();
+    });
+  }
   document.getElementById("mem-export").addEventListener("click", async () => {
     const res = await window.pywebview.api.memory_export();
     if (res.cancelado) return;

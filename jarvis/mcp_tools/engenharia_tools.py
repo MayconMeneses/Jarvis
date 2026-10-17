@@ -69,3 +69,13 @@ def gerar_artefato(tipo: str, nome: str = "item", detalhes: str = "") -> str:
     except ValueError as exc:
         return str(exc)
     return "Tipos: sql, adr, historia, openapi, ci, dockerfile, editorconfig."
+
+
+@server.tool()
+def revisar_codigo(texto: str) -> str:
+    """Revisa um diff (git diff) ou um trecho de código colado, sem executar nada: aponta execução dinâmica, SQL montado com texto,
+    shell perigoso, segredos no código, exceções engolidas, HTML sem filtro, pendências esquecidas, código sem teste e diffs grandes,
+    com arquivo, linha e o que fazer. Em diff, só as linhas adicionadas são julgadas."""
+    from jarvis.dev import revisao
+
+    return revisao.relatorio(texto)

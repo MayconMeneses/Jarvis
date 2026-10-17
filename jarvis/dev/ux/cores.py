@@ -62,8 +62,8 @@ def escala_espacamento(base: int = 4, passos: int = 10) -> list[int]:
 def tokens_css(cor_principal: str, base: float = 16, razao: float = 1.25) -> str:
     linhas = [":root {"]
     linhas += [f"  --cor-{nome}: {valor};" for nome, valor in paleta(cor_principal).items()]
-    linhas += [f"  --texto-{nome}: {tamanho / 16:g}rem;" for nome, tamanho in escala_tipografica(base, razao)]
-    linhas += [f"  --espaco-{i + 1}: {valor / 16:g}rem;" for i, valor in enumerate(escala_espacamento())]
+    linhas += [f"  --texto-{nome}: {round(tamanho / 16, 4):g}rem;" for nome, tamanho in escala_tipografica(base, razao)]
+    linhas += [f"  --espaco-{i + 1}: {round(valor / 16, 4):g}rem;" for i, valor in enumerate(escala_espacamento())]
     linhas += ["  --raio: 0.5rem;", "  --duracao: 200ms;", "}",
                "@media (prefers-color-scheme: dark) { :root { color-scheme: dark; } }",
                "@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }"]

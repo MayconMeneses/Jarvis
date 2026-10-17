@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 
-from jarvis.dev import conhecimento, logica, modelos, saber
+from jarvis.dev import conhecimento, engenharia, logica, modelos, saber
 
 AREAS = (r"front[\s-]?end", r"back[\s-]?end", r"full[\s-]?stack", r"mobile", r"celular", r"bancos? de dados?", r"linguagens?", r"stacks?")
 _AREA = re.compile(r"(?<!\w)(" + "|".join(AREAS) + r")(?!\w)", re.I)
@@ -33,7 +33,10 @@ def info(tema: str) -> str | None:
 def algorithm(text: str) -> str | None:
     """Algoritmo clássico pedido ("busca binária em Java"), ou None se não for um que eu tenha pronto."""
     found = logica.algorithm(text)
-    return logica.show(found, logica.language_in(text)) if found else None
+    if found:
+        return logica.show(found, logica.language_in(text))
+    estrutura = engenharia.estrutura(text)  # "mostre uma pilha em JavaScript", "como implementar uma trie"
+    return engenharia.mostrar_padrao(estrutura, logica.language_in(text)) if estrutura else None
 
 
 def logic(text: str) -> str:
