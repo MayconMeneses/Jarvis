@@ -43,6 +43,15 @@ export function ligarNuvem(nuvem, memoria, avisar) {
     } finally { $("nv-salvar").disabled = false; }
   });
 
+  $("nv-copiar").addEventListener("click", async () => {
+    try {
+      const codigo = await (await fetch("proxy/nvidia-worker.js")).text();
+      await navigator.clipboard.writeText(codigo);
+      $("nv-copiado").textContent = "Código copiado. Cole no editor do Worker na Cloudflare.";
+    } catch (e) {
+      $("nv-copiado").textContent = "Não consegui copiar daqui. Abra github.com/MayconMeneses/Jarvis/blob/main/movel/proxy/nvidia-worker.js e copie o arquivo.";
+    }
+  });
   $("nv-ordem").addEventListener("change", () => memoria.definirMeta("nuvem_ordem", $("nv-ordem").value));
   return async () => { $("nv-ordem").value = (await memoria.meta("nuvem_ordem")) || "aparelho"; await desenhar(); };
 }

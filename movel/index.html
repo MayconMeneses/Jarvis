@@ -85,6 +85,19 @@
       <label for="nv-provedor">Provedor</label>
       <select id="nv-provedor"></select>
       <p id="nv-dica" class="nota"></p>
+      <details id="nv-proxy">
+        <summary>NVIDIA e Brave: como conseguir a URL base (proxy grátis, 5 minutos)</summary>
+        <p>A NVIDIA e o Brave <b>não deixam o navegador</b> chamar a API deles, e por isso não existe uma URL pronta: você cria um proxy seu, grátis, uma vez só.</p>
+        <ol>
+          <li>Abra <b>dash.cloudflare.com</b> (pode ser no computador, é mais fácil), crie a conta grátis e vá em <b>Workers &amp; Pages → Create → Worker</b>.</li>
+          <li>Toque em <b>Edit code</b>, apague tudo e cole o código do proxy (botão abaixo copia para você). Toque em <b>Deploy</b>.</li>
+          <li>Copie o endereço do Worker, algo como <code>https://jarvis-proxy.seunome.workers.dev</code>.</li>
+          <li><b>NVIDIA:</b> URL base = esse endereço + <code>/v1</code>, ou seja <code>https://jarvis-proxy.seunome.workers.dev/v1</code>.</li>
+          <li><b>Brave:</b> URL base = só o endereço, <b>sem</b> /v1: <code>https://jarvis-proxy.seunome.workers.dev</code>.</li>
+        </ol>
+        <div class="linha"><button type="button" id="nv-copiar">Copiar o código do proxy</button></div>
+        <p id="nv-copiado" class="nota" role="status"></p>
+      </details>
       <div id="nv-base-linha" hidden>
         <label for="nv-base">URL base (https://…/v1)</label>
         <input id="nv-base" placeholder="https://seu-servico/v1" autocomplete="off" spellcheck="false">
