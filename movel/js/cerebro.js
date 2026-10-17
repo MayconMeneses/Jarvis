@@ -57,8 +57,7 @@ export class Cerebro {
     throw new Error(`${ultimoErro.message} — este modelo não funcionou neste aparelho; escolha outro na lista (o Llama 1B é o mais seguro).`);
   }
 
-  async perguntar(mensagens, aoReceber = () => {}) {
-    if (!this.engine) throw new Error("o cérebro de IA não está ligado");
+  async _gerar(mensagens, aoReceber) {
     let texto = "";
     const fluxo = await this.engine.chat.completions.create({ messages: mensagens, stream: true, max_tokens: 600, temperature: 0.4 });
     for await (const pedaco of fluxo) {
@@ -66,6 +65,27 @@ export class Cerebro {
       aoReceber(texto);
     }
     return texto.trim();
+  }
+
+  // Se o contexto estourar, tenta de novo só com o sistema e a última fala; se o aparelho perder a GPU, religa o modelo e tenta de novo.
+  async perguntar(mensagens, aoReceber = () => {}, aoReligar = () => {}) {
+    if (!this.engine) throw new Error("o cérebro de IA não está ligado");
+    try {
+      return await this._gerar(mensagens, aoReceber);
+    } catch (e) {
+      const msg = String(e?.message || e);
+      if (/context|exceed|too long|prompt tokens|window/i.test(msg) && mensagens.length > 2) {
+        return this._gerar([mensagens[0], mensagens[mensagens.length - 1]], aoReceber);
+      }
+      if (/device|lost|gpu|webgpu|abort|dispose/i.test(msg) && this.modelo) {
+        aoReligar("O iPhone liberou a memória da IA; religando o modelo (já está baixado)…");
+        const id = this.modelo;
+        this.engine = null;
+        await this.carregar(id);
+        return this._gerar(mensagens, aoReceber);
+      }
+      throw e;
+    }
   }
 
   async descarregar() {

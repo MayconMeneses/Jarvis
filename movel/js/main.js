@@ -1,7 +1,8 @@
 // Jarvis do celular: junta memória, conhecimento, motor de regras e (se ligado) o cérebro de IA do aparelho.
 import { avisos } from "./proativo.js";
-import { adicionar, atualizar, falar, ligarDitado, pensando } from "./chat.js";
+import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando } from "./chat.js";
 import { Cerebro } from "./cerebro.js";
+import { Conversa } from "./conversa.js";
 import * as contexto from "./contexto.js";
 import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
 import { Motor } from "./motor.js";
@@ -28,31 +29,32 @@ async function main() {
   const memoria = await iniciarMemoria();
   const motor = new Motor({ saber, memoria, buscar: (url) => fetch(url) });
   const cerebro = new Cerebro();
-  const historico = [];
+  const conversa = new Conversa(memoria);
   const nome = async () => (await memoria.meta("nome")) || "Maycon";
 
   async function perguntarIA(texto) {
     const dados = (await motor.consultarAntes(texto)) || "";
     const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados });
-    const mensagens = [{ role: "system", content: sistema }, ...contexto.historico(historico)];
+    const mensagens = [{ role: "system", content: sistema }, ...conversa.paraPrompt()];  // cabe no contexto do modelo, sempre
     const bolha = adicionar("…", "jarvis", cerebro.modelo);
     pensando(true, "IA pensando…");
     try {
-      const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, parcial));
+      const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, parcial), (aviso) => atualizar(bolha, aviso));
       atualizar(bolha, resposta || "Não consegui responder.");
       return resposta;
+    } catch (e) {
+      atualizar(bolha, `Não consegui responder agora (${e.message}). A conversa continua: pode perguntar de novo.`);
+      bolha.classList.add("erro");
+      return "";
     } finally { pensando(false); }
   }
 
-  async function enviar(texto) {
-    texto = texto.trim();
-    if (!texto) return;
-    adicionar(texto, "eu");
-    $("texto").value = "";
-    historico.push({ role: "user", content: texto });
+  // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou).
+  async function responder(texto) {
+    await conversa.adicionar("user", texto);
     await memoria.diario(`Pedido: ${texto.slice(0, 200)}`);
     pensando(true);
-    let resposta;
+    let resposta = "";
     try {
       resposta = await motor.responder(texto);  // regras primeiro: dados exatos, instantâneo, sem gastar bateria
       if (resposta === null && cerebro.ligado()) { pensando(false); resposta = await perguntarIA(texto); }
@@ -61,16 +63,34 @@ async function main() {
         adicionar(resposta, "jarvis");
       }
     } catch (e) {
-      adicionar("Algo deu errado: " + e.message, "jarvis erro");
-      resposta = "";
+      adicionar("Algo deu errado: " + e.message + ". A conversa continua: pode perguntar de novo.", "jarvis erro");
     } finally { pensando(false); }
-    historico.push({ role: "assistant", content: resposta });
-    falar(resposta);
+    await conversa.adicionar("assistant", resposta);
+    return resposta;
+  }
+
+  async function enviar(texto) {
+    texto = texto.trim();
+    if (!texto) return;
+    destravarFala();
+    adicionar(texto, "eu");
+    $("texto").value = "";
+    falar(await responder(texto));
   }
 
   $("form").addEventListener("submit", (ev) => { ev.preventDefault(); enviar($("texto").value); });
   document.querySelectorAll("#atalhos button").forEach((b) => b.addEventListener("click", () => enviar(b.dataset.texto)));
   ligarDitado(enviar);
+  ligarConversaPorVoz(responder);
+
+  // A leitura em voz alta vem ligada (lembra a escolha): a Jarvis "conversa", não só escreve.
+  $("falar").checked = (await memoria.meta("falar")) !== false;
+  $("falar").addEventListener("change", () => memoria.definirMeta("falar", $("falar").checked));
+  $("nova-conversa").addEventListener("click", async () => {
+    await conversa.limpar();
+    $("mensagens").replaceChildren();
+    adicionar("Conversa nova. A memória (notas e lembranças) continua guardada.", "jarvis aviso");
+  });
 
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
   const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
@@ -80,7 +100,13 @@ async function main() {
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
   }));
 
-  adicionar("Olá! Eu sou a Jarvis e rodo **só neste celular**: minha memória e meu cérebro ficam aqui. Diga \"ajuda\" para ver o que sei fazer.", "jarvis");
+  const anterior = await conversa.carregar();
+  if (anterior.length) {  // conversa contínua: ao reabrir (ou se o iPhone recarregar o app), ela continua de onde parou
+    adicionar("Continuando de onde paramos:", "jarvis aviso");
+    for (const m of anterior.slice(-12)) adicionar(m.content, m.role === "user" ? "eu" : "jarvis");
+  } else {
+    adicionar("Olá! Eu sou a Jarvis e rodo **só neste celular**: minha memória e meu cérebro ficam aqui. Pode escrever ou tocar em **Conversar por voz**. Diga \"ajuda\" para ver o que sei fazer.", "jarvis");
+  }
   for (const aviso of await avisos({ memoria, saber, nome: await nome() })) adicionar(aviso, "jarvis aviso");
   religar();
   if ("serviceWorker" in navigator && window.isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => {});

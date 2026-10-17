@@ -38,12 +38,17 @@
         <button type="button" data-texto="escala tipográfica">Escala</button>
         <button type="button" data-texto="ajuda">Ajuda</button>
       </div>
+      <div class="linha" id="voz-barra">
+        <button type="button" id="voz-modo" aria-pressed="false">🎙️ Conversar por voz</button>
+        <button type="button" id="nova-conversa">Nova conversa</button>
+      </div>
+      <p id="dica-voz" class="nota" hidden>Para falar: use o microfone 🎤 do teclado do iPhone (vale em qualquer app). A conversa por voz contínua precisa de HTTPS e do Safari com microfone liberado.</p>
       <form id="form" autocomplete="off">
         <button type="button" id="mic" aria-label="Falar" hidden>🎤</button>
         <input id="texto" placeholder="Fale com a Jarvis" enterkeyhint="send" aria-label="Mensagem">
         <button type="submit" id="enviar" aria-label="Enviar">➤</button>
       </form>
-      <label class="voz"><input type="checkbox" id="falar"> Ler as respostas em voz alta</label>
+      <label class="voz"><input type="checkbox" id="falar"> Falar as respostas em voz alta</label>
     </section>
 
     <section id="memoria" class="aba" hidden>

@@ -91,3 +91,45 @@ test("se nenhuma combinação de janela funciona, explica e sugere outro modelo;
 test("o modelo recomendado não é o que deu conflito", () => {
   assert.ok(!RECOMENDADO.startsWith("gemma"));
 });
+
+test("contexto estourado: tenta de novo só com o sistema e a última fala (a conversa não encerra)", async () => {
+  const usos = [];
+  const lib = { prebuiltAppConfig: { model_list: [] }, async CreateMLCEngine() {
+    return { chat: { completions: { async create({ messages }) {
+      usos.push(messages.length);
+      if (messages.length > 2) throw new Error("ContextWindowSizeExceededError: Prompt tokens exceed context window size");
+      return (async function* () { yield { choices: [{ delta: { content: "ok" } }] }; })();
+    } } }, unload: async () => {} };
+  } };
+  const c = new Cerebro({ importar: async () => lib, gpu: () => ({}) });
+  await c.carregar(RECOMENDADO);
+  const historico = [{ role: "system", content: "s" }, { role: "user", content: "a" }, { role: "assistant", content: "b" }, { role: "user", content: "c" }];
+  assert.equal(await c.perguntar(historico), "ok");
+  assert.deepEqual(usos, [4, 2]);
+});
+
+test("GPU perdida (o iPhone tomou a memória): religa o modelo e responde", async () => {
+  let motores = 0, falhou = false;
+  const lib = { prebuiltAppConfig: { model_list: [] }, async CreateMLCEngine() {
+    motores++;
+    return { chat: { completions: { async create() {
+      if (!falhou) { falhou = true; throw new Error("GPUDevice was lost"); }
+      return (async function* () { yield { choices: [{ delta: { content: "voltei" } }] }; })();
+    } } }, unload: async () => {} };
+  } };
+  const c = new Cerebro({ importar: async () => lib, gpu: () => ({}) });
+  await c.carregar(RECOMENDADO);
+  const avisos = [];
+  assert.equal(await c.perguntar([{ role: "user", content: "oi" }], () => {}, (a) => avisos.push(a)), "voltei");
+  assert.equal(motores, 2);
+  assert.match(avisos[0], /religando/);
+});
+
+test("outros erros do modelo continuam aparecendo (não são engolidos)", async () => {
+  const lib = { prebuiltAppConfig: { model_list: [] }, async CreateMLCEngine() {
+    return { chat: { completions: { async create() { throw new Error("falha desconhecida"); } } }, unload: async () => {} };
+  } };
+  const c = new Cerebro({ importar: async () => lib, gpu: () => ({}) });
+  await c.carregar(RECOMENDADO);
+  await assert.rejects(() => c.perguntar([{ role: "system", content: "s" }, { role: "user", content: "a" }]), /falha desconhecida/);
+});
