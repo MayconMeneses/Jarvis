@@ -41,6 +41,15 @@ def montar() -> dict:
     }
 
 
+def modelos_texto() -> str:
+    """Projetos prontos (as mesmas peças do PC) com marcadores __NOME__/__SLUG__/__DESCRICAO__ para o celular preencher."""
+    from jarvis.dev import modelos
+
+    combinacoes = ["fastapi", "express", "react", "html", "fastapi+react", "fastapi+html", "express+react", "express+html"]
+    saida = {c: {"descricao": modelos.descricao(c), "arquivos": modelos.arquivos(c, "__NOME__", "__DESCRICAO__")} for c in combinacoes}
+    return json.dumps(saida, ensure_ascii=False, separators=(",", ":")) + "\n"
+
+
 def texto() -> str:
     return json.dumps(montar(), ensure_ascii=False, separators=(",", ":")) + "\n"
 
@@ -48,11 +57,14 @@ def texto() -> str:
 def main(argv: list[str]) -> int:
     destino = RAIZ / "dados" / "saber.json"
     if "--conferir" in argv:
-        return 0 if destino.is_file() and destino.read_text(encoding="utf-8") == texto() else 1
+        modelos = RAIZ / "dados" / "modelos.json"
+        return 0 if (destino.is_file() and destino.read_text(encoding="utf-8") == texto()
+                     and modelos.is_file() and modelos.read_text(encoding="utf-8") == modelos_texto()) else 1
     from jarvis.mobile import icones
 
     destino.parent.mkdir(exist_ok=True)
     destino.write_text(texto(), encoding="utf-8")
+    (RAIZ / "dados" / "modelos.json").write_text(modelos_texto(), encoding="utf-8")
     (RAIZ / "icones").mkdir(exist_ok=True)
     for tamanho in (180, 192, 512):
         (RAIZ / "icones" / f"icone-{tamanho}.png").write_bytes(icones.png(tamanho))
