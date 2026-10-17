@@ -96,6 +96,30 @@ def build_proactive(cfg: Config, api: Api, window):
                      projetos_parados=projetos_sem_commit)
 
 
+def build_autonomo(cfg: Config, api: Api, window):
+    """Aprendizado autônomo (ver jarvis/autonomo): estuda sozinha o que mais conversamos, com o PC parado."""
+    from jarvis import config, keys
+    from jarvis.autonomo.agendador import Autonomo
+    from jarvis.dev import conhecimento, saber
+    from jarvis.local import websearch
+
+    def entregar(texto: str) -> None:
+        api._conversation.note(texto)
+        api._diary("Aprendizado autônomo: " + texto[:120])
+        push(window, {"aviso": texto})
+
+    def cita(texto: str) -> list[dict]:
+        return [i for _, i in saber.citados(texto)] + list(conhecimento.mentioned(texto))
+
+    def avaliar_semana() -> str:
+        from jarvis.local import llm_skills
+
+        return llm_skills.avaliar("", config.load()) if config.load().llm_local else "Avaliação semanal do cérebro local: o cérebro local está desligado."
+
+    return Autonomo(config.load, api._memory, entregar, websearch.research, websearch.format_answer, cita,
+                    ultimo_pedido=lambda: api._ultimo_pedido, chave_brave=lambda: keys.get_key("brave"), avaliar_semana=avaliar_semana)
+
+
 def build_session_watcher(api: Api, window):
     """Avisa quando uma sessão do Claude Code no PC passa a esperar o usuário."""
     from jarvis.dev import sessions

@@ -20,6 +20,7 @@ from jarvis.ui.api_brains import BrainsMixin
 from jarvis.ui.api_files import FilesMixin
 from jarvis.ui.api_learning import LearningMixin
 from jarvis.ui.api_mobile import MobileMixin
+from jarvis.ui.api_oficina import OficinaMixin
 from jarvis.ui.api_memory import MemoryMixin
 from jarvis.ui.api_review import ReviewMixin
 from jarvis.ui.api_selfupdate import SelfUpdateMixin
@@ -28,7 +29,7 @@ from jarvis.ui.api_update import UpdateMixin
 log = logging.getLogger(__name__)
 
 
-class Api(FilesMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
+class Api(FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(
@@ -38,6 +39,7 @@ class Api(FilesMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, Learni
         self._conversation = conversation
         self._store = store or actions.ActionStore()
         self._voice = None  # VoiceLoop, quando a voz está ativa
+        self._ultimo_pedido = 0.0  # para o aprendizado autônomo só trabalhar com o PC parado
         self._memory = memory_db.open_memory(cfg)
         self._files = files.AttachmentStore()
         self._window = None  # definida em run(); usada no seletor de arquivos
@@ -91,7 +93,7 @@ class Api(FilesMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, Learni
             self._voice.listen_now()
 
     def send(self, text: str, attachments: list | None = None) -> dict:
-        started = time.time()
+        started = self._ultimo_pedido = time.time()
         text = str(text)
         if attachments:
             listed = []

@@ -88,4 +88,4 @@ def test_everything_runs_on_the_phone_without_the_pc():
     destinos = set()
     for arquivo in (MOVEL / "js").glob("*.js"):
         destinos |= set(re.findall(r"https://([a-z0-9.\-]+)", arquivo.read_text(encoding="utf-8")))
-    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net"}, destinos  # os únicos sites que o app pode chamar
+    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar

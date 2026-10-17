@@ -2,6 +2,8 @@
 import { avisos } from "./proativo.js";
 import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando } from "./chat.js";
 import { Cerebro } from "./cerebro.js";
+import { Nuvem } from "./nuvem.js";
+import { ligarNuvem } from "./painel-nuvem.js";
 import { Conversa } from "./conversa.js";
 import * as contexto from "./contexto.js";
 import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
@@ -27,7 +29,8 @@ async function iniciarMemoria() {
 async function main() {
   const saber = new Saber(await (await fetch("dados/saber.json")).json());
   const memoria = await iniciarMemoria();
-  const motor = new Motor({ saber, memoria, buscar: (url) => fetch(url) });
+  const nuvem = new Nuvem({ armazem: memoria.armazem });
+  const motor = new Motor({ saber, memoria, buscar: (url, opcoes) => fetch(url, opcoes), brave: () => nuvem.brave() });
   const cerebro = new Cerebro();
   const conversa = new Conversa(memoria);
   const nome = async () => (await memoria.meta("nome")) || "Maycon";
@@ -49,6 +52,37 @@ async function main() {
     } finally { pensando(false); }
   }
 
+  // Nuvem (as chaves do usuário): histórico maior, porque esses modelos aguentam bem mais contexto.
+  async function perguntarNuvem(texto) {
+    const dados = (await motor.consultarAntes(texto)) || "";
+    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados });
+    const bolha = adicionar("…", "jarvis");
+    pensando(true, "consultando a nuvem…");
+    try {
+      const r = await nuvem.perguntar([{ role: "system", content: sistema }, ...conversa.paraPrompt(9000)], (parcial) => atualizar(bolha, parcial));
+      atualizar(bolha, r.texto);
+      const nota = document.createElement("small");
+      nota.textContent = r.provedor;
+      bolha.appendChild(nota);
+      return r.texto;
+    } catch (e) {
+      bolha.remove();
+      throw e;
+    } finally { pensando(false); }
+  }
+
+  // Ordem escolhida pelo usuário: aparelho primeiro (padrão, privado) ou nuvem primeiro (mais capaz). Se um falha, tenta o outro.
+  async function responderComIA(texto) {
+    const nuvemPrimeiro = (await memoria.meta("nuvem_ordem")) === "nuvem";
+    const opcoes = [];
+    if (cerebro.ligado()) opcoes.push(["aparelho", perguntarIA]);
+    if (await nuvem.configurada()) opcoes[nuvemPrimeiro ? "unshift" : "push"](["nuvem", perguntarNuvem]);
+    for (const [, tentar] of opcoes) {
+      try { const r = await tentar(texto); if (r) return r; } catch (e) { adicionar("Não consegui por esse caminho (" + e.message + ").", "jarvis aviso"); }
+    }
+    return opcoes.length ? "" : null;
+  }
+
   // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou).
   async function responder(texto) {
     await conversa.adicionar("user", texto);
@@ -57,9 +91,10 @@ async function main() {
     let resposta = "";
     try {
       resposta = await motor.responder(texto);  // regras primeiro: dados exatos, instantâneo, sem gastar bateria
-      if (resposta === null && cerebro.ligado()) { pensando(false); resposta = await perguntarIA(texto); }
-      else {
-        if (resposta === null) resposta = await motor.fallback(texto);
+      const comIA = resposta === null && (cerebro.ligado() || await nuvem.configurada());
+      if (comIA) { pensando(false); resposta = await responderComIA(texto); }
+      if (!comIA || resposta === null) {
+        if (resposta === null || resposta === undefined) resposta = await motor.fallback(texto);
         adicionar(resposta, "jarvis");
       }
     } catch (e) {
@@ -94,6 +129,8 @@ async function main() {
 
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
   const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
+  const aoAbrirNuvem = ligarNuvem(nuvem, memoria, (t) => adicionar(t, "aviso"));
+  aoAbrirNuvem();
   document.querySelectorAll("#abas button").forEach((b) => b.addEventListener("click", () => {
     document.querySelectorAll("#abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });

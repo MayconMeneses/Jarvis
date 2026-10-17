@@ -114,25 +114,20 @@ def escrever_arquivo(caminho: str, funcao: str, descricao: str, plano: list[tupl
 
 
 def rodar_testes(arquivos: dict[str, str]) -> str | None:
-    """Roda o pytest nos arquivos gerados (pasta temporária). None = passou ou não deu para testar; senão, a saída do erro."""
+    """Roda o pytest nos arquivos gerados NO SANDBOX da Oficina (processo separado, tempo e memória limitados).
+    None = passou ou não deu para testar; senão, a saída do erro."""
     import importlib.util
-    import sys
 
-    if getattr(sys, "frozen", False) or importlib.util.find_spec("pytest") is None:
+    from jarvis.oficina import sandbox
+
+    if importlib.util.find_spec("pytest") is None or sandbox.interpretador("python") is None:
         return None
     if not any(Path(c).name.startswith("test_") and c.endswith(".py") for c in arquivos):
         return None
-    with tempfile.TemporaryDirectory() as pasta:
-        for caminho, conteudo in arquivos.items():
-            alvo = Path(pasta) / caminho
-            alvo.parent.mkdir(parents=True, exist_ok=True)
-            alvo.write_text(conteudo, encoding="utf-8")
-        try:
-            saida = subprocess.run([sys.executable, "-m", "pytest", "-x", "-q", "--tb=short", "-p", "no:cacheprovider"],
-                                   cwd=pasta, capture_output=True, text=True, timeout=90)
-        except subprocess.TimeoutExpired:
-            return "os testes demoraram demais"
-    return None if saida.returncode == 0 else (saida.stdout + saida.stderr).strip()[-1500:]
+    r = sandbox.testar("python", arquivos, tempo=90)
+    if r.estourou_tempo:
+        return "os testes demoraram demais"
+    return None if r.ok else (r.saida + r.erro).strip()[-1500:]
 
 
 def reparar(resultado: "Resultado", erro: str, descricao: str, conversa: Conversa, sistema: str, rodada: int = 0) -> bool:

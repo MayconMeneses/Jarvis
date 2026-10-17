@@ -15,9 +15,17 @@
     setStatus("st-brave", s.brave, "● chave ok", "● opcional");
     document.querySelectorAll('input[name="uso"]').forEach((r) => { r.checked = r.value === s.uso_gemini; });
     document.getElementById("standalone").checked = !!s.somente_independente;
+    document.getElementById("autonomo-on").checked = !!s.autonomo;
     document.getElementById("llm-local").checked = !!s.llm_local;
     setStatus("st-llm", s.llm_pronto, "● instalado", "● não instalado");
   }
+
+  document.getElementById("autonomo-on").addEventListener("change", async (ev) => {
+    const res = await window.pywebview.api.set_autonomo(ev.target.checked);
+    const fb = document.getElementById("fb-autonomo");
+    fb.textContent = res.mensagem;
+    fb.className = "feedback on-ok";
+  });
 
   document.getElementById("llm-local").addEventListener("change", async (ev) => {
     const res = await window.pywebview.api.set_llm(ev.target.checked);

@@ -46,3 +46,25 @@ Enquanto o Pages não for ligado, nada é publicado. Para testar no PC antes: `c
 - `movel/js/` tem módulos pequenos (memória, saber, motor, design, gerar, aprender, cérebro, contexto, proativo, interface).
 - Testes: `node --test movel/testes/*.test.mjs` (o cérebro é testado com um WebLLM falso) e
   `python -m pytest tests/test_movel.py` (confere que os cálculos do celular dão o mesmo resultado que os do PC e que a base está em dia).
+
+## Suas chaves de API no celular (Gemini, NVIDIA, Brave e outras)
+
+Na aba **Cérebro → Nuvem** você cadastra as chaves que já tem. A chave fica **só neste aparelho** (IndexedDB), **fora da cópia de segurança**, e só vai
+para o provedor que você escolheu. Cadastrar testa a chave antes de guardar; se o modelo padrão foi aposentado, o app acha outro que a chave enxerga.
+
+| Serviço | Funciona direto no celular? | Como |
+|---|---|---|
+| **Google Gemini** | Sim | Provedor "Google Gemini" + a chave. |
+| OpenAI, Groq, OpenRouter | Sim | Idem (ou "Outro", com a URL base). |
+| **NVIDIA** | **Não**: o site da NVIDIA bloqueia chamadas do navegador (sem CORS; verificado) | Precisa de um proxy seu (abaixo). |
+| **Brave Search** | **Não**, pelo mesmo motivo (verificado) | Mesmo proxy. Quando cadastrado, "pesquise/aprenda sobre..." passa a usar o Brave (várias fontes) e cai para a Wikipédia se ele falhar. |
+
+Ordem de uso (você escolhe na mesma tela): **aparelho primeiro** (padrão, mais privado) ou **nuvem primeiro** (mais capaz; a pergunta vai ao provedor). Se um falha, tenta o outro.
+
+### Proxy grátis para NVIDIA e Brave (Cloudflare Workers), uma vez só
+1. Crie uma conta grátis em dash.cloudflare.com → **Workers & Pages → Create → Worker**.
+2. Cole o conteúdo de `movel/proxy/nvidia-worker.js` no editor e toque em **Deploy**. Anote o endereço, por exemplo `https://jarvis-proxy.seunome.workers.dev`.
+3. No app do celular, em **Nuvem**: **NVIDIA (por proxy)** com a URL base `https://jarvis-proxy.seunome.workers.dev/v1` e a sua chave da NVIDIA; **Brave Search (por proxy)** com a URL `https://jarvis-proxy.seunome.workers.dev` (sem `/v1`) e a sua chave do Brave.
+
+O proxy **não guarda chave nenhuma**: só repassa o cabeçalho de autenticação, aceita apenas pedidos vindos de `https://mayconmeneses.github.io` (a constante `ORIGEM` no
+arquivo; mude se publicar o app em outro endereço) e só as rotas `/v1/...` (NVIDIA) e `/brave/res/v1/...` (Brave). Quem souber o endereço do seu proxy não consegue usá-lo sem a origem e a chave.

@@ -80,6 +80,29 @@
       <progress id="progresso" max="1" value="0" hidden></progress>
       <p id="cerebro-status" role="status"></p>
       <p class="nota">O download é feito uma vez (use Wi-Fi) e fica guardado no aparelho. Exige Safari com WebGPU (iOS 26 ou mais novo) e deixa o celular mais quente e a bateria mais curta enquanto responde.</p>
+      <h2>Nuvem: suas chaves de API</h2>
+      <p>Opcional. Se você tem chave do Gemini, OpenAI, Groq ou OpenRouter, cadastre aqui para a Jarvis usar um modelo bem mais capaz quando o motor de regras não entender. A chave fica só neste aparelho. A NVIDIA bloqueia o navegador: só funciona por um proxy seu.</p>
+      <label for="nv-provedor">Provedor</label>
+      <select id="nv-provedor"></select>
+      <p id="nv-dica" class="nota"></p>
+      <div id="nv-base-linha" hidden>
+        <label for="nv-base">URL base (https://…/v1)</label>
+        <input id="nv-base" placeholder="https://seu-servico/v1" autocomplete="off" spellcheck="false">
+      </div>
+      <label for="nv-modelo">Modelo (opcional)</label>
+      <input id="nv-modelo" autocomplete="off" spellcheck="false">
+      <label for="nv-chave">Chave de API</label>
+      <input id="nv-chave" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave aqui">
+      <div class="linha"><button type="button" id="nv-salvar">Salvar e testar</button></div>
+      <p id="nv-status" role="status"></p>
+      <ul id="nv-lista"></ul>
+      <div id="nv-ordem-linha" hidden>
+        <label for="nv-ordem">Quando usar a nuvem</label>
+        <select id="nv-ordem">
+          <option value="aparelho">Só se o cérebro do aparelho não estiver ligado ou falhar</option>
+          <option value="nuvem">Sempre que as regras não entenderem (mais capaz; envia a pergunta ao provedor)</option>
+        </select>
+      </div>
       <details><summary>Instalar como app no iPhone</summary><p>No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p></details>
     </section>
   </main>

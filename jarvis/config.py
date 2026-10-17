@@ -109,6 +109,10 @@ class Config:
     llm_local: bool = False
     # Iniciativa própria: avisos sem ser chamada (bom dia, treino da semana, memória alta, projeto parado).
     proativo: bool = True
+    # Aprendizado autônomo: estuda sozinha, na internet, os assuntos que o usuário mais pergunta. Desligado por padrão.
+    autonomo: bool = False
+    autonomo_max_por_dia: int = 3
+    autonomo_minimo: int = 3  # quantas vezes o assunto precisa aparecer nos pedidos dos últimos 14 dias
     # Jarvis no celular (app web instalável): desligado por padrão. "rede" True = alcançável na rede local/Tailscale.
     celular_ativo: bool = False
     celular_porta: int = 8765

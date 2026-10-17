@@ -16,7 +16,7 @@ from jarvis.config import Config
 from jarvis.ui import tray, web
 from jarvis.ui.api import Api
 from jarvis.ui.window import claim_single_instance, show_already_open, window_geometry
-from jarvis.ui.workers import build_proactive, build_session_watcher, build_task_worker, build_voice
+from jarvis.ui.workers import build_autonomo, build_proactive, build_session_watcher, build_task_worker, build_voice
 
 RESTART_WAIT_SECONDS = 12.0  # a Jarvis nova espera a antiga fechar
 
@@ -44,6 +44,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     tasks = build_task_worker(cfg, api, window)
     watcher = build_session_watcher(api, window)
     proactive = build_proactive(cfg, api, window)
+    autonomo = build_autonomo(cfg, api, window)
 
     def on_closing() -> bool:
         if quitting:
@@ -60,6 +61,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         api.stop_update_loop()
         watcher.stop()
         proactive.stop()
+        autonomo.stop()
         api.mobile_stop()
         conversation.router.stop()  # fecha a sessão do Claude
         icon.stop()
@@ -80,6 +82,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
         tasks.start()
         watcher.start()
         proactive.start()
+        autonomo.start()
         api.start_update_loop()
         if cfg.celular_ativo:
             try:

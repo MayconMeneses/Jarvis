@@ -83,7 +83,7 @@ class LocalEngine:
         ("avaliar_llm", r"^(avali\w+|test\w+)\s+(o |a )?(cerebro|modelo|llm)( local)?\b.*$"),
         ("aprender", r"^(aprend\w+|estud\w+)\s+(sobre|a respeito de)\s+.{3,}$"),
         ("llm_instalar", r"^(instal\w+|baix\w+|lig\w+|ativ\w+)\s+(o |a )?(cerebro|modelo|ia|llm)( generativ\w+)? (local|proprio|proprio)\b.*$"),
-        ("llm_status", r"(cerebro|modelo|llm) local"),
+        ("llm_status", r"(cerebro|modelo|llm) local|o que (voce )?(aprendeu|estudou)|aprendizado (automatico|autonomo)|(aprenda|estude) sozinha"),
         ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
         ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
         ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
