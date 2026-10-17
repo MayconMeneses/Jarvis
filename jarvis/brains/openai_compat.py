@@ -12,9 +12,11 @@ import urllib.request
 from collections.abc import Callable
 
 from jarvis.brains.base import Answer, BrainUnavailable, Message
+from jarvis.brains.modelos import EstadoModelos, candidatos
 from jarvis.config import ProviderConfig
 
 log = logging.getLogger(__name__)
+MAX_MODELOS = 15  # modelos tentados por pedido (o leque tem dezenas: o resto fica para o próximo pedido)
 
 
 def http_reason(name: str, exc: urllib.error.HTTPError) -> str:
@@ -41,11 +43,12 @@ def http_reason(name: str, exc: urllib.error.HTTPError) -> str:
 
 class OpenAICompat:
     def __init__(
-        self, name: str, cfg: ProviderConfig, get_key: Callable[[str], str | None]
+        self, name: str, cfg: ProviderConfig, get_key: Callable[[str], str | None], estado: EstadoModelos | None = None
     ) -> None:
         self.name = name
         self.cfg = cfg
         self._get_key = get_key
+        self.estado = estado or EstadoModelos()  # leque de modelos (NVIDIA): quais funcionam e quais foram encerrados
 
     def list_models(self) -> list[str]:
         """Modelos disponíveis para a chave (GET /models), sem o prefixo "models/"."""
@@ -68,9 +71,56 @@ class OpenAICompat:
         key = self._get_key(self.name)
         if not key:
             raise BrainUnavailable("sem chave de API configurada")
+        if self.name == "nvidia":
+            return self._ask_pool(messages, system, key)
+        return self._ask_model(self.cfg.model, messages, system, key)
 
+    def _atualizar_pool(self) -> None:
+        """Relê o catálogo e guarda TODOS os modelos de conversa (o leque). Sem rede ou sem permissão, mantém o que já tinha."""
+        try:
+            self.estado.definir_pool(self.name, candidatos(self.list_models()))
+        except BrainUnavailable as exc:
+            log.info("não consegui atualizar o leque de modelos do %s: %s", self.name, exc)
+
+    def _ask_pool(self, messages: list[Message], system: str, key: str) -> Answer:
+        """Tenta os modelos do leque em ordem: pula os encerrados (404/410, lembrados por alguns dias) e fica com o primeiro que responder."""
+        if not self.estado.pool(self.name):
+            self._atualizar_pool()  # primeira vez, ou configuração de uma versão antiga: descobre o leque pela chave
+        falhas: list[str] = []
+        tentados: set[str] = set()
+        limites = erros = 0
+        for rodada in range(2):
+            for modelo in [m for m in self.estado.ordem(self.name, self.cfg.model) if m not in tentados][:MAX_MODELOS]:
+                tentados.add(modelo)
+                try:
+                    resposta = self._ask_model(modelo, messages, system, key)
+                except BrainUnavailable as exc:
+                    texto = str(exc)
+                    if texto.startswith("chave inválida"):
+                        raise  # a chave não serve para nenhum modelo: não adianta passar pelo leque
+                    if texto.startswith("modelo não encontrado"):
+                        self.estado.marcar_morto(self.name, modelo)  # aposentado: ignora por alguns dias
+                    elif texto.startswith("limite de uso"):
+                        limites += 1
+                    else:
+                        erros += 1
+                    falhas.append(f"{modelo}: {texto}")
+                    if limites >= 2 or erros >= 4:
+                        raise BrainUnavailable(f"a NVIDIA não respondeu ({'; '.join(falhas[-2:])})") from exc
+                    continue
+                if not resposta.text:
+                    falhas.append(f"{modelo}: resposta vazia")
+                    continue
+                self.estado.marcar_bom(self.name, modelo)
+                self.cfg.model = modelo
+                return resposta
+            if rodada == 0:
+                self._atualizar_pool()  # esgotou o leque: relê o catálogo e tenta só os que ainda não foram tentados
+        raise BrainUnavailable("nenhum modelo da NVIDIA respondeu (" + "; ".join(falhas[-3:]) + ")")
+
+    def _ask_model(self, modelo: str, messages: list[Message], system: str, key: str) -> Answer:
         body = {
-            "model": self.cfg.model,
+            "model": modelo,
             "messages": [{"role": "system", "content": system}, *messages],
         }
         request = urllib.request.Request(

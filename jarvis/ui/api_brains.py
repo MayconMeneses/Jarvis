@@ -26,6 +26,7 @@ class BrainsMixin:
             "uso_gemini": cfg.uso_gemini,
             "somente_independente": cfg.somente_independente,
             "llm_local": cfg.llm_local,
+            "autonomo": cfg.autonomo,
             "llm_pronto": catalogo.estado(cfg.llm_modelo, cfg.llm_endpoint)["pronto"],
             "modelo_gemini": cfg.gemini.model,
         }
@@ -40,6 +41,15 @@ class BrainsMixin:
             return {"ok": True, "mensagem": "Ligado: só a inteligência da Jarvis responde a partir de agora."}
         self._diary("Modo sem IA desligado")
         return {"ok": True, "mensagem": "Desligado: o Claude, o Gemini e a NVIDIA voltam a ajudar."}
+
+    def set_autonomo(self, on: bool) -> dict:
+        """Liga/desliga o aprendizado autônomo (estudar sozinha, com o PC parado, o que mais conversamos)."""
+        cfg = config.load()
+        cfg.autonomo = bool(on)
+        config.save(cfg)
+        self._diary("Aprendizado autônomo " + ("ligado" if on else "desligado"))
+        return {"ok": True, "ligado": cfg.autonomo, "mensagem": (f"Ligado: com o PC parado, estudo até {cfg.autonomo_max_por_dia} assuntos por dia sobre o que você mais pergunta. "
+                                                                 "Digite \"o que você aprendeu\" para ver." if on else "Desligado.")}
 
     def set_llm(self, on: bool) -> dict:
         """Liga/desliga o cérebro generativo local. Só liga se já estiver instalado (a instalação é por cartão)."""
@@ -94,8 +104,15 @@ class BrainsMixin:
                 log.info("teste do %s com o modelo %s: %s", provider, provider_cfg.model, exc)
                 if not str(exc).startswith("modelo não encontrado"):
                     return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
-                # A chave foi aceita, mas o nome do modelo não existe mais: experimenta os modelos de conversa disponíveis.
-                self._find_working_model(brain, provider, provider_cfg, test)
+                if provider == "nvidia":  # a NVIDIA já tentou o leque inteiro (e pulou os encerrados): nenhum modelo respondeu
+                    return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
+                # Gemini: a chave foi aceita, mas o nome do modelo não existe mais: escolhe um disponível.
+                provider_cfg.model = pick_model(brain.list_models(), provider)
+                log.info("modelo do %s trocado para %s", provider, provider_cfg.model)
+                brain.ask(test, "Teste de conexão.")
+                config.save(cfg)
+            if provider == "nvidia":  # o teste passou pelo leque: guarda o modelo que respondeu
+                provider_cfg.model = brain.estado.bom("nvidia") or provider_cfg.model
                 config.save(cfg)
             keys.set_key(provider, key)
         except (BrainUnavailable, ValueError) as exc:
@@ -105,27 +122,12 @@ class BrainsMixin:
             log.exception("erro inesperado ao salvar a chave do %s", provider)
             return {"ok": False, "mensagem": f"Erro inesperado ao salvar: {exc}"}
         log.info("chave do %s guardada (modelo %s)", provider, provider_cfg.model)
+        extra = ""
+        if provider == "nvidia":
+            leque = len(brain.estado.pool("nvidia"))
+            extra = f" Tenho {leque} modelo(s) de conversa no leque; os que a NVIDIA encerrar são ignorados." if leque else ""
         return {"ok": True, "mensagem": f"Chave do {provider.capitalize()} testada e guardada no cofre do "
-                                        f"Windows (modelo {provider_cfg.model})."}
-
-    def _find_working_model(self, brain, provider: str, provider_cfg, test: list, max_tries: int = 6) -> None:
-        """Testa, em ordem, os modelos de conversa que a chave enxerga e fica com o primeiro que responder."""
-        from jarvis.brains.base import BrainUnavailable
-
-        last = None
-        for name in model_candidates(brain.list_models(), provider)[:max_tries]:
-            provider_cfg.model = name
-            try:
-                brain.ask(test, "Teste de conexão.")
-            except BrainUnavailable as exc:
-                log.info("modelo %s do %s não respondeu: %s", name, provider, exc)
-                if str(exc).startswith(("chave inválida", "limite de uso")):
-                    raise  # o problema é a chave ou o limite, não o modelo: não adianta trocar
-                last = f"{name}: {exc}"
-                continue
-            log.info("modelo do %s trocado para %s", provider, name)
-            return
-        raise BrainUnavailable("nenhum dos modelos de conversa testados respondeu" + (f" (o último: {last})" if last else ""))
+                                        f"Windows (modelo {provider_cfg.model}).{extra}"}
 
     def remove_key(self, provider: str) -> dict:
         from jarvis import keys
@@ -143,22 +145,6 @@ class BrainsMixin:
         cfg.uso_gemini = mode
         config.save(cfg)
         return {"ok": True}
-
-
-def model_candidates(models: list[str], provider: str) -> list[str]:
-    """Modelos de conversa para tentar, do melhor para o pior (NVIDIA: lista curada; Gemini: o flash mais novo primeiro)."""
-    from jarvis.brains import modelos
-
-    if provider == "nvidia":
-        found = modelos.candidatos(models)
-    else:
-        try:
-            found = [pick_model(models, provider)]
-        except ValueError:
-            found = []
-    if not found:
-        raise BrainUnavailable("nenhum modelo de texto disponível para esta chave")
-    return found
 
 
 def pick_model(models: list[str], provider: str) -> str:

@@ -201,6 +201,12 @@ Ferramentas MCP para o Claude: `consultar_tecnologia`, `listar_tecnologias`, `co
 
 **8. Mais ferramentas de programador no PC:** 9 **estruturas de dados** com código testado em Python e JavaScript (pilha, fila, lista ligada, tabela hash, árvore de busca, heap, grafo BFS/DFS, trie, union-find); **revisão de código e de diffs** ("revise este diff" + o diff colado: execução dinâmica, SQL montado com texto, shell perigoso, segredos, exceções engolidas, código sem teste...; só lê, nunca executa); e **cópia segura da memória** (◈ Memória → senha → Cópia segura): AES-256-GCM com PBKDF2, no mesmo formato do celular, então o arquivo abre nos dois.
 
+**9. Oficina, aprendizado autônomo e leque de modelos:**
+- **Oficina** (`jarvis/oficina/`, botão ⌨ Oficina): um IDE dentro da Jarvis. Editor com arquivos e projetos, **Rodar** e **Testar** em um **sandbox** (processo separado, pasta temporária, 10 s, 512 MB e no máximo 8 processos no Windows, ambiente limpo sem as suas chaves), **Desfazer** com histórico de versões e **✨ Criar com IA** (qualquer cérebro do roteador): ela planeja, escreve, roda os testes no sandbox, corrige e mostra o resultado. Nada roda sozinho. Limite honesto: o sandbox evita acidentes (laço infinito, memória estourada), mas **não bloqueia a rede nem protege de código malicioso feito de propósito**: revise antes de rodar.
+- **Aprender sozinha** (`jarvis/autonomo/`, desligado por padrão; ⚙ Cérebros): com o PC parado há 10 minutos, a Jarvis pesquisa na internet os assuntos que você mais pergunta (até 3 por dia; os que ela não conhece primeiro), guarda notas "Aprendizado/Autônomo/…" com fontes e o aviso "não verificado" e te conta. "O que você aprendeu" mostra; aos domingos ela avalia o cérebro local e registra a nota. Só lê; os assuntos vêm só do que você conversou.
+- **NVIDIA com o leque inteiro:** a Jarvis usa **todos** os modelos de conversa que a sua chave enxerga, na ordem do último que funcionou, e **ignora por 3 dias os que a NVIDIA encerrou** (HTTP 404/410); se o leque acaba, relê o catálogo. Configurações antigas se curam sozinhas.
+- **Celular com suas chaves:** Gemini direto; NVIDIA e Brave por um proxy seu grátis (veja `docs/CELULAR-INDEPENDENTE.md`).
+
 ## Anexos (ler, analisar e criar arquivos)
 
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).

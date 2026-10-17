@@ -1,9 +1,9 @@
 "use strict";
 // Guarda a casca do app e o conhecimento para abrir sem rede. Chamadas a outros sites (Wikipédia, modelos) nunca passam pelo cache daqui.
-const CACHE = "jarvis-movel-2";
+const CACHE = "jarvis-movel-3";
 const CASCA = ["./", "index.html", "css/app.css", "dados/saber.json", "manifest.webmanifest", "icones/icone-180.png", "icones/icone-512.png",
   "js/main.js", "js/util.js", "js/memoria.js", "js/saber.js", "js/design.js", "js/gerar.js", "js/aprender.js", "js/motor.js", "js/contexto.js",
-  "js/cerebro.js", "js/proativo.js", "js/md.js", "js/conversa.js", "js/cripto.js", "js/chat.js", "js/painel-memoria.js", "js/painel-cerebro.js"];
+  "js/cerebro.js", "js/nuvem.js", "js/painel-nuvem.js", "js/proativo.js", "js/md.js", "js/conversa.js", "js/cripto.js", "js/chat.js", "js/painel-memoria.js", "js/painel-cerebro.js"];
 
 self.addEventListener("install", (ev) => ev.waitUntil(caches.open(CACHE).then((c) => c.addAll(CASCA)).then(() => self.skipWaiting())));
 self.addEventListener("activate", (ev) => ev.waitUntil(

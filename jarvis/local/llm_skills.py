@@ -68,7 +68,29 @@ def aprender(texto: str, cfg) -> str:
     return web.aprender(texto, cfg)
 
 
+def autonomo(texto: str, cfg) -> str | None:
+    """"o que você aprendeu" mostra o que ela estudou sozinha; "ligar/desligar aprendizado automático" muda a configuração."""
+    import re
+
+    from jarvis import config, memory_db
+    from jarvis.autonomo import estudar
+
+    baixo = texto.lower()
+    if re.search(r"aprendeu|estudou", baixo):
+        return estudar.resumo(memory_db.open_memory(cfg))
+    if re.search(r"aprendizado|sozinha", baixo):
+        ligar = not re.search(r"desl|desat|pare|p[aá]ra", baixo)
+        cfg.autonomo = ligar
+        config.save(cfg)
+        return ("Ligado: com o PC parado, estudo até %d assuntos por dia sobre o que você mais pergunta. Diga \"o que você aprendeu\" para ver." % cfg.autonomo_max_por_dia
+                if ligar else "Desligado: não estudo mais nada sozinha.")
+    return None
+
+
 def status(texto: str, cfg) -> str:
+    achado = autonomo(texto, cfg)
+    if achado is not None:
+        return achado
     if re.search(r"\b(desliga\w*|desativ\w*)\b", texto.lower()):
         from jarvis import config
 

@@ -39,7 +39,7 @@ export const AJUDA = "Estou no **modo independente** (rodo só neste celular, se
 const para = (limpo, regex) => regex.exec(limpo);
 
 export class Motor {
-  constructor({ saber, memoria, buscar, agora = () => new Date() }) { Object.assign(this, { saber, memoria, buscar, agora }); }
+  constructor({ saber, memoria, buscar, agora = () => new Date(), brave = null }) { Object.assign(this, { saber, memoria, buscar, agora, brave }); }
 
   classificar(texto) {
     const baixo = limpar(texto);
@@ -108,8 +108,8 @@ export class Motor {
     return "**Na minha memória:**\n" + notas.map((n) => `- **${n.titulo}**: ${n.corpo.replace(/\n/g, " ").slice(0, 140)}`).join("\n");
   }
 
-  _aprender(texto) { return aprender(texto, this.memoria, this.buscar); }
-  _pesquisa(texto) { return pesquisar(texto, this.buscar); }
+  _aprender(texto) { return aprender(texto, this.memoria, this.buscar, this.brave); }
+  _pesquisa(texto) { return pesquisar(texto, this.buscar, this.brave); }
 
   _ux(texto) {
     const baixo = texto.toLowerCase();
@@ -180,6 +180,6 @@ export class Motor {
   async _explicar(texto, limpo) {
     const tema = limpo.replace(/^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+/, "");
     const achado = this.saber.explicar(tema, this.saber.linguagem(texto)) || await this._aprendido(tema);
-    return achado || pesquisar(tema, this.buscar);
+    return achado || pesquisar(tema, this.buscar, this.brave);
   }
 }
