@@ -1,5 +1,7 @@
 # Jarvis no celular (iPhone 13 Pro Max e outros)
 
+> **Atenção:** este guia descreve o app que **conversa com a Jarvis do PC** (opcional). A Jarvis **independente**, que roda só no celular, está em `docs/CELULAR-INDEPENDENTE.md`.
+
 A Jarvis do celular é um **app web instalável (PWA)** que conversa com a Jarvis que roda no seu PC. Funciona no iPhone (Safari),
 no Android (Chrome) e em qualquer navegador, sem App Store e sem conta de desenvolvedor.
 

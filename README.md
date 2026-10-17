@@ -196,6 +196,10 @@ Ferramentas MCP para o Claude: `consultar_tecnologia`, `listar_tecnologias`, `co
 - **Régua do modelo** (`jarvis/llm/avaliar.py`): "avalie o cérebro local" roda 6 tarefas de código com testes escondidos num processo separado, dá a nota e compara com a vez anterior do mesmo modelo, para provar cada melhoria (e escolher entre 1,5B e 3B com números).
 - **Jarvis no celular** (`jarvis/mobile/`, guia em `docs/CELULAR.md`): app web instalável no iPhone/Android, pareado por código, que conversa com a Jarvis do PC; ações que mudam o PC continuam sendo aprovadas na janela do PC.
 
+**7. Jarvis independente no celular** (`movel/`, guia em `docs/CELULAR-INDEPENDENTE.md`): um app web instalável (PWA), em JavaScript puro, que roda **só no celular** (iPhone, Android), sem falar com o PC: memória própria (IndexedDB), a mesma base de conhecimento do PC, motor de regras, pesquisa e "aprenda sobre" pela Wikipédia, avisos ao abrir e, opcionalmente, um **cérebro de IA dentro do aparelho** (WebLLM + WebGPU; baixa uma vez, com a sua confirmação). Publica-se no GitHub Pages por um fluxo manual (`.github/workflows/pages.yml`) que você aciona quando quiser.
+
+**8. Mais ferramentas de programador no PC:** 9 **estruturas de dados** com código testado em Python e JavaScript (pilha, fila, lista ligada, tabela hash, árvore de busca, heap, grafo BFS/DFS, trie, union-find); **revisão de código e de diffs** ("revise este diff" + o diff colado: execução dinâmica, SQL montado com texto, shell perigoso, segredos, exceções engolidas, código sem teste...; só lê, nunca executa); e **cópia segura da memória** (◈ Memória → senha → Cópia segura): AES-256-GCM com PBKDF2, no mesmo formato do celular, então o arquivo abre nos dois.
+
 ## Anexos (ler, analisar e criar arquivos)
 
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).

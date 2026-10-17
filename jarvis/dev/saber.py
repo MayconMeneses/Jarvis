@@ -10,7 +10,7 @@ def procurar(termo: str) -> tuple[str, dict] | None:
     for tipo, achado in (("engenharia", engenharia.topico(termo)), ("ux", ux.topico(termo)), ("logica", logica.concept(termo))):
         if achado:
             return tipo, achado
-    for tipo, achado in (("padrao", engenharia.padrao(termo)), ("algoritmo", logica.algorithm(termo))):
+    for tipo, achado in (("padrao", engenharia.padrao(termo)), ("algoritmo", logica.algorithm(termo)), ("padrao", engenharia.estrutura(termo))):
         if achado:
             return tipo, achado
     encontrados = citados(termo)
@@ -36,9 +36,9 @@ def citados(texto: str) -> list[tuple[str, dict]]:
 
 
 def resumo() -> str:
-    return "\n\n".join([logica.concepts_overview(), engenharia.visao_geral(), engenharia.visao_padroes(), ux.visao_geral()])
+    return "\n\n".join([logica.concepts_overview(), engenharia.visao_geral(), engenharia.visao_padroes(), engenharia.visao_estruturas(), ux.visao_geral()])
 
 
 def total() -> dict[str, int]:
     return {"logica": len(logica.conceitos()), "engenharia": len(engenharia.itens()), "ux": len(ux.itens()),
-            "padroes": len(engenharia.padroes()), "algoritmos": len(logica.algoritmos())}
+            "padroes": len(engenharia.padroes()), "estruturas": len(engenharia.estruturas()), "algoritmos": len(logica.algoritmos())}

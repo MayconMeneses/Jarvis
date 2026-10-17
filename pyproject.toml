@@ -24,6 +24,7 @@ dependencies = [
     "python-pptx>=1.0",
     "fpdf2>=2.8",
     "snowballstemmer>=2.2",
+    "cryptography>=42",
 ]
 
 [project.optional-dependencies]
@@ -46,7 +47,7 @@ include = ["jarvis*"]
 "jarvis.dev.conhecimento" = ["dados/*.json"]
 "jarvis.dev.habilidades" = ["dados/*.json"]
 "jarvis.dev.logica" = ["*.json", "algoritmos/*.md"]
-"jarvis.dev.engenharia" = ["dados/*.json", "padroes/*.md"]
+"jarvis.dev.engenharia" = ["dados/*.json", "padroes/*.md", "estruturas/*.md"]
 "jarvis.dev.ux" = ["dados/*.json"]
 "jarvis.mobile" = ["web/*"]
 "jarvis.dev.modelos" = ["arquivos/**/*.tpl"]

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 
-from jarvis.dev import engenharia, gerar, logica, saber, topicos
+from jarvis.dev import engenharia, gerar, logica, revisao, saber, topicos
 from jarvis.dev.ux import cores
 
 _COR = r"#?[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?"
@@ -89,3 +89,11 @@ def gerar_artefato(texto: str) -> str:
     except ValueError as exc:
         return f"Não consegui gerar: {exc}"
     return "Posso gerar: tabela SQL, ADR, história de usuário, OpenAPI, workflow de CI, Dockerfile e .editorconfig."
+
+
+def revisar(texto: str) -> str:
+    """Revisa o diff ou trecho colado depois da primeira linha ou dos dois-pontos (\"revise este diff: ...\")."""
+    corpo = texto.split("\n", 1)[1] if "\n" in texto else texto.split(":", 1)[1] if ":" in texto else ""
+    if not corpo.strip():
+        return "Cole o diff ou o código depois do pedido: escreva \"revise este diff\" e, na linha seguinte, o conteúdo."
+    return revisao.relatorio(corpo)

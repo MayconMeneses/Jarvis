@@ -53,6 +53,12 @@
     <label for="mem-text" class="sr-only">Texto da nota selecionada</label>
     <textarea id="mem-text" hidden spellcheck="false"></textarea>
     <div class="mem-actions">
+      <label for="mem-senha" class="sr-only">Senha da cópia criptografada</label>
+      <input id="mem-senha" type="password" placeholder="Senha da cópia (8+ caracteres)" autocomplete="off" style="max-width:15rem">
+      <button type="button" id="mem-backup" title="Cópia criptografada (AES-256) que também abre no celular">Cópia segura…</button>
+      <button type="button" id="mem-restore" title="Funde as notas de uma cópia segura (do PC ou do celular)">Restaurar…</button>
+    </div>
+    <div class="mem-actions">
       <button type="button" id="mem-save" hidden>Salvar</button>
       <button type="button" id="mem-delete" class="danger" hidden>Apagar</button>
       <span class="spacer"></span>

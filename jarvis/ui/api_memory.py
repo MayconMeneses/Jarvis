@@ -9,6 +9,11 @@ import webview
 from jarvis import memory_obsidian
 
 
+def _caminho(escolha) -> str:
+    """O seletor de arquivos devolve um texto ou uma lista, conforme a versão do pywebview."""
+    return escolha if isinstance(escolha, str) else escolha[0]
+
+
 class MemoryMixin:
     """Visualizador da memória própria da Jarvis (SQLite); nada depende do Obsidian."""
 
@@ -45,6 +50,39 @@ class MemoryMixin:
             return {"error": str(exc)}
         self._diary(f"Memória apagada na janela: {ref}")
         return {"ok": ok}
+
+    def memory_backup(self, password: str) -> dict:
+        """Cópia CRIPTOGRAFADA da memória (abre também no celular). A senha não é guardada nem vai para o diário."""
+        from jarvis import backup
+
+        if self._window is None:
+            return {"error": "janela indisponível"}
+        if len(str(password)) < backup.MIN_SENHA:
+            return {"error": f"Digite uma senha de pelo menos {backup.MIN_SENHA} caracteres no campo ao lado."}
+        local = self._window.create_file_dialog(webview.FileDialog.SAVE, save_filename="jarvis-copia.jarvis-backup")
+        if not local:
+            return {"cancelado": True}
+        try:
+            count = backup.exportar_arquivo(self._memory, _caminho(local), str(password))
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            return {"error": f"Não foi possível gravar a cópia: {exc}"}
+        self._diary("Cópia segura da memória gravada")
+        return {"text": f"{count} nota(s) gravadas com criptografia. Guarde a senha: sem ela a cópia não abre."}
+
+    def memory_restore(self, password: str) -> dict:
+        from jarvis import backup
+
+        if self._window is None:
+            return {"error": "janela indisponível"}
+        escolha = self._window.create_file_dialog(webview.FileDialog.OPEN)
+        if not escolha:
+            return {"cancelado": True}
+        try:
+            novas, atualizadas = backup.importar_arquivo(self._memory, _caminho(escolha), str(password))
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            return {"error": f"Não consegui restaurar: {exc}"}
+        self._diary("Cópia da memória restaurada")
+        return {"text": f"Restauradas: {novas} nota(s) nova(s) e {atualizadas} atualizada(s) (a versão mais recente de cada nota vence)."}
 
     def memory_export(self) -> dict:
         """Grava uma cópia em Markdown numa pasta escolhida (por exemplo, a Jarvis/ de um cofre do Obsidian)."""
