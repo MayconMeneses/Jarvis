@@ -39,9 +39,9 @@ def test_pairing_code_is_single_use_and_the_token_is_stored_only_as_a_hash(tmp_p
     assert p.validar("invalido") is None and p.validar("") is None
 
 
-def test_pairing_code_expires_and_wrong_guesses_lock_it():
+def test_pairing_code_expires_and_wrong_guesses_lock_it(tmp_path):
     relogio = Relogio()
-    p = Pareamento(Path("nunca-usado.json"), relogio)
+    p = Pareamento(tmp_path / "c.json", relogio)
     codigo = p.novo_codigo()
     relogio.t += 301
     assert p.trocar(codigo, "x") is None  # venceu

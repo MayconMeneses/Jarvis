@@ -7,11 +7,18 @@ export const URL_WEBLLM = `https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@${VERSAO
 export const MODELOS = [
   { id: "SmolLM2-360M-Instruct-q4f16_1-MLC", rotulo: "Mínimo (360M)", mb: 380, nota: "Rápido e simples; erra mais." },
   { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", rotulo: "Leve (0,5B)", mb: 950, nota: "Bom equilíbrio para aparelhos de 4 a 6 GB." },
-  { id: "gemma3-1b-it-q4f16_1-MLC", rotulo: "Português melhor (1B)", mb: 710, nota: "Entende melhor o português; recomendado para iPhone." },
-  { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", rotulo: "Equilibrado (1B)", mb: 880, nota: "Bom em conversa geral." },
+  { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", rotulo: "Recomendado (Llama 1B)", mb: 880, nota: "Entende português e é o mais testado: recomendado para iPhone." },
+  { id: "gemma3-1b-it-q4f16_1-MLC", rotulo: "Gemma 3 (1B)", mb: 710, nota: "Bom em português, mas em alguns aparelhos o WebLLM recusa a configuração dele; se der erro, use o Llama." },
   { id: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC", rotulo: "Mais capaz (1,5B)", mb: 1630, nota: "Só em aparelhos com 8 GB ou mais." },
 ];
-export const RECOMENDADO = "gemma3-1b-it-q4f16_1-MLC";
+// Llama 3.2 1B é o recomendado: entende português e não usa janela deslizante (o Gemma 3 deu conflito de configuração num iPhone real).
+export const RECOMENDADO = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+
+// Alguns modelos (Gemma 3) vêm com janela de contexto E janela deslizante positivas e o WebLLM recusa com o erro
+// "Only one of context_window_size and sliding_window_size can be positive". Tenta como está e, se o erro for esse,
+// com cada uma das janelas desligada (-1), uma de cada vez.
+export const AJUSTES_DE_JANELA = [undefined, { sliding_window_size: -1 }, { context_window_size: -1 }];
+const erroDeJanela = (e) => /sliding_window_size|context_window_size/.test(String(e?.message || e));
 
 export class Cerebro {
   constructor({ importar = (url) => import(url), gpu = () => globalThis.navigator?.gpu } = {}) {
@@ -35,8 +42,19 @@ export class Cerebro {
     if (!MODELOS.some((m) => m.id === id)) throw new Error("modelo desconhecido");
     const lib = await this._biblioteca();
     await this.descarregar();
-    this.engine = await lib.CreateMLCEngine(id, { initProgressCallback: (p) => aoProgredir(p.text || "", p.progress ?? 0) });
-    this.modelo = id;
+    const config = { initProgressCallback: (p) => aoProgredir(p.text || "", p.progress ?? 0) };
+    let ultimoErro;
+    for (const ajuste of AJUSTES_DE_JANELA) {
+      try {
+        this.engine = await lib.CreateMLCEngine(id, config, ajuste);
+        this.modelo = id;
+        return;
+      } catch (e) {
+        ultimoErro = e;
+        if (!erroDeJanela(e)) throw e;  // outro problema (memória, rede): não adianta mexer nas janelas
+      }
+    }
+    throw new Error(`${ultimoErro.message} — este modelo não funcionou neste aparelho; escolha outro na lista (o Llama 1B é o mais seguro).`);
   }
 
   async perguntar(mensagens, aoReceber = () => {}) {

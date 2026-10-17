@@ -123,7 +123,7 @@ def test_pick_model_prefers_stable_newest_flash():
     from jarvis.ui.api_brains import pick_model
 
     assert pick_model(["gemini-3.6-flash", "gemini-3.8-flash-preview", "gemini-3.8-flash"], "gemini") == "gemini-3.8-flash"
-    assert pick_model(["meta/llama-3.3-70b-instruct"], "nvidia") == "meta/llama-3.3-70b-instruct"
+    assert pick_model(["01-ai/yi-large", "nvidia/embed-qa-4", "nvidia/llama-3.1-nemotron-70b-instruct"], "nvidia") == "nvidia/llama-3.1-nemotron-70b-instruct"
 
 
 def test_mode_is_saved_and_validated(api):
@@ -167,3 +167,66 @@ def test_unexpected_error_never_leaves_the_button_stuck(api, monkeypatch):
     monkeypatch.setattr(openai_compat.OpenAICompat, "ask", boom)
     res = api.save_key("gemini", "AIzaSy-chave-qualquer-123456")
     assert res == {"ok": False, "mensagem": "Erro inesperado ao salvar: falha estranha"}
+
+
+def test_http_410_means_the_model_was_retired_not_a_bad_key():
+    import io
+    import urllib.error
+
+    from jarvis.brains.openai_compat import http_reason
+
+    erro = urllib.error.HTTPError("u", 410, "Gone", {}, io.BytesIO(b'{"detail": "The model has reached its end of life"}'))
+    assert http_reason("nvidia", erro).startswith("modelo não encontrado")
+    chave = urllib.error.HTTPError("u", 401, "Unauthorized", {}, io.BytesIO(b'{"error": {"message": "Invalid API key"}}'))
+    assert http_reason("nvidia", chave).startswith("chave inválida")
+
+
+def test_nvidia_candidates_skip_non_chat_models_and_prefer_known_good_ones():
+    from jarvis.brains import modelos
+
+    catalogo = ["01-ai/yi-large", "nvidia/embed-qa-4", "meta/llama-guard-4-12b", "nvidia/llama-3.1-nemotron-70b-instruct", "meta/llama-3.2-11b-vision-instruct",
+                "mistralai/mistral-large-2-instruct", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning", "nvidia/nvclip", "google/gemma-3-12b-it"]
+    achados = modelos.candidatos(catalogo)
+    assert achados[:3] == ["nvidia/llama-3.1-nemotron-70b-instruct", "mistralai/mistral-large-2-instruct", "google/gemma-3-12b-it"]
+    assert not any(p in m for m in achados for p in ("embed", "guard", "vision", "nvclip", "reasoning")) and "01-ai/yi-large" in achados
+
+
+def test_nvidia_key_with_a_retired_default_model_finds_one_that_answers(api, monkeypatch):
+    """O erro real: o modelo padrão saiu do catálogo da NVIDIA e a escolha automática caía num modelo que não é de conversa."""
+    from jarvis.brains import openai_compat
+
+    tentados = []
+
+    def ask(self, m, s):
+        tentados.append(self.cfg.model)
+        if self.cfg.model == "meta/llama-3.3-70b-instruct":
+            raise BrainUnavailable("modelo não encontrado (HTTP 404: Function not found for account)")
+        if self.cfg.model != "mistralai/mistral-large-2-instruct":
+            raise BrainUnavailable("erro HTTP 410: o modelo chegou ao fim da vida")
+        return Answer("ok", "nvidia")
+
+    monkeypatch.setattr(openai_compat.OpenAICompat, "ask", ask)
+    monkeypatch.setattr(openai_compat.OpenAICompat, "list_models", lambda self: [
+        "nvidia/embed-qa-4", "nvidia/llama-3.1-nemotron-70b-instruct", "mistralai/mistral-large-2-instruct", "meta/llama-guard-4-12b"])
+    cfg = config.load()
+    cfg.nvidia.model = "meta/llama-3.3-70b-instruct"  # configuração antiga, gravada pela versão anterior
+    config.save(cfg)
+    res = api.save_key("nvidia", "nvapi-chave-boa-1234567890abcdef")
+    assert res["ok"] and "mistral-large-2-instruct" in res["mensagem"]
+    assert tentados == ["meta/llama-3.3-70b-instruct", "nvidia/llama-3.1-nemotron-70b-instruct", "mistralai/mistral-large-2-instruct"]
+    assert config.load().nvidia.model == "mistralai/mistral-large-2-instruct" and api._vault_keys["nvidia"].startswith("nvapi-")
+
+
+def test_nvidia_key_problems_are_reported_without_swapping_models_blindly(api, monkeypatch):
+    from jarvis.brains import openai_compat
+
+    chamadas = []
+
+    def ask(self, m, s):
+        chamadas.append(self.cfg.model)
+        raise BrainUnavailable("modelo não encontrado (HTTP 404)" if len(chamadas) == 1 else "chave inválida (recusada pelo provedor)")
+
+    monkeypatch.setattr(openai_compat.OpenAICompat, "ask", ask)
+    monkeypatch.setattr(openai_compat.OpenAICompat, "list_models", lambda self: ["nvidia/llama-3.1-nemotron-70b-instruct", "mistralai/mistral-large-2-instruct"])
+    res = api.save_key("nvidia", "nvapi-chave-ruim-1234567890abcdef")
+    assert not res["ok"] and "chave inválida" in res["mensagem"] and len(chamadas) == 2 and "nvidia" not in api._vault_keys

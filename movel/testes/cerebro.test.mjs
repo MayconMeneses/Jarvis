@@ -58,3 +58,36 @@ test("a lista de modelos está do menor para o maior e o recomendado existe", ()
   assert.ok(MODELOS.some((m) => m.id === RECOMENDADO));
   assert.deepEqual(MODELOS.map((m) => m.mb).slice(0, 2), [380, 950]);
 });
+
+test("conflito de janela do Gemma (erro real de um iPhone): tenta de novo com uma janela desligada", async () => {
+  const tentativas = [];
+  const lib = {
+    prebuiltAppConfig: { model_list: [] },
+    async CreateMLCEngine(id, config, ajuste) {
+      tentativas.push(ajuste);
+      if (!ajuste?.sliding_window_size) {
+        throw new Error("Only one of context_window_size and sliding_window_size can be positive. Got: context_window_size: 4096, sliding_window_size: 512");
+      }
+      return { chat: { completions: { create: async () => [] } }, unload: async () => {} };
+    },
+  };
+  const c = new Cerebro({ importar: async () => lib, gpu: () => ({}) });
+  await c.carregar("gemma3-1b-it-q4f16_1-MLC");
+  assert.deepEqual(tentativas, [undefined, { sliding_window_size: -1 }]);
+  assert.ok(c.ligado());
+});
+
+test("se nenhuma combinação de janela funciona, explica e sugere outro modelo; outros erros não são mascarados", async () => {
+  const sempreErro = { prebuiltAppConfig: { model_list: [] }, async CreateMLCEngine() { throw new Error("sliding_window_size conflito"); } };
+  const c = new Cerebro({ importar: async () => sempreErro, gpu: () => ({}) });
+  await assert.rejects(() => c.carregar("gemma3-1b-it-q4f16_1-MLC"), /escolha outro.*Llama 1B/);
+  let chamadas = 0;
+  const memoria = { prebuiltAppConfig: { model_list: [] }, async CreateMLCEngine() { chamadas++; throw new Error("out of memory"); } };
+  const d = new Cerebro({ importar: async () => memoria, gpu: () => ({}) });
+  await assert.rejects(() => d.carregar(RECOMENDADO), /out of memory/);
+  assert.equal(chamadas, 1);  // erro de memória não repete as tentativas de janela
+});
+
+test("o modelo recomendado não é o que deu conflito", () => {
+  assert.ok(!RECOMENDADO.startsWith("gemma"));
+});
