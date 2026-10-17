@@ -33,7 +33,8 @@ def http_reason(name: str, exc: urllib.error.HTTPError) -> str:
         return f"chave inválida ({message or 'recusada pelo provedor'})"
     if exc.code == 429:
         return f"limite de uso atingido ({message})" if message else "limite de uso atingido"
-    if exc.code == 404 or "not found" in low or "is not supported" in low:
+    # 410 Gone / "end of life": o provedor aposentou o modelo (a NVIDIA faz isso com frequência); a chave está certa.
+    if exc.code in (404, 410) or any(t in low for t in ("not found", "is not supported", "end of life", "eol", "deprecated", "retired")):
         return f"modelo não encontrado (HTTP {exc.code}: {message})"
     return f"erro HTTP {exc.code}" + (f": {message}" if message else "")
 

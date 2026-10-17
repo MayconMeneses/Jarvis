@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from jarvis import config
+from jarvis.brains.base import BrainUnavailable
 
 log = logging.getLogger(__name__)
 
@@ -93,10 +94,8 @@ class BrainsMixin:
                 log.info("teste do %s com o modelo %s: %s", provider, provider_cfg.model, exc)
                 if not str(exc).startswith("modelo não encontrado"):
                     return {"ok": False, "mensagem": f"A chave não funcionou: {exc}"}
-                # A chave foi aceita, mas o nome do modelo não existe mais: escolhe um disponível.
-                provider_cfg.model = pick_model(brain.list_models(), provider)
-                log.info("modelo do %s trocado para %s", provider, provider_cfg.model)
-                brain.ask(test, "Teste de conexão.")
+                # A chave foi aceita, mas o nome do modelo não existe mais: experimenta os modelos de conversa disponíveis.
+                self._find_working_model(brain, provider, provider_cfg, test)
                 config.save(cfg)
             keys.set_key(provider, key)
         except (BrainUnavailable, ValueError) as exc:
@@ -108,6 +107,25 @@ class BrainsMixin:
         log.info("chave do %s guardada (modelo %s)", provider, provider_cfg.model)
         return {"ok": True, "mensagem": f"Chave do {provider.capitalize()} testada e guardada no cofre do "
                                         f"Windows (modelo {provider_cfg.model})."}
+
+    def _find_working_model(self, brain, provider: str, provider_cfg, test: list, max_tries: int = 6) -> None:
+        """Testa, em ordem, os modelos de conversa que a chave enxerga e fica com o primeiro que responder."""
+        from jarvis.brains.base import BrainUnavailable
+
+        last = None
+        for name in model_candidates(brain.list_models(), provider)[:max_tries]:
+            provider_cfg.model = name
+            try:
+                brain.ask(test, "Teste de conexão.")
+            except BrainUnavailable as exc:
+                log.info("modelo %s do %s não respondeu: %s", name, provider, exc)
+                if str(exc).startswith(("chave inválida", "limite de uso")):
+                    raise  # o problema é a chave ou o limite, não o modelo: não adianta trocar
+                last = f"{name}: {exc}"
+                continue
+            log.info("modelo do %s trocado para %s", provider, name)
+            return
+        raise BrainUnavailable("nenhum dos modelos de conversa testados respondeu" + (f" (o último: {last})" if last else ""))
 
     def remove_key(self, provider: str) -> dict:
         from jarvis import keys
@@ -127,6 +145,22 @@ class BrainsMixin:
         return {"ok": True}
 
 
+def model_candidates(models: list[str], provider: str) -> list[str]:
+    """Modelos de conversa para tentar, do melhor para o pior (NVIDIA: lista curada; Gemini: o flash mais novo primeiro)."""
+    from jarvis.brains import modelos
+
+    if provider == "nvidia":
+        found = modelos.candidatos(models)
+    else:
+        try:
+            found = [pick_model(models, provider)]
+        except ValueError:
+            found = []
+    if not found:
+        raise BrainUnavailable("nenhum modelo de texto disponível para esta chave")
+    return found
+
+
 def pick_model(models: list[str], provider: str) -> str:
     """Modelo de texto rápido mais recente da lista (Gemini: "flash"; outros: o 1º de chat)."""
     import re
@@ -139,7 +173,12 @@ def pick_model(models: list[str], provider: str) -> str:
                 found = re.search(r"(\d+(?:\.\d+)?)", name)
                 return (float(found.group(1)) if found else 0.0, "preview" not in name, name)
             return max(candidates, key=version)
-    chat = [m for m in models if not any(s in m for s in skip)]
+    if provider == "nvidia":
+        from jarvis.brains import modelos
+
+        chat = modelos.candidatos(models)
+    else:
+        chat = [m for m in models if not any(s in m for s in skip)]
     if not chat:
         raise ValueError("nenhum modelo de texto disponível para esta chave")
     return chat[0]

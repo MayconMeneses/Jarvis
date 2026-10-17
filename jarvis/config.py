@@ -53,7 +53,7 @@ def _gemini() -> ProviderConfig:
 def _nvidia() -> ProviderConfig:
     return ProviderConfig(
         base_url="https://integrate.api.nvidia.com/v1",
-        model="meta/llama-3.3-70b-instruct",
+        model="nvidia/llama-3.1-nemotron-70b-instruct",  # o catálogo da NVIDIA muda: ao salvar a chave, a Jarvis testa e troca se preciso
     )
 
 
