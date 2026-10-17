@@ -1,7 +1,8 @@
-// Cérebros na nuvem com as SUAS chaves de API (Gemini, OpenAI, Groq, OpenRouter ou qualquer serviço compatível com OpenAI).
+// Cérebros na nuvem com as SUAS chaves de API (Gemini, OpenAI, Groq, OpenRouter, NVIDIA/Brave por proxy, ou qualquer serviço compatível com OpenAI).
 // A chave fica só neste aparelho (IndexedDB, fora da cópia de segurança) e só é enviada ao provedor que você escolheu.
-// Limite: a NVIDIA não libera chamadas direto do navegador (sem CORS); para ela use um proxy seu (veja docs/CELULAR-INDEPENDENTE.md).
-import { fold } from "./util.js";
+// Limite: a NVIDIA e o Brave não liberam chamadas direto do navegador (sem CORS); use um proxy seu (veja docs/CELULAR-INDEPENDENTE.md).
+// Cada provedor usa o LEQUE inteiro de modelos de conversa: pula os encerrados (404/410) e lembra o que já funcionou.
+import { EstadoLeque, MAX_TENTATIVAS, ordenar } from "./leque.js";
 
 export const PROVEDORES = {
   gemini: { nome: "Google Gemini", base: "https://generativelanguage.googleapis.com/v1beta/openai", modelo: "gemini-flash-latest", dica: "Chave grátis em aistudio.google.com/apikey" },
@@ -13,17 +14,19 @@ export const PROVEDORES = {
   personalizado: { nome: "Outro (compatível com OpenAI)", base: "", modelo: "", dica: "Informe a URL base (…/v1) e o modelo", exigeBase: true },
 };
 const SEGREDO = "segredo:";
-const PULAR_AO_LISTAR = ["embed", "guard", "safety", "reward", "vision", "tts", "audio", "image", "whisper", "moderation", "rerank", "dall-e", "transcribe", "realtime"];
+const nomeDe = (id) => PROVEDORES[id]?.nome || id;
 
 export class Nuvem {
-  constructor({ armazem, buscar = (...a) => fetch(...a) }) { this.armazem = armazem; this.buscar = buscar; }
+  constructor({ armazem, buscar = (...a) => fetch(...a), agora = () => Date.now() }) {
+    this.armazem = armazem; this.buscar = buscar; this.leque = new EstadoLeque(armazem, agora);
+  }
 
   async salvas() {
     const chaves = (await this.armazem.chaves()).filter((c) => c.startsWith(SEGREDO));
-    return Promise.all(chaves.map(async (c) => { const s = await this.armazem.ler(c); return { id: c.slice(SEGREDO.length), nome: PROVEDORES[s.provedor]?.nome || s.provedor, modelo: s.modelo, provedor: s.provedor }; }));
+    return Promise.all(chaves.map(async (c) => { const s = await this.armazem.ler(c); return { id: c.slice(SEGREDO.length), nome: nomeDe(s.provedor), modelo: s.modelo, provedor: s.provedor }; }));
   }
 
-  async remover(id) { await this.armazem.apagar(SEGREDO + id); }
+  async remover(id) { await this.armazem.apagar(SEGREDO + id); await this.armazem.apagar("leque:" + id); }
   async configurada() { return (await this._segredos()).length > 0; }
 
   // Só os provedores de CONVERSA (o Brave é busca, não responde perguntas).
@@ -43,15 +46,9 @@ export class Nuvem {
     return ((await r.json()).data || []).map((m) => String(m.id).replace(/^models\//, ""));
   }
 
-  // O catálogo muda (modelos aposentados): se o modelo padrão não existe, escolhe um de conversa que a chave enxerga.
-  async _escolherModelo(base, chave, preferido) {
-    const todos = (await this._listar(base, chave)).filter((m) => !PULAR_AO_LISTAR.some((p) => fold(m).includes(p)));
-    if (preferido && todos.includes(preferido)) return preferido;
-    const flash = todos.filter((m) => /gemini/.test(m) && /flash/.test(m) && !/lite|image|preview|exp|thinking/.test(m));
-    if (flash.length) return flash.sort((a, b) => parseFloat((b.match(/\d+(\.\d+)?/) || [0])[0]) - parseFloat((a.match(/\d+(\.\d+)?/) || [0])[0]))[0];
-    const conversa = todos.filter((m) => /instruct|chat|-it|versatile|gpt|llama|mistral|gemma|qwen/.test(fold(m)));
-    if (!(conversa[0] || todos[0])) throw new Error("nenhum modelo de conversa disponível para esta chave");
-    return conversa[0] || todos[0];
+  // Relê o catálogo do provedor e guarda TODOS os modelos de conversa. Sem permissão ou sem rede, mantém o que já tinha.
+  async _atualizarPool(s) {
+    try { await this.leque.definirPool(s.provedor, ordenar(s.provedor, await this._listar(s.base, s.chave))); } catch { /* o leque é uma otimização */ }
   }
 
   async _pedir(base, chave, modelo, mensagens, aoReceber) {
@@ -81,7 +78,37 @@ export class Nuvem {
     return texto.trim();
   }
 
-  // Testa a chave com uma pergunta mínima e só então guarda (a chave nunca é gravada se não funcionar).
+  // Tenta os modelos do leque em ordem (o último que funcionou primeiro) e fica com o primeiro que responder.
+  // 404/410/400 = modelo encerrado: ignora por 3 dias. Chave recusada para tudo; limite de uso para depois de 2 modelos.
+  async _comLeque(s, mensagens, aoReceber) {
+    if (!(await this.leque.pool(s.provedor)).length) await this._atualizarPool(s);
+    const falhas = [], tentados = new Set();
+    let limites = 0, erros = 0;
+    for (let rodada = 0; rodada < 2; rodada++) {
+      for (const modelo of (await this.leque.ordem(s.provedor, s.modelo)).filter((m) => !tentados.has(m)).slice(0, MAX_TENTATIVAS)) {
+        tentados.add(modelo);
+        try {
+          const texto = await this._pedir(s.base, s.chave, modelo, mensagens, aoReceber);
+          if (!texto) { falhas.push(`${modelo}: resposta vazia`); continue; }
+          await this.leque.marcarBom(s.provedor, modelo);
+          if (modelo !== s.modelo) { s.modelo = modelo; await this.armazem.gravar(SEGREDO + s.provedor, s); }
+          return { texto, modelo };
+        } catch (e) {
+          if (e instanceof TypeError) throw new Error("sem conexão com o provedor (ou o navegador bloqueou: a NVIDIA e o Brave só funcionam por proxy)");
+          if (e.message === "chave recusada pelo provedor") throw e;
+          if (e.message === "modelo não encontrado" || e.status === 400) await this.leque.marcarMorto(s.provedor, modelo);
+          else if (e.message === "limite de uso atingido") limites++;
+          else erros++;
+          falhas.push(`${modelo}: ${e.message}`);
+          if (limites >= 2 || erros >= 4) throw new Error(falhas.slice(-2).join("; "));
+        }
+      }
+      if (rodada === 0) await this._atualizarPool(s);  // esgotou o leque: relê o catálogo e tenta só os que ainda não foram tentados
+    }
+    throw new Error("nenhum modelo respondeu (" + falhas.slice(-3).join("; ") + ")");
+  }
+
+  // Testa a chave com uma pergunta mínima, passando pelo leque, e só então guarda (a chave nunca é gravada se não funcionar).
   async salvar(provedor, chave, { base = "", modelo = "" } = {}) {
     const p = PROVEDORES[provedor];
     chave = String(chave).replace(/\s+/g, "");
@@ -90,47 +117,27 @@ export class Nuvem {
     const url = (base || p.base).replace(/\/+$/, "");
     if (!/^https:\/\//.test(url)) throw new Error("a URL base precisa começar com https://");
     if (p.tipo === "busca") {  // Brave: testa com uma busca de verdade
-      const r = await this.buscar(`${url}/brave/res/v1/web/search?q=teste&count=1`, { headers: { "X-Subscription-Token": chave, Accept: "application/json" } }).catch(() => { throw new Error("não consegui falar com o proxy (confira a URL do seu proxy)"); });
+      let r;
+      try { r = await this.buscar(`${url}/brave/res/v1/web/search?q=teste&count=1`, { headers: { "X-Subscription-Token": chave, Accept: "application/json" } }); }
+      catch { throw new Error("não consegui falar com o proxy (confira a URL do seu proxy)"); }
       if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "chave do Brave recusada" : `o Brave respondeu ${r.status}`);
       await this.armazem.gravar(SEGREDO + provedor, { provedor, chave, base: url, modelo: "busca" });
       return "busca na web";
     }
-    let escolhido = modelo || p.modelo;
-    const teste = [{ role: "user", content: "Responda apenas: ok" }];
-    try {
-      await this._pedir(url, chave, escolhido, teste);
-    } catch (e) {
-      const modeloRuim = e.message === "modelo não encontrado" || e.status === 400;  // nome de modelo aposentado ou inválido
-      if (!modeloRuim) {
-        if (e instanceof TypeError) throw new Error("não consegui falar com o provedor (o navegador bloqueou ou está sem internet; a NVIDIA, por exemplo, só funciona por proxy)");
-        throw e;
-      }
-      escolhido = await this._escolherModelo(url, chave, "");  // o modelo padrão saiu do catálogo: acha outro que responda
-      await this._pedir(url, chave, escolhido, teste);
-    }
-    await this.armazem.gravar(SEGREDO + provedor, { provedor, chave, base: url, modelo: escolhido });
-    return escolhido;
+    const s = { provedor, chave, base: url, modelo: modelo || p.modelo };
+    const resposta = await this._comLeque(s, [{ role: "user", content: "Responda apenas: ok" }]);
+    await this.armazem.gravar(SEGREDO + provedor, { ...s, modelo: resposta.modelo });
+    return resposta.modelo;
   }
 
-  // Tenta os provedores salvos, um a um; limite de uso e erro passam para o próximo. Devolve { texto, provedor }.
+  // Tenta os provedores salvos, um a um; erro ou limite de uso passa para o próximo. Devolve { texto, provedor, modelo }.
   async perguntar(mensagens, aoReceber) {
     const falhas = [];
     for (const s of await this._segredos()) {
       try {
-        const texto = await this._pedir(s.base, s.chave, s.modelo, mensagens, aoReceber);
-        if (texto) return { texto, provedor: PROVEDORES[s.provedor]?.nome || s.provedor };
-        falhas.push(`${s.provedor}: resposta vazia`);
-      } catch (e) {
-        if (e.message === "modelo não encontrado") {  // aposentado depois de salvar: reescolhe e tenta uma vez
-          try {
-            s.modelo = await this._escolherModelo(s.base, s.chave, "");
-            await this.armazem.gravar(SEGREDO + s.provedor, s);
-            const texto = await this._pedir(s.base, s.chave, s.modelo, mensagens, aoReceber);
-            if (texto) return { texto, provedor: PROVEDORES[s.provedor]?.nome || s.provedor };
-          } catch (e2) { falhas.push(`${s.provedor}: ${e2.message}`); continue; }
-        }
-        falhas.push(`${s.provedor}: ${e instanceof TypeError ? "sem conexão ou bloqueado pelo navegador" : e.message}`);
-      }
+        const r = await this._comLeque(s, mensagens, aoReceber);
+        return { texto: r.texto, provedor: nomeDe(s.provedor), modelo: r.modelo };
+      } catch (e) { falhas.push(`${s.provedor}: ${e.message}`); }
     }
     throw new Error(falhas.length ? falhas.join("; ") : "nenhuma chave de API cadastrada");
   }
