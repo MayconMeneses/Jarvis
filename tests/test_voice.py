@@ -149,7 +149,7 @@ def test_speaker_plays_first_sentence_without_waiting_for_the_rest(monkeypatch):
 
     fake_sd = types_module(play=lambda pcm, rate: played.append((time.time(), pcm)), wait=lambda: None)
     monkeypatch.setitem(__import__("sys").modules, "sounddevice", fake_sd)
-    speaker = tts.Speaker()
+    speaker = tts.Speaker(motor="online")
     speaker.edge = SlowEdge()
     t = threading.Thread(target=speaker.say, args=("Primeira frase bem longa para não ser juntada. Segunda frase também longa o bastante.",))
     t.start()

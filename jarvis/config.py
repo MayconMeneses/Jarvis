@@ -74,7 +74,10 @@ class VoiceConfig:
     falar_respostas: bool = True
     # "small" errou ~11% das palavras com ruído neste PC; "base" ~60%, mas é ~4 s mais rápido.
     modelo_transcricao: str = "small"
-    voz: str = "pt-BR-FranciscaNeural"
+    voz: str = "pt-BR-FranciscaNeural"   # nome da voz online (edge-tts)
+    # "local" = Piper offline, sem depender de terceiros (padrão) | "online" = edge-tts (Microsoft).
+    voz_motor: str = "local"
+    voz_efeito: bool = True      # reverb sutil na voz local
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5
 

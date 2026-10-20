@@ -57,7 +57,9 @@ class Espaco:
     def _guardar_versao(self, pasta: Path, caminho: str, texto: str) -> None:
         destino = self._versoes_de(pasta, caminho)
         destino.mkdir(parents=True, exist_ok=True)
-        (destino / f"{time.time_ns()}.txt").write_text(texto, encoding="utf-8")
+        # O relógio do Windows é grosso (duas gravações seguidas teriam o mesmo nome e uma versão sumiria): o nome só cresce.
+        ultimo = max((int(v.stem) for v in destino.glob("*.txt") if v.stem.isdigit()), default=0)
+        (destino / f"{max(time.time_ns(), ultimo + 1)}.txt").write_text(texto, encoding="utf-8")
         for velha in sorted(destino.glob("*.txt"))[:-MAX_VERSOES]:
             velha.unlink(missing_ok=True)
 

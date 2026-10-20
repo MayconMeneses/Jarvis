@@ -1,4 +1,4 @@
-"""Fala da Jarvis: voz neural online (edge-tts) com reserva offline do Windows (SAPI)."""
+"""Fala da Jarvis: voz local offline (Piper) por padrão; edge-tts online opcional; reserva SAPI do Windows."""
 
 from __future__ import annotations
 
@@ -102,11 +102,59 @@ def speak_sapi(text: str) -> None:
 
 
 class Speaker:
-    def __init__(self, voice: str = "pt-BR-FranciscaNeural") -> None:
+    """Fala frase a frase. Ordem: voz local (padrão) -> edge-tts (só se escolhido "online") -> SAPI do Windows."""
+
+    def __init__(self, voice: str = "pt-BR-FranciscaNeural", motor: str = "local", efeito: bool = True) -> None:
         self.edge = EdgeVoice(voice)
+        self.local = None
+        self.efeito = efeito
+        self.definir_motor(motor)
+
+    def definir_motor(self, motor: str) -> None:
+        """"local" (padrão, offline) ou "online" (edge-tts). Vale já na próxima frase."""
+        self.motor = "online" if motor == "online" else "local"
+        if self.motor == "local" and self.local is None:
+            from jarvis.voice.local import PiperVoice
+
+            self.local = PiperVoice(self.efeito)
+
+    @property
+    def vozes(self) -> list:
+        return [self.edge] if self.motor == "online" else [self.local]
+
+    def preparar(self, on_status=None) -> None:
+        """Em segundo plano: baixa a voz local (uma vez) e a aquece. Até ficar pronta, a reserva fala."""
+        if self.motor != "local":
+            return
+
+        def trabalho() -> None:
+            from jarvis.voice.local import baixar_voz, voz_instalada
+
+            try:
+                if not voz_instalada():
+                    baixar_voz(on_status)
+                self.local.aquecer()
+            except Exception as exc:
+                log.warning("voz local indisponível por enquanto: %s", exc)
+
+        threading.Thread(target=trabalho, daemon=True, name="jarvis-voz-local").start()
+
+    def _sintetizar(self, texto: str):
+        """(pcm, taxa) pela 1ª voz que funcionar; levanta se nenhuma funcionar."""
+        candidatas = list(self.vozes)
+        if self.motor == "local":
+            candidatas.append(self.edge)  # reserva online só quando a local falha (ex.: ainda baixando)
+        erro: Exception | None = None
+        for voz in candidatas:
+            try:
+                return voz.synthesize(texto), voz.sample_rate
+            except Exception as exc:
+                erro = exc
+                log.info("%s indisponível (%s)", type(voz).__name__, exc)
+        raise erro or RuntimeError("nenhuma voz disponível")
 
     def say(self, text: str) -> None:
-        """Fala frase a frase: a 1ª começa enquanto as próximas ainda são sintetizadas."""
+        """A 1ª frase começa enquanto as próximas ainda são sintetizadas."""
         import sounddevice as sd
 
         parts = split_sentences(clean_for_speech(text))
@@ -117,9 +165,10 @@ class Speaker:
         def produce() -> None:
             for i, part in enumerate(parts):
                 try:
-                    ready.put(("pcm", self.edge.synthesize(part)))
-                except Exception as exc:  # sem internet ou serviço fora: voz offline no resto
-                    log.info("voz online indisponível (%s); usando a voz do Windows", exc)
+                    pcm, taxa = self._sintetizar(part)
+                    ready.put(("pcm", (pcm, taxa)))
+                except Exception as exc:  # nada funcionou: voz do Windows no resto
+                    log.info("vozes neurais indisponíveis (%s); usando a voz do Windows", exc)
                     ready.put(("sapi", " ".join(parts[i:])))
                     break
             ready.put(None)
@@ -130,7 +179,7 @@ class Speaker:
             if kind == "sapi":
                 speak_sapi(data)
             else:
-                sd.play(data, self.edge.sample_rate)
+                sd.play(data[0], data[1])
                 sd.wait()
 
     def chime(self) -> None:

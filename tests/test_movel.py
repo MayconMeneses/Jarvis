@@ -1,6 +1,7 @@
 """Jarvis independente do celular (movel/): os testes de JavaScript rodam com node; aqui ficam as conferências com o PC."""
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -24,7 +25,8 @@ def node(codigo: str) -> str:
 
 def test_node_test_suites_pass():
     arquivos = [str(p) for p in sorted((MOVEL / "testes").glob("*.test.mjs"))]
-    saida = subprocess.run([NODE, "--test", *arquivos], capture_output=True, text=True, encoding="utf-8", timeout=180)
+    ambiente = {**os.environ, "PYTHON": sys.executable}  # os testes de paridade (modelos, zip) comparam com o Python do projeto
+    saida = subprocess.run([NODE, "--test", *arquivos], capture_output=True, text=True, encoding="utf-8", timeout=240, env=ambiente, cwd=MOVEL.parent)
     assert saida.returncode == 0, saida.stdout[-3000:] + saida.stderr[-1000:]
 
 

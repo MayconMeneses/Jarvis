@@ -30,10 +30,12 @@ def build_voice(cfg: Config, api: Api, window):
     from jarvis.voice.stt import Transcriber, vocabulary_hint
     from jarvis.voice.tts import Speaker
 
+    speaker = Speaker(cfg.voz.voz, cfg.voz.voz_motor, cfg.voz.voz_efeito)
+    speaker.preparar(lambda text: push(window, {"status": text}))
     return VoiceLoop(
         respond=api.send,
         notify=lambda payload: push(window, payload),
-        speaker=Speaker(cfg.voz.voz),
+        speaker=speaker,
         transcriber=Transcriber(
             cfg.voz.modelo_transcricao, vocabulary_hint(cfg.user_name, cfg.city, cfg.projetos),
             on_status=lambda text: push(window, {"status": text}),

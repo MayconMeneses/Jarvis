@@ -68,3 +68,21 @@ Ordem de uso (você escolhe na mesma tela): **aparelho primeiro** (padrão, mais
 
 O proxy **não guarda chave nenhuma**: só repassa o cabeçalho de autenticação, aceita apenas pedidos vindos de `https://mayconmeneses.github.io` (a constante `ORIGEM` no
 arquivo; mude se publicar o app em outro endereço) e só as rotas `/v1/...` (NVIDIA) e `/brave/res/v1/...` (Brave). Quem souber o endereço do seu proxy não consegue usá-lo sem a origem e a chave.
+
+## Oficina: a IDE do celular
+
+A aba **Oficina** faz no celular o que a Oficina do PC faz:
+
+- **Projetos e arquivos** (editor de texto, salvar, apagar, **desfazer** com as últimas 20 versões de cada arquivo). Ficam só no aparelho, como notas
+  `Oficina/<projeto>/<arquivo>`: entram na cópia de segurança e aparecem na aba Memória. Limites: 60 arquivos por projeto, 20 000 caracteres por arquivo.
+- **Modelos prontos** (os mesmos do PC: FastAPI, Express, React e HTML, sozinhos ou combinados; `dados/modelos.json`, gerado por `python movel/gerar_dados.py`).
+- **Rodar e Testar** num **ambiente isolado**: um iframe `sandbox="allow-scripts"` (sem acesso à memória, às chaves nem ao IndexedDB do app) com política de
+  segurança própria, e dentro dele um Worker (um laço infinito é interrompido pelo tempo limite: 10 s em JavaScript, 60 s em Python). JavaScript roda sem rede;
+  testes usam `require('node:test')` e `require('node:assert')`. Python roda com o Pyodide baixado do jsDelivr na primeira vez (~10 MB, o app pergunta antes).
+- **Baixar ZIP** do projeto (salve em Arquivos).
+- **Criar com IA**: a IA (cérebro do aparelho ou chave de nuvem, na ordem que você escolheu) planeja os arquivos, escreve um por vez, confere a sintaxe (JS/JSON),
+  roda os testes JavaScript no ambiente isolado e pede até 2 correções. O que ela escreve é só texto; o programa em si só roda quando você toca em Rodar.
+  Testes em Python gerados pela IA ficam sem rodar automaticamente (para não baixar o Pyodide sem você pedir); rode com **Testar**.
+
+Limite honesto: o isolamento protege de acidentes e de código mal escrito, não substitui ler o código antes de rodar. Foi validado no Chromium (JavaScript, Python
+com Pyodide, laço infinito interrompido, ZIP); **não foi testado no Safari do iPhone**.

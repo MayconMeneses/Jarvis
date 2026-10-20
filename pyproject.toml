@@ -16,6 +16,7 @@ dependencies = [
     "openwakeword>=0.6",
     "sounddevice>=0.4",
     "edge-tts>=7",
+    "piper-tts>=1.3",  # voz local offline (GPL-3.0; modelo da voz: CC0)
     "miniaudio>=1.59",
     "defusedxml>=0.7",
     "pypdf>=4",

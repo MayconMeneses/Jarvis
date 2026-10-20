@@ -27,6 +27,7 @@
       <button type="button" data-aba="conversa" aria-selected="true">Conversa</button>
       <button type="button" data-aba="memoria" aria-selected="false">Memória</button>
       <button type="button" data-aba="cerebro" aria-selected="false">Cérebro</button>
+      <button type="button" data-aba="oficina" aria-selected="false">Oficina</button>
     </nav>
 
     <section id="conversa" class="aba">
@@ -117,6 +118,47 @@
         </select>
       </div>
       <details><summary>Instalar como app no iPhone</summary><p>No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p></details>
+    </section>
+    <section id="oficina" class="aba" hidden>
+      <div class="linha">
+        <select id="of-projeto" aria-label="Projeto"></select>
+        <button type="button" id="of-novo">Novo projeto</button>
+        <button type="button" id="of-zip">Baixar ZIP</button>
+      </div>
+      <div id="of-form" hidden>
+        <label for="of-novo-nome">Nome do projeto (letras, números, espaço e hífen)</label>
+        <input id="of-novo-nome" autocomplete="off" maxlength="40">
+        <label for="of-modelo">Começar de</label>
+        <select id="of-modelo"></select>
+        <label for="of-novo-desc">O que ele faz (opcional)</label>
+        <input id="of-novo-desc" autocomplete="off">
+        <div class="linha"><button type="button" id="of-criar">Criar</button><button type="button" id="of-cancelar">Cancelar</button></div>
+      </div>
+      <ul id="of-arquivos" aria-label="Arquivos do projeto"></ul>
+      <input id="of-nome" placeholder="caminho/arquivo.py" autocomplete="off" spellcheck="false" aria-label="Nome do arquivo">
+      <textarea id="of-editor" rows="14" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Código do arquivo"></textarea>
+      <div class="linha">
+        <button type="button" id="of-salvar">Salvar</button>
+        <button type="button" id="of-desfazer">Desfazer</button>
+        <button type="button" id="of-apagar">Apagar</button>
+        <button type="button" id="of-novo-arquivo">Novo arquivo</button>
+      </div>
+      <div class="linha">
+        <button type="button" id="of-rodar">▶ Rodar</button>
+        <button type="button" id="of-testar">Testar</button>
+      </div>
+      <pre id="of-saida" role="status" aria-live="polite"></pre>
+      <details id="of-ia">
+        <summary>Criar com IA</summary>
+        <p class="nota">A IA (cérebro do aparelho ou sua chave de nuvem) planeja os arquivos, escreve um por um e roda os testes no ambiente isolado. Ela só escreve texto: nada roda fora dos testes e do botão Rodar. Com a nuvem, a descrição vai ao provedor.</p>
+        <label for="of-ia-nome">Nome do projeto</label>
+        <input id="of-ia-nome" autocomplete="off" maxlength="40">
+        <label for="of-ia-desc">O que criar</label>
+        <textarea id="of-ia-desc" rows="3" placeholder="Ex.: uma calculadora de IMC em JavaScript, com testes"></textarea>
+        <div class="linha"><button type="button" id="of-ia-criar">Criar com IA</button></div>
+        <p id="of-ia-status" role="status"></p>
+      </details>
+      <p class="nota">Rodar e testar acontecem num ambiente isolado do navegador, sem acesso à sua memória nem às chaves: JavaScript sem rede; Python (baixa o Pyodide do jsDelivr na primeira vez). Protege de acidentes; revise o código antes de rodar. Os arquivos ficam só neste aparelho, entram na cópia de segurança e aparecem na aba Memória.</p>
     </section>
   </main>
   <script type="module" src="js/main.js"></script>
