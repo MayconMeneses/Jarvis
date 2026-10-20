@@ -2,7 +2,7 @@
   #memory { width: min(460px, calc(100vw - 24px)); }
   #mem-search {
     width: 100%; padding: 8px 10px; margin-bottom: 8px; font: 13px var(--mono); color: var(--text);
-    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+    background: rgba(var(--cyan-rgb), .05); border: 1px solid var(--line-strong); border-radius: 2px;
   }
   #mem-search:focus-visible, #mem-text:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
   #mem-list { list-style: none; margin: 0 0 10px; padding: 0; max-height: 190px; overflow: auto; border: 1px solid var(--line); }

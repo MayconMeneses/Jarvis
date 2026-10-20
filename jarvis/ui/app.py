@@ -32,7 +32,7 @@ def run(cfg: Config, conversation: Conversation) -> int:
     x, y, width, height = window_geometry()
     window = webview.create_window(
         "Jarvis",
-        html=web.page(),
+        html=web.page(cfg),
         js_api=api,
         x=x, y=y, width=width, height=height,
         min_size=(360, 480),

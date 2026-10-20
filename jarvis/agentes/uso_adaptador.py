@@ -31,10 +31,10 @@ def normalizar(bruto) -> dict | None:
 
 
 def provedor_padrao() -> Provedor:
-    """Usa `jarvis.uso.resumo_para_agentes()` quando esse módulo existir; senão, sem dado."""
+    """Usa `jarvis.uso.agentes.resumo_para_agentes()` quando esse módulo existir; senão, sem dado."""
     def ler() -> dict | None:
         try:
-            funcao = getattr(importlib.import_module("jarvis.uso"), "resumo_para_agentes", None)
+            funcao = getattr(importlib.import_module("jarvis.uso.agentes"), "resumo_para_agentes", None)
             return funcao() if callable(funcao) else None
         except Exception:  # noqa: BLE001  (módulo ausente ou com defeito não derruba o painel)
             log.debug("agregador de uso indisponível", exc_info=True)

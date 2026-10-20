@@ -6,7 +6,7 @@
 
   .readout { min-width: 0; }
   .brand { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-  h1 { margin: 0; font: 600 17px var(--mono); letter-spacing: .32em; color: var(--text); text-shadow: 0 0 12px rgba(63, 208, 255, .45); }
+  h1 { margin: 0; font: 600 17px var(--mono); letter-spacing: .32em; color: var(--text); text-shadow: 0 0 12px rgba(var(--cyan-rgb), .45); }
   #clock { font: 12px var(--mono); color: var(--muted); }
   #voice-status {
     display: block; margin: 2px 0 10px; font: 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase;
@@ -14,7 +14,7 @@
   }
   #voice-status:empty::before { content: "Sistemas online"; }
   .gauge { display: grid; grid-template-columns: 44px 1fr 34px; align-items: center; gap: 8px; margin: 5px 0; font: 11px var(--mono); color: var(--muted); letter-spacing: .08em; }
-  .bar { position: relative; height: 6px; background: rgba(63, 208, 255, .1); border: 1px solid var(--line); }
+  .bar { position: relative; height: 6px; background: rgba(var(--cyan-rgb), .1); border: 1px solid var(--line); }
   .bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); transition: width .8s var(--ease), background .4s; }
   .bar i.warn { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
   .bar i.crit { background: var(--danger); box-shadow: 0 0 8px var(--danger); }

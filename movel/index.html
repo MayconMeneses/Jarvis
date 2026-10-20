@@ -15,8 +15,10 @@
   <link rel="apple-touch-icon" href="icones/icone-180.png">
   <link rel="icon" href="icones/icone-180.png">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/tema.css">
 </head>
 <body>
+  <div id="aurora" aria-hidden="true"></div>
   <main id="app">
     <header>
       <canvas id="orbe" width="56" height="56" aria-hidden="true"></canvas>
@@ -51,10 +53,7 @@
         <button type="submit" id="enviar" aria-label="Enviar">➤</button>
       </form>
       <label class="voz"><input type="checkbox" id="falar"> Falar as respostas em voz alta</label>
-      <label class="voz" for="orbe-modo">Animação do orbe
-        <select id="orbe-modo"><option value="auto">Automática</option><option value="completo">Completa</option><option value="suave">Suave</option><option value="desligado">Desligada</option></select>
-      </label>
-      <p class="nota">Na fala, a animação acompanha o ritmo do texto, não o som real.</p>
+      <p class="nota">Na fala, a animação acompanha o ritmo do texto, não o som real. Tema e efeitos: aba Cérebro → Aparência.</p>
     </section>
 
     <section id="memoria" class="aba" hidden>
@@ -138,6 +137,37 @@
           <option value="nuvem">Sempre que as regras não entenderem (mais capaz; envia a pergunta ao provedor)</option>
         </select>
       </div>
+      <details class="painel-extra" id="painel-aparencia" open>
+        <summary>Aparência</summary>
+        <label for="tema-sel">Tema</label>
+        <select id="tema-sel"></select>
+        <label for="orbe-modo">Efeitos (orbe e fundo animado)</label>
+        <select id="orbe-modo"><option value="auto">Automático (segue "reduzir movimento" do sistema)</option><option value="completo">Completos</option><option value="suave">Suaves</option><option value="desligado">Desligados</option></select>
+        <p class="nota">Só nos efeitos completos o orbe anima inteiro e aparece o fundo de aurora; ele pausa com a aba oculta. O tema Alto contraste não usa a aurora.</p>
+      </details>
+      <details class="painel-extra" id="painel-uso">
+        <summary>Uso de IA</summary>
+        <p class="nota">Contadores só neste aparelho (nunca guardam chaves nem textos): chamadas e tokens por chave de nuvem e pelo cérebro do aparelho. Quando o provedor não informa os tokens, a conta é estimada pelo tamanho do texto. Preços são de partida e podem estar desatualizados: edite abaixo.</p>
+        <ul id="uso-lista"></ul>
+        <p id="uso-total" role="status"></p>
+        <canvas id="uso-grafico" role="img" aria-label="Custo estimado por dia nos últimos 30 dias"></canvas>
+        <label for="uso-orcamento">Orçamento mensal (US$, 0 = sem orçamento)</label>
+        <input id="uso-orcamento" type="number" min="0" step="any" inputmode="decimal">
+        <label for="uso-alerta">Avisar quando passar de (%)</label>
+        <input id="uso-alerta" type="number" min="1" max="100" step="1" inputmode="numeric">
+        <progress id="uso-barra" max="100" value="0" hidden aria-label="Uso do orçamento"></progress>
+        <p id="uso-alerta-msg" class="aviso" role="status"></p>
+        <details id="uso-precos"><summary>Tabela de preços (editável)</summary><div id="uso-precos-campos"></div></details>
+        <div class="linha"><button type="button" id="uso-salvar">Salvar orçamento e preços</button><button type="button" id="uso-exportar">Exportar JSON</button><button type="button" id="uso-importar">Importar JSON</button></div>
+        <input id="uso-arquivo" type="file" accept="application/json,.json" hidden>
+        <p class="nota">Também funciona na conversa: "quanto gastei" ou "uso de IA".</p>
+      </details>
+      <details class="painel-extra" id="painel-agentes">
+        <summary>Agentes</summary>
+        <p class="nota">O que roda dentro do app. No iPhone nada roda com o app fechado: "App estava fechado" é normal, não é erro.</p>
+        <ul id="ag-lista"></ul>
+        <div class="linha"><button type="button" id="ag-atualizar">Atualizar</button></div>
+      </details>
       <details><summary>Instalar como app no iPhone</summary><p>No Safari, toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p></details>
     </section>
     <section id="oficina" class="aba" hidden>

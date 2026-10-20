@@ -129,3 +129,38 @@ desenhados com `fillText` (nunca HTML); há teste de XSS.
 
 Testes: `movel/testes/visual.test.mjs`, `vivo.test.mjs`, `grafo.test.mjs`. Cache do app: `jarvis-movel-7`. Validado no Chromium a 390 px (cartão ponta a ponta com a nuvem simulada, grafo, toque no nó, fala simulada).
 **Não testado:** Safari/iPhone, conflito entre microfone e reconhecimento, `onboundary` no iOS, voz real do aparelho.
+
+## PC pareado (opcional): agenda e e-mails, somente leitura
+
+O iCal do Google não tem CORS e o IMAP é impossível no navegador; por isso agenda e e-mails só aparecem no celular se o **PC entregar**. Sem o PC pareado o app funciona como sempre.
+
+**Como parear:** no PC, ligue o "Jarvis no celular" com o Tailscale e gere o código (6 dígitos, vale 5 minutos). No app, aba **Cérebro → PC pareado**, informe o endereço **https** do PC e o código. O token fica só no IndexedDB do aparelho, **fora da cópia de segurança**; revogue quando quiser na lista de aparelhos da janela do PC. O app só aceita endereço `https://` (o app é https; http seria bloqueado e iria sem criptografia).
+
+**O que o celular lê** (rotas GET com o Bearer do pareamento, em `jarvis/mobile/servidor.py`; dados montados em `jarvis/mobile/leitura.py`):
+
+| Rota | Conteúdo |
+|---|---|
+| `/api/agenda` | hoje, próximos 7 dias e próximo compromisso: título (80), hora, local (60) |
+| `/api/emails` | baldes ação/info/ruído: remetente (só o nome), assunto e resumo curtos. **Sem corpo.** Suspeito só entra na contagem |
+| `/api/briefing` | texto do "bom dia" (cumprimento + agenda de hoje + e-mails de ação; sem clima/notícias; não grava nada no PC) |
+| `/api/agents` | resumo do painel de agentes (id, nome, estado, idade) |
+
+Garantias: links viram "[link]" (o iCal secreto nunca sai do PC), texto que tenta dar ordens à IA é omitido, erro técnico não vai na resposta, sem IA, nenhuma rota executa ação. CORS só para a origem do app (`celular_origem_app`, padrão `https://mayconmeneses.github.io`) e só nas rotas acima e no pareamento; o `/api/chat` não é aberto ao app de fora. O PC guarda a resposta por 2 minutos para o celular não disparar uma busca a cada toque; para montá-las ele usa as agendas e contas que **já estão conectadas** nele (a agenda e o Gmail/Outlook podem ser consultados; nada novo é contatado).
+
+**No app:** aba **Agenda** (agenda e e-mails, botão Atualizar) e comandos de conversa: "minha agenda", "próximo compromisso", "meus e-mails" e "bom dia" (com PC pareado traz o resumo do PC; sem PC, o "bom dia" segue como antes). Se o PC estiver desligado ou fora da rede, aparece "PC desligado ou fora da rede" e a **última cópia, com a hora**.
+
+Limites: não testei com Tailscale real nem no Safari do iPhone (testei com Chromium e um PC simulado). O Chrome pede uma permissão extra para sites públicos falarem com endereços privados (o servidor já responde a ela); o Safari não exige.
+
+## Aparência, Uso de IA e Agentes (aba Cérebro)
+
+- **Temas** (`css/tema.css`, `js/temas.js`): HUD (padrão), Âmbar, Esmeralda e Alto contraste, via `data-tema` no `<html>`. O contraste de cada um é conferido
+  nos testes com a função WCAG de `js/design.js` (texto 4,5:1; o Alto contraste chega a 7:1). A escolha fica em `meta` (`tema`), com `try/catch`.
+- **Efeitos** usam a mesma chave do orbe (`meta orbe_modo`: automático, completos, suaves, desligados). Só em "completos" o orbe anima inteiro e aparece o fundo de
+  aurora (uma camada só, com `transform`, pausada com a aba oculta). `prefers-reduced-motion` corta as animações e a aurora; o foco por teclado é sempre visível.
+- **Uso de IA** (`js/uso.js`, `painel-uso.js`): contadores só neste aparelho, por fonte (Gemini, NVIDIA, Brave, outros provedores e cérebro do aparelho), com
+  chamadas e tokens (os do provedor quando a resposta traz `usage`; senão estimados em 4 caracteres por token e marcados como estimados). Custo estimado por uma
+  tabela de preços editável (valores de partida a conferir), "economizado" pelo cérebro do aparelho, orçamento mensal com alerta em %, gráfico em canvas dos
+  últimos 30 dias e exportar/importar JSON validado. Nunca guarda nem mostra chave de API. Na conversa: "quanto gastei" ou "uso de IA".
+- **Agentes** (`js/agentes.js`, `painel-agentes.js`): estado de Avisos ao abrir, Aprender sozinha, Avaliação semanal, Cérebro do aparelho e Oficina, a partir de
+  batimentos em `meta` (`agente:<id>:ultimo` e `agente:<id>:estado`). Estados: OK, Atrasado (mais de 2,5 ciclos sem batimento), Erro, Ocioso, Desligado e
+  "App estava fechado" (estado neutro: no iPhone nada roda com o app fechado).

@@ -86,11 +86,12 @@ def test_everything_runs_on_the_phone_without_the_pc():
     """Nada no app do celular aponta para o PC, para um servidor próprio ou para a API do Jarvis do PC."""
     for arquivo in (MOVEL / "js").glob("*.js"):
         texto = arquivo.read_text(encoding="utf-8")
-        assert not re.search(r"[\"'`]/api/", texto) and "192.168" not in texto and "localhost" not in texto, arquivo.name
+        # única exceção: o PC pareado opcional (somente leitura, https, token no aparelho), isolado em pc-pareado.js
+        assert (arquivo.name == "pc-pareado.js" or not re.search(r"[\"'`]/api/", texto)) and "192.168" not in texto and "localhost" not in texto, arquivo.name
     destinos = set()
     for arquivo in (MOVEL / "js").glob("*.js"):
         destinos |= set(re.findall(r"https://([a-z0-9.\-]+)", arquivo.read_text(encoding="utf-8")))
-    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev", "geocoding-api.open-meteo.com", "api.open-meteo.com", "api.rss2json.com", "hacker-news.firebaseio.com", "news.ycombinator.com", "api.github.com", "remotive.com", "g1.globo.com", "feeds.bbci.co.uk", "agenciabrasil.ebc.com.br", "tecnoblog.net", "canaltech.com.br", "olhardigital.com.br", "github.com"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
+    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev", "seu-pc.tailnet.ts.net", "geocoding-api.open-meteo.com", "api.open-meteo.com", "api.rss2json.com", "hacker-news.firebaseio.com", "news.ycombinator.com", "api.github.com", "remotive.com", "g1.globo.com", "feeds.bbci.co.uk", "agenciabrasil.ebc.com.br", "tecnoblog.net", "canaltech.com.br", "olhardigital.com.br", "github.com"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
 
 
 def test_stack_and_habilidades_text_matches_the_pc():

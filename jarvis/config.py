@@ -130,11 +130,16 @@ class Config:
     celular_acesso: str = "auto"
     celular_certificado: str = ""  # opcional: HTTPS (ex.: certificado do Tailscale); vazio = HTTP
     celular_chave: str = ""
+    # Origem (esquema+host) do app autônomo do celular que pode LER agenda/e-mails/bom dia deste PC (CORS). Nada além disso.
+    celular_origem_app: str = "https://mayconmeneses.github.io"
     proativo_hora: int = 8       # a partir de que hora o "bom dia" pode aparecer (se a Jarvis já estiver aberta)
     proativo_voz: bool = False   # falar sozinha (nunca entre 22h e 7h)
     instagram_lembrete: bool = False  # lembrete semanal (segunda) da análise de Instagram, FALADO; ligado por cartão aprovado
     # Orbe da janela: "completo" | "suave" (sem rotação nem pulso de escala) | "desligado".
     efeitos_visuais: str = "completo"
+    face_ao_abrir: bool = False  # abrir a tela FACE (HUD em tela cheia dentro da janela) ao iniciar; opt-in
+    # Tema da janela: "hud" | "ambar" | "esmeralda" | "contraste" (alto contraste). Ver jarvis/ui/api_tema.py.
+    tema: str = "hud"
     llm_modelo: str = "qwen2.5-coder-1.5b"
     llm_endpoint: str = ""  # opcional: servidor já rodando (Ollama/LM Studio), ex.: http://127.0.0.1:11434
     # Agendas iCal: {"apelido", "cor"}. O link secreto de cada uma fica no cofre do Windows, nunca aqui.

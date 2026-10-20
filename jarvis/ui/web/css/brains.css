@@ -14,7 +14,7 @@
   .key-row { display: flex; gap: 6px; margin-bottom: 6px; }
   .key-row input {
     flex: 1; min-width: 0; padding: 7px 9px; font: 12.5px var(--mono); color: var(--text);
-    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+    background: rgba(var(--cyan-rgb), .05); border: 1px solid var(--line-strong); border-radius: 2px;
   }
   .key-row input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
   .modes { display: grid; gap: 6px; margin: 6px 0 2px; font-size: 13px; }

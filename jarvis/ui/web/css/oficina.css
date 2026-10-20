@@ -1,7 +1,7 @@
   /* Oficina (IDE) */
   #oficina { width: min(980px, calc(100vw - 24px)); }
   .of-barra { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
-  .of-barra select, .of-barra input { font: 13px var(--mono); color: var(--text); background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px; padding: 6px 8px; }
+  .of-barra select, .of-barra input { font: 13px var(--mono); color: var(--text); background: rgba(var(--cyan-rgb), .05); border: 1px solid var(--line-strong); border-radius: 2px; padding: 6px 8px; }
   .of-barra .spacer { flex: 1; }
   .of-corpo { display: grid; grid-template-columns: 170px 1fr; gap: 8px; }
   #of-arquivos { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; border: 1px solid var(--line); }

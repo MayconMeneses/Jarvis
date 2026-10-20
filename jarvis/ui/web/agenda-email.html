@@ -1,0 +1,37 @@
+  <dialog id="agenda-email" aria-labelledby="ae-title">
+    <h2 id="ae-title">Agenda e e-mail</h2>
+    <section class="brain">
+      <h3>Agenda (Google, iCal)</h3>
+      <ol class="ae-passos">
+        <li>No Google Agenda, abra as Configurações da agenda que quer conectar.</li>
+        <li>Vá em “Integrar agenda” e copie o “Endereço secreto em formato iCal”.</li>
+        <li>Cole abaixo. O link vale como senha: fica no cofre do Windows e nunca é mostrado de novo.</li>
+      </ol>
+      <div class="ae-form">
+        <label>Nome <input id="ae-ag-nome" maxlength="30" placeholder="Pessoal" autocomplete="off"></label>
+        <label>Cor <select id="ae-ag-cor"><option value="">padrão</option><option value="ciano">ciano</option><option value="verde">verde</option><option value="laranja">laranja</option><option value="magenta">magenta</option><option value="vermelho">vermelho</option></select></label>
+        <label class="ae-largo">Link secreto <input id="ae-ag-link" type="password" autocomplete="off" spellcheck="false" placeholder="https://calendar.google.com/…/basic.ics"></label>
+        <button type="button" class="primary" id="ae-ag-conectar">Conectar e testar</button>
+      </div>
+      <ul id="ae-ag-lista" class="ae-lista" aria-label="Agendas conectadas"></ul>
+      <p class="feedback" id="ae-ag-fb" role="status"></p>
+    </section>
+    <section class="brain">
+      <h3>E-mail por IMAP <small>(opcional, só leitura)</small></h3>
+      <ol class="ae-passos">
+        <li>Na conta Google, ative a verificação em 2 etapas.</li>
+        <li>Ainda na conta, abra “Senhas de app” e crie uma senha para a Jarvis.</li>
+        <li>Cole a senha de app abaixo (nunca a senha normal). Em outros provedores, use a senha de app deles.</li>
+      </ol>
+      <div class="ae-form">
+        <label>Nome <input id="ae-im-nome" maxlength="30" placeholder="Pessoal" autocomplete="off"></label>
+        <label>Servidor <select id="ae-im-host"></select></label>
+        <label class="ae-largo">E-mail <input id="ae-im-user" type="email" autocomplete="off" spellcheck="false" placeholder="voce@exemplo.com"></label>
+        <label class="ae-largo">Senha de app <input id="ae-im-senha" type="password" autocomplete="new-password" spellcheck="false"></label>
+        <button type="button" class="primary" id="ae-im-conectar">Conectar e testar</button>
+      </div>
+      <ul id="ae-im-lista" class="ae-lista" aria-label="Contas de e-mail conectadas"></ul>
+      <p class="feedback" id="ae-im-fb" role="status"></p>
+    </section>
+    <div class="dialog-actions"><button type="button" id="close-agenda-email">Fechar</button></div>
+  </dialog>

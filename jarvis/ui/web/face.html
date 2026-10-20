@@ -1,0 +1,26 @@
+<div id="face" class="face" hidden role="dialog" aria-modal="true" aria-labelledby="face-marca">
+  <header class="face-topo">
+    <h2 id="face-marca" class="face-marca">JARVIS</h2>
+    <div class="face-hora"><b id="face-relogio">--:--:--</b><span id="face-data"></span></div>
+    <span id="face-estado" class="face-estado">ONLINE</span>
+  </header>
+  <aside class="face-lado" aria-label="Sistema">
+    <section class="face-painel"><h3>VITALS</h3><div id="fp-vitals"></div></section>
+    <section class="face-painel"><h3>SESSÕES CLAUDE CODE</h3><div id="fp-sessoes"></div></section>
+    <section class="face-painel"><h3>STATUS</h3><div id="fp-status"></div></section>
+  </aside>
+  <main class="face-centro">
+    <canvas id="face-orbe" class="face-orbe" aria-hidden="true"></canvas>
+    <p id="face-legenda" class="face-legenda"></p>
+  </main>
+  <aside class="face-lado" aria-label="Atividade">
+    <section class="face-painel"><h3>E-MAILS NÃO LIDOS</h3><div id="fp-emails"></div></section>
+    <section class="face-painel"><h3>TAREFAS</h3><div id="fp-tarefas"></div></section>
+    <section class="face-painel"><h3>LOGS</h3><div id="fp-logs"></div></section>
+  </aside>
+  <footer class="face-pe">
+    <label><input type="checkbox" id="face-auto"> Abrir a FACE ao iniciar</label>
+    <button type="button" id="face-cheia" title="Tela cheia do monitor (opcional)">Tela cheia</button>
+    <button type="button" id="face-fechar" title="Voltar (Esc)">Fechar (Esc)</button>
+  </footer>
+</div>

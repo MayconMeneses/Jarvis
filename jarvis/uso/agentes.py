@@ -42,3 +42,14 @@ def uso_agentes(session_ids: list[str], reg: Registro | None = None) -> dict[str
     """Agregador único do Painel de Agentes: {session_id: contrato} numa só coleta."""
     reg = reg or servico.atualizar()
     return {str(i): uso_por_sessao(i, reg) for i in session_ids}
+
+
+def resumo_para_agentes(reg: Registro | None = None, agora: float | None = None) -> dict:
+    """Uso de IA de HOJE (todas as sessões e a Jarvis), no mesmo contrato; o painel mostra isso no resumo."""
+    import time
+
+    agora = time.time() if agora is None else agora
+    reg = reg or servico.atualizar()
+    t = time.localtime(agora)
+    meia_noite = time.mktime((t.tm_year, t.tm_mon, t.tm_mday, 0, 0, 0, 0, 0, -1))
+    return _contrato(reg.linhas(desde=meia_noite))

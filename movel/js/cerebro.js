@@ -21,7 +21,8 @@ export const AJUSTES_DE_JANELA = [undefined, { sliding_window_size: -1 }, { cont
 const erroDeJanela = (e) => /sliding_window_size|context_window_size/.test(String(e?.message || e));
 
 export class Cerebro {
-  constructor({ importar = (url) => import(url), gpu = () => globalThis.navigator?.gpu } = {}) {
+  constructor({ importar = (url) => import(url), gpu = () => globalThis.navigator?.gpu, aoUsar = null } = {}) {
+    this.aoUsar = aoUsar;  // opcional: contadores locais de uso (custo zero)
     this.importar = importar; this.gpu = gpu; this.lib = null; this.engine = null; this.modelo = null;
   }
 
@@ -58,12 +59,14 @@ export class Cerebro {
   }
 
   async _gerar(mensagens, aoReceber) {
-    let texto = "";
+    let texto = "", usage = null;
     const fluxo = await this.engine.chat.completions.create({ messages: mensagens, stream: true, max_tokens: 600, temperature: 0.4 });
     for await (const pedaco of fluxo) {
+      if (pedaco.usage) usage = pedaco.usage;
       texto += pedaco.choices?.[0]?.delta?.content || "";
       aoReceber(texto);
     }
+    try { this.aoUsar?.("aparelho", { entrada: usage?.prompt_tokens, saida: usage?.completion_tokens, textoEntrada: mensagens.map((m) => m.content).join(" "), textoSaida: texto }); } catch { /* contador é opcional */ }
     return texto.trim();
   }
 

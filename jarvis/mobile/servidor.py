@@ -27,6 +27,12 @@ TIPOS = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=u
 CSP = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'"
 
 
+ORIGEM_APP = "https://mayconmeneses.github.io"
+ROTAS_LEITURA = {"/api/agenda": "agenda", "/api/emails": "emails", "/api/briefing": "briefing", "/api/agents": "agentes"}
+CORS_CAMINHOS = frozenset({"/api/parear", "/api/estado", *ROTAS_LEITURA})  # o /api/chat NÃO é aberto ao app de fora
+MAX_RESPOSTA = 65536
+
+
 def ip_local() -> str:
     """Endereço do PC na rede (o que o celular digita). 127.0.0.1 se não houver rede."""
     try:
@@ -39,8 +45,9 @@ def ip_local() -> str:
 
 class ServidorCelular:
     def __init__(self, pareamento: Pareamento, responder: Callable[[str], dict], pendentes: Callable[[], int] = lambda: 0,
-                 nome_usuario: str = "") -> None:
+                 nome_usuario: str = "", leitura: dict[str, Callable[[], dict]] | None = None, origem_app: str = ORIGEM_APP) -> None:
         self.pareamento, self.responder, self.pendentes, self.nome_usuario = pareamento, responder, pendentes, nome_usuario
+        self.leitura, self.origem_app = leitura or {}, origem_app
         self._http: ThreadingHTTPServer | None = None
         self._conversa = threading.Lock()  # uma conversa por vez: o PC é fraco e o Claude tem uma sessão só
         self.url = ""
@@ -62,6 +69,10 @@ class ServidorCelular:
                 self.send_header("X-Content-Type-Options", "nosniff")
                 self.send_header("Content-Security-Policy", CSP)
                 self.send_header("Cache-Control", "no-store" if self.path.startswith("/api/") else "no-cache")
+                origem = self.headers.get("Origin", "")
+                if servidor.origem_app and origem == servidor.origem_app and self.path.split("?")[0] in CORS_CAMINHOS:
+                    for k, v in {"Access-Control-Allow-Origin": origem, "Vary": "Origin"}.items():
+                        self.send_header(k, v)
                 for k, v in (extra or {}).items():
                     self.send_header(k, v)
                 self.end_headers()
@@ -84,8 +95,34 @@ class ServidorCelular:
                 except (ValueError, OSError):
                     return None
 
+            def do_OPTIONS(self):
+                origem = self.headers.get("Origin", "")
+                if not (servidor.origem_app and origem == servidor.origem_app and self.path.split("?")[0] in CORS_CAMINHOS):
+                    return self._json(403, {"erro": "origem não permitida"})
+                self._enviar(204, b"", "text/plain", {"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                                                      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                                                      "Access-Control-Allow-Private-Network": "true", "Access-Control-Max-Age": "600"})
+
+            def _ler(self, nome: str) -> None:
+                """Rotas de leitura: Bearer obrigatório, callback injetado, resposta limitada e sem detalhe de erro."""
+                if self._aparelho() is None:
+                    return self._json(401, {"erro": "aparelho não pareado"})
+                funcao = servidor.leitura.get(nome)
+                if funcao is None:
+                    return self._json(404, {"erro": "não disponível"})
+                try:
+                    corpo = json.dumps(funcao(), ensure_ascii=False).encode("utf-8")
+                    if len(corpo) > MAX_RESPOSTA:
+                        raise ValueError("resposta grande demais")
+                except Exception:  # noqa: BLE001  (nada técnico vaza para o celular)
+                    log.warning("falha ao montar /api/%s", nome, exc_info=True)
+                    return self._json(502, {"erro": "o PC não conseguiu ler agora"})
+                self._enviar(200, corpo, "application/json; charset=utf-8")
+
             def do_GET(self):
                 caminho = self.path.split("?")[0]
+                if caminho in ROTAS_LEITURA:
+                    return self._ler(ROTAS_LEITURA[caminho])
                 if caminho == "/api/estado":
                     aparelho = self._aparelho()
                     if aparelho is None:

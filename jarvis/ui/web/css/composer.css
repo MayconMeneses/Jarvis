@@ -2,7 +2,7 @@
   form { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px 14px; border-top: 1px solid var(--line); background: rgba(4, 10, 16, .85); }
   textarea {
     flex: 1; resize: none; min-height: 44px; max-height: 160px; padding: 11px 12px; font: inherit; color: var(--text);
-    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+    background: rgba(var(--cyan-rgb), .05); border: 1px solid var(--line-strong); border-radius: 2px;
     transition: border-color .18s, box-shadow .18s;
   }
   textarea:focus { box-shadow: 0 0 14px -4px var(--cyan); }

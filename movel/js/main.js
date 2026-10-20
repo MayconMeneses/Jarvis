@@ -4,11 +4,18 @@ import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarD
 import { mostrarCartao } from "./cartao-memoria.js";
 import { extrair, semProposta } from "./memoria-viva.js";
 import { ligarOrbe } from "./orbe-ui.js";
+import { ligarAparencia } from "./painel-aparencia.js";
+import { Agentes } from "./agentes.js";
+import { ligarAgentes } from "./painel-agentes.js";
+import { Uso } from "./uso.js";
+import { ligarUso } from "./painel-uso.js";
 import { Autonomo } from "./autonomo.js";
 import { Avaliador } from "./avaliar.js";
 import { Cerebro } from "./cerebro.js";
 import { Nuvem } from "./nuvem.js";
 import { ligarNuvem } from "./painel-nuvem.js";
+import { PcPareado } from "./pc-pareado.js";
+import { ligarPc } from "./painel-pc.js";
 import { Conversa } from "./conversa.js";
 import * as contexto from "./contexto.js";
 import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
@@ -40,9 +47,14 @@ async function iniciarMemoria() {
 async function main() {
   const saber = new Saber(await (await fetch("dados/saber.json")).json());
   const memoria = await iniciarMemoria();
-  const nuvem = new Nuvem({ armazem: memoria.armazem });
-  const motor = new Motor({ saber, memoria, buscar: (url, opcoes) => fetch(url, opcoes), brave: () => nuvem.brave() });
-  const cerebro = new Cerebro();
+  await ligarAparencia(memoria);
+  const uso = new Uso(memoria), agentes = new Agentes(memoria);
+  const contar = (fonte, dados) => uso.registrar(fonte, dados).catch(() => {});  // contadores locais: nunca atrapalham a conversa
+  const nuvem = new Nuvem({ armazem: memoria.armazem, aoUsar: contar });
+  // A busca do Brave é contada por chamada (o proxy do usuário recebe a chave; aqui só passa a contagem).
+  const buscarMedido = (url, opcoes) => { if (String(url).includes("/brave/res/v1/")) contar("brave"); return fetch(url, opcoes); };
+  const motor = new Motor({ saber, memoria, buscar: buscarMedido, brave: () => nuvem.brave() });
+  const cerebro = new Cerebro({ aoUsar: contar });
   const conversa = new Conversa(memoria);
   const nome = async () => (await memoria.meta("nome")) || "Maycon";
 
@@ -59,11 +71,13 @@ async function main() {
     pensando(true, "IA pensando…");
     try {
       const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, semProposta(parcial)), (aviso) => atualizar(bolha, aviso));
+      agentes.marcar("cerebro", "ok");
       const { texto: limpo, propostas } = extrair(resposta || "");
       atualizar(bolha, limpo || "Não consegui responder.");
       await cartoes(propostas, dados);
       return limpo;
     } catch (e) {
+      agentes.marcar("cerebro", "erro");
       atualizar(bolha, `Não consegui responder agora (${e.message}). A conversa continua: pode perguntar de novo.`);
       bolha.classList.add("erro");
       return "";
@@ -161,29 +175,35 @@ async function main() {
   });
 
   // Aprender sozinha e avaliar o cérebro (a avaliação roda o código da IA só no ambiente isolado da Oficina).
-  const autonomo = new Autonomo({ memoria, saber, buscar: (url, opcoes) => fetch(url, opcoes), brave: () => nuvem.brave() });
+  const autonomo = new Autonomo({ memoria, saber, buscar: buscarMedido, brave: () => nuvem.brave() });
   const avaliador = new Avaliador({
     memoria, conversa: conversaOficina, rodar: rodarNoSandbox,
     disponivel: async () => cerebro.ligado() || (await nuvem.configurada()),
     rotulo: () => (cerebro.ligado() ? cerebro.modelo : "nuvem"),
   });
   const instagram = new Instagram(memoria);
-  Object.assign(motor, { autonomo, avaliador, instagram });
+  const pc = new PcPareado({ armazem: memoria.armazem });
+  Object.assign(motor, { autonomo, avaliador, instagram, pc, uso });
+  ligarAgentes({ agentes, autonomo, avaliador, cerebro });
+  ligarUso({ uso, avisar: (t) => adicionar(t, "aviso") });
+  const aoAbrirAgenda = ligarPc({ pc, avisar: (t) => adicionar(t, "aviso") });
   const aoAbrirInstagram = ligarInstagram({ instagram, avisar: (t) => adicionar(t, "aviso") });
-  const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, avisar: (t) => adicionar(t, "aviso") });
+  const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, agentes, avisar: (t) => adicionar(t, "aviso") });
   aoAbrirAutonomo();
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
   const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
   const aoAbrirNuvem = ligarNuvem(nuvem, memoria, (t) => adicionar(t, "aviso"));
   aoAbrirNuvem();
   let modelosProntos = null;
-  const oficina = ligarOficina({ memoria, avisar: (t) => adicionar(t, "aviso"), carregarModelos: async () => (modelosProntos ||= await (await fetch("dados/modelos.json")).json()) });
+  const oficina = ligarOficina({ memoria, aoRodar: (e) => agentes.marcar("oficina", e), avisar: (t) => adicionar(t, "aviso"), carregarModelos: async () => (modelosProntos ||= await (await fetch("dados/modelos.json")).json()) });
   ligarCriarComIA({ conversa: conversaOficina, oficina, avisar: (t) => adicionar(t, "aviso") });
   document.querySelectorAll("#abas button").forEach((b) => b.addEventListener("click", () => {
     document.querySelectorAll("#abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    b.scrollIntoView?.({ inline: "center", block: "nearest" });  // a aba escolhida não fica escondida na rolagem da barra
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
     if (b.dataset.aba === "instagram") aoAbrirInstagram();
+    if (b.dataset.aba === "agenda") aoAbrirAgenda();
     if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
 
@@ -195,6 +215,9 @@ async function main() {
     adicionar("Olá! Eu sou a Jarvis e rodo **só neste celular**: minha memória e meu cérebro ficam aqui. Pode escrever ou tocar em **Conversar por voz**. Diga \"ajuda\" para ver o que sei fazer.", "jarvis");
   }
   for (const aviso of await avisos({ memoria, saber, nome: await nome() })) adicionar(aviso, "jarvis aviso");
+  agentes.marcar("proativo", "ok");
+  const gasto = await uso.resumo();
+  if (gasto.alerta) adicionar(`Atenção: você já usou ${gasto.pct.toFixed(0)}% do orçamento de IA deste mês (painel Uso de IA, na aba Cérebro).`, "jarvis aviso");
   const lembreteInsta = await instagram.aviso();  // segunda-feira: avisa e FALA (voz do navegador), uma vez por semana
   if (lembreteInsta) { adicionar(lembreteInsta.texto, "jarvis aviso"); falar(lembreteInsta.fala, true); }
   religar();

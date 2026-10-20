@@ -1,0 +1,45 @@
+  /* Painel de agentes (constelação) e Agenda e e-mail: só variáveis do tema */
+  #agentes { width: min(960px, calc(100vw - 24px)); }
+  .ag-resumo { margin: 0 0 8px; font-size: 12.5px; color: var(--muted); }
+  .ag-resumo.erro { color: var(--danger); } .ag-resumo.atencao { color: var(--orange); }
+  .ag-corpo { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .ag-mapa { min-width: 0; border: 1px solid var(--line); background: var(--cyan-soft); }
+  #ag-svg { display: block; width: 100%; height: auto; font-family: var(--mono); }
+  #ag-svg g[role="button"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .ag-sec { margin: 0 0 10px; }
+  .ag-sec h3 { margin: 0 0 6px; font: 600 12.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
+  .ag-sec h3 small { font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+  .ag-faz { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+  .ag-dl { display: grid; gap: 3px; margin: 0 0 8px; font-size: 12.5px; }
+  .ag-dl div { display: grid; grid-template-columns: 8.5em 1fr; gap: 6px; }
+  .ag-dl dt { color: var(--muted); } .ag-dl dd { margin: 0; overflow-wrap: anywhere; }
+  .ag-lista { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); max-height: 220px; overflow: auto; }
+  .ag-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; text-transform: none; letter-spacing: 0; border: 0; border-bottom: 1px solid var(--line); padding: 6px 8px; font: 12.5px "Segoe UI", system-ui, sans-serif; color: var(--text); }
+  .ag-item[aria-current="true"] { background: var(--cyan-soft); box-shadow: inset 2px 0 var(--cyan); }
+  .ag-nome { flex: none; font-weight: 600; }
+  .ag-estado { min-width: 0; margin-left: auto; color: var(--muted); font: 11.5px var(--mono); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ag-ponto { flex: none; width: 9px; height: 9px; background: var(--faint); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  /* Ligação com o orbe: o pior estado dos agentes vira halo no orbe do cabeçalho e cor no botão */
+  body[data-agents="erro"] #orbe { filter: drop-shadow(0 0 9px var(--danger)); animation: ag-halo 1.6s ease-in-out infinite; }
+  body[data-agents="atencao"] #orbe { filter: drop-shadow(0 0 6px var(--orange)); }
+  body[data-agents="erro"] #open-agentes { border-color: var(--danger); color: var(--danger); }
+  body[data-agents="atencao"] #open-agentes { border-color: var(--orange); color: var(--orange); }
+  @keyframes ag-halo { 50% { filter: drop-shadow(0 0 3px var(--danger)); } }
+  @media (prefers-reduced-motion: reduce) { body[data-agents="erro"] #orbe { animation: none; } }
+  html[data-efeitos="suave"] body[data-agents="erro"] #orbe, html[data-efeitos="desligado"] body[data-agents="erro"] #orbe { animation: none; }
+  @media (max-width: 760px) { .ag-corpo { grid-template-columns: minmax(0, 1fr); } .ag-dl div { grid-template-columns: 7.5em 1fr; } }
+  /* barra de botões: com mais botões, quebra de linha em vez de estourar a largura */
+  .toolbar { flex-wrap: wrap; } .toolbar > span:last-child { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; justify-content: flex-end; }
+  /* Agenda e e-mail */
+  #agenda-email { width: min(560px, calc(100vw - 24px)); }
+  .ae-passos { margin: 0 0 8px; padding-left: 1.3em; font-size: 12.5px; color: var(--muted); }
+  .ae-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+  .ae-form label { display: grid; gap: 2px; min-width: 0; } .ae-largo { grid-column: 1 / -1; }
+  .ae-form input, .ae-form select { width: 100%; min-width: 0; padding: 6px 8px; font: 12.5px var(--mono); color: var(--text); background: var(--cyan-soft); border: 1px solid var(--line-strong); border-radius: 2px; }
+  .ae-form input:focus-visible, .ae-form select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .ae-form button { grid-column: 1 / -1; }
+  .ae-lista { list-style: none; margin: 0 0 6px; padding: 0; }
+  .ae-lista li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 0; font-size: 12.5px; }
+  .ae-lista li span { flex: 1; min-width: 8em; overflow-wrap: anywhere; }
+  .ae-lista button { padding: 4px 8px; font-size: 11px; }
+  @media (max-width: 460px) { .ae-form { grid-template-columns: 1fr; } }

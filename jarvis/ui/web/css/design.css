@@ -1,0 +1,72 @@
+  /* ── design: tokens extras, acessibilidade, temas e fundo de aurora ──────────
+     Vem POR ÚLTIMO na lista CSS (web/__init__.py), então vence por ordem, sem !important.
+     Os temas só trocam VALORES dos tokens de base.css; nenhum nome foi renomeado. */
+  :root {
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
+    --radius: 6px; --dur: .22s;
+    --aurora-1: var(--cyan-rgb); --aurora-2: 110, 90, 255;
+  }
+
+  /* Temas (data-tema no <html>). Contraste AA conferido em tests/test_tema.py. */
+  :root[data-tema="ambar"] {
+    --bg: #0a0703; --panel: rgba(26, 16, 8, .72); --panel-solid: #1a1008;
+    --text: #fff1dc; --muted: #c9a47a; --faint: #a07f58;
+    --cyan: #ffb347; --cyan-rgb: 255, 179, 71; --orange: #ff7a45; --magenta: #ff6fb0;
+    --ok: #8be08a; --danger: #ff6b6b; --danger-soft: rgba(255, 107, 107, .1);
+    --aurora-2: 255, 111, 60;
+  }
+  :root[data-tema="esmeralda"] {
+    --bg: #030a06; --panel: rgba(10, 26, 18, .72); --panel-solid: #0a1a12;
+    --text: #e0fff0; --muted: #86bda0; --faint: #6a9e84;
+    --cyan: #3ee08f; --cyan-rgb: 62, 224, 143; --orange: #ffb03c; --magenta: #ff6fb0;
+    --ok: #7dfa9a; --danger: #ff6b78; --danger-soft: rgba(255, 107, 120, .1);
+    --aurora-2: 40, 170, 220;
+  }
+  :root[data-tema="contraste"] {
+    --bg: #000000; --panel: #000000; --panel-solid: #000000;
+    --line: rgba(255, 255, 255, .6); --line-strong: #ffffff;
+    --text: #ffffff; --muted: #dcdcdc; --faint: #bdbdbd;
+    --cyan: #ffe14d; --cyan-rgb: 255, 225, 77; --cyan-soft: rgba(255, 225, 77, .18);
+    --orange: #ffa24d; --magenta: #ff85e0; --ok: #5dff9a; --danger: #ff8f8f; --danger-soft: rgba(255, 143, 143, .14);
+  }
+  :root[data-tema="contraste"] body { background: var(--bg); }
+  :root[data-tema="contraste"] h1 { text-shadow: none; }
+  .primary:hover:not(:disabled) { background: color-mix(in srgb, var(--cyan) 78%, #fff); }
+
+  /* Teclado: foco sempre visível, mas só quando vem do teclado. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--cyan); outline-offset: 2px;
+  }
+  :root[data-tema="contraste"] :focus-visible { outline-width: 3px; }
+  ::selection { background: rgba(var(--cyan-rgb), .35); color: var(--text); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--radius); }
+
+  /* Fundo de aurora: UMA camada fixa, gradientes pintados uma vez; só transform/opacity animam
+     (compositor, sem repintar a tela). Completo = anima devagar; suave = parada; desligado = ausente. */
+  #aurora {
+    position: fixed; z-index: -1; left: -30%; top: -30%; width: 160%; height: 160%; pointer-events: none;
+    background:
+      radial-gradient(38% 38% at 28% 30%, rgba(var(--aurora-1), .20), transparent 70%),
+      radial-gradient(34% 34% at 72% 62%, rgba(var(--aurora-2), .16), transparent 70%),
+      radial-gradient(30% 30% at 45% 82%, rgba(var(--aurora-1), .10), transparent 70%);
+    opacity: .75;
+  }
+  :root[data-efeitos="completo"] #aurora { will-change: transform, opacity; animation: aurora-vai 48s ease-in-out infinite alternate; }
+  :root[data-efeitos="desligado"] #aurora { display: none; }
+  :root[data-oculta] #aurora { animation-play-state: paused; will-change: auto; }
+  :root[data-tema="contraste"] #aurora { display: none; }
+  @keyframes aurora-vai {
+    0%   { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1);    opacity: .55; }
+    50%  { transform: translate3d(3%, 4%, 0) rotate(8deg) scale(1.08);   opacity: .85; }
+    100% { transform: translate3d(5%, -3%, 0) rotate(-6deg) scale(1.03); opacity: .65; }
+  }
+
+  /* Movimento: o sistema pede menos, ou o dono desligou os efeitos. Vale para reator/HUD, bolhas e aurora. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    #aurora { display: none; }
+  }
+  :root[data-efeitos="desligado"] *, :root[data-efeitos="desligado"] *::before, :root[data-efeitos="desligado"] *::after {
+    animation: none !important; transition-duration: .01ms !important;
+  }
