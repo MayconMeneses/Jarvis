@@ -18,6 +18,29 @@
     memList.querySelectorAll("button").forEach((b) => b.setAttribute("aria-current", String(b.dataset.ref === ref)));
   }
 
+  async function memOpen(ref) {
+    const note = await window.pywebview.api.memory_get(ref);
+    if (note.error) { memSay(note.error, false); return; }
+    memText.value = note.texto;
+    memSelect(ref);
+    memSay("");
+  }
+
+  // Abas Lista / Mapa: o mapa carrega os dados só quando aberto e para de desenhar quando fechado.
+  async function memAba(mapa) {
+    memDialog.classList.toggle("mapa", mapa);
+    document.getElementById("mem-mapa").hidden = !mapa;
+    document.getElementById("mem-aba-mapa").setAttribute("aria-selected", String(mapa));
+    document.getElementById("mem-aba-lista").setAttribute("aria-selected", String(!mapa));
+    if (!mapa) { MemoriaGrafo.parar(); return; }
+    const erro = await MemoriaGrafo.mostrar();
+    if (erro) memSay(erro, false);
+  }
+  MemoriaGrafo.aoAbrir(async (ref) => { await memAba(false); await memOpen(ref); });
+  document.getElementById("mem-aba-lista").addEventListener("click", () => memAba(false));
+  document.getElementById("mem-aba-mapa").addEventListener("click", () => memAba(true));
+  memDialog.addEventListener("close", () => MemoriaGrafo.parar());
+
   async function memRefresh() {
     const res = await window.pywebview.api.memory_list(document.getElementById("mem-search").value);
     if (res.error) { memSay(res.error, false); return; }
@@ -32,13 +55,7 @@
         s.textContent = [n.atualizado, n.resumo].filter(Boolean).join(" · ");
         b.append(s);
       }
-      b.addEventListener("click", async () => {
-        const note = await window.pywebview.api.memory_get(n.ref);
-        if (note.error) { memSay(note.error, false); return; }
-        memText.value = note.texto;
-        memSelect(n.ref);
-        memSay("");
-      });
+      b.addEventListener("click", () => memOpen(n.ref));
       li.append(b);
       return li;
     }));

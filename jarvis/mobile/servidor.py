@@ -15,6 +15,7 @@ from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from jarvis.agentes import registro as agentes
 from jarvis.mobile import icones
 from jarvis.mobile.pareamento import Pareamento
 
@@ -132,6 +133,7 @@ class ServidorCelular:
         alvo = nome or (ip_local() if rede and host == "0.0.0.0" else host)
         self.url = f"{esquema}://{alvo}:{self._http.server_port}"
         log.info("app do celular em %s", self.url)
+        agentes.marcar("celular", agentes.OK, "ligado")
         return self.url
 
     def parar(self) -> None:
@@ -139,6 +141,7 @@ class ServidorCelular:
             self._http.shutdown()
             self._http.server_close()
             self._http, self.url = None, ""
+            agentes.marcar("celular", agentes.DESLIGADO, "parado")
 
     @property
     def ativo(self) -> bool:

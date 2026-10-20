@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 from jarvis import environment
+from jarvis.agentes import registro as agentes
 from jarvis.brains.claude_cli import child_env
 from jarvis.config import ClaudeConfig, data_dir
 from jarvis.dev import projects
@@ -105,6 +106,10 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
         )
         data = json.loads(proc.stdout or "{}")
         text = str(data.get("result") or proc.stderr or "").strip()
+        from jarvis.uso import normaliza
+
+        run.usage = normaliza.do_claude(data.get("usage"))
+        run.custo_usd = float(data["total_cost_usd"]) if isinstance(data.get("total_cost_usd"), (int, float)) else 0.0
         failed = proc.returncode != 0 or data.get("is_error") or not text
         run.status = "falhou" if failed else "concluida"
         run.resultado = text[:20000] or f"o Claude Code saiu com código {proc.returncode}"
@@ -219,6 +224,7 @@ class RunWorker(threading.Thread):
     def tick(self) -> None:
         run = self.store.next_queued()
         if run is not None:
+            agentes.marcar("tarefas", agentes.OK, "executando")  # tarefa longa em andamento não é "parada"
             execute(run, self.store, self.claude, mem=self.mem)
         for done in self.store.finished_unnotified():
             try:
@@ -232,6 +238,8 @@ class RunWorker(threading.Thread):
         while not self._stop.is_set():
             try:
                 self.tick()
-            except Exception:
+                agentes.marcar("tarefas", agentes.OK)
+            except Exception as exc:
+                agentes.erro("tarefas", exc)
                 log.exception("erro na fila de tarefas")
             self._stop.wait(self.interval)

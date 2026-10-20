@@ -45,7 +45,7 @@
     border: 1px solid var(--orange); box-shadow: 0 0 18px -8px var(--orange); animation: enter .22s var(--ease) both;
   }
   .card .label { color: var(--orange); margin: 0 0 6px; }
-  .card p { margin: 0 0 4px; }
+  .card p { margin: 0 0 4px; white-space: pre-line; }
   .card .why { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
   .card .buttons { display: flex; gap: 8px; }
   .card .outcome { margin: 8px 0 0; font-size: 13px; }

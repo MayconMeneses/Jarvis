@@ -12,6 +12,7 @@ HELP = (
     "- **lógica e algoritmos**: \"como resolver um problema de programação?\", \"explique recursão\", \"busca binária em Java\", \"como fazer fatorial em Go\" (código em Python, JavaScript, Go, Java e C#)\n"
     "- **evoluir como programador**: \"avalie o projeto Loja\", \"avalie o seu código\", \"quais habilidades de programador?\", \"o que devo estudar?\", \"checklist de segurança\"\n"
     "- **dashboards**: \"crie um dashboard de C:\\\\pasta\\\\vendas.xlsx\"\n"
+    "- **Instagram** (analista de conteúdo): \"analisar instagram\", \"configurar instagram\", \"importar posts\" (cole a tabela), \"relatório de instagram\", \"comparar com a rodada anterior\"\n"
     "- **sessões do Claude Code**: \"alguma sessão está me esperando?\"\n"
     "- **pesquisar na internet** e resumir com frases dos próprios sites (\"pesquise sobre ...\")"
 )

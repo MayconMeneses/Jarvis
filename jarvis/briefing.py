@@ -58,6 +58,34 @@ def new_jobs(cfg: Config) -> tuple[str, str]:
     return f"\n**Vagas novas para você:**\n{items}", f"Encontrei {len(found)} vagas novas compatíveis com você."
 
 
+def agenda_hoje(cfg: Config) -> tuple[str, str]:
+    """Agenda de hoje (texto, fala). ("", "") sem agenda conectada. Título suspeito nunca é falado."""
+    if not cfg.agendas:
+        return "", ""
+    try:
+        from jarvis.agenda import servico, texto
+
+        res = servico.do_dia(cfg)
+        return texto.hoje(res), texto.fala_hoje(res)
+    except Exception:
+        log.warning("falha ao ler a agenda", exc_info=True)
+        return "", ""
+
+
+def emails_acao(cfg: Config) -> tuple[str, str]:
+    """E-mails não lidos que pedem ação (texto, fala). ("", "") sem conta conectada."""
+    if not (cfg.email.gmail_ativo or cfg.email.outlook_ativo or cfg.email.imap):
+        return "", ""
+    try:
+        from jarvis.mail import painel
+
+        p = painel.carregar(cfg)
+        return painel.texto(p, so_acao=True), painel.fala(p)
+    except Exception:
+        log.warning("falha ao ler os e-mails", exc_info=True)
+        return "", ""
+
+
 def build(
     cfg: Config,
     now: datetime | None = None,
@@ -65,10 +93,15 @@ def build(
     get_weather=weather.forecast,
     get_news=news.headlines,
     get_jobs=new_jobs,
+    get_agenda=None,
+    get_emails=None,
+    forcar: bool = False,
 ) -> dict:
+    get_agenda, get_emails = get_agenda or agenda_hoje, get_emails or emails_acao
     now = now or datetime.now()
     state_path = state_path or _state_path()
-    full = is_first_today(state_path, now.date())
+    first = is_first_today(state_path, now.date())
+    full = first or forcar  # forcar = "bom dia" pedido por voz, chat ou botão: sempre completo
 
     hello = f"{salutation(cfg.user_name, now)} Como você está?"
     lines, spoken = [hello], [hello]
@@ -87,6 +120,12 @@ def build(
 
     headlines: dict[str, list[dict]] = {}
     if full:
+        for bloco in (get_agenda, get_emails):  # agenda de hoje e e-mails de ação (sem IA)
+            texto, fala = bloco(cfg)
+            if texto:
+                lines.append("\n" + texto)
+            if fala:
+                spoken.append(fala)
         for kind, label in (("gerais", "Destaques de hoje"), ("tecnologia", "Tecnologia")):
             found = get_news(kind, 3)["manchetes"]
             headlines[kind] = found
@@ -100,8 +139,9 @@ def build(
             lines.append(job_lines)
             spoken.append(job_spoken)
         spoken.append("Os detalhes estão na janela.")
-        mark_done(state_path, now.date())
-        _save_report(cfg, "\n".join(lines))
+        if first:  # "bom dia" pedido de novo no mesmo dia mostra tudo, mas não regrava o relatório
+            mark_done(state_path, now.date())
+            _save_report(cfg, "\n".join(lines))
 
     return {"text": "\n".join(lines), "speak": " ".join(spoken), "completo": full, "manchetes": headlines}
 

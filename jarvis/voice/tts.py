@@ -104,10 +104,13 @@ def speak_sapi(text: str) -> None:
 class Speaker:
     """Fala frase a frase. Ordem: voz local (padrão) -> edge-tts (só se escolhido "online") -> SAPI do Windows."""
 
-    def __init__(self, voice: str = "pt-BR-FranciscaNeural", motor: str = "local", efeito: bool = True) -> None:
+    def __init__(self, voice: str = "pt-BR-FranciscaNeural", motor: str = "local", efeito: bool = True,
+                 on_visual=None, atraso_ms: int = 80) -> None:
         self.edge = EdgeVoice(voice)
         self.local = None
         self.efeito = efeito
+        self.on_visual = on_visual  # recebe {"tipo": "fala"|"fim", ...} para o orbe da janela (opcional)
+        self.atraso_ms = atraso_ms  # tempo entre mandar o envelope e o som sair de fato
         self.definir_motor(motor)
 
     def definir_motor(self, motor: str) -> None:
@@ -153,6 +156,22 @@ class Speaker:
                 log.info("%s indisponível (%s)", type(voz).__name__, exc)
         raise erro or RuntimeError("nenhuma voz disponível")
 
+    def _visual(self, payload: dict) -> None:
+        if self.on_visual is None:
+            return
+        try:
+            self.on_visual(payload)
+        except Exception:  # o efeito visual nunca pode atrapalhar a fala
+            log.debug("falha ao avisar o orbe", exc_info=True)
+
+    def _tocar(self, sd, pcm, taxa: int) -> None:
+        if self.on_visual is not None:
+            from jarvis.voice.nivel import JANELA_MS, envelope
+
+            self._visual({"tipo": "fala", "env": envelope(pcm, taxa), "dt": JANELA_MS, "atraso_ms": self.atraso_ms})
+        sd.play(pcm, taxa)
+        sd.wait()
+
     def say(self, text: str) -> None:
         """A 1ª frase começa enquanto as próximas ainda são sintetizadas."""
         import sounddevice as sd
@@ -174,13 +193,16 @@ class Speaker:
             ready.put(None)
 
         threading.Thread(target=produce, daemon=True, name="jarvis-sintese").start()
-        while (item := ready.get()) is not None:
-            kind, data = item
-            if kind == "sapi":
-                speak_sapi(data)
-            else:
-                sd.play(data[0], data[1])
-                sd.wait()
+        try:
+            while (item := ready.get()) is not None:
+                kind, data = item
+                if kind == "sapi":
+                    self._visual({"tipo": "fala", "env": [], "dt": 40, "atraso_ms": 0})  # sem envelope: o orbe simula
+                    speak_sapi(data)
+                else:
+                    self._tocar(sd, data[0], data[1])
+        finally:
+            self._visual({"tipo": "fim"})
 
     def chime(self) -> None:
         """Bipe curto (~0,15 s) para avisar que a Jarvis começou a ouvir."""
@@ -193,3 +215,4 @@ class Speaker:
         import sounddevice as sd
 
         sd.stop()
+        self._visual({"tipo": "fim"})

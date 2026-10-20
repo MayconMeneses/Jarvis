@@ -7,6 +7,7 @@ import sys
 import threading
 
 from jarvis import updater
+from jarvis.agentes import registro as agentes
 from jarvis.config import data_dir
 
 log = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class UpdateMixin:
     def start_update_loop(self) -> None:
         """Só na versão instalada: confere ao abrir e a cada 6 horas. Na abertura, instala sozinha."""
         if not getattr(sys, "frozen", False) or not self._cfg.atualizacao_automatica:
+            agentes.marcar("atualizador", agentes.DESLIGADO, "só na versão instalada")
             return
         self._update_stop = threading.Event()
         threading.Thread(target=self._update_loop, daemon=True, name="jarvis-atualizar").start()
@@ -40,7 +42,8 @@ class UpdateMixin:
                 if first and updater.pending(self._updates_dir()) and self.install_update()["ok"]:
                     return  # um instalador já baixado e conferido: atualiza agora, na abertura
                 self.check_update()
-            except Exception:
+            except Exception as exc:
+                agentes.erro("atualizador", exc)
                 log.exception("falha na checagem de atualização")
             first = False
             if self._update_stop.wait(CHECK_EVERY_SECONDS):
@@ -49,6 +52,7 @@ class UpdateMixin:
     def check_update(self) -> dict:
         """Procura e baixa a versão nova; avisa a janela quando ela está pronta."""
         result = updater.check(self._updates_dir())
+        agentes.marcar("atualizador", agentes.OK, str(result.get("estado", ""))[:30])
         if result["estado"] == "pronta":
             self._push({"update": {"versao": result["versao"], "notas": result.get("notas", "")}})
         return result

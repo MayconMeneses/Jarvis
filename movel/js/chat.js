@@ -1,5 +1,6 @@
 // Tela de conversa: mensagens, voz (ditado, leitura e conversa por voz contínua) e estado visual.
 import { renderizar } from "./md.js";
+import { ligarEscuta, ligarFala } from "./orbe-voz.js";
 
 const $ = (id) => document.getElementById(id);
 const Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -21,8 +22,12 @@ export function atualizar(bolha, texto) {
   $("mensagens").scrollTop = $("mensagens").scrollHeight;
 }
 
+// O orbe (canvas) mostra o estado; o texto em #estado diz o mesmo para quem não vê a animação.
+let orbe = null;
+export const usarOrbe = (o) => { orbe = o; };
+
 export function pensando(sim, texto = "pensando…") {
-  $("orb").classList.toggle("pensando", sim);
+  if (sim) orbe?.definirEstado("pensando"); else if (orbe?.estadoAtual === "pensando") orbe.definirEstado("ocioso");
   $("estado").textContent = sim ? texto : "pronta";
   $("enviar").disabled = sim;
 }
@@ -56,9 +61,13 @@ export function falar(texto, forcar = false) {
     fala.lang = "pt-BR";
     const voz = escolherVoz();
     if (voz) fala.voice = voz;
-    fala.onend = fala.onerror = () => resolver();
+    const visual = orbe ? ligarFala(orbe, limpo, fala.rate) : null;  // anima pelo ritmo do texto, não pelo som real
+    const terminar = () => { visual?.fim(); if ($("estado").textContent === "falando…") $("estado").textContent = "pronta"; resolver(); };
+    fala.onstart = () => { visual?.inicio(); $("estado").textContent = "falando…"; };
+    fala.onboundary = (ev) => visual?.limite(ev);
+    fala.onend = fala.onerror = terminar;
     window.speechSynthesis.speak(fala);
-    setTimeout(resolver, 30000);  // nunca trava a conversa se o navegador não avisar o fim da fala
+    setTimeout(terminar, 30000);  // nunca trava a conversa se o navegador não avisar o fim da fala
   });
 }
 
@@ -69,6 +78,7 @@ function ouvirUmaVez() {
     const rec = new Reconhecimento();
     rec.lang = "pt-BR";
     rec.interimResults = false;
+    if (orbe) ligarEscuta(orbe, rec);
     let ouvido = "";
     rec.onresult = (ev) => { ouvido = ev.results[0][0].transcript; };
     rec.onerror = (ev) => rejeitar(new Error(ev.error || "microfone"));

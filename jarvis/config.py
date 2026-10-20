@@ -66,6 +66,10 @@ class EmailConfig:
     outlook_authority: str = "consumers"
     # Regras fixas: {"campo": "remetente"|"assunto", "contem": "...", "categoria": "..."}
     regras: list[dict] = field(default_factory=list)
+    # Contas IMAP opcionais (só leitura): {"apelido", "host", "porta", "usuario"}. A senha de app fica no cofre do Windows.
+    imap: list[dict] = field(default_factory=list)
+    # Triagem AÇÃO/INFO/RUÍDO: só envia trechos de e-mail para IA na nuvem (Gemini/NVIDIA/Claude) se o usuário consentir.
+    triagem_nuvem: bool = False
 
 
 @dataclass
@@ -78,6 +82,7 @@ class VoiceConfig:
     # "local" = Piper offline, sem depender de terceiros (padrão) | "online" = edge-tts (Microsoft).
     voz_motor: str = "local"
     voz_efeito: bool = True      # reverb sutil na voz local
+    atraso_visual_ms: int = 80   # atraso do som (alto-falante/Bluetooth) para o orbe acompanhar a fala
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5
 
@@ -127,8 +132,17 @@ class Config:
     celular_chave: str = ""
     proativo_hora: int = 8       # a partir de que hora o "bom dia" pode aparecer (se a Jarvis já estiver aberta)
     proativo_voz: bool = False   # falar sozinha (nunca entre 22h e 7h)
+    instagram_lembrete: bool = False  # lembrete semanal (segunda) da análise de Instagram, FALADO; ligado por cartão aprovado
+    # Orbe da janela: "completo" | "suave" (sem rotação nem pulso de escala) | "desligado".
+    efeitos_visuais: str = "completo"
     llm_modelo: str = "qwen2.5-coder-1.5b"
     llm_endpoint: str = ""  # opcional: servidor já rodando (Ollama/LM Studio), ex.: http://127.0.0.1:11434
+    # Agendas iCal: {"apelido", "cor"}. O link secreto de cada uma fica no cofre do Windows, nunca aqui.
+    agendas: list[dict] = field(default_factory=list)
+    # Perfil de custo do Claude: "economico" | "equilibrado" | "maximo". Cada perfil aponta para um modelo editável
+    # em perfis_modelo; vazio = o modelo padrão da assinatura (ver jarvis/brains/perfis.py).
+    perfil_modelo: str = "equilibrado"
+    perfis_modelo: dict[str, str] = field(default_factory=lambda: {"economico": "", "equilibrado": "", "maximo": ""})
     claude: ClaudeConfig = field(default_factory=ClaudeConfig)
     gemini: ProviderConfig = field(default_factory=_gemini)
     nvidia: ProviderConfig = field(default_factory=_nvidia)

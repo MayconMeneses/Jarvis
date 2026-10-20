@@ -5,12 +5,12 @@
 ; Instala só para o usuário atual (sem administrador). A desinstalação remove o
 ; programa, mas mantém configurações, chaves e a memória da Jarvis (%APPDATA%\SuperJarvis).
 ;
-; Modelos (Whisper + voz local do Piper em modelosozes): rode antes "python packaging/baixar_modelo.py" para levá-lo dentro do instalador
+; Modelos (Whisper + voz local do Piper em modelos/vozes): rode antes "python packaging/baixar_modelo.py" para levá-lo dentro do instalador
 ; (funciona offline na 1ª abertura). Sem a pasta packaging\modelos o instalador fica pequeno e a
 ; Jarvis baixa o modelo uma vez, na primeira abertura.
 
 #define AppName "Super Jarvis"
-#define AppVersion "0.21.0"
+#define AppVersion "0.22.0"
 #define AppExe "Jarvis.exe"
 
 [Setup]

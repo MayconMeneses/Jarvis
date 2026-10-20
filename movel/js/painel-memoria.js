@@ -1,5 +1,6 @@
 // Aba Memória: ver, buscar, editar, apagar, salvar e restaurar a cópia de segurança. Tudo só neste aparelho.
 import { cifrar, decifrar, eCifrado } from "./cripto.js";
+import { ligarGrafo } from "./painel-grafo.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -31,6 +32,17 @@ export function ligarMemoria(memoria, avisar) {
     $("nota-ref").focus();
   }
 
+  // Notas (lista) ou Grafo (Second Brain em Canvas): tocar num nó abre a nota no mesmo editor.
+  const grafo = ligarGrafo({ memoria, aoAbrirNota: (nota) => { abrir(nota); $("editor").scrollIntoView({ block: "nearest" }); } });
+  const ver = (grafoAtivo) => {
+    $("ver-notas").setAttribute("aria-pressed", String(!grafoAtivo));
+    $("ver-grafo").setAttribute("aria-pressed", String(grafoAtivo));
+    $("busca").hidden = $("notas").hidden = grafoAtivo;
+    $("grafo-painel").hidden = !grafoAtivo;
+    if (grafoAtivo) grafo.mostrar().catch((e) => avisar("Não consegui montar o grafo: " + e.message)); else { grafo.ocultar(); listar(); }
+  };
+  $("ver-notas").addEventListener("click", () => ver(false));
+  $("ver-grafo").addEventListener("click", () => ver(true));
   $("busca").addEventListener("input", listar);
   $("nova-nota").addEventListener("click", () => abrir(null));
   $("nota-fechar").addEventListener("click", () => { $("editor").hidden = true; });
@@ -69,5 +81,5 @@ export function ligarMemoria(memoria, avisar) {
     $("senha-copia").value = "";
     ev.target.value = "";
   });
-  return listar;
+  return () => { if ($("grafo-painel").hidden) return listar(); return grafo.mostrar(); };
 }

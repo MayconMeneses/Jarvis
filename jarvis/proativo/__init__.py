@@ -18,6 +18,7 @@ class Aviso:
     chave: str        # identifica "este aviso, neste período": evita repetir
     texto: str
     falar: str = ""   # versão curta para a voz (vazio = não fala)
+    voz: bool = False  # fala mesmo com a voz proativa desligada (respeita o silêncio da noite)
 
 
 @dataclass
@@ -29,6 +30,7 @@ class Contexto:
     briefing: object = None    # função () -> {"text": ..., "speak": ...}
     treino: object = None      # função () -> str
     projetos_parados: object = None  # função () -> list[tuple[nome, dias]]
+    uso: object = None         # função () -> list[(chave, texto)] (ver jarvis/uso/alertas.py)
 
 
 LIMITE_RAM = 92
@@ -69,7 +71,18 @@ def projeto_parado(c: Contexto) -> Aviso | None:
     return Aviso(f"parado:{c.agora.date()}", f"💤 Sem commits há tempo: {lista}. Quer retomar? Diga \"ficha do projeto <nome>\" para eu lembrar do estado.")
 
 
-REGRAS = (bom_dia, treino_da_semana, memoria_alta, projeto_parado)
+def uso_de_ia(c: Contexto) -> Aviso | None:
+    """Cota do Claude, orçamento ou modelo sem preço: um aviso por janela (a chave inclui o início dela)."""
+    if c.uso is None:
+        return None
+    for chave, texto in c.uso():
+        return Aviso(chave, texto)
+    return None
+
+
+from jarvis.proativo.instagram import instagram_semanal  # noqa: E402  (a regra mora em instagram.py)
+
+REGRAS = (bom_dia, treino_da_semana, memoria_alta, projeto_parado, uso_de_ia, instagram_semanal)
 
 
 def projetos_sem_commit(projetos: dict[str, str], dias: int = DIAS_PARADO, agora: float | None = None) -> list[tuple[str, int]]:

@@ -114,4 +114,8 @@ def parse_output(stdout: str, stderr: str, returncode: int) -> Answer:
         log.warning("claude -p retornou erro: %s", detail)
         raise BrainUnavailable(f"Claude indisponível: {detail}")
 
-    return Answer(text=str(data.get("result", "")).strip(), brain="claude")
+    from jarvis.uso import normaliza
+
+    custo = data.get("total_cost_usd")
+    return Answer(text=str(data.get("result", "")).strip(), brain="claude", usage=normaliza.do_claude(data.get("usage")),
+                  custo_usd=float(custo) if isinstance(custo, (int, float)) else None, modelo=normaliza.modelo_principal(data.get("modelUsage")))

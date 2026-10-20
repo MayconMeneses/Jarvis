@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 
 import webview
 
-from jarvis import memory_obsidian
+from jarvis import memory_areas, memory_obsidian
+
+log = logging.getLogger(__name__)
 
 
 def _caminho(escolha) -> str:
@@ -96,3 +99,26 @@ class MemoryMixin:
         except (OSError, sqlite3.Error) as exc:
             return {"error": f"Não foi possível exportar: {exc}"}
         return {"text": f"{count} nota(s) gravadas em {chosen[0]}."}
+
+    def memory_graph(self) -> dict:
+        """Mapa do Second Brain: nós (uma nota cada, no máximo 150), arestas e as 8 áreas com suas cores."""
+        try:
+            return memory_areas.grafo(self._memory.recent_with_body(memory_areas.MAX_NOS + 60))
+        except sqlite3.Error as exc:
+            return {"error": f"Não foi possível montar o mapa: {exc}"}
+
+    def _memoria_viva(self, answer, pedido: str) -> None:
+        """Memória viva: tira [[SAVE:...]] da resposta (tela e voz) e cria um cartão por sugestão válida. Nunca grava."""
+        from jarvis.llm import memoria_viva
+
+        achado = memoria_viva.extrair(answer.text)
+        if achado.texto == answer.text.strip() and not achado.itens:
+            return
+        answer.text = achado.texto or "Ok."
+        self._conversation.replace_last_answer(answer.text)  # o histórico também não guarda a marcação
+        terceiros = memoria_viva.fontes_de_terceiros(pedido, achado.texto)
+        for item in achado.itens:
+            try:
+                memoria_viva.propor(self._store, self._memory, item, f"conversa, via {answer.brain}", terceiros)
+            except (ValueError, OSError, sqlite3.Error):
+                log.warning("não foi possível criar o cartão da lembrança", exc_info=True)

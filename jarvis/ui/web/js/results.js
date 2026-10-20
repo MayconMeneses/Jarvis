@@ -18,6 +18,7 @@
   const mic = document.getElementById("mic");
   const STATUS_TO_ORB = { "Ouvindo…": "listening", "Transcrevendo…": "thinking", "Pensando…": "thinking", "Falando…": "speaking" };
   window.onVoice = (ev) => {
+    if (window.Orbe && window.Orbe.evento(ev)) return;  // {tipo: "fala"|"fim"|"mic"}: só o orbe
     if (ev.status !== undefined) {
       voiceStatus.textContent = ev.status;
       if (!busy) setOrb(STATUS_TO_ORB[ev.status] || "idle");

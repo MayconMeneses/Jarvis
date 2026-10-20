@@ -1,0 +1,469 @@
+{
+ "numeros": [
+  [
+   "1,2 mil",
+   1200
+  ],
+  [
+   "3.4K",
+   3400
+  ],
+  [
+   "1.234",
+   1234
+  ],
+  [
+   "2 mi",
+   2000000
+  ],
+  [
+   "1,5 milhoes",
+   1500000
+  ],
+  [
+   "12",
+   12
+  ],
+  [
+   "oculto",
+   null
+  ],
+  [
+   "-",
+   null
+  ],
+  [
+   "abc",
+   null
+  ],
+  [
+   "1,5",
+   null
+  ],
+  [
+   "",
+   null
+  ]
+ ],
+ "datas": [
+  [
+   "1970-01-02",
+   86400
+  ],
+  [
+   "02/01/1970",
+   86400
+  ],
+  [
+   "1970-01-01T01:00:00+01:00",
+   0
+  ],
+  [
+   "1970-01-01T00:00:10Z",
+   10
+  ],
+  [
+   "31/02/2026",
+   null
+  ],
+  [
+   "ontem",
+   null
+  ]
+ ],
+ "maturidade": {
+  "agora": "2026-10-10T12:00:00",
+  "itens": [
+   [
+    "2026-10-08T13:00:00",
+    "imaturo"
+   ],
+   [
+    "2026-10-08T12:00:00",
+    "maduro"
+   ],
+   [
+    "2026-10-08T11:00:00",
+    "maduro"
+   ],
+   [
+    "",
+    "sem_data"
+   ]
+  ]
+ },
+ "confianca": [
+  [
+   5,
+   "baixa"
+  ],
+  [
+   6,
+   "ok"
+  ],
+  [
+   0,
+   "baixa"
+  ]
+ ],
+ "medianas": [
+  [
+   [
+    3,
+    1,
+    2
+   ],
+   2
+  ],
+  [
+   [
+    4,
+    1,
+    3,
+    2
+   ],
+   2.5
+  ],
+  [
+   [
+    7
+   ],
+   7
+  ],
+  [
+   [],
+   null
+  ]
+ ],
+ "ganchos": [
+  [
+   "Você sabe fazer pão em casa?",
+   "pergunta"
+  ],
+  [
+   "3 erros ao fazer pão",
+   "numero"
+  ],
+  [
+   "O maior mito do emagrecimento",
+   "polemica"
+  ],
+  [
+   "Como fazer pão passo a passo",
+   "promessa"
+  ],
+  [
+   "Quando eu abri minha loja chorei",
+   "historia"
+  ],
+  [
+   "Corra, acaba hoje",
+   "urgencia"
+  ],
+  [
+   "Bom dia pessoal",
+   "indefinido"
+  ],
+  [
+   "Texto sem pergunta.\nSegunda linha?",
+   "indefinido"
+  ],
+  [
+   "",
+   "indefinido"
+  ]
+ ],
+ "cta": [
+  [
+   "Comente EU que mando o link",
+   true
+  ],
+  [
+   "Deixe nos comentários",
+   true
+  ],
+  [
+   "Salve este post",
+   false
+  ]
+ ],
+ "engajamento": [
+  {
+   "post": {
+    "likes": 10,
+    "comentarios": 2,
+    "salvamentos": 3,
+    "compartilhamentos": 1
+   },
+   "pesos": null,
+   "valor": 26
+  },
+  {
+   "post": {
+    "likes": 10,
+    "comentarios": null,
+    "salvamentos": null,
+    "compartilhamentos": null
+   },
+   "pesos": null,
+   "valor": 10
+  },
+  {
+   "post": {
+    "likes": null,
+    "comentarios": 5
+   },
+   "pesos": null,
+   "valor": null
+  },
+  {
+   "post": {
+    "likes": 10,
+    "comentarios": 2,
+    "salvamentos": 3,
+    "compartilhamentos": 1
+   },
+   "pesos": {
+    "salvamentos": 1,
+    "compartilhamentos": 1,
+    "comentarios": 1,
+    "likes": 1
+   },
+   "valor": 16
+  }
+ ],
+ "comment_rate": [
+  {
+   "likes": 71,
+   "comentarios": 29,
+   "legenda": "",
+   "taxa": 0.29,
+   "badge": null
+  },
+  {
+   "likes": 70,
+   "comentarios": 30,
+   "legenda": "",
+   "taxa": 0.3,
+   "badge": "POLÊMICA"
+  },
+  {
+   "likes": 69,
+   "comentarios": 31,
+   "legenda": "Comente QUERO",
+   "taxa": 0.31,
+   "badge": "GATE"
+  },
+  {
+   "likes": null,
+   "comentarios": 31,
+   "legenda": "",
+   "taxa": null,
+   "badge": null
+  },
+  {
+   "likes": 0,
+   "comentarios": 0,
+   "legenda": "",
+   "taxa": null,
+   "badge": null
+  }
+ ],
+ "outlier": [
+  {
+   "eng": 20,
+   "grupo": {
+    "n": 4,
+    "mediana": 10
+   },
+   "score": 2.0,
+   "outlier": true
+  },
+  {
+   "eng": 19,
+   "grupo": {
+    "n": 4,
+    "mediana": 10
+   },
+   "score": 1.9,
+   "outlier": false
+  },
+  {
+   "eng": 20,
+   "grupo": {
+    "n": 2,
+    "mediana": 10
+   },
+   "score": null,
+   "outlier": false
+  },
+  {
+   "eng": 20,
+   "grupo": {
+    "n": 3,
+    "mediana": 0
+   },
+   "score": null,
+   "outlier": false
+  },
+  {
+   "eng": null,
+   "grupo": {
+    "n": 3,
+    "mediana": 5
+   },
+   "score": null,
+   "outlier": false
+  }
+ ],
+ "faixas": {
+  "razoes": [
+   0.1,
+   0.2,
+   0.3,
+   0.9
+  ],
+  "cortes": [
+   0.2,
+   0.3
+  ],
+  "faixas": [
+   [
+    0.1,
+    "baixo"
+   ],
+   [
+    0.2,
+    "médio"
+   ],
+   [
+    0.3,
+    "médio"
+   ],
+   [
+    0.9,
+    "alto"
+   ]
+  ],
+  "poucas": [
+   [
+    0.1,
+    0.2
+   ],
+   null
+  ]
+ },
+ "analise": {
+  "agora": "2026-10-20T00:00:00",
+  "seguidores": {
+   "@a": 1000
+  },
+  "posts": [
+   {
+    "perfil": "@a",
+    "link": "https://www.instagram.com/reel/A1/",
+    "data": "2026-10-01",
+    "formato": "reels",
+    "legenda": "Como fazer pão",
+    "likes": 10,
+    "comentarios": 0,
+    "views": 100,
+    "salvamentos": null,
+    "compartilhamentos": null
+   },
+   {
+    "perfil": "@a",
+    "link": "https://www.instagram.com/reel/A2/",
+    "data": "2026-10-01",
+    "formato": "reels",
+    "legenda": "3 erros ao fazer pão",
+    "likes": 20,
+    "comentarios": 0,
+    "views": 200,
+    "salvamentos": null,
+    "compartilhamentos": null
+   },
+   {
+    "perfil": "@a",
+    "link": "https://www.instagram.com/reel/A3/",
+    "data": "2026-10-01",
+    "formato": "reels",
+    "legenda": "Você sabe fazer pão?",
+    "likes": 30,
+    "comentarios": 0,
+    "views": 300,
+    "salvamentos": null,
+    "compartilhamentos": null
+   },
+   {
+    "perfil": "@a",
+    "link": "https://www.instagram.com/reel/A4/",
+    "data": "2026-10-01",
+    "formato": "reels",
+    "legenda": "Eu fui demitido e abri uma padaria",
+    "likes": 100,
+    "comentarios": 0,
+    "views": 900,
+    "salvamentos": null,
+    "compartilhamentos": null
+   },
+   {
+    "perfil": "@a",
+    "link": "https://www.instagram.com/reel/A5/",
+    "data": "2026-10-19T12:00:00",
+    "formato": "reels",
+    "legenda": "Hoje tem pão",
+    "likes": 5,
+    "comentarios": 0,
+    "views": 50,
+    "salvamentos": null,
+    "compartilhamentos": null
+   }
+  ],
+  "esperado": {
+   "ranking": [
+    "ig:A4",
+    "ig:A3",
+    "ig:A2",
+    "ig:A1"
+   ],
+   "outliers": [
+    "ig:A4"
+   ],
+   "imaturos": [
+    "ig:A5"
+   ],
+   "faixas": {
+    "ig:A1": "baixo",
+    "ig:A2": "médio",
+    "ig:A3": "médio",
+    "ig:A4": "alto"
+   },
+   "ganchos": {
+    "ig:A1": "promessa",
+    "ig:A2": "numero",
+    "ig:A3": "pergunta",
+    "ig:A4": "historia",
+    "ig:A5": "urgencia"
+   },
+   "grupos": [
+    {
+     "perfil": "@a",
+     "formato": "reels",
+     "n": 4,
+     "mediana": 25
+    }
+   ],
+   "confianca": {
+    "@a": "baixa"
+   },
+   "formato_vencedor": "reels",
+   "ordem_ganchos": [
+    "historia",
+    "pergunta",
+    "numero",
+    "promessa"
+   ]
+  }
+ }
+}

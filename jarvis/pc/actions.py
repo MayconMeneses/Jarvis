@@ -21,7 +21,7 @@ from jarvis.config import data_dir
 from jarvis.pc import startup
 
 KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails",
-         "executar_tarefa", "criar_projeto")
+         "executar_tarefa", "criar_projeto", "guardar_memoria", "instagram_apagar", "instagram_lembrete")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -267,6 +267,14 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
             return (f"Projeto '{p['nome']}' criado em {target} com {modelos.descricao(modelo)} e cadastrado. "
                     "O README.md explica como instalar, rodar e testar.")
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
+
+    if action.kind == "guardar_memoria":  # a IA só sugeriu; gravar é consequência do Aprovar
+        from jarvis.llm import memoria_viva
+
+        return memoria_viva.executar(action.params)
+
+    if action.kind in ("instagram_apagar", "instagram_lembrete"):  # a IA só propôs; apagar/agendar é consequência do Aprovar
+        return __import__("jarvis.instagram.cartoes", fromlist=["executar"]).executar(action)
 
     if action.kind == "instalar_llm":
         from jarvis.llm import tarefas

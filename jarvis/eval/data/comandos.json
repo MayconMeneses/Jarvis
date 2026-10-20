@@ -44,7 +44,7 @@
   ["ajuda", "ajuda"],
   ["o que você sabe fazer?", "ajuda"],
   ["comandos", "ajuda"],
-  ["bom dia, Jarvis", "nenhum"],
+  ["bom dia, Jarvis", "bom_dia"],
   ["obrigado!", "nenhum"],
   ["me conta uma piada", "nenhum"],
   ["estou cansado hoje", "nenhum"],
@@ -60,5 +60,5 @@
   ["qual a melhor linguagem para começar?", "nenhum"],
   ["vamos planejar minha semana", "nenhum"],
   ["tudo bem com você?", "nenhum"],
-  ["boa noite", "nenhum"]
+  ["boa noite", "bom_dia"]
 ]

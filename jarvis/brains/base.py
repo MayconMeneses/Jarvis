@@ -22,6 +22,9 @@ class BrainUnavailable(RuntimeError):
 class Answer:
     text: str
     brain: str
+    usage: dict | None = None  # {in, out, cw, cw1h, cr} em tokens (ver jarvis/uso/normaliza.py)
+    custo_usd: float | None = None  # custo informado pelo provedor, quando houver
+    modelo: str = ""
 
 
 class Brain(Protocol):

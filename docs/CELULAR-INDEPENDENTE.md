@@ -103,3 +103,29 @@ Na aba **Cérebro**, seção "Aprender sozinha e avaliar o cérebro":
 
 Limite honesto: o iPhone não deixa um site rodar em segundo plano. **Com o app fechado ou a tela bloqueada nada é estudado**; ao contrário do PC, não existe agendador
 independente. Os assuntos têm o acento removido no nome da nota (ex.: `Aprendizado/computacao quantica`). Não foi testado no Safari do iPhone.
+
+## Orbe reativo, memória viva e grafo do Second Brain
+
+**Orbe (Canvas 2D, sem biblioteca)** no cabeçalho, no lugar do ponto: estados **ocioso / ouvindo / pensando / falando** (e o mesmo estado em texto ao lado, em "pronta / ouvindo… / pensando… / falando…").
+30 fps em atividade, 15 parado, 10 no modo suave; resolução limitada a 2x; pausa quando a aba fica oculta. Chave **Animação do orbe** (Automática, Completa, Suave, Desligada), lembrada no
+aparelho: Automática segue o "reduzir movimento" do sistema (vira Suave). Código: `orbe.js`, `orbe-desenho.js`, `orbe-voz.js`, `orbe-ui.js`, ligados em `chat.js`.
+
+- **Fala:** o navegador não entrega o áudio da voz (SpeechSynthesis), então a animação é **pelo ritmo do texto, não pelo som real** (a tela diz isso). Ela usa um envelope sintético por sílabas
+  e pontuação (ajustado pelo `rate`), abre e fecha em `onstart/onend` e dá um pulso a cada palavra em `onboundary`, que também reajusta o relógio (se o Safari não mandar `onboundary`, fica só o envelope).
+- **Escuta:** animação sintética guiada por `start / speechstart / result / end` do reconhecimento de fala. O app **não** abre `getUserMedia` junto com o reconhecimento. O `AnalyserNode` do microfone
+  real existe (`analisadorMicrofone`, `ligarEscuta(..., { micReal: true })`) mas fica **desligado e sem botão**: no iPhone os dois juntos podem derrubar um ou trocar a saída de áudio, e isso ainda não foi testado.
+
+**Memória viva com aprovação** (`memoria-viva.js`, `cartao-memoria.js`): o modelo (do aparelho ou da nuvem) pode terminar a resposta com `[[SAVE:area|titulo|texto]]`. Áreas aceitas:
+metas, trabalho, projetos, financas, aprendizado, saude, relacoes, meta. Título até 60 caracteres, sem `/`, `\` nem `..`; texto até 500, uma linha; no máximo 2 por resposta; qualquer formato fora disso é
+descartado. A linha **some** do texto exibido, falado e guardado na conversa e vira o cartão **"Guardar esta lembrança?"** com **Guardar / Descartar**. **Nada é gravado sozinho.** Se já existe nota com o mesmo
+título, o cartão mostra Antes/Depois e só substitui se você tocar em Guardar. Se o turno usou dados de site, notícia ou pesquisa, o cartão avisa. A nota fica em `<Área>/<título>` (ex.: `Saúde/Dormir cedo`),
+tipo "viva", com a origem escrita no fim. A instrução ao modelo é uma frase curta em `contexto.js`, dentro do `LIMITE_TOTAL`.
+
+**Grafo** (aba Memória, botão **Grafo**; `areas.js`, `grafo-desenho.js`, `painel-grafo.js`): núcleo pulsante, 8 áreas com cor fixa (metas #fbbf24, trabalho #ff5547, projetos #8b7cff, finanças #f7931a,
+aprendizado #2dd4ff, saúde #10b981, relações #ec4899, meta #8a90a6) e um ponto por nota (até 150, repartidas entre as áreas). A área vem do prefixo do nome (Projetos/ e Oficina/ = projetos; Aprendizado/;
+Perfil/ e Trabalho/ = trabalho; Metas/ e Lembretes/ = metas; Lembranças/ e Diário/ = meta; Finanças/, Saúde/, Relações/; o resto = meta). Tamanho do ponto = ligações (`[[nota]]` e a área); arestas curvas;
+alguns pulsos de luz. Toque num ponto abre a nota no editor da aba. 12 fps parado, pausa com aba oculta ou painel fechado e fica parado se a animação estiver Suave/Desligada. Os nomes das notas só são
+desenhados com `fillText` (nunca HTML); há teste de XSS.
+
+Testes: `movel/testes/visual.test.mjs`, `vivo.test.mjs`, `grafo.test.mjs`. Cache do app: `jarvis-movel-7`. Validado no Chromium a 390 px (cartão ponta a ponta com a nuvem simulada, grafo, toque no nó, fala simulada).
+**Não testado:** Safari/iPhone, conflito entre microfone e reconhecimento, `onboundary` no iOS, voz real do aparelho.

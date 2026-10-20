@@ -25,12 +25,18 @@ def push(window, payload: dict) -> None:
         log.debug("janela indisponível", exc_info=True)
 
 
+def enviar_visual(window, payload: dict) -> None:
+    """Dado para o orbe ({"tipo": "fala"|"fim"|"mic", ...}) pelo mesmo window.onVoice; o JS distingue pelo "tipo"."""
+    push(window, payload)
+
+
 def build_voice(cfg: Config, api: Api, window):
     from jarvis.voice.loop import VoiceLoop
     from jarvis.voice.stt import Transcriber, vocabulary_hint
     from jarvis.voice.tts import Speaker
 
-    speaker = Speaker(cfg.voz.voz, cfg.voz.voz_motor, cfg.voz.voz_efeito)
+    speaker = Speaker(cfg.voz.voz, cfg.voz.voz_motor, cfg.voz.voz_efeito,
+                      on_visual=lambda payload: enviar_visual(window, payload), atraso_ms=cfg.voz.atraso_visual_ms)
     speaker.preparar(lambda text: push(window, {"status": text}))
     return VoiceLoop(
         respond=api.send,
@@ -77,6 +83,23 @@ def build_task_worker(cfg: Config, api: Api, window):
     return runs.RunWorker(runs.RunStore(), cfg.claude, notify, mem=api._memory)
 
 
+def novos_avisos_de_uso(mem, intervalo: float = 300.0):
+    """Avisos de uso de IA ainda não entregues, conferidos no máximo a cada 5 min (a coleta lê arquivos)."""
+    import time
+
+    from jarvis.uso import alertas
+
+    ultimo = {"em": 0.0, "lista": []}
+
+    def conferir() -> list:
+        if time.monotonic() - ultimo["em"] >= intervalo:
+            ultimo["em"] = time.monotonic()
+            ultimo["lista"] = alertas.verificar()
+        return [(k, t) for k, t in ultimo["lista"] if not mem.meta("proativo:" + k)]
+
+    return conferir
+
+
 def build_proactive(cfg: Config, api: Api, window):
     """Iniciativa própria: avisos sem ser chamada (ver jarvis/proativo)."""
     import psutil
@@ -95,7 +118,7 @@ def build_proactive(cfg: Config, api: Api, window):
 
     return Agendador(config.load, api._memory, entregar, lambda: round(psutil.virtual_memory().percent),
                      briefing=lambda: briefing.build(config.load()), treino=habilidades.treino_da_semana,
-                     projetos_parados=projetos_sem_commit)
+                     projetos_parados=projetos_sem_commit, uso=novos_avisos_de_uso(api._memory))
 
 
 def build_autonomo(cfg: Config, api: Api, window):

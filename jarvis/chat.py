@@ -46,6 +46,12 @@ class Conversation:
                 self.history + [Message(role="assistant", content=f"[Registro do sistema] {text}")]
             )[-MAX_HISTORY:]
 
+    def replace_last_answer(self, text: str) -> None:
+        """Troca o texto da última resposta guardada (ex.: sem a marcação [[SAVE]] da memória viva)."""
+        with self._lock:
+            if self.history and self.history[-1]["role"] == "assistant":
+                self.history[-1] = Message(role="assistant", content=text)
+
     def reset(self) -> None:
         with self._lock:
             self.history = []

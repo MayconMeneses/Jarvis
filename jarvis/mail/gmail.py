@@ -83,7 +83,7 @@ class GmailAccount:
         for ref in listed.get("messages", []):
             msg = self._request(
                 "GET", f"/messages/{ref['id']}",
-                params={"format": "metadata", "metadataHeaders": ["From", "Subject", "Date"]},
+                params={"format": "metadata", "metadataHeaders": ["From", "Subject", "Date", "List-Unsubscribe"]},
             )
             headers = {h["name"].lower(): h["value"] for h in msg.get("payload", {}).get("headers", [])}
             mails.append(Mail(
@@ -94,6 +94,7 @@ class GmailAccount:
                 data=headers.get("date", ""),
                 previa=msg.get("snippet", "")[:300],
                 nao_lido="UNREAD" in msg.get("labelIds", []),
+                lista="list-unsubscribe" in headers,
             ))
         return mails
 

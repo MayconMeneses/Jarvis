@@ -34,6 +34,7 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
+from jarvis.agentes import registro as agentes
 from jarvis.dev.sessions_model import (  # noqa: F401 (DESCRICAO e Session também são pegos de fora)
     AGUARDANDO,
     DESCRICAO,
@@ -100,6 +101,14 @@ class SessionReader:
         for path in [p for p in self._cache if p.stem not in seen]:
             del self._cache[path]  # não guardar transcritos que saíram da lista
         return sorted(result, key=lambda s: s.atualizada_em, reverse=True)
+
+    def subagentes(self) -> list:
+        """Subagentes do Claude Code (somente leitura; ver jarvis/dev/subagentes.py)."""
+        from jarvis.dev.subagentes import LeitorSubagentes
+
+        if getattr(self, "_leitor_sub", None) is None:
+            self._leitor_sub = LeitorSubagentes(self.home, self.clock)
+        return self._leitor_sub.listar()
 
     def _build(self, sid: str, entry: dict | None, tail: Tail, mtime: float, now: float) -> Session:
         estado, motivo = _state(entry, tail, now - mtime if mtime else 0.0)
@@ -174,6 +183,8 @@ class SessionWatcher(threading.Thread):
         while not self._stop.is_set():
             try:
                 self.tick()
-            except Exception:
+                agentes.marcar("sessoes", agentes.OK)
+            except Exception as exc:
+                agentes.erro("sessoes", exc)
                 log.exception("erro no monitor de sessões do Claude Code")
             self._stop.wait(self.interval)
