@@ -161,10 +161,10 @@ def judge_answer(judge, question: str, answer: str, reference: str) -> dict | No
         return None
 
 
-def numeric_summary(commands: dict, summaries: dict) -> dict:
+def numeric_summary(commands: dict, summaries: dict, adversarial: dict | None = None) -> dict:
     """Números-chave (maior = melhor) para comparar uma versão com a anterior."""
     jarvis = summaries["metricas"]["Jarvis (extrativo)"]
-    return {
+    numbers = {
         "comandos_acuracia": commands["relatorio"]["acuracia"],
         "comandos_f1_macro": commands["relatorio"]["macro"]["f1"],
         "validacao_acuracia": commands["validacao"]["acuracia"],
@@ -173,6 +173,11 @@ def numeric_summary(commands: dict, summaries: dict) -> dict:
         "resumo_rougeL": jarvis["rougeL"],
         "resumo_meteor": jarvis["meteor"],
     }
+    if adversarial is not None:
+        from jarvis.eval import adversarial as adv
+
+        numbers.update(adv.numeric(adversarial))
+    return numbers
 
 
 # ── relatório ────────────────────────────────────────────────────────────
@@ -181,7 +186,8 @@ def _pct(v) -> str:
     return "—" if v is None else f"{v:.2f}"
 
 
-def report_markdown(commands: dict | None, summaries: dict | None, answers: dict | None, semantic: bool) -> str:
+def report_markdown(commands: dict | None, summaries: dict | None, answers: dict | None, semantic: bool,
+                    extra: list[str] | None = None) -> str:
     lines = [f"# Avaliação da Jarvis — {time.strftime('%d/%m/%Y %H:%M')}", ""]
     if not semantic:
         lines += ["> BERTScore e as notas semânticas foram pulados (modelo MiniLM não carregado).", ""]
@@ -227,6 +233,7 @@ def report_markdown(commands: dict | None, summaries: dict | None, answers: dict
         if judged:
             lines += ["", "**Juiz por rubrica (1–10, substitui o BLEURT):**"]
             lines += [f"- {n}: " + " · ".join(f"{k} {v:.1f}" for k, v in j.items()) for n, j in judged.items()]
+    lines += extra or []
     lines += ["", "---", "Métricas: BLEU (Papineni 2002, suavização Chen & Cherry 2014), ROUGE (Lin 2004), "
               "METEOR (Banerjee & Lavie 2005, com radicais em português, sem sinônimos), BERTScore (Zhang 2020, "
               "com MiniLM multilíngue: não comparável aos valores publicados com RoBERTa-large). "
