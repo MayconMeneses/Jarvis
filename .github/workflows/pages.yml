@@ -26,11 +26,11 @@ jobs:
         with:
           node-version: 20
       - name: Testes do app do celular
-        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs
+        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs movel/testes/modelos.test.mjs movel/testes/criar-ia.test.mjs movel/testes/oficina.test.mjs
       - name: Montar o site (só a pasta movel, sem testes nem scripts Python)
         run: |
           mkdir site
-          cp -r movel/index.html movel/sw.js movel/manifest.webmanifest movel/css movel/js movel/dados movel/icones movel/proxy site/
+          cp -r movel/index.html movel/sw.js movel/manifest.webmanifest movel/css movel/js movel/sandbox movel/dados movel/icones movel/proxy site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -27,6 +27,7 @@ class BrainsMixin:
             "somente_independente": cfg.somente_independente,
             "llm_local": cfg.llm_local,
             "autonomo": cfg.autonomo,
+            "voz_online": cfg.voz.voz_motor == "online",
             "llm_pronto": catalogo.estado(cfg.llm_modelo, cfg.llm_endpoint)["pronto"],
             "modelo_gemini": cfg.gemini.model,
         }
@@ -50,6 +51,19 @@ class BrainsMixin:
         self._diary("Aprendizado autônomo " + ("ligado" if on else "desligado"))
         return {"ok": True, "ligado": cfg.autonomo, "mensagem": (f"Ligado: com o PC parado, estudo até {cfg.autonomo_max_por_dia} assuntos por dia sobre o que você mais pergunta. "
                                                                  "Digite \"o que você aprendeu\" para ver." if on else "Desligado.")}
+
+    def set_voz_online(self, on: bool) -> dict:
+        """Escolhe a voz: local e offline (padrão) ou a online da Microsoft. Vale já na próxima frase."""
+        cfg = config.load()
+        cfg.voz.voz_motor = "online" if on else "local"
+        config.save(cfg)
+        speaker = getattr(self._voice, "speaker", None)
+        if hasattr(speaker, "definir_motor"):
+            speaker.definir_motor(cfg.voz.voz_motor)
+            speaker.preparar()
+        self._diary("Voz " + ("online" if on else "local"))
+        return {"ok": True, "mensagem": "Voz online (Microsoft), precisa de internet." if on
+                else "Voz local, offline: não depende de terceiros."}
 
     def set_llm(self, on: bool) -> dict:
         """Liga/desliga o cérebro generativo local. Só liga se já estiver instalado (a instalação é por cartão)."""

@@ -17,12 +17,20 @@
     document.getElementById("standalone").checked = !!s.somente_independente;
     document.getElementById("autonomo-on").checked = !!s.autonomo;
     document.getElementById("llm-local").checked = !!s.llm_local;
+    document.getElementById("voz-online").checked = !!s.voz_online;
     setStatus("st-llm", s.llm_pronto, "● instalado", "● não instalado");
   }
 
   document.getElementById("autonomo-on").addEventListener("change", async (ev) => {
     const res = await window.pywebview.api.set_autonomo(ev.target.checked);
     const fb = document.getElementById("fb-autonomo");
+    fb.textContent = res.mensagem;
+    fb.className = "feedback on-ok";
+  });
+
+  document.getElementById("voz-online").addEventListener("change", async (ev) => {
+    const res = await window.pywebview.api.set_voz_online(ev.target.checked);
+    const fb = document.getElementById("fb-voz");
     fb.textContent = res.mensagem;
     fb.className = "feedback on-ok";
   });

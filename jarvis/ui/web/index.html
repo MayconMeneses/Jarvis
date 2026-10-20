@@ -126,6 +126,15 @@
 
     <section class="brain">
       <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="voz-online" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Usar a voz online (Microsoft)</b>
+          <small>Desligado (padrão): a Jarvis fala com uma voz masculina própria, instalada no PC e que funciona sem internet. Ligado: usa a voz neural online da Microsoft, que depende de internet e de terceiros.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-voz" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
         <input type="checkbox" id="autonomo-on" style="margin-top:3px;accent-color:var(--cyan)">
         <span><b>Aprender sozinha</b>
           <small>Com o PC parado, a Jarvis pesquisa na internet os assuntos sobre os quais você mais pergunta (até 3 por dia) e guarda um resumo com as fontes, marcado "não verificado". Você vê, edita ou apaga as notas na Memória. Só lê: nunca baixa nem executa nada.</small></span>

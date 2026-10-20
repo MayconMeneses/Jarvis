@@ -46,7 +46,11 @@ def modelos_texto() -> str:
     from jarvis.dev import modelos
 
     combinacoes = ["fastapi", "express", "react", "html", "fastapi+react", "fastapi+html", "express+react", "express+html"]
-    saida = {c: {"descricao": modelos.descricao(c), "arquivos": modelos.arquivos(c, "__NOME__", "__DESCRICAO__")} for c in combinacoes}
+    saida = {}
+    for c in combinacoes:  # nomes-sentinela: o slug sai "xnomex" e vira __SLUG__ (o celular preenche tudo na criação)
+        arquivos = modelos.arquivos(c, "XNOMEX", "XDESCX")
+        saida[c] = {"descricao": modelos.descricao(c), "arquivos": {
+            k: v.replace("XNOMEX", "__NOME__").replace("xnomex", "__SLUG__").replace("XDESCX", "__DESCRICAO__") for k, v in arquivos.items()}}
     return json.dumps(saida, ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
@@ -66,8 +70,10 @@ def main(argv: list[str]) -> int:
     destino.write_text(texto(), encoding="utf-8")
     (RAIZ / "dados" / "modelos.json").write_text(modelos_texto(), encoding="utf-8")
     (RAIZ / "icones").mkdir(exist_ok=True)
-    for tamanho in (180, 192, 512):
-        (RAIZ / "icones" / f"icone-{tamanho}.png").write_bytes(icones.png(tamanho))
+    for tamanho in (180, 192, 512):  # só regrava o que mudou (não suja o Git à toa)
+        alvo, novo = RAIZ / "icones" / f"icone-{tamanho}.png", icones.png(tamanho)
+        if not alvo.is_file() or alvo.read_bytes() != novo:
+            alvo.write_bytes(novo)
     print(f"Gravado {destino} ({destino.stat().st_size // 1024} KB) e os ícones.")
     return 0
 

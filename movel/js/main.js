@@ -10,6 +10,8 @@ import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
 import { Motor } from "./motor.js";
 import { ligarCerebro } from "./painel-cerebro.js";
 import { ligarMemoria } from "./painel-memoria.js";
+import { ligarOficina } from "./painel-oficina.js";
+import { ligarCriarComIA } from "./painel-oficina-ia.js";
 import { Saber } from "./saber.js";
 
 const $ = (id) => document.getElementById(id);
@@ -83,6 +85,18 @@ async function main() {
     return opcoes.length ? "" : null;
   }
 
+  // A Oficina usa o mesmo cérebro e a mesma ordem da conversa (aparelho ou nuvem), mas sem mexer na conversa nem falar.
+  async function conversaOficina(mensagens) {
+    const nuvemPrimeiro = (await memoria.meta("nuvem_ordem")) === "nuvem";
+    const opcoes = [];
+    if (cerebro.ligado()) opcoes.push(() => cerebro.perguntar(mensagens));
+    if (await nuvem.configurada()) opcoes[nuvemPrimeiro ? "unshift" : "push"](async () => (await nuvem.perguntar(mensagens, () => {})).texto);
+    if (!opcoes.length) throw new Error("ligue o cérebro do aparelho ou cadastre uma chave de nuvem na aba Cérebro");
+    let ultimo;
+    for (const tentar of opcoes) { try { return await tentar(); } catch (e) { ultimo = e; } }
+    throw ultimo;
+  }
+
   // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou).
   async function responder(texto) {
     await conversa.adicionar("user", texto);
@@ -131,10 +145,14 @@ async function main() {
   const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
   const aoAbrirNuvem = ligarNuvem(nuvem, memoria, (t) => adicionar(t, "aviso"));
   aoAbrirNuvem();
+  let modelosProntos = null;
+  const oficina = ligarOficina({ memoria, avisar: (t) => adicionar(t, "aviso"), carregarModelos: async () => (modelosProntos ||= await (await fetch("dados/modelos.json")).json()) });
+  ligarCriarComIA({ conversa: conversaOficina, oficina, avisar: (t) => adicionar(t, "aviso") });
   document.querySelectorAll("#abas button").forEach((b) => b.addEventListener("click", () => {
     document.querySelectorAll("#abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
+    if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
 
   const anterior = await conversa.carregar();
