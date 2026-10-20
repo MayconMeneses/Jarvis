@@ -173,6 +173,12 @@ class MemoryDB:
                 "ORDER BY atualizado DESC, ref LIMIT ?", (like, limit)).fetchall()
         return [dict(r) for r in rows]
 
+    def recent_with_body(self, limit: int = 200) -> list[dict]:
+        """Notas mais recentes com o texto (uma só consulta); usado para montar o mapa da memória."""
+        with self._tx() as db:
+            rows = db.execute("SELECT ref, corpo, atualizado FROM notas ORDER BY atualizado DESC, ref LIMIT ?", (limit,)).fetchall()
+        return [dict(r) for r in rows]
+
     def count(self) -> int:
         with self._tx() as db:
             return db.execute("SELECT COUNT(*) FROM notas").fetchone()[0]

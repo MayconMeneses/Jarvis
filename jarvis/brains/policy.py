@@ -29,11 +29,20 @@ def _fold(text: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", text.lower()) if unicodedata.category(c) != "Mn")
 
 
-def preferred(text: str, mode: str) -> str | None:
-    """Nome do cérebro a tentar primeiro, ou None para a ordem normal."""
+# Tarefas de texto que não precisam de ferramenta: o texto vem no próprio pedido e o Gemini dá conta.
+_TRANSFORM = re.compile(r"^\s*(resum\w+|traduz\w*|traduza\w*|reformul\w+|reescrev\w+|corrij\w+|corrig\w+|parafrase\w*)\b")
+LIMITE_CURTO, LIMITE_TEXTO = 160, 3000
+
+
+def preferred(text: str, mode: str, economizar: bool = False) -> str | None:
+    """Nome do cérebro a tentar primeiro, ou None para a ordem normal.
+
+    `economizar` (cota do Claude perto do limite) trata qualquer modo como "simples" até a janela virar.
+    """
     low = _fold(text)
     if _EXPLICIT.search(low):
         return "gemini"
-    if mode == "simples" and len(low) <= 160 and "[arquivos anexados" not in low and not _NEEDS_TOOLS.search(low):
-        return "gemini"
+    if (mode == "simples" or economizar) and "[arquivos anexados" not in low and not _NEEDS_TOOLS.search(low):
+        if len(low) <= LIMITE_CURTO or (len(low) <= LIMITE_TEXTO and _TRANSFORM.search(low)):
+            return "gemini"
     return None

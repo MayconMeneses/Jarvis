@@ -189,4 +189,17 @@ class ClaudeSession:
             if event.get("is_error") or not result:
                 log.warning("sessão do Claude retornou erro: %s", result[:300])
                 raise BrainUnavailable(f"Claude indisponível: {result[:300] or 'resposta vazia'}")
-            return Answer(text=result, brain="claude")
+            return self._com_uso(result, event)
+
+    def _com_uso(self, texto: str, evento: dict) -> Answer:
+        """Anexa tokens e custo do evento `result`. O custo da sessão é cumulativo: guarda só o que este turno somou."""
+        from jarvis.uso import normaliza
+
+        total = evento.get("total_cost_usd")
+        custo = None
+        if isinstance(total, (int, float)):
+            anterior = getattr(self, "_custo_total", 0.0)
+            custo = total - anterior if total >= anterior else total
+            self._custo_total = float(total)
+        return Answer(text=texto, brain="claude", usage=normaliza.do_claude(evento.get("usage")), custo_usd=custo,
+                      modelo=normaliza.modelo_principal(evento.get("modelUsage")))

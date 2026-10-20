@@ -7,6 +7,7 @@ import threading
 from collections.abc import Callable
 from datetime import datetime
 
+from jarvis.agentes import registro as agentes
 from jarvis.autonomo import estudar, interesses
 
 log = logging.getLogger(__name__)
@@ -47,9 +48,14 @@ class Autonomo:
     def tick(self) -> list[str]:
         """Uma passada: no máximo UM assunto por vez. Devolve as notas criadas (referências)."""
         cfg, agora = self._cfg_loader(), self._agora()
-        if not cfg.autonomo or not self.ocioso(agora):
+        if not cfg.autonomo:
+            agentes.marcar("autonomo", agentes.DESLIGADO)
+            return []
+        if not self.ocioso(agora):
+            agentes.marcar("autonomo", agentes.OK, "PC em uso")  # a passada rodou; não estudar agora é o certo
             return []
         criadas: list[str] = []
+        falhas = 0
         restante = cfg.autonomo_max_por_dia - self._gasto_hoje(agora)
         if restante > 0:
             assuntos = interesses.contar(interesses.pedidos_recentes(self._mem, hoje=agora.date()), self._saber_cita)
@@ -58,26 +64,44 @@ class Autonomo:
                     ref = estudar.estudar(self._mem, assunto, self._pesquisar, self._formatar, agora, self._brave())
                 except Exception:  # sem internet ou site fora do ar: tenta de novo só depois do prazo
                     log.info("estudo de %s falhou", assunto.nome, exc_info=True)
+                    falhas += 1
                     self._mem.set_meta("autonomo:estudado:" + estudar.fold(assunto.nome), agora.isoformat(timespec="seconds"))
                     continue
                 self._mem.set_meta(f"autonomo:dia:{agora:%Y-%m-%d}", str(self._gasto_hoje(agora) + 1))
                 if ref:
                     criadas.append(ref)
                     self._entregar(f"📚 Acabei de estudar sozinha sobre **{assunto.nome}** (você perguntou {assunto.mencoes} vezes). Diga \"o que você aprendeu\" para ver.")
-        if self._avaliar_semana and agora.weekday() == 6 and not self._mem.meta(f"autonomo:semana:{agora:%G-%V}"):
-            self._mem.set_meta(f"autonomo:semana:{agora:%G-%V}", "feito")  # uma vez por semana, aconteça o que acontecer
-            try:
-                self._entregar("🧪 " + self._avaliar_semana())
-            except Exception:  # noqa: BLE001
-                log.info("avaliação semanal falhou", exc_info=True)
+        if self._avaliar_semana and agora.weekday() == 6:
+            self._avaliacao_semanal(agora)
+        agentes.marcar("autonomo", agentes.ERRO if falhas else agentes.OK, "estudo falhou" if falhas else "")
         return criadas
+
+    def _avaliacao_semanal(self, agora: datetime) -> None:
+        """Uma vez por semana. "feito" só depois de dar certo; se falhar, registra o erro e não repete no mesmo dia."""
+        chave, hoje = f"autonomo:semana:{agora:%G-%V}", f"{agora:%Y-%m-%d}"
+        if self._mem.meta(chave) in ("feito", f"erro:{hoje}"):
+            return
+        try:
+            texto = self._avaliar_semana()
+        except Exception as exc:  # noqa: BLE001
+            log.info("avaliação semanal falhou", exc_info=True)
+            self._mem.set_meta(chave, f"erro:{hoje}")
+            agentes.erro("avaliacao_semanal", exc)
+            return
+        self._mem.set_meta(chave, "feito")
+        agentes.marcar("avaliacao_semanal", agentes.OK)
+        try:
+            self._entregar("🧪 " + texto)
+        except Exception:  # noqa: BLE001
+            log.info("não foi possível entregar a avaliação semanal", exc_info=True)
 
     def start(self, intervalo: float = 300.0) -> None:
         def laco() -> None:
             while not self._parar.wait(intervalo):
                 try:
                     self.tick()
-                except Exception:  # noqa: BLE001
+                except Exception as exc:  # noqa: BLE001
+                    agentes.erro("autonomo", exc)
                     log.warning("aprendizado autônomo falhou", exc_info=True)
 
         self._thread = threading.Thread(target=laco, daemon=True, name="jarvis-autonomo")

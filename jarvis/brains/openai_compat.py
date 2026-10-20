@@ -143,4 +143,7 @@ class OpenAICompat:
             text = data["choices"][0]["message"]["content"] or ""
         except (KeyError, IndexError, TypeError) as exc:
             raise BrainUnavailable("resposta sem conteúdo") from exc
-        return Answer(text=text.strip(), brain=self.name)
+        from jarvis.uso import normaliza
+
+        return Answer(text=text.strip(), brain=self.name, usage=normaliza.do_openai(data.get("usage")) if data.get("usage") else None,
+                      modelo=str(data.get("model") or modelo))

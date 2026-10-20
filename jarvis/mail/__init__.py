@@ -19,6 +19,10 @@ def accounts(cfg: Config) -> dict[str, MailAccount]:
         from jarvis.mail.outlook import OutlookAccount
 
         found["outlook"] = OutlookAccount(cfg.email.outlook_client_id, cfg.email.outlook_authority)
+    from jarvis.mail.imap import ImapAccount, nome_da_conta
+
+    for conf in cfg.email.imap:
+        found[nome_da_conta(conf["apelido"])] = ImapAccount(conf)
     return found
 
 

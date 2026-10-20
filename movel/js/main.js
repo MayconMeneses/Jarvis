@@ -1,6 +1,9 @@
 // Jarvis do celular: junta memória, conhecimento, motor de regras e (se ligado) o cérebro de IA do aparelho.
 import { avisos } from "./proativo.js";
-import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando } from "./chat.js";
+import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando, usarOrbe } from "./chat.js";
+import { mostrarCartao } from "./cartao-memoria.js";
+import { extrair, semProposta } from "./memoria-viva.js";
+import { ligarOrbe } from "./orbe-ui.js";
 import { Autonomo } from "./autonomo.js";
 import { Avaliador } from "./avaliar.js";
 import { Cerebro } from "./cerebro.js";
@@ -13,6 +16,8 @@ import { Motor } from "./motor.js";
 import { ligarAutonomo } from "./painel-autonomo.js";
 import { ligarCerebro } from "./painel-cerebro.js";
 import { ligarMemoria } from "./painel-memoria.js";
+import { Instagram } from "./instagram.js";
+import { ligarInstagram } from "./painel-instagram.js";
 import { ligarOficina } from "./painel-oficina.js";
 import { ligarCriarComIA } from "./painel-oficina-ia.js";
 import { executar as rodarNoSandbox } from "./sandbox.js";
@@ -41,6 +46,11 @@ async function main() {
   const conversa = new Conversa(memoria);
   const nome = async () => (await memoria.meta("nome")) || "Maycon";
 
+  // A linha [[SAVE:...]] some do texto (exibido, falado, guardado na conversa); vira um cartão que o usuário aprova ou descarta.
+  const cartoes = async (propostas, dados) => {
+    for (const proposta of propostas) await mostrarCartao({ proposta, memoria, dadosExternos: Boolean(dados), onde: $("mensagens") });
+  };
+
   async function perguntarIA(texto) {
     const dados = (await motor.consultarAntes(texto)) || "";
     const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados });
@@ -48,9 +58,11 @@ async function main() {
     const bolha = adicionar("…", "jarvis", cerebro.modelo);
     pensando(true, "IA pensando…");
     try {
-      const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, parcial), (aviso) => atualizar(bolha, aviso));
-      atualizar(bolha, resposta || "Não consegui responder.");
-      return resposta;
+      const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, semProposta(parcial)), (aviso) => atualizar(bolha, aviso));
+      const { texto: limpo, propostas } = extrair(resposta || "");
+      atualizar(bolha, limpo || "Não consegui responder.");
+      await cartoes(propostas, dados);
+      return limpo;
     } catch (e) {
       atualizar(bolha, `Não consegui responder agora (${e.message}). A conversa continua: pode perguntar de novo.`);
       bolha.classList.add("erro");
@@ -65,12 +77,14 @@ async function main() {
     const bolha = adicionar("…", "jarvis");
     pensando(true, "consultando a nuvem…");
     try {
-      const r = await nuvem.perguntar([{ role: "system", content: sistema }, ...conversa.paraPrompt(9000)], (parcial) => atualizar(bolha, parcial));
-      atualizar(bolha, r.texto);
+      const r = await nuvem.perguntar([{ role: "system", content: sistema }, ...conversa.paraPrompt(9000)], (parcial) => atualizar(bolha, semProposta(parcial)));
+      const { texto: limpo, propostas } = extrair(r.texto);
+      atualizar(bolha, limpo);
       const nota = document.createElement("small");
       nota.textContent = r.provedor;
       bolha.appendChild(nota);
-      return r.texto;
+      await cartoes(propostas, dados);
+      return limpo;
     } catch (e) {
       bolha.remove();
       throw e;
@@ -133,6 +147,7 @@ async function main() {
 
   $("form").addEventListener("submit", (ev) => { ev.preventDefault(); enviar($("texto").value); });
   document.querySelectorAll("#atalhos button").forEach((b) => b.addEventListener("click", () => enviar(b.dataset.texto)));
+  usarOrbe(await ligarOrbe(memoria));
   ligarDitado(enviar);
   ligarConversaPorVoz(responder);
 
@@ -152,7 +167,9 @@ async function main() {
     disponivel: async () => cerebro.ligado() || (await nuvem.configurada()),
     rotulo: () => (cerebro.ligado() ? cerebro.modelo : "nuvem"),
   });
-  Object.assign(motor, { autonomo, avaliador });
+  const instagram = new Instagram(memoria);
+  Object.assign(motor, { autonomo, avaliador, instagram });
+  const aoAbrirInstagram = ligarInstagram({ instagram, avisar: (t) => adicionar(t, "aviso") });
   const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, avisar: (t) => adicionar(t, "aviso") });
   aoAbrirAutonomo();
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
@@ -166,6 +183,7 @@ async function main() {
     document.querySelectorAll("#abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
+    if (b.dataset.aba === "instagram") aoAbrirInstagram();
     if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
 
@@ -177,6 +195,8 @@ async function main() {
     adicionar("Olá! Eu sou a Jarvis e rodo **só neste celular**: minha memória e meu cérebro ficam aqui. Pode escrever ou tocar em **Conversar por voz**. Diga \"ajuda\" para ver o que sei fazer.", "jarvis");
   }
   for (const aviso of await avisos({ memoria, saber, nome: await nome() })) adicionar(aviso, "jarvis aviso");
+  const lembreteInsta = await instagram.aviso();  // segunda-feira: avisa e FALA (voz do navegador), uma vez por semana
+  if (lembreteInsta) { adicionar(lembreteInsta.texto, "jarvis aviso"); falar(lembreteInsta.fala, true); }
   religar();
   if ("serviceWorker" in navigator && window.isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => {});
 }

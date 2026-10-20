@@ -15,6 +15,7 @@ from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     habilidades_tools,
     improve_tools,
     info_tools,
+    instagram_tools,
     launch_tools,
     llm_tools,
     logica_tools,
@@ -23,6 +24,7 @@ from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     pc_tools,
     project_tools,
     stack_tools,
+    uso_tools,
 )
 from jarvis.mcp_tools.core import server
 

@@ -19,7 +19,7 @@
 <body>
   <main id="app">
     <header>
-      <span class="orb" id="orb" aria-hidden="true"></span>
+      <canvas id="orbe" width="56" height="56" aria-hidden="true"></canvas>
       <h1>Jarvis</h1>
       <span id="estado" role="status">pronta</span>
     </header>
@@ -28,6 +28,7 @@
       <button type="button" data-aba="memoria" aria-selected="false">Memória</button>
       <button type="button" data-aba="cerebro" aria-selected="false">Cérebro</button>
       <button type="button" data-aba="oficina" aria-selected="false">Oficina</button>
+      <button type="button" data-aba="instagram" aria-selected="false">Instagram</button>
     </nav>
 
     <section id="conversa" class="aba">
@@ -50,9 +51,22 @@
         <button type="submit" id="enviar" aria-label="Enviar">➤</button>
       </form>
       <label class="voz"><input type="checkbox" id="falar"> Falar as respostas em voz alta</label>
+      <label class="voz" for="orbe-modo">Animação do orbe
+        <select id="orbe-modo"><option value="auto">Automática</option><option value="completo">Completa</option><option value="suave">Suave</option><option value="desligado">Desligada</option></select>
+      </label>
+      <p class="nota">Na fala, a animação acompanha o ritmo do texto, não o som real.</p>
     </section>
 
     <section id="memoria" class="aba" hidden>
+      <div class="linha" role="group" aria-label="Como ver a memória">
+        <button type="button" id="ver-notas" aria-pressed="true">Notas</button>
+        <button type="button" id="ver-grafo" aria-pressed="false">Grafo</button>
+      </div>
+      <div id="grafo-painel" hidden>
+        <canvas id="grafo" role="img" aria-label="Grafo da memória"></canvas>
+        <p id="grafo-info" class="nota" role="status"></p>
+        <ul id="grafo-legenda" aria-label="Legenda das áreas"></ul>
+      </div>
       <input id="busca" type="search" placeholder="Buscar nas notas" aria-label="Buscar nas notas">
       <ul id="notas"></ul>
       <div id="editor" hidden>
@@ -166,6 +180,22 @@
         <p id="of-ia-status" role="status"></p>
       </details>
       <p class="nota">Rodar e testar acontecem num ambiente isolado do navegador, sem acesso à sua memória nem às chaves: JavaScript sem rede; Python (baixa o Pyodide do jsDelivr na primeira vez). Protege de acidentes; revise o código antes de rodar. Os arquivos ficam só neste aparelho, entram na cópia de segurança e aparecem na aba Memória.</p>
+    </section>
+
+    <section id="instagram" class="aba" hidden>
+      <h2>Analista de Instagram</h2>
+      <p class="nota">Cole aqui a tabela de posts (primeira linha com os nomes das colunas: perfil, link, data, formato, legenda, likes, comentarios, views). O cálculo roda só neste aparelho. Não acesso o Instagram: só o que você cola. Onde faltar número, aparece n/d e o motivo.</p>
+      <label for="ig-dados">Posts (CSV, TSV ou JSON)</label>
+      <textarea id="ig-dados" rows="6" placeholder="perfil;link;data;formato;legenda;likes;comentarios;views" autocomplete="off"></textarea>
+      <div class="linha">
+        <button type="button" id="ig-importar">Importar</button>
+        <button type="button" id="ig-relatorio">Relatório</button>
+        <button type="button" id="ig-comparar">Comparar rodadas</button>
+      </div>
+      <label><input type="checkbox" id="ig-lembrete"> Lembrete semanal (segunda-feira, ao abrir o app, falado)</label>
+      <pre id="ig-saida" role="status"></pre>
+      <div class="linha"><button type="button" id="ig-apagar">Apagar todos os dados de Instagram</button></div>
+      <p class="nota">Guardo só métricas públicas e os primeiros 200 caracteres da legenda, neste aparelho. A legenda é dado de terceiros: nunca vira instrução. Também funciona na conversa: "analisar instagram", "importar posts", "relatório de instagram".</p>
     </section>
   </main>
   <script type="module" src="js/main.js"></script>

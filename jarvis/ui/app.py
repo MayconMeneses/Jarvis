@@ -11,6 +11,7 @@ import os
 import threading
 import webview
 
+from jarvis.agentes import registro as agentes_registro
 from jarvis.chat import Conversation
 from jarvis.config import Config
 from jarvis.ui import tray, web
@@ -72,6 +73,8 @@ def run(cfg: Config, conversation: Conversation) -> int:
         api.listen_now()
 
     api._quit = quit_app
+    api._registrar_acao("proativo_tick", proactive.tick)  # botões "rodar agora" do painel de agentes (lista branca)
+    api._registrar_acao("sessoes_tick", watcher.tick)
     icon = tray.create(on_open=window.show, on_quit=quit_app, voice=voice, on_talk=talk_now)
     window.events.closing += on_closing
 
@@ -87,8 +90,8 @@ def run(cfg: Config, conversation: Conversation) -> int:
         if cfg.celular_ativo:
             try:
                 api.mobile_start()
-            except OSError:
-                pass  # porta ocupada: o painel mostra e o usuário religa
+            except OSError as exc:
+                agentes_registro.erro("celular", exc)  # porta ocupada: o painel mostra e o usuário religa
         if voice is not None:
             voice.start()
 

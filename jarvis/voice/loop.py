@@ -13,6 +13,8 @@ from collections.abc import Callable
 
 import numpy as np
 
+from jarvis.agentes import registro as agentes
+from jarvis.voice.nivel import LimitadorTaxa, nivel_mic
 from jarvis.voice.stt import SAMPLE_RATE, Transcriber
 
 log = logging.getLogger(__name__)
@@ -82,6 +84,8 @@ class VoiceLoop(threading.Thread):
         self._speaking = threading.Event()
         self._frames: queue.Queue[np.ndarray] = queue.Queue(maxsize=200)
         self._noise = 300.0
+        self._mostrar_mic = threading.Event()  # ligado só enquanto grava a fala (o orbe "ouve")
+        self._nivel_mic: queue.Queue[float] = queue.Queue(maxsize=1)
 
     # chamados pela janela/bandeja
     def listen_now(self) -> None:
@@ -114,19 +118,44 @@ class VoiceLoop(threading.Thread):
             self.notify({"status": "Preparando a voz…"})
             wake = Model(wakeword_models=["hey_jarvis"], inference_framework="onnx")
             self.transcriber.warm_up()
+            threading.Thread(target=self._enviar_nivel_mic, daemon=True, name="jarvis-visual").start()
             with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="int16",
                                 blocksize=FRAME, callback=self._on_audio):
                 self.notify({"status": "Diga “Hey Jarvis”"})
+                agentes.marcar("voz", agentes.OK, "escutando")
                 self._listen(wake)
+            agentes.marcar("voz", agentes.DESLIGADO, "parada")
         except Exception as exc:
+            agentes.erro("voz", exc)
             log.exception("voz indisponível")
             self.notify({"status": f"Voz indisponível: {exc}"})
 
     def _on_audio(self, data, _frames, _time, _status) -> None:
+        frame = data[:, 0].copy()
         try:
-            self._frames.put_nowait(data[:, 0].copy())
+            self._frames.put_nowait(frame)
         except queue.Full:
             pass  # pensando ou falando: áudio descartado
+        if self._mostrar_mic.is_set():  # fila de tamanho 1; nada de janela/IPC aqui dentro
+            try:
+                self._nivel_mic.get_nowait()
+            except queue.Empty:
+                pass
+            try:
+                self._nivel_mic.put_nowait(nivel_mic(rms(frame), self._noise))
+            except queue.Full:
+                pass
+
+    def _enviar_nivel_mic(self) -> None:
+        """Thread própria: manda o volume do microfone ao orbe a ~20 Hz, fora do callback de áudio."""
+        limite = LimitadorTaxa(20.0)
+        while not self._stop.is_set():
+            try:
+                nivel = self._nivel_mic.get(timeout=0.25)
+            except queue.Empty:
+                continue
+            if self._mostrar_mic.is_set() and limite.permite():
+                self.notify({"tipo": "mic", "n": nivel})
 
     def _next_frame(self) -> np.ndarray | None:
         try:
@@ -167,6 +196,7 @@ class VoiceLoop(threading.Thread):
             self._drain()  # descarta só o próprio bipe; a pessoa fala depois dele
         recorder = Recorder(self._noise)
         empty_waits = 0
+        self._mostrar_mic.set()
         while not self._stop.is_set():
             frame = self._next_frame()
             if frame is None:
@@ -177,6 +207,7 @@ class VoiceLoop(threading.Thread):
             empty_waits = 0
             if recorder.feed(frame):
                 break
+        self._mostrar_mic.clear()
         self.notify({"status": "Transcrevendo…", "listening": False})
         text = self.transcriber.transcribe(recorder.audio())
         if not text:

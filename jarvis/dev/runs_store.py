@@ -47,6 +47,8 @@ class Run:
     mudancas: list = field(default_factory=list)
     diff: str = ""
     revisao: str = ""  # "" | pendente | mantida | desfeita
+    usage: dict = field(default_factory=dict)  # tokens da tarefa ({in, out, cw, cw1h, cr}); o registro de uso vem dos .jsonl
+    custo_usd: float = 0.0  # custo informado pelo Claude Code (equivalente em API)
 
 
 class RunStore:

@@ -5,7 +5,7 @@ from pathlib import Path
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 from jarvis.brains.claude_cli import ClaudeCLI
 from jarvis.brains.claude_session import ClaudeSession
-from jarvis.brains import policy
+from jarvis.brains import perfis, policy
 from jarvis.brains.openai_compat import OpenAICompat
 from jarvis.brains.router import NoBrainAvailable, Router
 from jarvis.config import Config, data_dir
@@ -36,9 +36,10 @@ def write_mcp_config(path: Path | None = None) -> Path:
 
 def build_router(cfg: Config) -> Router:
     mcp = write_mcp_config() if cfg.ferramentas_pc else None
+    claude_cfg = perfis.claude_config(cfg)
     claude_kind = ClaudeSession if cfg.claude.sessao_continua else ClaudeCLI
     available = {
-        "claude": lambda: claude_kind(cfg.claude, mcp_config=mcp),
+        "claude": lambda: claude_kind(claude_cfg, mcp_config=mcp),
         "gemini": lambda: OpenAICompat("gemini", cfg.gemini, get_key),
         "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
     }
@@ -58,7 +59,9 @@ def build_router(cfg: Config) -> Router:
         found, now = local.classify(text), config.load()
         if found and (found[0] in ("criar_com_ia", "llm_instalar", "llm_status") or (now.llm_local and now.somente_independente)):
             return "local"  # gerenciar o cérebro local é com o motor próprio; sem IA externa, o motor só pega o que sabe fazer
-        return policy.preferred(text, config.load().uso_gemini)  # lido a cada pedido: muda na hora
+        from jarvis.uso import servico
+
+        return policy.preferred(text, config.load().uso_gemini, servico.cota_sob_pressao())  # lido a cada pedido: muda na hora
 
     seen = {"at": 0.0, "cfg": cfg}
 

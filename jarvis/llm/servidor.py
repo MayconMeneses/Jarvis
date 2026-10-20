@@ -12,6 +12,7 @@ import subprocess
 import threading
 import time
 
+from jarvis.agentes import registro as agentes
 from jarvis.brains.base import BrainUnavailable
 from jarvis.llm import catalogo, cliente
 
@@ -56,12 +57,15 @@ class Servidor:
             while time.monotonic() < limite:
                 if self._proc.poll() is not None:
                     self._proc = None
+                    agentes.marcar("llm_local", agentes.ERRO, "fechou ao iniciar")
                     raise BrainUnavailable("o servidor do modelo local fechou ao iniciar (memória insuficiente?)")
                 if cliente.no_ar(self._url):
                     threading.Thread(target=self._vigiar, daemon=True).start()
+                    agentes.marcar("llm_local", agentes.OK, "carregado")
                     return self._url
                 time.sleep(1)
             self.parar()
+            agentes.marcar("llm_local", agentes.ERRO, "demorou para carregar")
             raise BrainUnavailable("o modelo local demorou demais para carregar")
 
     def _vigiar(self) -> None:
@@ -83,6 +87,8 @@ class Servidor:
     def parar(self) -> None:
         with self._lock:
             proc, self._proc, self._url = self._proc, None, ""
+        if proc is not None:
+            agentes.marcar("llm_local", agentes.DESLIGADO, "descarregado")
         if proc is not None and proc.poll() is None:
             proc.terminate()
             try:

@@ -1,0 +1,42 @@
+  <dialog id="uso" aria-labelledby="uso-title">
+    <h2 id="uso-title">Uso de IA</h2>
+    <div class="uso-barra">
+      <label>Período <select id="uso-periodo"><option value="hoje">hoje</option><option value="7d">7 dias</option><option value="30d">30 dias</option><option value="mes" selected>este mês</option><option value="tudo">tudo</option></select></label>
+      <label>Modelo <select id="uso-f-modelo"><option value="">todos</option></select></label>
+      <label>Projeto <select id="uso-f-projeto"><option value="">todos</option></select></label>
+      <label>Origem <select id="uso-f-sub"><option value="">tudo</option><option value="0">sessões</option><option value="1">subagentes</option></select></label>
+      <button type="button" id="uso-atualizar">Atualizar</button>
+    </div>
+    <p id="uso-vazio" hidden>Ainda não há uso registrado. Os números aparecem quando o Claude Code ou a Jarvis responderem.</p>
+    <div id="uso-corpo">
+      <dl class="uso-kpis" id="uso-kpis"></dl>
+      <p class="uso-nota" id="uso-aviso" role="status"></p>
+      <section class="uso-sec"><h3>Cota do Claude <small>(estimativa)</small></h3>
+        <div id="uso-cota"></div>
+        <div class="uso-barra">
+          <label>Calibrar <select id="uso-cal-janela"><option value="5h">janela de 5 h</option><option value="semana">semana</option></select></label>
+          <label>estou em <input id="uso-cal-pct" type="number" min="1" max="100" value="80" style="width:4.5rem">%</label>
+          <button type="button" id="uso-cal">Calibrar</button>
+          <button type="button" id="uso-limite" title="Define o teto da janela como o consumo de agora">Bati o limite agora</button>
+        </div>
+      </section>
+      <section class="uso-sec"><h3>Orçamento do mês</h3><div id="uso-orc"></div></section>
+      <section class="uso-sec uso-graficos"><div><h3>Gasto por dia</h3><canvas id="uso-dias" role="img" aria-label="Gasto por dia"></canvas></div>
+        <div><h3>Por modelo</h3><canvas id="uso-rosca" role="img" aria-label="Gasto por modelo"></canvas><ul id="uso-legenda"></ul></div></section>
+      <section class="uso-sec"><h3>Detalhe</h3>
+        <table id="uso-tabela"><caption class="sr-only">Uso por modelo</caption><thead></thead><tbody></tbody></table>
+        <table id="uso-tabela2"><caption class="sr-only">Uso por projeto</caption><thead></thead><tbody></tbody></table>
+      </section>
+    </div>
+    <details class="uso-sec"><summary>Teto, orçamento e preços</summary>
+      <div class="uso-cfg" id="uso-cfg"></div>
+      <p class="uso-nota">Preços em US$ por 1 milhão de tokens. Valores de fábrica são estimativas A CONFERIR; modelo sem preço aparece destacado, nunca como zero.</p>
+      <table id="uso-precos"><thead><tr><th>Modelo</th><th>Entrada</th><th>Saída</th></tr></thead><tbody></tbody></table>
+      <div class="uso-barra"><button type="button" id="uso-salvar">Salvar</button><button type="button" id="uso-preco-novo">Adicionar modelo</button></div>
+    </details>
+    <p class="feedback" id="uso-info" role="status"></p>
+    <div class="mem-actions">
+      <button type="button" id="uso-exp-json">Exportar JSON</button><button type="button" id="uso-exp-csv">Exportar CSV</button>
+      <button type="button" id="uso-imp">Importar JSON…</button><span class="spacer"></span><button type="button" id="close-uso">Fechar</button>
+    </div>
+  </dialog>

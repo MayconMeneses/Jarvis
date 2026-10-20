@@ -52,7 +52,11 @@ class Router:
         failures = []
         for brain in self.order(messages):
             try:
-                return brain.ask(messages, system)
+                resposta = brain.ask(messages, system)
+                from jarvis.uso import servico
+
+                servico.registrar_resposta(resposta)  # uso de IA: melhor esforço, nunca atrapalha a resposta
+                return resposta
             except BrainUnavailable as exc:
                 log.info("cérebro %s indisponível: %s", brain.name, exc)
                 failures.append(f"{brain.name}: {exc}")

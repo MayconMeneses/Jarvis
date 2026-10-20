@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass
 from typing import Protocol
 
@@ -30,6 +31,7 @@ class Mail:
     data: str
     previa: str
     nao_lido: bool
+    lista: bool = False  # tem cabeçalho List-Unsubscribe (lista de e-mail/newsletter): sinal de ruído
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -37,7 +39,7 @@ class Mail:
 
 def split_id(mail_id: str) -> tuple[str, str]:
     account, sep, native = mail_id.partition(":")
-    if not sep or not native or account not in ("gmail", "outlook"):
+    if not sep or not native or not re.fullmatch(r"gmail|outlook|imap-[a-z0-9_-]+", account):
         raise ValueError(f"id de e-mail inválido: {mail_id!r}")
     return account, native
 

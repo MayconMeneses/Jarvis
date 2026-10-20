@@ -1,26 +1,8 @@
   /* ── HUD superior ─────────────────────────────────────────── */
-  .hud { display: grid; grid-template-columns: 132px 1fr; gap: 14px; align-items: center; padding: 14px 16px 10px; }
-  .reactor { width: 132px; height: 132px; filter: drop-shadow(0 0 8px var(--state)); transition: filter .4s; }
-  .reactor * { transform-box: view-box; transform-origin: 50% 50%; }
-  .reactor .ticks { stroke: var(--state); opacity: .55; transition: stroke .4s; }
-  .reactor .ring { fill: none; stroke: var(--line-strong); }
-  .reactor .arc-a { fill: none; stroke: var(--state); stroke-width: 5; stroke-linecap: round; transition: stroke .4s;
-                    stroke-dasharray: 70 40 20 40 110 60; animation: spin 14s linear infinite; }
-  .reactor .arc-b { fill: none; stroke: var(--magenta); stroke-width: 3.5; stroke-linecap: round; opacity: .85;
-                    stroke-dasharray: 90 160; animation: spin 9s linear infinite reverse; }
-  .reactor .dots { fill: none; stroke: var(--state); stroke-width: 2.4; stroke-linecap: round;
-                   stroke-dasharray: .1 7; opacity: .8; animation: spin 30s linear infinite; transition: stroke .4s; }
-  .reactor .core { fill: url(#coreGlow); }
-  .reactor .core-ring { fill: none; stroke: var(--state); stroke-width: 1.5; transition: stroke .4s; }
-  .reactor text { font: 600 17px var(--mono); fill: var(--text); letter-spacing: .06em; }
-  body[data-state="listening"] .arc-a { animation-duration: 2.2s; }
-  body[data-state="listening"] .core-ring { animation: pulse 1s ease-in-out infinite; }
-  body[data-state="thinking"] .arc-a { animation-duration: 1.4s; }
-  body[data-state="thinking"] .arc-b { animation-duration: 1.8s; stroke: var(--orange); }
-  body[data-state="speaking"] .core-ring { animation: pulse .6s ease-in-out infinite; }
-  body[data-state="speaking"] .arc-b { animation-duration: 3s; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes pulse { 50% { transform: scale(1.12); opacity: .5; } }
+  .hud { display: grid; grid-template-columns: 148px 1fr; gap: 14px; align-items: center; padding: 14px 16px 10px; }
+  .reactor { width: 148px; height: 148px; display: block; }
+  .fx { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; font: 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+  .fx select { font: 11px var(--mono); color: var(--muted); background: var(--panel-solid); border: 1px solid var(--line); padding: 2px 4px; }
 
   .readout { min-width: 0; }
   .brand { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }

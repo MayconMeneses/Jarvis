@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import dev_skills, engenharia_skills, habilidades_skills, llm_skills, skills, websearch
+from jarvis.local import agenda_skills, dev_skills, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, skills, uso_skills, websearch
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
@@ -59,7 +59,9 @@ class LocalEngine:
 
     # ── classificação ────────────────────────────────────────────────────
     PATTERNS = [
-        # Habilidades próprias (jarvis/local/skills.py). Ordem importa: antes do "pesquisa" genérico.
+        *agenda_skills.PADROES,  # agenda, e-mails, notícias de X e bom dia (jarvis/local/agenda_skills.py)
+        *instagram_skills.PADROES,  # analista de Instagram (instagram_skills.py): antes de tudo, comandos bem específicos
+        ("uso_ia", r"\b(quanto (eu )?(gastei|gasto|usei)|cota d[oa] claude|uso d[aeo] (ia|claude|tokens)|gasto com (ia|claude)|tokens (gastos|usados))\b"),
         ("sessoes", r"\bsess(ao|oes)\b.*\b(claude|code|esperando|aguardando|parada)\b|\bclaude code\b.*\b(esperando|aguardando)\b"),
         ("dashboard", r"^(cri[ae]|faca|fazer|faz|ger[ae]|gerar|mont[ae]|montar)\s+(um\s+|o\s+)?dashboard(\s+(de|do|da|dos|das|com|para|pra)(\s+.+)?)?$"),
         ("anotar_projeto", r"^anot\w*\s+(no|na|ao|em)\s+(projeto\s+)?.+?\s+que\s+.+$"),
@@ -96,8 +98,7 @@ class LocalEngine:
         ("logica", r"^(como (resolver|resolvo|pensar|raciocinar)\b.*|me ajuda(r)? a (resolver|pensar)\b.*|logica de programacao|quais (conceitos|algoritmos)\b.*|que (conceitos|algoritmos)\b.*)$"),
         ("tecnologia", r"^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+(?P<tema>.+)$"),
         ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
-        ("hora", r"\b(que horas?|hora atual|horas sao)\b"),
-        ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
+        ("hora", r"\b(que horas?|hora atual|horas sao)\b"), ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
         ("processos", r"\b(processos|programas)\b.*\b(pesad\w*|mais us\w*|consum\w*)\b"),
         ("pc", r"\b(como (esta|ta) (o\s+)?(meu\s+)?(pc|computador)|status do (pc|computador)|uso de (ram|cpu|memoria|disco)|"
                r"memoria ram|quanto de (ram|memoria|disco))\b"),
@@ -109,11 +110,11 @@ class LocalEngine:
         ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
                      r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
     ]
-    MODULOS = {"padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
+    MODULOS = {**agenda_skills.MODULOS, "padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
                "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status, "avaliar_llm": llm_skills.avaliar,
-               "aprender": llm_skills.aprender, "revisar": lambda t, c: engenharia_skills.revisar(t)}
-    DIRECT = {"abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil"}
+               "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), **instagram_skills.MODULOS}
+    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)
@@ -126,10 +127,10 @@ class LocalEngine:
     def is_direct_command(self, text: str) -> bool:
         """Comando curto que o motor local resolve sozinho (vai antes da IA, sem gastar limite)."""
         found = self.classify(text)
-        if not found or found[0] not in self.DIRECT or len(text) > 80:
+        if not found or found[0] not in self.DIRECT or (len(text) > 80 and found[0] not in instagram_skills.INTENTS):
             return False
         # "abre X e analisa Y" fica com a IA; em "meu nível é pleno" o "é" faz parte do comando.
-        return found[0] == "perfil" or " e " not in clean(text)
+        return found[0] in ("perfil", "agenda_proximo") or found[0] in instagram_skills.INTENTS or " e " not in clean(text)
 
     # ── execução ─────────────────────────────────────────────────────────
     def ask(self, messages: list[Message], system: str = "") -> Answer:
@@ -199,14 +200,6 @@ class LocalEngine:
         if not city:
             return "Diga a cidade: \"clima em Fortaleza\"."
         return weather.sentence(weather.forecast(city))
-
-    def _noticias(self, text: str) -> str:
-        from jarvis.info import news
-
-        kind = "tecnologia" if re.search(r"tecnolog|tech|ti\b", clean(text)) else "gerais"
-        items = news.headlines(kind, 5)["manchetes"]
-        return f"**Notícias {'de tecnologia' if kind == 'tecnologia' else 'de hoje'}:**\n" + "\n".join(
-            f"- {h['titulo']} ({h['fonte']}) {h['link']}" for h in items)
 
     def _vagas(self, text: str) -> str:
         from jarvis import memory_db

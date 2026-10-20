@@ -12,10 +12,13 @@ import threading
 import time
 
 from jarvis import briefing, config, files, memory_db
+from jarvis.agentes.registro import registro as registro_agentes
 from jarvis.brains import NoBrainAvailable
 from jarvis.chat import Conversation
 from jarvis.config import Config
 from jarvis.pc import actions
+from jarvis.ui.api_agents import AgentsMixin
+from jarvis.ui.api_agenda import AgendaMixin
 from jarvis.ui.api_brains import BrainsMixin
 from jarvis.ui.api_files import FilesMixin
 from jarvis.ui.api_learning import LearningMixin
@@ -25,11 +28,13 @@ from jarvis.ui.api_memory import MemoryMixin
 from jarvis.ui.api_review import ReviewMixin
 from jarvis.ui.api_selfupdate import SelfUpdateMixin
 from jarvis.ui.api_update import UpdateMixin
+from jarvis.ui.api_uso import UsoMixin
+from jarvis.ui.api_visual import VisualMixin
 
 log = logging.getLogger(__name__)
 
 
-class Api(FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin):
+class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin, VisualMixin, AgentsMixin, UsoMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(
@@ -41,6 +46,7 @@ class Api(FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, Revie
         self._voice = None  # VoiceLoop, quando a voz está ativa
         self._ultimo_pedido = 0.0  # para o aprendizado autônomo só trabalhar com o PC parado
         self._memory = memory_db.open_memory(cfg)
+        registro_agentes.ligar_memoria(self._memory)  # batimentos dos agentes ficam gravados na memória
         self._files = files.AttachmentStore()
         self._window = None  # definida em run(); usada no seletor de arquivos
         self._quit = None  # definida em run(); fecha a Jarvis (usada no reinício)
@@ -114,6 +120,7 @@ class Api(FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, Revie
         except Exception:  # a janela nunca deve travar por um erro inesperado
             log.exception("erro ao responder")
             return {"error": "Erro inesperado. Detalhes no log da Jarvis."}
+        self._memoria_viva(answer, text)  # tira a linha [[SAVE]] da tela e da voz e cria o cartão (nunca grava)
         proposals = [
             {"id": a.id, "descricao": a.descricao, "motivo": a.motivo}
             for a in self._store.pending_since(started)

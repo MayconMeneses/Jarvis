@@ -52,7 +52,7 @@ def voz_instalada(pasta: Path | None = None) -> bool:
 
 
 def pasta_embutida() -> Path:
-    """Onde o instalador deixa a voz (<app>\modelos\vozes; em packaging/modelos/vozes no código-fonte)."""
+    """Onde o instalador deixa a voz (<app>/modelos/vozes; em packaging/modelos/vozes no código-fonte)."""
     from jarvis.voice.models import bundled_root
 
     return bundled_root() / "vozes"

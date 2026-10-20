@@ -5,6 +5,7 @@ import * as gerar from "./gerar.js";
 import { Habilidades } from "./habilidades.js";
 import { instalarAutonomo } from "./motor-autonomo.js";
 import { instalarExtras } from "./motor-extra.js";
+import { instalarInstagram } from "./instagram-motor.js";
 import { Stack } from "./stack.js";
 import { dataPorExtenso, dois, fold, isoData } from "./util.js";
 
@@ -199,3 +200,4 @@ export class Motor {
 
 instalarExtras(Motor, PADROES);
 instalarAutonomo(Motor, PADROES);
+instalarInstagram(Motor, PADROES);

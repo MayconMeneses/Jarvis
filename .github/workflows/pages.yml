@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 20
       - name: Testes do app do celular
-        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs movel/testes/modelos.test.mjs movel/testes/criar-ia.test.mjs movel/testes/oficina.test.mjs movel/testes/autonomo.test.mjs
+        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs movel/testes/modelos.test.mjs movel/testes/criar-ia.test.mjs movel/testes/oficina.test.mjs movel/testes/autonomo.test.mjs movel/testes/visual.test.mjs movel/testes/vivo.test.mjs movel/testes/grafo.test.mjs movel/testes/instagram.test.mjs
       - name: Montar o site (só a pasta movel, sem testes nem scripts Python)
         run: |
           mkdir site

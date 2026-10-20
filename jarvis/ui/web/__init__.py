@@ -9,8 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 BASE = Path(__file__).parent
-CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'brains', 'review', 'attachments', 'memory', 'oficina']
-JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'results', 'inputs', 'brains', 'memory', 'mobile', 'oficina', 'main']
+CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso']
+JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe', 'results', 'inputs', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'main']
 
 
 def _join(folder: str, ext: str, names: list[str]) -> str:
@@ -20,4 +20,5 @@ def _join(folder: str, ext: str, names: list[str]) -> str:
 def page() -> str:
     html = (BASE / "index.html").read_text(encoding="utf-8")
     html = html.replace("<!--ESTILOS-->", "<style>\n" + _join("css", "css", CSS) + "</style>")
+    html = html.replace("<!--SCRIPTS-->", (BASE / "uso.html").read_text(encoding="utf-8") + "<!--SCRIPTS-->")  # diálogo "Uso de IA"
     return html.replace("<!--SCRIPTS-->", "<script>\n" + _join("js", "js", JS) + "</script>")

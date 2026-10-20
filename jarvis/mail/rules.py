@@ -19,13 +19,18 @@ _INJECTION = [
 _INJECTION_RE = [re.compile(p, re.IGNORECASE) for p in _INJECTION]
 
 
-def injection_reason(mail: Mail) -> str | None:
-    text = f"{mail.assunto}\n{mail.previa}"
+def texto_suspeito(text: str) -> str | None:
+    """Trecho que tenta dar ordens à IA, se houver (vale para e-mail, evento de agenda, notícia)."""
     for pattern in _INJECTION_RE:
         match = pattern.search(text)
         if match:
-            return f"contém texto que tenta dar ordens à IA: “{match.group(0)[:60]}”"
+            return match.group(0)[:60]
     return None
+
+
+def injection_reason(mail: Mail) -> str | None:
+    found = texto_suspeito(f"{mail.assunto}\n{mail.previa}")
+    return f"contém texto que tenta dar ordens à IA: “{found}”" if found else None
 
 
 def rule_category(mail: Mail, rules: list[dict]) -> str | None:
