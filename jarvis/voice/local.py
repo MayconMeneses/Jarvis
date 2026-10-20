@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import shutil
 import threading
 from collections.abc import Callable
 from pathlib import Path
@@ -50,8 +51,15 @@ def voz_instalada(pasta: Path | None = None) -> bool:
     return all((pasta / nome).exists() and (pasta / nome).stat().st_size > 0 for nome in ARQUIVOS)
 
 
-def baixar_voz(on_status: Progresso | None = None, pasta: Path | None = None, baixar=None) -> Path:
-    """Baixa uma vez (60 MB) para %LOCALAPPDATA%/SuperJarvis/vozes e confere o SHA-256. Reaproveita o que já está lá."""
+def pasta_embutida() -> Path:
+    """Onde o instalador deixa a voz (<app>\modelos\vozes; em packaging/modelos/vozes no código-fonte)."""
+    from jarvis.voice.models import bundled_root
+
+    return bundled_root() / "vozes"
+
+
+def baixar_voz(on_status: Progresso | None = None, pasta: Path | None = None, baixar=None, embutida: Path | None = None) -> Path:
+    """Usa a voz embutida no instalador ou baixa uma vez (60 MB) para %LOCALAPPDATA%/SuperJarvis/vozes e confere o SHA-256. Reaproveita o que já está lá."""
     from jarvis.llm.baixar import baixar_arquivo
 
     baixar = baixar or baixar_arquivo
@@ -60,6 +68,11 @@ def baixar_voz(on_status: Progresso | None = None, pasta: Path | None = None, ba
     for nome, sha in ARQUIVOS.items():
         destino = pasta / nome
         if _confere(destino, sha):
+            continue
+        embutido = (embutida or pasta_embutida()) / nome  # veio dentro do instalador: copia, sem internet
+        if _confere(embutido, sha):
+            pasta.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(embutido, destino)
             continue
         dito(f"Baixando a voz local da Jarvis ({nome})…")
         baixar(BASE + nome, destino, on_status)
