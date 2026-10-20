@@ -3,6 +3,7 @@ import { aprender, consultarAprendido, pesquisar } from "./aprender.js";
 import * as design from "./design.js";
 import * as gerar from "./gerar.js";
 import { Habilidades } from "./habilidades.js";
+import { instalarAutonomo } from "./motor-autonomo.js";
 import { instalarExtras } from "./motor-extra.js";
 import { Stack } from "./stack.js";
 import { dataPorExtenso, dois, fold, isoData } from "./util.js";
@@ -197,3 +198,4 @@ export class Motor {
 }
 
 instalarExtras(Motor, PADROES);
+instalarAutonomo(Motor, PADROES);

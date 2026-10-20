@@ -86,3 +86,20 @@ A aba **Oficina** faz no celular o que a Oficina do PC faz:
 
 Limite honesto: o isolamento protege de acidentes e de código mal escrito, não substitui ler o código antes de rodar. Foi validado no Chromium (JavaScript, Python
 com Pyodide, laço infinito interrompido, ZIP); **não foi testado no Safari do iPhone**.
+
+## Aprender sozinha e avaliar o cérebro (paridade com `jarvis/autonomo` e `jarvis/llm/avaliar.py`)
+
+Na aba **Cérebro**, seção "Aprender sozinha e avaliar o cérebro":
+
+- **Aprender sozinha** (desligado por padrão; a escolha fica no aparelho). Ligada, e com o app **aberto e sem uso por 10 minutos**, a Jarvis lê o diário
+  (linhas "Pedido:" dos últimos 14 dias), acha as perguntas do tipo "o que é X / explique X / como usar X" que a base **não** conhece, escolhe a mais
+  repetida, pesquisa (Brave por proxy se cadastrado, senão Wikipédia, o mesmo código do "aprenda sobre") e guarda o resumo como nota `Aprendizado/<assunto>`.
+  No máximo **3 assuntos por dia**; um assunto que falhou não é tentado de novo. Diga **"o que você aprendeu"** para listar. Tudo vem da internet e não é verificado.
+- **Avaliar o cérebro** (botão **Avaliar agora**, ou "avaliar cérebro"; "como está meu cérebro" mostra a última nota): 5 tarefas pequenas de JavaScript
+  (`ehPar`, `somaLista`, `maior`, `palindromo`, `fatorial`) são pedidas ao cérebro do aparelho (ou à nuvem, na ordem escolhida), os testes escondidos rodam no
+  ambiente isolado da Oficina e a **nota de 0 a 100** é guardada com data e modelo (compara com a anterior). Sem cérebro ligado, ela explica o que falta.
+  Com "Aprender sozinha" ligada, a avaliação também se repete a cada 7 dias, no mesmo momento ocioso.
+- Código: `movel/js/autonomo.js`, `agendador.js`, `avaliar.js`, `motor-autonomo.js`, `painel-autonomo.js`; testes em `movel/testes/autonomo.test.mjs`.
+
+Limite honesto: o iPhone não deixa um site rodar em segundo plano. **Com o app fechado ou a tela bloqueada nada é estudado**; ao contrário do PC, não existe agendador
+independente. Os assuntos têm o acento removido no nome da nota (ex.: `Aprendizado/computacao quantica`). Não foi testado no Safari do iPhone.
