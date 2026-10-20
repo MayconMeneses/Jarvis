@@ -98,6 +98,34 @@ python -m jarvis --chave gemini
 python -m jarvis --chave nvidia
 ```
 
+## Novidades das versões 0.21 a 0.23
+
+- **Voz Piper local** (0.21): a voz neural vem dentro do instalador, é copiada na 1ª abertura e fala sem internet.
+- **Oficina** (botão ⌨): IDE com sandbox, **Rodar**, **Testar**, **Desfazer** e **✨ Criar com IA**; nada roda sozinho.
+- **Orbe reativo à voz**: muda com o estado (ouvindo, pensando, falando) e ganha um halo vermelho/laranja quando algum agente está em erro/atenção. Controle **Efeitos** (completo, suave, desligado).
+- **Memória viva com aprovação**: a Jarvis propõe o que guardar e você aprova no cartão; **grafo do Second Brain** na janela ◈ Memória.
+- **Uso de IA** (▤): tokens, custo, cota do Claude e orçamento, sem gastar IA para mostrar.
+- **Agenda, e-mails e notícias** (▦ Agenda e e-mail): conecta um calendário iCal e uma conta IMAP, **somente leitura**; senhas de app ficam no Gerenciador de Credenciais.
+- **Analista de Instagram**: importa posts, gera relatório e compara com a rodada anterior.
+- **Painel de agentes** (✦ Agentes): constelação com quem está em dia, parado ou com erro e **Rodar agora** só para ações da lista branca (nunca o estudo autônomo).
+- **☀ Bom dia**: resumo do dia (agenda, e-mails que pedem ação, clima e manchetes); a Jarvis também fala.
+- **FACE** (◉, tecla F): tela cheia com o orbe grande e painéis com dados reais (vitais, sessões, e-mails, tarefas, status, logs).
+- **Temas** (HUD ciano, Âmbar, Esmeralda, Alto contraste) com fundo de aurora; escolha em ⚙ Cérebros.
+- **Celular com PC pareado** (opcional): agenda e e-mails do PC, só leitura, mais temas, uso de IA e agentes no próprio celular. Veja [docs/CELULAR-INDEPENDENTE.md](docs/CELULAR-INDEPENDENTE.md).
+
+**Comandos de voz e de chat novos** (funcionam também sem IA):
+
+| Diga | O que acontece |
+| --- | --- |
+| "minha agenda", "agenda de hoje" | compromissos de hoje |
+| "próximo compromisso" | o próximo evento |
+| "agenda da semana" | compromissos dos próximos dias |
+| "meus e-mails", "tem e-mail importante?" | resumo da caixa de entrada e e-mails que pedem ação |
+| "notícias de futebol" (qualquer assunto) | manchetes do assunto |
+| "bom dia" (ou boa tarde, boa noite) | resumo do dia |
+| "quanto gastei", "cota do Claude", "uso de IA" | consumo e custo de IA |
+| "analisar instagram", "importar posts", "relatório de instagram" | analista de conteúdo |
+
 ## Voz
 
 - Diga **"Hey Jarvis"** (pronúncia em inglês), clique no 🎤 da janela ou use **Falar agora** na bandeja.

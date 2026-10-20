@@ -1,0 +1,16 @@
+  <dialog id="agentes" aria-labelledby="agentes-title">
+    <h2 id="agentes-title">Painel de agentes</h2>
+    <p id="ag-resumo" class="ag-resumo" role="status"></p>
+    <div class="ag-corpo">
+      <div id="ag-mapa" class="ag-mapa">
+        <svg id="ag-svg" role="group" aria-label="Constelação dos agentes da Jarvis: use Tab e Enter para escolher um agente"></svg>
+      </div>
+      <div class="ag-lado">
+        <section id="ag-detalhe" class="ag-sec" aria-live="polite"></section>
+        <section class="ag-sec"><h3>Agentes</h3><ul id="ag-lista" class="ag-lista" aria-label="Lista de agentes"></ul></section>
+        <section class="ag-sec" id="ag-subs-sec" hidden><h3>Subagentes do Claude Code <small>(custo estimado)</small></h3><ul id="ag-subs" class="ag-lista" aria-label="Subagentes do Claude Code"></ul></section>
+      </div>
+    </div>
+    <p class="feedback" id="ag-info" role="status"></p>
+    <div class="mem-actions"><button type="button" id="ag-atualizar">Atualizar</button><span class="spacer"></span><button type="button" id="close-agentes">Fechar</button></div>
+  </dialog>

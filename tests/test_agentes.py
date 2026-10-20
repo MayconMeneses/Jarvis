@@ -193,9 +193,10 @@ def api(monkeypatch, tmp_path):
     return a
 
 
-def test_agents_status_idempotente_sem_campos_proibidos(api):
+def test_agents_status_idempotente_sem_campos_proibidos(api, monkeypatch):
     a = api
     a._provedor_uso = lambda: {"tokens_in": 1}
+    monkeypatch.setattr(painel, "time", SimpleNamespace(time=lambda: NOW))  # relógio fixo: age_s determinístico
     r1, r2 = a.agents_status(), a.agents_status()
     for r in (r1, r2):
         r.pop("server_now")
@@ -215,3 +216,12 @@ def test_agents_run_lista_branca(api):
     assert api.agents_run("proativo")["ok"] is True and chamadas == [1]
     assert api.agents_run("atualizador")["ok"] is True and api.chamou
     assert "estudar_agora" not in api._acoes_agentes
+
+
+def test_janela_registra_todas_as_acoes_do_rodar_agora():
+    """Quem monta a janela (app.py) precisa entregar cada ação da lista branca, exceto as que a ponte já tem."""
+    from pathlib import Path
+
+    fonte = (Path(__file__).resolve().parents[1] / "jarvis" / "ui" / "app.py").read_text(encoding="utf-8")
+    for nome in set(ACOES_PERMITIDAS.values()) - {"check_update"}:
+        assert f'_registrar_acao("{nome}"' in fonte, nome

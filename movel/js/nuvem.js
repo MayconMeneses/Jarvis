@@ -3,6 +3,7 @@
 // Limite: a NVIDIA e o Brave não liberam chamadas direto do navegador (sem CORS); use um proxy seu (veja docs/CELULAR-INDEPENDENTE.md).
 // Cada provedor usa o LEQUE inteiro de modelos de conversa: pula os encerrados (404/410) e lembra o que já funcionou.
 import { EstadoLeque, MAX_TENTATIVAS, ordenar } from "./leque.js";
+import { mensagensParaTexto } from "./uso.js";
 
 export const PROVEDORES = {
   gemini: { nome: "Google Gemini", base: "https://generativelanguage.googleapis.com/v1beta/openai", modelo: "gemini-flash-latest", dica: "Chave grátis em aistudio.google.com/apikey" },
@@ -17,7 +18,8 @@ const SEGREDO = "segredo:";
 const nomeDe = (id) => PROVEDORES[id]?.nome || id;
 
 export class Nuvem {
-  constructor({ armazem, buscar = (...a) => fetch(...a), agora = () => Date.now() }) {
+  constructor({ armazem, buscar = (...a) => fetch(...a), agora = () => Date.now(), aoUsar = null }) {
+    this.aoUsar = aoUsar;  // opcional: (fonte, { entrada, saida, textoEntrada, textoSaida }) para os contadores locais de uso
     this.armazem = armazem; this.buscar = buscar; this.leque = new EstadoLeque(armazem, agora);
   }
 
@@ -51,7 +53,7 @@ export class Nuvem {
     try { await this.leque.definirPool(s.provedor, ordenar(s.provedor, await this._listar(s.base, s.chave))); } catch { /* o leque é uma otimização */ }
   }
 
-  async _pedir(base, chave, modelo, mensagens, aoReceber) {
+  async _pedir(base, chave, modelo, mensagens, aoReceber, medida = {}) {
     const r = await this.buscar(`${base}/chat/completions`, { method: "POST", headers: this._cabecalhos(chave),
       body: JSON.stringify({ model: modelo, messages: mensagens, stream: Boolean(aoReceber), max_tokens: 900, temperature: 0.5 }) });
     if (!r.ok) {
@@ -60,7 +62,11 @@ export class Nuvem {
       erro.status = r.status;
       throw erro;
     }
-    if (!aoReceber || !r.body) return ((await r.json()).choices?.[0]?.message?.content || "").trim();
+    if (!aoReceber || !r.body) {
+      const corpo = await r.json();
+      medida.usage = corpo.usage;
+      return (corpo.choices?.[0]?.message?.content || "").trim();
+    }
     let texto = "", resto = "";
     const leitor = r.body.getReader(), decodificador = new TextDecoder();
     for (;;) {
@@ -72,10 +78,17 @@ export class Nuvem {
       for (const linha of linhas) {
         const dado = linha.replace(/^data:\s*/, "").trim();
         if (!linha.startsWith("data:") || !dado || dado === "[DONE]") continue;
-        try { texto += JSON.parse(dado).choices?.[0]?.delta?.content || ""; aoReceber(texto); } catch { /* pedaço incompleto */ }
+        try { const pedaco = JSON.parse(dado); if (pedaco.usage) medida.usage = pedaco.usage; texto += pedaco.choices?.[0]?.delta?.content || ""; aoReceber(texto); } catch { /* pedaço incompleto */ }
       }
     }
     return texto.trim();
+  }
+
+  // Conta a chamada nos contadores locais (tokens do provedor quando vierem; senão estimados). Nunca atrapalha a resposta.
+  _contar(fonte, mensagens, texto, usage) {
+    try {
+      this.aoUsar?.(fonte, { entrada: usage?.prompt_tokens, saida: usage?.completion_tokens, textoEntrada: mensagensParaTexto(mensagens), textoSaida: texto });
+    } catch { /* contador é opcional */ }
   }
 
   // Tenta os modelos do leque em ordem (o último que funcionou primeiro) e fica com o primeiro que responder.
@@ -88,8 +101,9 @@ export class Nuvem {
       for (const modelo of (await this.leque.ordem(s.provedor, s.modelo)).filter((m) => !tentados.has(m)).slice(0, MAX_TENTATIVAS)) {
         tentados.add(modelo);
         try {
-          const texto = await this._pedir(s.base, s.chave, modelo, mensagens, aoReceber);
+          const medida = {}, texto = await this._pedir(s.base, s.chave, modelo, mensagens, aoReceber, medida);
           if (!texto) { falhas.push(`${modelo}: resposta vazia`); continue; }
+          this._contar(s.provedor, mensagens, texto, medida.usage);
           await this.leque.marcarBom(s.provedor, modelo);
           if (modelo !== s.modelo) { s.modelo = modelo; await this.armazem.gravar(SEGREDO + s.provedor, s); }
           return { texto, modelo };

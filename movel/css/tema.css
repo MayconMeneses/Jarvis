@@ -1,0 +1,70 @@
+/* Base de tokens, acessibilidade e temas do celular. Carregado DEPOIS de app.css: só complementa e sobrescreve com variáveis. */
+:root {
+  --esp-1: 4px; --esp-2: 8px; --esp-3: 12px; --esp-4: 16px; --esp-5: 24px; --esp-6: 32px; --esp-7: 48px;
+  --radius: 12px; --dur: 180ms; --ease: cubic-bezier(.2, .8, .2, 1);
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+  /* tema padrão (hud) */
+  --sel: #0d2a3a; --sel-borda: #1b5a78; --codigo: #050a10; --ativo: #123248; --aurora-a: #00e5ff; --aurora-b: #3b6cff;
+}
+html[data-tema="ambar"] {
+  --fundo: #0c0803; --painel: #17100a; --linha: #4a3416; --ciano: #ffb020; --texto: #fff1da; --suave: #c9ab80;
+  --erro: #ff7b6b; --ok: #7fe3a0; --laranja: #ff9a3c; --sel: #2e1f0a; --sel-borda: #7a5416; --codigo: #080502; --ativo: #3a2810;
+  --aurora-a: #ffb020; --aurora-b: #ff5a1f;
+}
+html[data-tema="esmeralda"] {
+  --fundo: #03100b; --painel: #08201a; --linha: #14513e; --ciano: #34e0a1; --texto: #e2fff4; --suave: #8fc4b0;
+  --erro: #ff7b7b; --ok: #34e0a1; --laranja: #ffb14a; --sel: #0c3326; --sel-borda: #1d7a5c; --codigo: #020a07; --ativo: #104532;
+  --aurora-a: #34e0a1; --aurora-b: #1aa6b7;
+}
+html[data-tema="contraste"] {
+  --fundo: #000000; --painel: #0a0a0a; --linha: #ffffff; --ciano: #ffff00; --texto: #ffffff; --suave: #e0e0e0;
+  --erro: #ff9a9a; --ok: #7dffb0; --laranja: #ffc266; --sel: #1a1a1a; --sel-borda: #ffffff; --codigo: #000000; --ativo: #333333;
+}
+
+/* Cores que o app.css deixou fixas passam a seguir o tema. */
+#abas button[aria-selected="true"], .msg.eu { background: var(--sel); }
+.msg.eu { border-color: var(--sel-borda); }
+button:active { background: var(--ativo); }
+.msg pre, #of-saida, #grafo, .cartao-memoria pre { background: var(--codigo); }
+.msg code, #of-editor { font-family: var(--mono); }
+button, select, input, textarea, .msg { border-radius: var(--radius); }
+button { border-radius: 999px; }
+button, #abas button { transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+
+/* Foco sempre visível */
+:focus-visible { outline: 2px solid var(--ciano); outline-offset: 2px; }
+summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+#abas { overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; overscroll-behavior-x: contain; min-width: 0; }
+#abas button { scroll-snap-align: center; }
+#abas::-webkit-scrollbar { display: none; }
+#abas button { flex: 1 0 auto; }
+
+/* Fundo de aurora: uma camada só, só transform/opacity, só com Efeitos = completo e a aba visível */
+#aurora { position: fixed; inset: -25%; z-index: 0; pointer-events: none; display: none; opacity: .28; will-change: transform;
+  background: radial-gradient(40% 35% at 30% 30%, var(--aurora-a), transparent 70%), radial-gradient(45% 40% at 72% 68%, var(--aurora-b), transparent 70%);
+  animation: aurora 38s ease-in-out infinite alternate; }
+html[data-efeitos="completo"] #aurora { display: block; }
+html[data-oculto] #aurora { animation-play-state: paused; }
+html[data-tema="contraste"] #aurora { display: none; }
+#app { position: relative; z-index: 1; }
+@keyframes aurora { from { transform: translate3d(-3%, -2%, 0) rotate(0deg); } to { transform: translate3d(4%, 3%, 0) rotate(14deg); } }
+
+/* Painéis Aparência, Uso de IA e Agentes */
+.painel-extra { margin-top: var(--esp-3); }
+.painel-extra summary { color: var(--texto); font-weight: 600; }
+#uso-lista, #ag-lista { list-style: none; margin: var(--esp-2) 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#uso-lista li, #ag-lista li { padding: 10px 12px; background: var(--painel); border: 1px solid var(--linha); border-radius: var(--radius); overflow-wrap: anywhere; }
+#uso-lista small, #ag-lista small { display: block; color: var(--suave); }
+#uso-grafico { display: block; width: 100%; height: 140px; background: var(--codigo); border: 1px solid var(--linha); border-radius: var(--radius); }
+#uso-precos label { margin-top: var(--esp-2); }
+#uso-precos .linha input { flex: 1; min-width: 0; }
+.estado-ag { font-weight: 700; margin-right: 6px; }
+[data-estado="ok"] .estado-ag { color: var(--ok); }
+[data-estado="atrasado"] .estado-ag { color: var(--laranja); }
+[data-estado="erro"] .estado-ag { color: var(--erro); }
+[data-estado="ocioso"] .estado-ag, [data-estado="fechado"] .estado-ag, [data-estado="desligado"] .estado-ag { color: var(--suave); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  #aurora { display: none !important; }
+}

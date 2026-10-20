@@ -21,7 +21,7 @@ export function baixar(nome, bytes, tipo = "application/zip") {
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
-export function ligarOficina({ memoria, carregarModelos, avisar }) {
+export function ligarOficina({ memoria, carregarModelos, avisar, aoRodar = null }) {
   const espaco = new EspacoOficina(memoria);
   let projeto = "", arquivos = {}, aberto = "", avisouPython = false;
 
@@ -87,8 +87,9 @@ export function ligarOficina({ memoria, carregarModelos, avisar }) {
       saida(modo === "testar" ? "Testando no ambiente isolado…" : "Rodando no ambiente isolado…");
       ["of-rodar", "of-testar"].forEach((id) => { $(id).disabled = true; });
       const r = await executar({ linguagem, arquivos: { ...arquivos }, principal: nome, modo });
+      aoRodar?.("ok");
       saida(r.texto || "(sem saída)", r.ok ? "ok" : "falhou");
-    } catch (e) { erro(e); } finally { ["of-rodar", "of-testar"].forEach((id) => { $(id).disabled = false; }); }
+    } catch (e) { aoRodar?.("erro"); erro(e); } finally { ["of-rodar", "of-testar"].forEach((id) => { $(id).disabled = false; }); }
   }
 
   async function criarProjeto() {

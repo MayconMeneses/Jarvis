@@ -6,7 +6,7 @@
   #memory.mapa #mem-vista-lista, #memory.mapa #mem-text, #memory.mapa #mem-save, #memory.mapa #mem-delete { display: none; }
   #mem-canvas {
     display: block; width: 100%; height: min(430px, 56vh); margin-bottom: 8px; cursor: default;
-    background: radial-gradient(circle at 50% 50%, rgba(63, 208, 255, .07), transparent 70%), rgba(0, 0, 0, .35);
+    background: radial-gradient(circle at 50% 50%, rgba(var(--cyan-rgb), .07), transparent 70%), rgba(0, 0, 0, .35);
     border: 1px solid var(--line); border-radius: 2px;
   }
   #mem-canvas:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }

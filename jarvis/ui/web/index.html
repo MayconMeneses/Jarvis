@@ -7,6 +7,7 @@
 <!--ESTILOS-->
 </head>
 <body data-state="idle">
+  <div id="aurora" aria-hidden="true"></div>
   <header class="hud">
     <canvas id="orbe" class="reactor" aria-hidden="true"></canvas>
     <span id="orbe-estado" class="sr-only" role="status" aria-live="polite">Em espera</span>
@@ -24,9 +25,13 @@
   <div class="toolbar">
     <span class="label">Canal de comunicação</span>
     <span>
+      <button type="button" id="open-face" title="Tela FACE: orbe grande e painéis com dados reais (tecla F)">◉ FACE</button>
       <button type="button" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros</button>
       <button type="button" id="open-oficina" title="IDE: escrever, rodar, testar e criar código com IA">⌨ Oficina</button>
-      <button type="button" id="open-uso" title="Quanto de IA você usou: tokens, custo, cota do Claude e orçamento">▤ Uso de IA</button>
+      <button type="button" id="bom-dia" title="Resumo do dia: agenda, e-mails que pedem ação, clima e manchetes (a Jarvis também fala)">☀ Bom dia</button>
+      <button type="button" id="open-agentes" title="Constelação dos agentes: quem está em dia, parado ou com erro">✦ Agentes</button>
+      <button type="button" id="open-agenda" title="Conectar a agenda (iCal) e uma conta de e-mail (IMAP)">▦ Agenda e e-mail</button>
+      <button type="button" id="open-uso"title="Quanto de IA você usou: tokens, custo, cota do Claude e orçamento">▤ Uso de IA</button>
       <button type="button" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória</button>
       <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
     </span>
@@ -102,6 +107,14 @@
 
   <dialog id="brains" aria-labelledby="brains-title">
     <h2 id="brains-title">Cérebros da Jarvis</h2>
+
+    <section class="brain">
+      <h3><label for="tema">Aparência</label></h3>
+      <select id="tema" aria-describedby="fb-tema">
+        <option value="hud">HUD ciano (padrão)</option><option value="ambar">Âmbar</option>
+        <option value="esmeralda">Esmeralda</option><option value="contraste">Alto contraste</option></select>
+      <p class="feedback" id="fb-tema" role="status">Os efeitos (aurora e orbe) ficam no seletor "Efeitos", ao lado do orbe.</p>
+    </section>
 
     <section class="brain">
       <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">

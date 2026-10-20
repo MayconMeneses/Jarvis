@@ -5,7 +5,7 @@
   window.Orbe = (() => {
     const NOMES = { idle: "Em espera", listening: "Ouvindo", thinking: "Pensando", speaking: "Falando" };
     const MODOS = ["completo", "suave", "desligado"];
-    const s = { estado: "idle", nivel: 0, env: null, t0: 0, dt: 40, atraso: 80, mic: 0, micT: 0, modo: "completo", reduzido: false };
+    const s = { estado: "idle", nivel: 0, env: null, t0: 0, dt: 40, atraso: 80, mic: 0, micT: 0, fixo: null, modo: "completo", reduzido: false };
     const reduzido = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
     const ouvintes = [];
     const avisar = () => ouvintes.forEach((f) => f());
@@ -19,6 +19,14 @@
       avisar();
     }
 
+    // Entrada única do orbe (mini e FACE): {estado?, nivel?}. nivel numérico (0..1) fixa o nível; null volta ao automático.
+    function set(o) {
+      if (!o) return;
+      if (o.estado !== undefined) estado(o.estado);
+      if (o.nivel === null) s.fixo = null; else if (typeof o.nivel === "number") s.fixo = Math.max(0, Math.min(1, o.nivel));
+      avisar();
+    }
+
     // Modo efetivo: "completo" vira "suave" quando o sistema pede menos movimento.
     function modoEfetivo() { return s.modo === "completo" && s.reduzido ? "suave" : s.modo; }
 
@@ -26,6 +34,7 @@
       s.modo = MODOS.includes(modo) ? modo : "completo";
       const sel = document.getElementById("efeitos");
       if (sel) sel.value = s.modo;
+      document.documentElement.dataset.efeitos = s.modo;  // a aurora e as animações do CSS seguem este atributo
       if (salvar) {
         try { window.pywebview.api.definir_efeitos_visuais(s.modo); } catch (e) { /* fora da janela (teste) */ }
       }
@@ -39,10 +48,10 @@
       if (ev.tipo === "fala") {
         s.env = Array.isArray(ev.env) ? ev.env : [];
         s.t0 = agora; s.dt = ev.dt > 0 ? ev.dt : 40; s.atraso = ev.atraso_ms || 0;
-        estado("speaking");
+        set({ estado: "speaking" });
       } else if (ev.tipo === "fim") {
         s.env = null;
-        if (s.estado === "speaking") estado(typeof busy !== "undefined" && busy ? "thinking" : "idle");
+        if (s.estado === "speaking") set({ estado: typeof busy !== "undefined" && busy ? "thinking" : "idle" });
       } else if (ev.tipo === "mic") {
         s.mic = Math.max(0, Math.min(1, Number(ev.n) || 0)); s.micT = agora;
       }
@@ -51,6 +60,7 @@
 
     // Nível desejado agora (0..1) conforme o estado.
     function alvo(agora) {
+      if (s.fixo != null) return s.fixo;
       if (s.estado === "speaking") {
         if (s.env === null) return 0.2;
         if (!s.env.length) return 0.4 + 0.25 * Math.sin(agora / 110) * Math.sin(agora / 370);  // sem envelope: ritmo simulado
@@ -82,5 +92,5 @@
       try { definirModo(await window.pywebview.api.efeitos_visuais(), false); } catch (e) { /* sem ponte */ }
     });
 
-    return { s, estado, evento, passo, modoEfetivo, definirModo, aoMudar: (f) => ouvintes.push(f) };
+    return { s, estado, set, evento, passo, modoEfetivo, definirModo, aoMudar: (f) => ouvintes.push(f) };
   })();

@@ -24,12 +24,14 @@ class MobileMixin:
 
     def mobile_start(self) -> str:
         """Liga o servidor segundo a configuração. Devolve o endereço (ou levanta OSError se a porta estiver ocupada)."""
+        from jarvis.mobile import leitura
         from jarvis.mobile.servidor import ServidorCelular
 
         cfg = config.load()
         if self._mobile is not None and self._mobile.ativo:
             return self._mobile.url
-        self._mobile = ServidorCelular(self._pair(), self.send, lambda: len(self._store.pending_since(0)), cfg.user_name)
+        self._mobile = ServidorCelular(self._pair(), self.send, lambda: len(self._store.pending_since(0)), cfg.user_name,
+                                      leitura=leitura.montar(config.load, getattr(self, "_vivos", dict)), origem_app=cfg.celular_origem_app)
         ts = tailscale.estado() if cfg.celular_acesso in ("auto", "tailscale") else None
         self.mobile_modo = "rede" if cfg.celular_rede else "local"
         if ts and ts["ligado"]:  # de qualquer lugar: só o endereço do Tailscale, nada exposto na rede local nem na internet

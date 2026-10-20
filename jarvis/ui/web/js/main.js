@@ -1,6 +1,6 @@
   window.addEventListener("pywebviewready", async () => {
     refreshStats();
-    setInterval(refreshStats, 3000);
+    periodico(refreshStats, 3000);
     const typing = addTyping();
     const hello = await window.pywebview.api.greeting();
     typing.remove();

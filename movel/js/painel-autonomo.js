@@ -3,7 +3,7 @@ import { Agendador } from "./agendador.js";
 
 const $ = (id) => document.getElementById(id);
 
-export function ligarAutonomo({ autonomo, avaliador, avisar, agendador = new Agendador({ tarefa: () => ciclo() }) }) {
+export function ligarAutonomo({ autonomo, avaliador, avisar, agentes = null, agendador = new Agendador({ tarefa: () => ciclo(), aoBater: (estado) => agentes?.marcar("aprender", estado) }) }) {
   async function ciclo() {
     if (!(await autonomo.ligado())) return;
     const feito = await autonomo.ciclo();
