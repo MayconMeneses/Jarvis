@@ -7,7 +7,8 @@
     card.setAttribute("aria-label", "Resultado da verificação da melhoria");
     const label = document.createElement("p");
     label.className = "label";
-    label.textContent = v.aprovado ? "Melhoria verificada" : "Verificação reprovada";
+    label.textContent = v.aprovado ? "Melhoria verificada"
+      : (v.gate === "BLOCKED" ? "Verificação incompleta (não conta como aprovada)" : "Verificação reprovada");
     const tests = document.createElement("p");
     tests.textContent = "Testes: " + v.testes;
     card.append(label, tests);

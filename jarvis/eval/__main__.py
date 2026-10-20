@@ -13,7 +13,8 @@ import sys
 import time
 
 from jarvis import config, memory_db
-from jarvis.eval import bench
+from jarvis.eval import adversarial as adv
+from jarvis.eval import bench, repeat
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -21,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="jarvis.eval")
     parser.add_argument("--ias", default="", help="cérebros a avaliar: claude,gemini,nvidia,local")
     parser.add_argument("--juiz", default="", help="cérebro que faz a avaliação por rubrica")
+    parser.add_argument("--tentativas", type=int, default=1,
+                        help="com --ias: repete cada pergunta N vezes e mede pass@1 e pass^N (recomendado: 3)")
     parser.add_argument("--sem-semantica", action="store_true")
     parser.add_argument("--json", default="", help="grava um resumo numérico (para a verificação automática)")
     args = parser.parse_args(argv)
@@ -40,7 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     print("3/ Resumos…")
     summaries = bench.bench_summaries(encoder)
 
-    answers = None
+    print("5/ Cenários adversariais…")
+    adversarial = adv.bench_injection()
+    answers, repeated = None, []
     if args.ias or args.juiz:
         from jarvis.brains import build_router
 
@@ -49,6 +54,11 @@ def main(argv: list[str] | None = None) -> int:
         judge = by_name.get(args.juiz)
         print(f"4/ Respostas de: {', '.join(b.name for b in chosen) or '—'}…")
         answers = bench.bench_answers(chosen, encoder, judge)
+        if args.tentativas > 1:
+            cases = bench.load("respostas.json")
+            repeated = ["", f"**Repetição ({args.tentativas} tentativas independentes por pergunta; aprovado = qualidade ≥ {repeat.PASS_SCORE:.0f}/10):**"]
+            for brain in chosen:
+                repeated += repeat.report_lines(brain.name, repeat.run(brain, cases, args.tentativas, bench.SYSTEM, encoder))
         for brain in by_name.values():
             if hasattr(brain, "stop"):
                 brain.stop()
@@ -57,11 +67,12 @@ def main(argv: list[str] | None = None) -> int:
         import json
         from pathlib import Path
 
-        Path(args.json).write_text(json.dumps(bench.numeric_summary(commands, summaries)), encoding="utf-8")
+        Path(args.json).write_text(json.dumps(bench.numeric_summary(commands, summaries, adversarial)), encoding="utf-8")
         print(f"Resumo numérico em {args.json}")
         return 0
 
-    report = bench.report_markdown(commands, summaries, answers, encoder is not None)
+    report = bench.report_markdown(commands, summaries, answers, encoder is not None,
+                                    repeated + adv.report_lines(adversarial))
     print("\n" + report)
     ref = memory_db.open_memory(cfg).put(f"Avaliações/{time.strftime('%Y-%m-%d %H%M')} Avaliação", report, "relatorio")
     print(f"\nRelatório salvo na memória da Jarvis: {ref}")

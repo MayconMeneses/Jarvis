@@ -120,6 +120,9 @@ def test_dashboard_command_builds_and_opens(engine, tmp_path, monkeypatch):
     doc = tmp_path / "Vendas 2026.csv"
     doc.write_text("mes;total\njan;10\n", encoding="utf-8")
     opened = []
+    panel = tmp_path / "painel.html"  # o painel real é um build fora do Git: o teste não depende dele
+    panel.write_text('<html><body><script type="module">window.__abrirArquivo = () => {};</script></body></html>', encoding="utf-8")
+    monkeypatch.setattr(dashboard, "PANEL", panel)
     monkeypatch.setattr(dashboard, "data_dir", lambda: tmp_path)
     monkeypatch.setattr(dashboard, "open_in_browser", opened.append)
     answer = say(engine, f'Crie um dashboard de "{doc}"')
