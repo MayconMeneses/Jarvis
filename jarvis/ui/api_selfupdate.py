@@ -25,7 +25,8 @@ class SelfUpdateMixin:
             selfimprove.mark_done(idea.group(1).strip(), self._memory)
         self._diary(f"Verificação da melhoria: {'aprovada' if checks['aprovado'] else 'reprovada'}. {checks['testes']}")
         payload = {"id": run.id, "aprovado": checks["aprovado"], "testes": checks["testes"],
-                   "pioras": checks["pioras"], "benchmark": checks.get("benchmark")}
+                   "pioras": checks["pioras"], "benchmark": checks.get("benchmark"),
+                   "gate": checks.get("gate"), "limitacoes": checks.get("limitacoes", [])}
         self._push({"verify": payload})
         if self._voice is not None:
             self._voice.speak("A melhoria passou nos testes. Posso reiniciar para aplicar." if checks["aprovado"]

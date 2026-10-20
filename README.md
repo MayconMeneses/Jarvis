@@ -301,6 +301,8 @@ O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respost
 - **Caderno de melhorias** na nota `Melhorias` da memória: um checklist que você também edita na janela **Memória**. Ideias entram sozinhas quando um pedido não é entendido, quando uma resposta tira nota baixa ou quando nenhum cérebro responde. Também dá para dizer "anota uma melhoria: ...".
 - **"Jarvis, melhore-se"**: o Claude Code altera o código da própria Jarvis para implementar **uma** melhoria, só depois que você aprova o cartão. Vale para a cópia de desenvolvimento; a versão instalada não altera o próprio código.
 - Depois de **Manter**, a Jarvis roda sozinha os **testes e o benchmark** e compara com a última versão aprovada. Se algo piorar, oferece **Desfazer mudanças**; se estiver tudo certo, oferece **Reiniciar agora**.
+- A verificação roda numa **cópia limpa** do código (só o que o Git conhece), grava um **registro JSON** por execução em `%LOCALAPPDATA%\SuperJarvis\verificacoes\` e termina em `PASS`, `FAIL` ou `BLOCKED`: só `PASS` aprova; benchmark que não rodou ou testes que estouraram o tempo ficam `BLOCKED`, nunca aprovados. Ataques críticos de injeção (`python -m jarvis.eval`, seção 5) reprovam mesmo com a média boa.
+- Para IA: `python -m jarvis.eval --ias claude,gemini --tentativas 3` mede `pass@1` e a consistência nas 3 tentativas.
 - Em todos os casos a melhoria passa pela revisão do diff, e a Jarvis nunca faz commit sozinha.
 
 ## Onde ficam as coisas
