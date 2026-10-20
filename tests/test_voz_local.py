@@ -32,6 +32,17 @@ def test_baixa_confere_sha_e_reaproveita(tmp_path, monkeypatch):
     assert local.voz_instalada(tmp_path)
 
 
+def test_voz_embutida_no_instalador_e_copiada_sem_baixar(tmp_path, monkeypatch):
+    conteudos = {"a.onnx": b"modelo", "a.onnx.json": b"{}"}
+    _trocar_hashes(monkeypatch, conteudos)
+    embutida = tmp_path / "app"
+    embutida.mkdir()
+    for nome, c in conteudos.items():
+        (embutida / nome).write_bytes(c)
+    local.baixar_voz(pasta=tmp_path / "dados", baixar=lambda *a: pytest.fail("não deveria baixar"), embutida=embutida)
+    assert local.voz_instalada(tmp_path / "dados")
+
+
 def test_download_corrompido_e_recusado_e_apagado(tmp_path, monkeypatch):
     _trocar_hashes(monkeypatch, {"a.onnx": b"certo"})
     with pytest.raises(RuntimeError, match="SHA-256"):

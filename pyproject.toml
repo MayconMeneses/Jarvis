@@ -1,6 +1,6 @@
 [project]
 name = "super-jarvis"
-version = "0.20.0"
+version = "0.21.0"
 description = "Assistente pessoal para Windows com o Claude como cérebro principal"
 requires-python = ">=3.11,<3.13"
 dependencies = [
