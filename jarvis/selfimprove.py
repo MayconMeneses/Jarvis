@@ -18,9 +18,11 @@ import subprocess
 import sys
 import time
 import unicodedata
+from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
 
+from jarvis import verification
 from jarvis.config import data_dir
 
 PROJECT_NAME = "Super Jarvis"
@@ -134,21 +136,39 @@ def _python(root: Path) -> str:
     return str(candidate if candidate.exists() else sys.executable)
 
 
+def _run(runner, command: list[str], cwd: Path, log: list[dict]):
+    """Roda um comando da verificação e registra o que foi pedido (sem a saída, que pode ter dados)."""
+    started = time.time()
+    label = " ".join([Path(command[0]).name, *command[1:]])
+    try:
+        done = runner(command, cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                      timeout=900, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (OSError, subprocess.SubprocessError) as exc:  # tempo esgotado, programa ausente: não deu para medir
+        log.append({"comando": label,
+                    "codigo_saida": None, "erro": type(exc).__name__, "duracao_s": round(time.time() - started, 1)})
+        return None
+    log.append({"comando": label,
+                "codigo_saida": done.returncode, "duracao_s": round(time.time() - started, 1)})
+    return done
+
+
 def run_checks(root: Path, runner=subprocess.run) -> dict:
     """Testes (pytest) e benchmark offline num processo novo, com o código já alterado."""
-    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-    python = _python(root)
-    tests = runner([python, "-m", "pytest", "-q", "--no-header", "-p", "no:cacheprovider"], cwd=root,
-                   capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900, creationflags=flags)
-    summary = (tests.stdout or tests.stderr).strip().splitlines()[-1:] or ["sem saída"]
-    result = {"testes_ok": tests.returncode == 0, "testes": summary[0][:300]}
+    python, log = _python(root), []
+    tests = _run(runner, [python, "-m", "pytest", "-q", "--no-header", "-p", "no:cacheprovider"], root, log)
+    if tests is None:
+        result = {"testes_rodaram": False, "testes_ok": False, "testes": "os testes não puderam rodar (tempo esgotado ou erro)"}
+    else:
+        summary = (tests.stdout or tests.stderr).strip().splitlines()[-1:] or ["sem saída"]
+        result = {"testes_rodaram": True, "testes_ok": tests.returncode == 0, "testes": summary[0][:300]}
     out = data_dir() / "verificacao_bench.json"
-    bench = runner([python, "-m", "jarvis.eval", "--sem-semantica", "--json", str(out)], cwd=root,
-                   capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900, creationflags=flags)
+    out.unlink(missing_ok=True)  # nunca aproveitar o resultado de uma verificação anterior
+    bench = _run(runner, [python, "-m", "jarvis.eval", "--sem-semantica", "--json", str(out)], root, log)
     try:
-        result["benchmark"] = json.loads(out.read_text(encoding="utf-8")) if bench.returncode == 0 else None
+        result["benchmark"] = json.loads(out.read_text(encoding="utf-8")) if bench is not None and bench.returncode == 0 else None
     except (OSError, ValueError):
         result["benchmark"] = None
+    result["comandos"] = log
     return result
 
 
@@ -168,15 +188,31 @@ def compare(current: dict | None, base: dict | None, tolerance: float = 0.02) ->
     return worse
 
 
-def verify(root: Path, runner=subprocess.run) -> dict:
-    checks = run_checks(root, runner)
+def verify(root: Path, runner=subprocess.run, isolate: bool = True) -> dict:
+    """Roda a verificação (em cópia limpa do código, se houver Git), compara e grava o registro."""
+    started = time.time()
+    with verification.clean_copy(root) if isolate else _in_place(root) as (where, isolated):
+        checks = run_checks(where, runner)
     try:
         base = json.loads(baseline_path().read_text(encoding="utf-8"))
     except (OSError, ValueError):
         base = None
+    limitations = [] if isolated else ["ambiente não isolado: a verificação rodou na própria pasta do projeto"]
+    if base is None:
+        limitations.append("sem verificação anterior aprovada para comparar o benchmark")
     checks["pioras"] = compare(checks.get("benchmark"), base)
-    checks["aprovado"] = checks["testes_ok"] and not checks["pioras"]
-    if checks["aprovado"] and checks.get("benchmark"):
+    checks["adversarial_falhas"] = list((checks.get("benchmark") or {}).get("adversarial_falhas", []))
+    checks["limitacoes"] = limitations
+    checks["gate"] = verification.gate_of(checks)
+    checks["aprovado"] = checks["gate"] == verification.PASS
+    if checks["aprovado"]:
         baseline_path().write_text(json.dumps(checks["benchmark"]), encoding="utf-8")  # nova referência
+    registro = verification.write_record(root, checks, checks["comandos"], isolated, started)
+    checks["registro"] = str(registro) if registro else None
     checks["quando"] = time.time()
     return checks
+
+
+@contextmanager
+def _in_place(root: Path):
+    yield root, False

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from jarvis import selfimprove
+from jarvis import selfimprove, verification
 from jarvis.config import Config
 from jarvis.dev import runs
 from jarvis.memory_db import MemoryDB
@@ -72,7 +72,16 @@ def test_installed_version_never_edits_itself(monkeypatch):
         selfimprove.ensure_registered(Config())
 
 
-def test_dev_copy_is_registered_as_a_project():
+@pytest.fixture
+def fake_repo(tmp_path, monkeypatch):
+    """Uma 'cópia de desenvolvimento' de mentira: não depende de haver .git na pasta onde os testes rodam."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True, capture_output=True)
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    monkeypatch.setattr(selfimprove, "__file__", str(tmp_path / "jarvis" / "selfimprove.py"))
+    return tmp_path
+
+
+def test_dev_copy_is_registered_as_a_project(fake_repo):
     root = selfimprove.own_repo()
     assert root is not None and (root / ".git").exists()
     cfg = Config()
@@ -103,6 +112,7 @@ def fake_runner(tests_ok=True, bench=None, tmp=None):
 @pytest.fixture
 def data(tmp_path, monkeypatch):
     monkeypatch.setattr(selfimprove, "data_dir", lambda: tmp_path)
+    monkeypatch.setattr(verification, "data_dir", lambda: tmp_path)
     return tmp_path
 
 
@@ -237,7 +247,7 @@ def test_failed_verification_keeps_the_idea_open(api, monkeypatch):
     assert len(selfimprove.list_ideas(api._memory)) == 1
 
 
-def test_mcp_tools_for_improvement(tmp_path, monkeypatch):
+def test_mcp_tools_for_improvement(tmp_path, monkeypatch, fake_repo):
     from jarvis.mcp_tools import improve_tools
     from jarvis.pc import actions
 
