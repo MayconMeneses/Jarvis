@@ -1,6 +1,8 @@
 // Jarvis do celular: junta memória, conhecimento, motor de regras e (se ligado) o cérebro de IA do aparelho.
 import { avisos } from "./proativo.js";
 import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando } from "./chat.js";
+import { Autonomo } from "./autonomo.js";
+import { Avaliador } from "./avaliar.js";
 import { Cerebro } from "./cerebro.js";
 import { Nuvem } from "./nuvem.js";
 import { ligarNuvem } from "./painel-nuvem.js";
@@ -8,10 +10,12 @@ import { Conversa } from "./conversa.js";
 import * as contexto from "./contexto.js";
 import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
 import { Motor } from "./motor.js";
+import { ligarAutonomo } from "./painel-autonomo.js";
 import { ligarCerebro } from "./painel-cerebro.js";
 import { ligarMemoria } from "./painel-memoria.js";
 import { ligarOficina } from "./painel-oficina.js";
 import { ligarCriarComIA } from "./painel-oficina-ia.js";
+import { executar as rodarNoSandbox } from "./sandbox.js";
 import { Saber } from "./saber.js";
 
 const $ = (id) => document.getElementById(id);
@@ -141,6 +145,16 @@ async function main() {
     adicionar("Conversa nova. A memória (notas e lembranças) continua guardada.", "jarvis aviso");
   });
 
+  // Aprender sozinha e avaliar o cérebro (a avaliação roda o código da IA só no ambiente isolado da Oficina).
+  const autonomo = new Autonomo({ memoria, saber, buscar: (url, opcoes) => fetch(url, opcoes), brave: () => nuvem.brave() });
+  const avaliador = new Avaliador({
+    memoria, conversa: conversaOficina, rodar: rodarNoSandbox,
+    disponivel: async () => cerebro.ligado() || (await nuvem.configurada()),
+    rotulo: () => (cerebro.ligado() ? cerebro.modelo : "nuvem"),
+  });
+  Object.assign(motor, { autonomo, avaliador });
+  const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, avisar: (t) => adicionar(t, "aviso") });
+  aoAbrirAutonomo();
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
   const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
   const aoAbrirNuvem = ligarNuvem(nuvem, memoria, (t) => adicionar(t, "aviso"));

@@ -81,6 +81,13 @@
       <progress id="progresso" max="1" value="0" hidden></progress>
       <p id="cerebro-status" role="status"></p>
       <p class="nota">O download é feito uma vez (use Wi-Fi) e fica guardado no aparelho. Exige Safari com WebGPU (iOS 26 ou mais novo) e deixa o celular mais quente e a bateria mais curta enquanto responde.</p>
+      <h2>Aprender sozinha e avaliar o cérebro</h2>
+      <label class="voz"><input type="checkbox" id="auto-ligado"> Aprender sozinha (desligado por padrão)</label>
+      <p class="nota">Quando ligado, com o app <b>aberto e parado por 10 minutos</b>, a Jarvis estuda até 3 assuntos por dia: os que você mais perguntou e ela não conhece. Pesquisa no Brave (se cadastrado) ou na Wikipédia e guarda o resumo na aba Memória, como "Aprendizado/...". Com o app fechado o iPhone não deixa nada rodar: ela não estuda sozinha em segundo plano. O que vem da internet não é verificado.</p>
+      <ul id="auto-lista" class="nota"></ul>
+      <div class="linha"><button type="button" id="avaliar-agora">Avaliar agora</button></div>
+      <p id="avaliacao-status" role="status"></p>
+      <p class="nota">A avaliação pede 5 tarefas pequenas de JavaScript ao cérebro (do aparelho ou da nuvem), roda os testes no ambiente isolado da Oficina e guarda a nota de 0 a 100. Se o cérebro estiver ligado e "Aprender sozinha" também, ela se repete uma vez por semana, com o app aberto e parado.</p>
       <h2>Nuvem: suas chaves de API</h2>
       <p>Opcional. Se você tem chave do Gemini, OpenAI, Groq ou OpenRouter, cadastre aqui para a Jarvis usar um modelo bem mais capaz quando o motor de regras não entender. A chave fica só neste aparelho. A NVIDIA bloqueia o navegador: só funciona por um proxy seu.</p>
       <label for="nv-provedor">Provedor</label>
