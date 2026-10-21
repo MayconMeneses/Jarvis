@@ -1,0 +1,13 @@
+[
+  {"nome": "G1", "feed": "https://g1.globo.com/rss/g1/", "tipo": "imprensa", "idioma": "pt", "curada": 7, "nichos": ["geral"]},
+  {"nome": "BBC Brasil", "feed": "https://feeds.bbci.co.uk/portuguese/rss.xml", "tipo": "imprensa", "idioma": "pt", "curada": 8, "nichos": ["geral"]},
+  {"nome": "Agência Brasil", "feed": "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", "tipo": "oficial", "idioma": "pt", "curada": 7, "nichos": ["geral"]},
+  {"nome": "Tecnoblog", "feed": "https://tecnoblog.net/feed/", "tipo": "imprensa", "idioma": "pt", "curada": 7, "nichos": ["tecnologia"]},
+  {"nome": "Canaltech", "feed": "https://canaltech.com.br/rss/", "tipo": "imprensa", "idioma": "pt", "curada": 6, "nichos": ["tecnologia"]},
+  {"nome": "Olhar Digital", "feed": "https://olhardigital.com.br/feed/", "tipo": "imprensa", "idioma": "pt", "curada": 6, "nichos": ["tecnologia"]},
+  {"nome": "Ars Technica", "feed": "https://feeds.arstechnica.com/arstechnica/index", "tipo": "imprensa", "idioma": "en", "curada": 8, "nichos": ["tecnologia", "ciencia"]},
+  {"nome": "The Verge", "feed": "https://www.theverge.com/rss/index.xml", "tipo": "imprensa", "idioma": "en", "curada": 7, "nichos": ["tecnologia"]},
+  {"nome": "TechCrunch", "feed": "https://techcrunch.com/feed/", "tipo": "imprensa", "idioma": "en", "curada": 7, "nichos": ["tecnologia", "negocios"]},
+  {"nome": "Hacker News", "feed": "https://news.ycombinator.com/rss", "tipo": "comunidade", "idioma": "en", "curada": 7, "nichos": ["tecnologia", "programacao"]},
+  {"nome": "arXiv cs.AI", "feed": "https://rss.arxiv.org/rss/cs.AI", "tipo": "cientifico", "idioma": "en", "curada": 8, "nichos": ["ia", "ciencia"]}
+]
