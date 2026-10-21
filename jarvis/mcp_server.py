@@ -23,6 +23,7 @@ from jarvis.mcp_tools import (  # noqa: F401  (importar registra as ferramentas)
     notes_tools,
     pc_tools,
     project_tools,
+    radar_tools,
     stack_tools,
     uso_tools,
 )

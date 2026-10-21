@@ -33,6 +33,7 @@
       <button type="button" id="open-agenda" title="Conectar a agenda (iCal) e uma conta de e-mail (IMAP)">▦ Agenda e e-mail</button>
       <button type="button" id="open-uso"title="Quanto de IA você usou: tokens, custo, cota do Claude e orçamento">▤ Uso de IA</button>
       <button type="button" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória</button>
+      <button type="button" id="open-radar" title="Boletim diário de notícias do seu nicho, com áudio">📰 Radar</button>
       <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
     </span>
   </div>
@@ -102,6 +103,38 @@
       <span class="spacer"></span>
       <button type="button" id="mem-export" title="Grava uma cópia em Markdown (por exemplo, para o Obsidian)">Exportar…</button>
       <button type="button" id="close-memory">Fechar</button>
+    </div>
+  </dialog>
+
+  <dialog id="radar" aria-labelledby="radar-title">
+    <h2 id="radar-title">Radar de Notícias</h2>
+    <label for="radar-nicho">Nicho (sem ele o Radar não existe)</label>
+    <input id="radar-nicho" type="text" placeholder="ex.: inteligência artificial na saúde" autocomplete="off">
+    <label for="radar-hora">Horário do boletim</label>
+    <input id="radar-hora" type="time" value="07:00">
+    <div class="radar-switches">
+      <label><input type="checkbox" id="radar-ativo"> Gerar todo dia sozinha (enquanto a Jarvis estiver aberta)</label>
+      <label><input type="checkbox" id="radar-uteis"> Só em dias úteis</label>
+      <label><input type="checkbox" id="radar-audio"> Gerar o áudio do boletim (nunca toca sozinho)</label>
+      <label><input type="checkbox" id="radar-ia"> Usar IA para melhorar o texto (sem IA, o resumo é extrativo)</label>
+    </div>
+    <ul id="radar-fontes" aria-label="Fontes do Radar"></ul>
+    <label for="radar-url" class="sr-only">Endereço de um site para virar fonte</label>
+    <input id="radar-url" type="url" placeholder="https://… (acho o feed, confiro e dou nota)" autocomplete="off">
+    <p class="feedback" id="radar-info" role="status"></p>
+    <div class="mem-actions">
+      <button type="button" id="radar-add">Adicionar fonte</button>
+      <button type="button" id="radar-salvar">Salvar</button>
+      <span class="spacer"></span>
+      <button type="button" id="radar-gerar">Gerar agora</button>
+      <button type="button" id="radar-texto" title="Sem áudio">Só texto</button>
+    </div>
+    <div class="mem-actions">
+      <button type="button" id="radar-ouvir">Ouvir</button>
+      <button type="button" id="radar-parar">Parar</button>
+      <button type="button" id="radar-abrir">Abrir boletim</button>
+      <span class="spacer"></span>
+      <button type="button" id="close-radar">Fechar</button>
     </div>
   </dialog>
 

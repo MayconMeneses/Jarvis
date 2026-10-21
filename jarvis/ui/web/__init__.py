@@ -9,8 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 BASE = Path(__file__).parent
-CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'face', 'design']
-JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe', 'results', 'inputs', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'face-paineis', 'face', 'main']
+CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'face', 'radar', 'design']
+JS = ['core', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe', 'results', 'inputs', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'face-paineis', 'face', 'radar', 'main']
 
 
 def _join(folder: str, ext: str, names: list[str]) -> str:

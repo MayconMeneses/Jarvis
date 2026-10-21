@@ -1,0 +1,13 @@
+  /* Radar de Notícias */
+  #radar { width: min(480px, calc(100vw - 24px)); }
+  #radar input[type="text"], #radar input[type="time"], #radar input[type="url"] {
+    width: 100%; padding: 8px 10px; margin-bottom: 8px; font: 13px var(--mono); color: var(--text);
+    background: rgba(63, 208, 255, .05); border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  #radar input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .radar-switches { display: grid; gap: 4px; margin: 4px 0 10px; font-size: 13px; }
+  .radar-switches input { accent-color: var(--cyan); }
+  #radar-fontes { list-style: none; margin: 0 0 10px; padding: 0; max-height: 150px; overflow: auto; border: 1px solid var(--line); }
+  #radar-fontes:empty::after { content: "Sem fontes: defina o nicho para sugerir algumas."; display: block; padding: 10px; color: var(--muted); font-size: 13px; }
+  #radar-fontes li { padding: 5px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  #radar-fontes small { color: var(--muted); font: 11.5px var(--mono); }

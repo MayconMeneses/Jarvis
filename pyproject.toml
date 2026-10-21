@@ -1,6 +1,6 @@
 [project]
 name = "super-jarvis"
-version = "0.23.0"
+version = "0.24.0"
 description = "Assistente pessoal para Windows com o Claude como cérebro principal"
 requires-python = ">=3.11,<3.13"
 dependencies = [
@@ -45,6 +45,7 @@ include = ["jarvis*"]
 "jarvis.ui.web" = ["*.html", "css/*.css", "js/*.js"]
 "jarvis.dashboard" = ["*.html"]
 "jarvis.eval" = ["data/*.json"]
+"jarvis.radar" = ["dados/*.json"]
 "jarvis.dev.conhecimento" = ["dados/*.json"]
 "jarvis.dev.habilidades" = ["dados/*.json"]
 "jarvis.dev.logica" = ["*.json", "algoritmos/*.md"]
