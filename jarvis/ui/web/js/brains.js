@@ -8,7 +8,8 @@
   }
 
   async function refreshBrains() {
-    const s = await window.pywebview.api.brains_status();
+    let s;
+    try { s = await window.pywebview.api.brains_status(); } catch (e) { return false; }
     setStatus("st-claude", s.claude, "● conectado", "● não encontrado");
     setStatus("st-gemini", s.gemini, "● chave ok", "● sem chave");
     setStatus("st-nvidia", s.nvidia, "● chave ok", "● sem chave");
@@ -19,6 +20,7 @@
     document.getElementById("llm-local").checked = !!s.llm_local;
     document.getElementById("voz-online").checked = !!s.voz_online;
     setStatus("st-llm", s.llm_pronto, "● instalado", "● não instalado");
+    return true;
   }
 
   document.getElementById("autonomo-on").addEventListener("change", async (ev) => {
@@ -51,8 +53,8 @@
   });
 
   document.getElementById("open-brains").addEventListener("click", async () => {
-    await refreshBrains();
     brainsDialog.showModal();
+    if (!(await refreshBrains())) { const fb = document.getElementById("fb-tema"); fb.textContent = "Não consegui ler o estado dos cérebros agora. Feche e abra de novo."; fb.className = "feedback on-no"; }
   });
   document.getElementById("close-brains").addEventListener("click", () => brainsDialog.close());
 

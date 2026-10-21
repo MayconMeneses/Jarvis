@@ -61,7 +61,7 @@ class LocalEngine:
     PATTERNS = [
         *agenda_skills.PADROES,  # agenda, e-mails, notícias de X e bom dia (jarvis/local/agenda_skills.py)
         *instagram_skills.PADROES,  # analista de Instagram (instagram_skills.py): antes de tudo, comandos bem específicos
-        ("uso_ia", r"\b(quanto (eu )?(gastei|gasto|usei)|cota d[oa] claude|uso d[aeo] (ia|claude|tokens)|gasto com (ia|claude)|tokens (gastos|usados))\b"),
+        ("uso_ia", r"\b(quanto (eu )?(gastei|gasto|usei)(?! (no|na|nos|nas|com|em|de|do|da|dos|das|pra|para) (?!ia\b|claude|tokens?|gemini|nvidia|hoje|semana|mes|ultim|total|tudo|sempre|esse|este|essa|esta|nesse|neste|\d))|cota d[oa] claude|uso d[aeo] (ia|claude|tokens)|gasto com (ia|claude)|tokens (gastos|usados))\b"),
         ("sessoes", r"\bsess(ao|oes)\b.*\b(claude|code|esperando|aguardando|parada)\b|\bclaude code\b.*\b(esperando|aguardando)\b"),
         ("dashboard", r"^(cri[ae]|faca|fazer|faz|ger[ae]|gerar|mont[ae]|montar)\s+(um\s+|o\s+)?dashboard(\s+(de|do|da|dos|das|com|para|pra)(\s+.+)?)?$"),
         ("anotar_projeto", r"^anot\w*\s+(no|na|ao|em)\s+(projeto\s+)?.+?\s+que\s+.+$"),

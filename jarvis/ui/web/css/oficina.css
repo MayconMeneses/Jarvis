@@ -8,9 +8,9 @@
   #of-arquivos button { display: block; width: 100%; text-align: left; text-transform: none; letter-spacing: 0; border: 0; border-bottom: 1px solid var(--line); padding: 5px 8px; font: 12.5px var(--mono); color: var(--text); }
   #of-arquivos button[aria-current="true"] { background: var(--cyan-soft); box-shadow: inset 2px 0 var(--cyan); }
   #of-editor { width: 100%; min-height: 300px; resize: vertical; padding: 9px 10px; tab-size: 4; white-space: pre; overflow: auto;
-    font: 13px/1.5 var(--mono); color: var(--text); background: rgba(0, 0, 0, .45); border: 1px solid var(--line-strong); border-radius: 2px; }
+    font: 13px/1.5 var(--mono); color: var(--text); background: var(--sunken); border: 1px solid var(--line-strong); border-radius: 2px; }
   #of-saida { margin: 8px 0 0; min-height: 90px; max-height: 220px; overflow: auto; padding: 9px 10px; white-space: pre-wrap; font: 12.5px/1.45 var(--mono);
-    color: var(--text); background: rgba(0, 0, 0, .55); border: 1px solid var(--line); border-radius: 2px; }
-  #of-saida.ok { border-color: #4be3a0; } #of-saida.falhou { border-color: var(--danger); }
+    color: var(--text); background: var(--sunken); border: 1px solid var(--line); border-radius: 2px; }
+  #of-saida.ok { border-color: var(--ok); } #of-saida.falhou { border-color: var(--danger); }
   #of-aviso { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
   @media (max-width: 640px) { .of-corpo { grid-template-columns: 1fr; } }

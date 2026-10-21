@@ -1,27 +1,21 @@
-  /* ── HUD superior ─────────────────────────────────────────── */
-  .hud { display: grid; grid-template-columns: 148px 1fr; gap: 14px; align-items: center; padding: 14px 16px 10px; }
-  .reactor { width: 148px; height: 148px; display: block; }
-  .fx { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; font: 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
-  .fx select { font: 11px var(--mono); color: var(--muted); background: var(--panel-solid); border: 1px solid var(--line); padding: 2px 4px; }
+  /* ── barra do topo, medidores e rótulos HUD ─────────────────────────────────── */
+  .topo { flex: none; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+  .fx { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0 2px; padding: 6px 10px; font: 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .fx select { font: 11px var(--mono); color: var(--text); background: var(--panel-solid); border: 1px solid var(--line-strong); padding: 3px 6px; min-height: 30px; }
 
-  .readout { min-width: 0; }
-  .brand { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-  h1 { margin: 0; font: 600 17px var(--mono); letter-spacing: .32em; color: var(--text); text-shadow: 0 0 12px rgba(var(--cyan-rgb), .45); }
-  #clock { font: 12px var(--mono); color: var(--muted); }
+  h1 { margin: 0; font: 600 16px var(--mono); letter-spacing: .36em; color: var(--text); text-shadow: 0 0 12px rgba(var(--cyan-rgb), .45); }
+  #clock { flex: none; font: 12px var(--mono); color: var(--muted); }
   #voice-status {
-    display: block; margin: 2px 0 10px; font: 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    flex: 1; min-width: 0; text-align: right; font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase;
     color: var(--state); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .4s;
   }
   #voice-status:empty::before { content: "Sistemas online"; }
-  .gauge { display: grid; grid-template-columns: 44px 1fr 34px; align-items: center; gap: 8px; margin: 5px 0; font: 11px var(--mono); color: var(--muted); letter-spacing: .08em; }
+  .gauge { display: grid; grid-template-columns: 38px 1fr 34px; align-items: center; gap: 8px; margin: 5px 0; font: 11px var(--mono); color: var(--muted); letter-spacing: .08em; }
   .bar { position: relative; height: 6px; background: rgba(var(--cyan-rgb), .1); border: 1px solid var(--line); }
   .bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); transition: width .8s var(--ease), background .4s; }
   .bar i.warn { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
   .bar i.crit { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
   .gauge b { font-weight: 500; color: var(--text); text-align: right; }
 
-  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 16px 8px; }
-  .toolbar .label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .toolbar > span:last-child { display: flex; flex: none; gap: 6px; }
-  .toolbar button { padding: 5px 9px; font-size: 11px; white-space: nowrap; }
-  .label { font: 10.5px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+  .label, .rot { font: 10.5px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+  .rot { margin: 0 0 8px; font-weight: 500; }

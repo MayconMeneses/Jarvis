@@ -32,7 +32,7 @@
   }
 
   async function usoCarregarPrecos() {
-    usoPrecos = await window.pywebview.api.uso_precos();
+    try { usoPrecos = await window.pywebview.api.uso_precos(); } catch (e) { usoDizer("Não consegui ler a tabela de preços agora.", false); return; }
     usoEl("uso-precos").tBodies[0].replaceChildren(...Object.entries(usoPrecos.modelos).map(([m, p]) => usoLinhaPreco(m, p)));
   }
 
@@ -46,15 +46,18 @@
       const [m, i, o] = [...tr.querySelectorAll("input")].map((x) => x.value);
       if (m.trim()) modelos[m.trim()] = { in: i, out: o };
     }
-    await window.pywebview.api.uso_salvar_config(cfg);
-    await window.pywebview.api.uso_salvar_precos({ ...usoPrecos, modelos });
+    try {
+      await window.pywebview.api.uso_salvar_config(cfg);
+      await window.pywebview.api.uso_salvar_precos({ ...usoPrecos, modelos });
+    } catch (e) { usoDizer("Não consegui salvar agora. Confira os números e tente de novo.", false); return; }
     usoDizer("Configuração e preços salvos.", true);
     await usoCarregar();
     await usoCarregarPrecos();
   });
 
   async function usoCalibrar(pct) {
-    const res = await window.pywebview.api.uso_calibrar(usoEl("uso-cal-janela").value, pct);
+    let res;
+    try { res = await window.pywebview.api.uso_calibrar(usoEl("uso-cal-janela").value, pct); } catch (e) { usoDizer("Não consegui calibrar agora. Tente de novo.", false); return; }
     usoDizer(res.error || "Teto ajustado para " + usoNum(res.teto) + ".", !res.error);
     if (!res.error) usoCarregar();
   }
@@ -62,7 +65,8 @@
   usoEl("uso-limite").addEventListener("click", () => usoCalibrar(100));
 
   async function usoMover(metodo, arg) {
-    const res = await window.pywebview.api[metodo](arg);
+    let res;
+    try { res = await window.pywebview.api[metodo](arg); } catch (e) { usoDizer("Não consegui concluir agora. Tente de novo.", false); return; }
     if (res.cancelado) return;
     usoDizer(res.error || res.text, !res.error);
     if (metodo === "uso_importar" && !res.error) usoCarregar();

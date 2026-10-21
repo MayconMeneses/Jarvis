@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time as relogio
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, tzinfo
 
@@ -35,7 +36,11 @@ def _normalizar(valor, zona: tzinfo):
     return valor.replace(tzinfo=zona) if isinstance(valor, datetime) and valor.tzinfo is None else valor
 
 
+ORCAMENTO_S = 5.0  # a agenda vem de fora: evento com recorrência absurda não pode prender o PC
+
+
 def ocorrencias(eventos: list[Evento], ini: datetime, fim: datetime, zona: tzinfo, agenda: str = "", cor: str = "") -> list[Ocorrencia]:
+    prazo = relogio.monotonic() + ORCAMENTO_S
     trocados: dict[str, list] = {}
     for e in eventos:
         if e.recorrencia_id is not None and e.uid:
@@ -49,7 +54,13 @@ def ocorrencias(eventos: list[Evento], ini: datetime, fim: datetime, zona: tzinf
         duracao = ate - inicio if type(ate) is type(inicio) else timedelta(0)
         regra = e.regra if e.recorrencia_id is None else None
         excecoes = [_normalizar(x, zona) for x in e.excecoes] + (trocados.get(e.uid, []) if regra else [])
-        for comeco in rrule.expandir(inicio, regra, ini, fim, excecoes, duracao, zona):
+        if relogio.monotonic() > prazo:
+            break
+        try:
+            comecos = rrule.expandir(inicio, regra, ini, fim, excecoes, duracao, zona)
+        except (ValueError, OverflowError):  # recorrência fora do calendário: só esse evento é ignorado
+            continue
+        for comeco in comecos:
             a = _como_local(comeco, zona)
             b = a + duracao
             achadas.append(Ocorrencia(e.titulo, a, b, dia_inteiro, e.local, agenda, cor))

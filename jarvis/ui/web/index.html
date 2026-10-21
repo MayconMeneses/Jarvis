@@ -4,38 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jarvis</title>
+<meta name="description" content="Jarvis: assistente pessoal para Windows.">
 <!--ESTILOS-->
 </head>
 <body data-state="idle">
   <div id="aurora" aria-hidden="true"></div>
-  <header class="hud">
-    <canvas id="orbe" class="reactor" aria-hidden="true"></canvas>
-    <span id="orbe-estado" class="sr-only" role="status" aria-live="polite">Em espera</span>
-    <div class="readout">
-      <div class="brand"><h1>JARVIS</h1><span id="clock"></span></div>
-      <span id="voice-status" role="status"></span>
-      <div class="gauge"><span>CPU</span><span class="bar"><i id="g-cpu"></i></span><b id="v-cpu">--</b></div>
-      <div class="gauge"><span>RAM</span><span class="bar"><i id="g-ram"></i></span><b id="v-ram">--</b></div>
-      <div class="gauge"><span>DISCO</span><span class="bar"><i id="g-disco"></i></span><b id="v-disco">--</b></div>
-      <label class="fx">Efeitos <select id="efeitos" title="Animação do orbe: completo, suave (menos movimento) ou desligado">
-        <option value="completo">completo</option><option value="suave">suave</option><option value="desligado">desligado</option></select></label>
+  <a class="pular" href="#input">Ir para o comando</a>
+  <header class="topo">
+    <div class="tb-mais">
+      <button type="button" id="tb-mais-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="tb-mais-menu" title="Menu: ferramentas e ajustes (tecla M)"><span aria-hidden="true">☰</span> <span class="tb-mais-txt">Menu</span></button>
+      <div id="tb-mais-menu" class="tb-menu" role="menu" aria-label="Menu da Jarvis" hidden>
+        <div class="tb-grupo" role="group" aria-labelledby="tbg-ver">
+          <span class="tb-rotulo" id="tbg-ver">Ver</span>
+          <button type="button" role="menuitem" id="open-face" title="Modo foco: só o orbe, a hora e o que a Jarvis diz (tecla F)">◉ Modo foco<small>Orbe grande, com tela cheia opcional</small></button>
+          <button type="button" role="menuitem" id="open-agentes" title="Constelação dos agentes: quem está em dia, parado ou com erro">✦ Agentes<small>Quem está em dia, parado ou com erro</small></button>
+          <button type="button" role="menuitem" id="bom-dia" title="Resumo do dia: agenda, e-mails que pedem ação, clima e manchetes (a Jarvis também fala)">☀ Bom dia<small>Resumo falado do seu dia</small></button>
+          <button type="button" role="menuitem" id="open-agenda" title="Conectar a agenda (iCal) e uma conta de e-mail (IMAP)">▦ Agenda e e-mail<small>Conectar agenda e caixa de entrada</small></button>
+        </div>
+        <div class="tb-grupo" role="group" aria-labelledby="tbg-saber">
+          <span class="tb-rotulo" id="tbg-saber">Saber e fazer</span>
+          <button type="button" role="menuitem" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória<small>O que a Jarvis guardou</small></button>
+          <button type="button" role="menuitem" id="open-oficina" title="IDE: escrever, rodar, testar e criar código com IA">⌨ Oficina<small>Escrever, rodar e criar código</small></button>
+          <button type="button" role="menuitem" id="open-uso" title="Quanto de IA você usou: tokens, custo, cota do Claude e orçamento">▤ Uso de IA<small>Tokens, custo, cota e orçamento</small></button>
+        </div>
+        <div class="tb-grupo" role="group" aria-labelledby="tbg-ajustes">
+          <span class="tb-rotulo" id="tbg-ajustes">Ajustes</span>
+          <button type="button" role="menuitem" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros<small>Chaves, voz, modos e aparência</small></button>
+          <label class="fx">Efeitos <select id="efeitos" title="Animação do orbe: completo, suave (menos movimento) ou desligado">
+            <option value="completo">completo</option><option value="suave">suave</option><option value="desligado">desligado</option></select></label>
+        </div>
+        <div class="tb-grupo" role="group" aria-labelledby="tbg-conversa">
+          <span class="tb-rotulo" id="tbg-conversa">Conversa</span>
+          <button type="button" role="menuitem" id="reset" title="Apagar o histórico desta conversa">↺ Nova conversa<small>Apaga o histórico desta conversa</small></button>
+        </div>
+      </div>
     </div>
+    <h1>JARVIS</h1>
+    <span id="voice-status" role="status"></span>
+    <span id="clock"></span>
   </header>
-
-  <div class="toolbar">
-    <span class="label">Canal de comunicação</span>
-    <span>
-      <button type="button" id="open-face" title="Tela FACE: orbe grande e painéis com dados reais (tecla F)">◉ FACE</button>
-      <button type="button" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros</button>
-      <button type="button" id="open-oficina" title="IDE: escrever, rodar, testar e criar código com IA">⌨ Oficina</button>
-      <button type="button" id="bom-dia" title="Resumo do dia: agenda, e-mails que pedem ação, clima e manchetes (a Jarvis também fala)">☀ Bom dia</button>
-      <button type="button" id="open-agentes" title="Constelação dos agentes: quem está em dia, parado ou com erro">✦ Agentes</button>
-      <button type="button" id="open-agenda" title="Conectar a agenda (iCal) e uma conta de e-mail (IMAP)">▦ Agenda e e-mail</button>
-      <button type="button" id="open-uso"title="Quanto de IA você usou: tokens, custo, cota do Claude e orçamento">▤ Uso de IA</button>
-      <button type="button" id="open-memory" title="Ver, buscar e editar o que a Jarvis guardou">◈ Memória</button>
-      <button type="button" id="reset" title="Apagar o histórico desta conversa">Nova conversa</button>
-    </span>
-  </div>
 
   <dialog id="oficina" aria-labelledby="oficina-title">
     <h2 id="oficina-title">Oficina</h2>
@@ -76,11 +83,12 @@
     <h2 id="memory-title">Memória da Jarvis</h2>
     <div class="mem-abas" role="tablist" aria-label="Forma de ver a memória">
       <button type="button" role="tab" id="mem-aba-lista" aria-selected="true" aria-controls="mem-vista-lista">Lista</button>
-      <button type="button" role="tab" id="mem-aba-mapa" aria-selected="false" aria-controls="mem-mapa">Mapa</button>
+      <button type="button" role="tab" id="mem-aba-mapa" tabindex="-1" aria-selected="false" aria-controls="mem-mapa">Mapa</button>
     </div>
     <div id="mem-vista-lista">
       <label for="mem-search" class="sr-only">Buscar na memória</label>
       <input id="mem-search" type="search" placeholder="Buscar na memória…" autocomplete="off">
+      <p id="mem-vazio" class="mem-vazio" hidden></p>
       <ul id="mem-list" aria-label="Notas da memória"></ul>
     </div>
     <div id="mem-mapa" role="tabpanel" aria-labelledby="mem-aba-mapa" hidden>
@@ -105,147 +113,89 @@
     </div>
   </dialog>
 
-  <dialog id="brains" aria-labelledby="brains-title">
-    <h2 id="brains-title">Cérebros da Jarvis</h2>
+  <main id="principal" class="palco">
+    <aside class="lado esq" aria-label="Telemetria do PC">
+      <section class="painel tele" aria-label="Medidores">
+        <h2 class="rot">Telemetria</h2>
+        <div class="gauge"><span>CPU</span><span class="bar"><i id="g-cpu"></i></span><b id="v-cpu">--</b></div>
+        <div class="gauge"><span>RAM</span><span class="bar"><i id="g-ram"></i></span><b id="v-ram">--</b></div>
+        <div class="gauge"><span>DISCO</span><span class="bar"><i id="g-disco"></i></span><b id="v-disco">--</b></div>
+      </section>
+      <section class="painel extra"><h2 class="rot">Sessões Claude Code</h2><div id="fp-sessoes"></div></section>
+      <section class="painel extra"><h2 class="rot">Uso de IA hoje</h2><div id="fp-uso"></div></section>
+      <section class="painel extra"><h2 class="rot">Tarefas</h2><div id="fp-tarefas"></div></section>
+    </aside>
 
-    <section class="brain">
-      <h3><label for="tema">Aparência</label></h3>
-      <select id="tema" aria-describedby="fb-tema">
-        <option value="hud">HUD ciano (padrão)</option><option value="ambar">Âmbar</option>
-        <option value="esmeralda">Esmeralda</option><option value="contraste">Alto contraste</option></select>
-      <p class="feedback" id="fb-tema" role="status">Os efeitos (aurora e orbe) ficam no seletor "Efeitos", ao lado do orbe.</p>
-    </section>
-
-    <section class="brain">
-      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-        <input type="checkbox" id="standalone" style="margin-top:3px;accent-color:var(--cyan)">
-        <span><b>Só a inteligência da Jarvis (sem nenhuma IA)</b>
-          <small>Nada de Claude, Gemini ou NVIDIA: sem chave, sem assinatura, sem limite. Ela obedece comandos (abrir, PC, clima, notícias, vagas, memória, projetos, dashboards) e pesquisa na internet resumindo frases dos próprios sites. Muda na hora.</small></span>
-      </span></label>
-      <p class="feedback" id="fb-standalone" role="status"></p>
-    </section>
-
-    <section class="brain">
-      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-        <input type="checkbox" id="llm-local" style="margin-top:3px;accent-color:var(--cyan)">
-        <span><b>Cérebro generativo local</b> <small id="st-llm"></small>
-          <small>Um modelo de linguagem pequeno rodando no seu PC (sem API e sem nuvem): conversa livre e cria sistemas pensando. É lento e bem menos capaz que o Claude. Para instalar, diga à Jarvis: "instalar cérebro local" e aprove o cartão (download de cerca de 1,1 GB).</small></span>
-      </span></label>
-      <p class="feedback" id="fb-llm" role="status"></p>
-    </section>
-
-    <section class="brain">
-      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-        <input type="checkbox" id="voz-online" style="margin-top:3px;accent-color:var(--cyan)">
-        <span><b>Usar a voz online (Microsoft)</b>
-          <small>Desligado (padrão): a Jarvis fala com uma voz masculina própria, instalada no PC e que funciona sem internet. Ligado: usa a voz neural online da Microsoft, que depende de internet e de terceiros.</small></span>
-      </span></label>
-      <p class="feedback" id="fb-voz" role="status"></p>
-    </section>
-
-    <section class="brain">
-      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-        <input type="checkbox" id="autonomo-on" style="margin-top:3px;accent-color:var(--cyan)">
-        <span><b>Aprender sozinha</b>
-          <small>Com o PC parado, a Jarvis pesquisa na internet os assuntos sobre os quais você mais pergunta (até 3 por dia) e guarda um resumo com as fontes, marcado "não verificado". Você vê, edita ou apaga as notas na Memória. Só lê: nunca baixa nem executa nada.</small></span>
-      </span></label>
-      <p class="feedback" id="fb-autonomo" role="status"></p>
-    </section>
-
-    <section class="brain">
-      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-        <input type="checkbox" id="mobile-on" style="margin-top:3px;accent-color:var(--cyan)">
-        <span><b>Jarvis no celular</b> <small id="mobile-url"></small>
-          <small>Um app (iPhone, Android ou qualquer navegador) que conversa com a Jarvis do PC. De qualquer lugar pelo Tailscale (grátis), ou só no mesmo Wi-Fi sem ele. Você pareia com um código; as ações que mudam o PC continuam precisando da sua aprovação aqui.</small></span>
-      </span></label>
-      <p><button type="button" class="ghost" id="mobile-code">Gerar código de pareamento</button></p>
-      <ul id="mobile-devices"></ul>
-      <p class="feedback" id="fb-mobile" role="status"></p>
-    </section>
-
-    <section class="brain">
-      <h3>Claude <small id="st-claude"></small></h3>
-      <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
-    </section>
-
-    <section class="brain" data-provider="gemini">
-      <h3>Gemini <small id="st-gemini"></small></h3>
-      <p>Chave gratuita do Google AI Studio. <button type="button" class="ghost linklike" data-link="https://aistudio.google.com/apikey">Criar chave grátis</button></p>
-      <div class="key-row">
-        <label for="key-gemini" class="sr-only">Chave de API do Gemini</label>
-        <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Gemini">
-        <button type="button" class="primary" data-save="gemini">Salvar e testar</button>
+    <section class="centro" id="centro" aria-label="Orbe e informações">
+      <div class="foco-barra" id="foco-barra" hidden>
+        <b id="face-relogio">--:--:--</b><span id="face-data"></span>
+        <label><input type="checkbox" id="face-auto"> Abrir em modo foco ao iniciar</label>
+        <button type="button" id="face-cheia" title="Tela cheia do monitor (opcional)">Tela cheia</button>
+        <button type="button" id="face-fechar" title="Voltar (Esc)">Sair (Esc)</button>
       </div>
-      <fieldset class="modes" style="border:0;padding:0;margin:0">
-        <legend class="label" style="margin-bottom:4px">Quando usar</legend>
-        <label><input type="radio" name="uso" value="reserva"><span>Só como reserva<small>Quando o limite do Claude acabar ou ele falhar.</small></span></label>
-        <label><input type="radio" name="uso" value="simples"><span>Perguntas simples<small>Conversa rápida vai para o Gemini e economiza o limite do Claude.</small></span></label>
-      </fieldset>
-      <p style="margin-top:6px">Em qualquer modo: diga <b>"Gemini, ..."</b> ou <b>"pergunte ao Gemini ..."</b>.</p>
-      <p class="feedback" id="fb-gemini" role="status"></p>
-      <button type="button" class="ghost linklike" data-remove="gemini">Remover chave</button>
-    </section>
-
-    <section class="brain" data-provider="nvidia">
-      <h3>NVIDIA <small id="st-nvidia"></small></h3>
-      <p>Reserva extra (grátis, ~40 pedidos/min). <button type="button" class="ghost linklike" data-link="https://build.nvidia.com">Criar chave</button></p>
-      <div class="key-row">
-        <label for="key-nvidia" class="sr-only">Chave de API da NVIDIA</label>
-        <input id="key-nvidia" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave da NVIDIA">
-        <button type="button" class="primary" data-save="nvidia">Salvar e testar</button>
+      <p id="orbe-estado" class="estado" role="status" aria-live="polite">Em espera</p>
+      <div class="orbe-box">
+        <canvas id="orbe" class="reactor" aria-hidden="true"></canvas>
+        <div class="briefing" id="briefing" aria-labelledby="br-titulo" aria-busy="true">
+          <p class="br-rotulo">Panorama do dia</p>
+          <p class="br-titulo" id="br-titulo">Carregando…</p>
+          <p class="br-linha" id="br-linha"></p>
+          <div class="br-abas" role="tablist" aria-label="Detalhes do panorama">
+            <button type="button" role="tab" id="br-aba-agenda" data-aba="agenda" aria-selected="true" aria-controls="br-linha">Agenda</button>
+            <button type="button" role="tab" id="br-aba-emails" data-aba="emails" tabindex="-1" aria-selected="false" aria-controls="br-linha">E-mails</button>
+            <button type="button" role="tab" id="br-aba-noticias" data-aba="noticias" tabindex="-1" aria-selected="false" aria-controls="br-linha">Notícias</button>
+          </div>
+        </div>
       </div>
-      <p class="feedback" id="fb-nvidia" role="status"></p>
-      <button type="button" class="ghost linklike" data-remove="nvidia">Remover chave</button>
+      <p id="face-legenda" class="legenda"></p>
+      <section class="caixas" aria-label="Informações">
+        <article class="caixa" id="cx-clima" data-cx="clima" aria-labelledby="cx-clima-t" aria-busy="true">
+          <header><h2 id="cx-clima-t" class="rot">Clima</h2><button type="button" class="cx-atualizar" data-cx="clima" aria-label="Atualizar clima" title="Atualizar clima">↻</button></header>
+          <p class="cx-msg" role="status"></p><ul class="cx-lista"></ul>
+        </article>
+        <article class="caixa" id="cx-vagas" data-cx="vagas" aria-labelledby="cx-vagas-t" aria-busy="true">
+          <header><h2 id="cx-vagas-t" class="rot">Oportunidades de emprego</h2><button type="button" class="cx-atualizar" data-cx="vagas" aria-label="Atualizar vagas" title="Atualizar vagas">↻</button></header>
+          <p class="cx-msg" role="status"></p><ul class="cx-lista"></ul>
+        </article>
+        <article class="caixa" id="cx-noticias" data-cx="noticias" aria-labelledby="cx-noticias-t" aria-busy="true">
+          <header><h2 id="cx-noticias-t" class="rot">Últimas notícias</h2><button type="button" class="cx-atualizar" data-cx="noticias" aria-label="Atualizar notícias" title="Atualizar notícias">↻</button></header>
+          <p class="cx-msg" role="status"></p><ul class="cx-lista"></ul>
+        </article>
+      </section>
     </section>
 
-    <section class="brain" data-provider="local">
-      <h3>Modo independente <small class="on-ok">● sempre ativo</small></h3>
-      <p>Sem IA: abre programas e sites, mostra o estado do PC, clima, notícias, vagas, hora e data, e pesquisa
-        na internet resumindo com frases dos próprios sites. Responde na hora os comandos diretos e assume
-        quando nenhuma IA está disponível.</p>
-    </section>
-
-    <section class="brain" data-provider="brave">
-      <h3>Brave Search <small id="st-brave"></small></h3>
-      <p>Buscador (não é IA): deixa a pesquisa do modo independente com a web completa. Grátis, ~2.000
-        buscas/mês. Sem ela, usa Wikipedia e DuckDuckGo. <button type="button" class="ghost linklike" data-link="https://brave.com/search/api/">Criar chave</button></p>
-      <div class="key-row">
-        <label for="key-brave" class="sr-only">Chave da Brave Search API</label>
-        <input id="key-brave" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Brave">
-        <button type="button" class="primary" data-save="brave">Salvar e testar</button>
-      </div>
-      <p class="feedback" id="fb-brave" role="status"></p>
-      <button type="button" class="ghost linklike" data-remove="brave">Remover chave</button>
-    </section>
-
-    <div class="dialog-actions"><button type="button" id="close-brains">Fechar</button></div>
-  </dialog>
-
-  <main id="log" role="log" aria-live="polite" aria-label="Conversa com a Jarvis"></main>
-
-  <div id="chips" aria-label="Arquivos anexados"></div>
-  <div class="drop-overlay" aria-hidden="true">Solte para anexar</div>
-  <form id="form">
-    <button type="button" id="attach" class="icon-btn" title="Anexar arquivos (PDF, Word, Excel, código, imagens)" aria-label="Anexar arquivos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.9-8.9a3.7 3.7 0 0 1 5.2 5.2l-8.9 8.9a1.8 1.8 0 0 1-2.6-2.6l8.2-8.2"/>
-      </svg>
-    </button>
-    <label for="input" class="sr-only">Mensagem para a Jarvis</label>
-    <textarea id="input" rows="1" placeholder="Fale com a Jarvis…" autofocus aria-describedby="hint"></textarea>
-    <span id="hint" class="sr-only">Enter envia, Shift+Enter quebra a linha.</span>
-    <button type="button" id="dash" class="icon-btn" title="Criar dashboard de um documento (CSV, Excel, Word, PDF, JSON, KML...)" aria-label="Criar dashboard de um documento">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
-      </svg>
-    </button>
-    <button type="button" id="mic" class="icon-btn" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>
-      </svg>
-    </button>
-    <button type="submit" id="send" class="primary">Enviar</button>
-  </form>
+    <div class="lado dir">
+      <section class="painel extra"><h2 class="rot">E-mails não lidos</h2><div id="fp-emails"></div></section>
+      <section class="painel extra"><h2 class="rot">Agentes</h2><div id="fp-status"></div></section>
+      <section class="canal">
+        <h2 class="rot" id="canal-t">Canal ativo</h2>
+        <div id="log" role="log" aria-live="polite" aria-labelledby="canal-t"></div>
+        <div id="chips" aria-label="Arquivos anexados"></div>
+        <div class="drop-overlay" aria-hidden="true">Solte para anexar</div>
+      <form id="form">
+        <button type="button" id="attach" class="icon-btn" title="Anexar arquivos (PDF, Word, Excel, código, imagens)" aria-label="Anexar arquivos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.9-8.9a3.7 3.7 0 0 1 5.2 5.2l-8.9 8.9a1.8 1.8 0 0 1-2.6-2.6l8.2-8.2"/>
+          </svg>
+        </button>
+        <label for="input" class="sr-only">Mensagem para a Jarvis</label>
+        <textarea id="input" rows="1" placeholder="Fale com a Jarvis…" autofocus aria-describedby="hint"></textarea>
+        <span id="hint" class="sr-only">Enter envia, Shift+Enter quebra a linha.</span>
+        <button type="button" id="dash" class="icon-btn" title="Criar dashboard de um documento (CSV, Excel, Word, PDF, JSON, KML...)" aria-label="Criar dashboard de um documento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+          </svg>
+        </button>
+        <button type="button" id="mic" class="icon-btn" hidden title="Falar com a Jarvis" aria-label="Falar com a Jarvis">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>
+          </svg>
+        </button>
+        <button type="submit" id="send" class="primary">Enviar</button>
+      </form>
+      </section>
+    </div>
+  </main>
 
 <!--SCRIPTS-->
 </body>

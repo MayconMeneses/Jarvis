@@ -63,12 +63,13 @@
     }
 
     function desenharArestas() {
+      const C = window.Cores, T = C.ler();
       ctx.lineWidth = 1;
       for (const [i, j] of arestas) {
         const a = nos[i], b = nos[j], [x1, y1] = tela(a), [x2, y2] = tela(b);
         const cx = (x1 + x2) / 2 * 0.72 + largura / 2 * 0.28, cy = (y1 + y2) / 2 * 0.72 + altura / 2 * 0.28;
         const ativa = i === sobre || j === sobre || i === foco || j === foco;
-        ctx.strokeStyle = ativa ? "rgba(223,244,255,.75)" : "rgba(127,163,184,.22)";
+        ctx.strokeStyle = ativa ? C.alfa(T.text, 0.75) : C.alfa(T.muted, 0.22);
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(cx, cy, x2, y2); ctx.stroke();
       }
     }
@@ -89,19 +90,20 @@
 
     function desenharNucleo(agora, parado) {
       const pulso = parado ? 0.5 : 0.5 + 0.5 * Math.sin(agora / 600), x = largura / 2, y = altura / 2, r = 14 + 4 * pulso;
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
-      g.addColorStop(0, "rgba(191,242,255,.95)"); g.addColorStop(0.35, "rgba(63,208,255,.45)"); g.addColorStop(1, "rgba(63,208,255,0)");
+      const C = window.Cores, T = C.ler(), g = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+      g.addColorStop(0, C.alfa(T.text, 0.95)); g.addColorStop(0.35, C.alfa(T.cyan, 0.45)); g.addColorStop(1, C.alfa(T.cyan, 0));
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3, 0, 6.283); ctx.fill();
-      ctx.fillStyle = "#bff2ff"; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 6.283); ctx.fill();
+      ctx.fillStyle = T.text; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 6.283); ctx.fill();
     }
 
     function rotulo(n, x, y) {
       let texto = n.ref.length > 42 ? n.ref.slice(0, 41) + "…" : n.ref;
       ctx.font = "12px 'Segoe UI', system-ui, sans-serif";
       const w = ctx.measureText(texto).width + 10, bx = Math.min(Math.max(2, x - w / 2), largura - w - 2), by = y - n.r - 22 < 2 ? y + n.r + 6 : y - n.r - 22;
-      ctx.fillStyle = "rgba(4,7,12,.88)"; ctx.fillRect(bx, by, w, 18);
+      const T = window.Cores.ler();
+      ctx.fillStyle = window.Cores.alfa(T.bg, 0.9); ctx.fillRect(bx, by, w, 18);
       ctx.strokeStyle = areas[n.area].cor; ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, 17);
-      ctx.fillStyle = "#dff4ff"; ctx.textBaseline = "middle"; ctx.fillText(texto, bx + 5, by + 9);
+      ctx.fillStyle = T.text; ctx.textBaseline = "middle"; ctx.fillText(texto, bx + 5, by + 9);
     }
 
     function desenhar(agora) {
@@ -109,7 +111,7 @@
       ctx.clearRect(0, 0, largura, altura);
       if (!nos.length) {
         desenharNucleo(agora, true);
-        ctx.fillStyle = "#7fa3b8"; ctx.font = "13px 'Segoe UI', system-ui, sans-serif"; ctx.textAlign = "center";
+        ctx.fillStyle = window.Cores.ler().muted; ctx.font = "13px 'Segoe UI', system-ui, sans-serif"; ctx.textAlign = "center";
         ctx.fillText("Nada guardado ainda.", largura / 2, altura / 2 + 46); ctx.textAlign = "start";
         return;
       }
@@ -121,7 +123,7 @@
         const respira = parado ? 0 : Math.sin(agora / 900 + n.fase) * 0.6;
         ctx.fillStyle = cor; ctx.globalAlpha = destaque ? 1 : 0.85;
         ctx.beginPath(); ctx.arc(x, y, n.r + respira + (destaque ? 2 : 0), 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
-        if (destaque) { ctx.strokeStyle = "#dff4ff"; ctx.lineWidth = 1.5; ctx.stroke(); }
+        if (destaque) { ctx.strokeStyle = window.Cores.ler().text; ctx.lineWidth = 1.5; ctx.stroke(); }
       });
       const alvo = sobre >= 0 ? sobre : foco;
       if (alvo >= 0) rotulo(nos[alvo], ...tela(nos[alvo]));
@@ -165,6 +167,7 @@
       ev.preventDefault(); tocou(); if (reduzir.matches) desenhar(performance.now());
     });
     document.addEventListener("visibilitychange", retomar);
+    window.addEventListener("jarvis-tema", () => { if (aberto) desenhar(performance.now()); });
     window.addEventListener("resize", () => { if (aberto) { ajustar(); tocou(); desenhar(performance.now()); } });
 
     return {

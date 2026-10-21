@@ -16,7 +16,10 @@
     const el = document.createElement("div");
     el.className = "msg jarvis";
     el.setAttribute("aria-label", "A Jarvis está pensando");
-    el.innerHTML = '<span class="typing" aria-hidden="true"><i></i><i></i><i></i></span>';  // marcação fixa, sem dados
+    const pontos = document.createElement("span");
+    pontos.className = "typing"; pontos.setAttribute("aria-hidden", "true");
+    pontos.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
+    el.append(pontos);
     log.appendChild(el);
     scrollDown();
     return el;
@@ -31,6 +34,8 @@
               "Para continuar sem esperar, configure a chave grátis do Gemini ou da NVIDIA (veja o README)."];
     }
     if (/sem conexão|connection|getaddrinfo/i.test(raw)) return ["Sem conexão com a internet.", "Confira a rede e tente de novo."];
+    if (/timeout|timed out|demorou/i.test(raw)) return ["A resposta demorou demais.", "Tente de novo; se repetir, use o modo independente ou outro cérebro."];
+    if (/401|403|unauthori[sz]ed|invalid api key|chave/i.test(raw)) return ["A chave de acesso foi recusada.", "Confira ou troque a chave no menu, em Cérebros."];
     return ["Não consegui responder agora.", ""];
   }
 

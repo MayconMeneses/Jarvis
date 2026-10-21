@@ -45,6 +45,12 @@
         (d.itens || []).forEach((t) => itens.push(no("div", "fp-item", t.projeto + " · " + t.status + " · " + t.tarefa)));
         return itens;
       },
+      uso: (d) => {
+        const brl = (n) => Number(n).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+        const itens = [linha("TOKENS", brl(d.tokens)), linha("CUSTO", "US$ " + Number(d.custo).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (d.estimado ? " (est.)" : ""))];
+        if (d.pct_5h !== null && d.pct_5h !== undefined) itens.push(barra("5 H", Math.round(d.pct_5h)));
+        return itens;
+      },
       logs: (d) => (d.length ? d : []).map((x) => no("div", "fp-item", hora(x.ts) + " " + x.agente + (x.detalhe ? " · " + x.detalhe : ""))),
     };
     // Bloco ausente (null/erro) vira "—"; nunca deixa a tela quebrar.

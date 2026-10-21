@@ -31,6 +31,7 @@ ORIGEM_APP = "https://mayconmeneses.github.io"
 ROTAS_LEITURA = {"/api/agenda": "agenda", "/api/emails": "emails", "/api/briefing": "briefing", "/api/agents": "agentes"}
 CORS_CAMINHOS = frozenset({"/api/parear", "/api/estado", *ROTAS_LEITURA})  # o /api/chat NÃO é aberto ao app de fora
 MAX_RESPOSTA = 65536
+TIMEOUT_CONEXAO = 30  # segundos sem receber nada: derruba conexão parada (senão cada uma prende uma thread para sempre)
 
 
 def ip_local() -> str:
@@ -58,6 +59,7 @@ class ServidorCelular:
 
         class Tratador(BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
+            timeout = TIMEOUT_CONEXAO
 
             def log_message(self, *args):
                 pass

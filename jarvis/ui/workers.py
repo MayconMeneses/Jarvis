@@ -36,7 +36,8 @@ def build_voice(cfg: Config, api: Api, window):
     from jarvis.voice.tts import Speaker
 
     speaker = Speaker(cfg.voz.voz, cfg.voz.voz_motor, cfg.voz.voz_efeito,
-                      on_visual=lambda payload: enviar_visual(window, payload), atraso_ms=cfg.voz.atraso_visual_ms)
+                      on_visual=lambda payload: enviar_visual(window, payload), atraso_ms=cfg.voz.atraso_visual_ms,
+                      modelo_local=cfg.voz.voz_modelo, threads=cfg.voz.voz_threads)
     speaker.preparar(lambda text: push(window, {"status": text}))
     return VoiceLoop(
         respond=api.send,

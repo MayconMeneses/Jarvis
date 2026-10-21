@@ -19,6 +19,9 @@ from jarvis.uso.registro import Registro
 
 log = logging.getLogger(__name__)
 IGNORAR = {"<synthetic>", ""}
+NOVA_LINHA = bytes([10])
+BLOCO = 8 * 1024 * 1024
+MAX_LINHA = 64 * 1024 * 1024
 
 
 def raiz_padrao() -> Path:
@@ -59,6 +62,7 @@ def extrair(linha: bytes, em_subagente: bool) -> dict | None:
 
 
 def _coletar_arquivo(reg: Registro, caminho: Path) -> int:
+    """Lê só o que cresceu desde a última coleta, em blocos (um histórico de 100 MB+ não pode ir inteiro para a memória)."""
     try:
         info = caminho.stat()
     except OSError:
@@ -69,18 +73,27 @@ def _coletar_arquivo(reg: Registro, caminho: Path) -> int:
         posicao = 0  # o arquivo foi reescrito: relê (a chave evita duplicar)
     if info.st_size == posicao:
         return 0
+    em_sub, gravadas, consumido, sobra = "subagents" in caminho.parts, 0, 0, b""
     try:
         with open(caminho, "rb") as f:
             f.seek(posicao)
-            bloco = f.read(info.st_size - posicao)
+            while True:
+                novo = f.read(BLOCO)
+                if not novo:
+                    break
+                bloco = sobra + novo
+                fim = bloco.rfind(NOVA_LINHA) + 1  # só linhas completas; o resto fica para o próximo bloco ou a próxima coleta
+                lote = [r for r in (extrair(l, em_sub) for l in bloco[:fim].splitlines()) if r]
+                reg.inserir_lote(lote)
+                gravadas += len(lote)
+                consumido += fim
+                sobra = bloco[fim:]
+                if len(sobra) > MAX_LINHA:  # linha absurda sem quebra: descarta em vez de crescer sem limite
+                    consumido, sobra = consumido + len(sobra), b""
     except OSError:
-        return 0
-    fim = bloco.rfind(b"\n") + 1  # só linhas completas; o resto fica para a próxima coleta
-    em_sub = "subagents" in caminho.parts
-    lote = [r for r in (extrair(l, em_sub) for l in bloco[:fim].splitlines()) if r]
-    reg.inserir_lote(lote)
-    reg.marcar_posicao(nome, posicao + fim, info.st_mtime)
-    return len(lote)
+        log.warning("coleta de uso: leitura interrompida; segue do ponto já processado")
+    reg.marcar_posicao(nome, posicao + consumido, info.st_mtime)
+    return gravadas
 
 
 def coletar(reg: Registro, raiz: Path | None = None) -> dict:

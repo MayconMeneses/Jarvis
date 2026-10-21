@@ -82,6 +82,8 @@ class VoiceConfig:
     # "local" = Piper offline, sem depender de terceiros (padrão) | "online" = edge-tts (Microsoft).
     voz_motor: str = "local"
     voz_efeito: bool = True      # reverb sutil na voz local
+    voz_modelo: str = "faber"    # voz local: faber (padrão) | cadu | jeff (todas CC0, baixadas só se escolhidas)
+    voz_threads: int = 0         # threads do onnxruntime na síntese; 0 = automático (núcleos físicos, até 4)
     atraso_visual_ms: int = 80   # atraso do som (alto-falante/Bluetooth) para o orbe acompanhar a fala
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5

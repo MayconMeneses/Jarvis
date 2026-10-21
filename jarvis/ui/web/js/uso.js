@@ -3,8 +3,10 @@
   const usoEl = (id) => document.getElementById(id);
   let usoDados = null, usoOrdem = { campo: "custo", dir: -1 };
 
-  function usoNum(n) { return n >= 1e9 ? (n / 1e9).toFixed(2) + " G" : n >= 1e6 ? (n / 1e6).toFixed(2) + " M" : n >= 1e3 ? (n / 1e3).toFixed(1) + " k" : String(Math.round(n)); }
-  function usoUsd(v) { return "US$ " + Number(v).toFixed(2); }
+  // Números no formato brasileiro (vírgula decimal, ponto de milhar).
+  const usoDec = (n, casas) => Number(n).toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+  function usoNum(n) { return n >= 1e9 ? usoDec(n / 1e9, 2) + " G" : n >= 1e6 ? usoDec(n / 1e6, 2) + " M" : n >= 1e3 ? usoDec(n / 1e3, 1) + " k" : usoDec(Math.round(n), 0); }
+  function usoUsd(v) { return "US$ " + usoDec(v, 2); }
   function usoNo(tag, texto, cls) { const e = document.createElement(tag); if (texto != null) e.textContent = texto; if (cls) e.className = cls; return e; }
   function usoData(ts) { return new Date(ts * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); }
   function usoDizer(texto, ok) { const i = usoEl("uso-info"); i.textContent = texto || ""; i.className = "feedback " + (ok === false ? "on-no" : "on-ok"); }
@@ -12,7 +14,7 @@
   function usoKpis(t, locais, orc) {
     const itens = [["Respostas", usoNum(t.msgs)], ["Saída", usoNum(t.tout)], ["Cache", usoNum(t.cw + t.cr)],
       ["Valor equivalente", usoUsd(t.custo) + (t.estimado ? " ~" : "")], ["Sem IA", locais.pct_local.toFixed(0) + "%"]];
-    if (orc.cotacao_brl) itens[3][1] += " (R$ " + (t.custo * orc.cotacao_brl).toFixed(2) + ")";
+    if (orc.cotacao_brl) itens[3][1] += " (R$ " + usoDec(t.custo * orc.cotacao_brl, 2) + ")";
     usoEl("uso-kpis").replaceChildren(...itens.map(([k, v]) => { const d = usoNo("div"); d.append(usoNo("dt", k), usoNo("dd", v)); return d; }));
   }
 
@@ -97,8 +99,14 @@
 
   async function usoCarregar() {
     const filtros = { modelo: usoEl("uso-f-modelo").value, projeto: usoEl("uso-f-projeto").value, sub: usoEl("uso-f-sub").value };
-    const d = await window.pywebview.api.uso_resumo(usoEl("uso-periodo").value, filtros);
+    usoEl("uso-corpo").setAttribute("aria-busy", "true");
+    usoDizer("Carregando…", true);
+    let d;
+    try { d = await window.pywebview.api.uso_resumo(usoEl("uso-periodo").value, filtros); }
+    catch (e) { usoDizer("Não consegui ler o uso agora. Toque em Atualizar para tentar de novo.", false); usoEl("uso-corpo").removeAttribute("aria-busy"); return; }
+    usoEl("uso-corpo").removeAttribute("aria-busy");
     if (d.error) { usoDizer(d.error, false); return; }
+    usoDizer("");
     usoDados = d;
     usoDesenhar();
   }
@@ -108,3 +116,4 @@
   usoEl("uso-atualizar").addEventListener("click", usoCarregar);
   for (const id of ["uso-periodo", "uso-f-modelo", "uso-f-projeto", "uso-f-sub"]) usoEl(id).addEventListener("change", usoCarregar);
   window.addEventListener("resize", () => { if (usoDialog.open && usoDados && !usoDados.vazio) usoDesenhar(); });
+  window.addEventListener("jarvis-tema", () => { if (usoDialog.open && usoDados && !usoDados.vazio) usoDesenhar(); });  // os gráficos usam as cores do tema

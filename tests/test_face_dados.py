@@ -105,13 +105,13 @@ def test_js_da_face_nunca_usa_innerhtml_com_dados():
     for nome in ("face.js", "face-paineis.js"):
         codigo = (WEB / "js" / nome).read_text(encoding="utf-8")
         assert not proibido.search(codigo), nome
-    css = (WEB / "css" / "face.css").read_text(encoding="utf-8")
-    assert not re.search(r"#[0-9a-fA-F]{3,8}\b|rgba?\(|https?://", css), "face.css só usa variáveis dos temas, sem fonte externa"
+    css = (WEB / "css" / "central.css").read_text(encoding="utf-8")
+    assert not re.search(r"#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d|https?://", css), "central.css só usa variáveis dos temas, sem fonte externa"
 
 
 def test_pagina_inclui_a_face_e_o_orbe_unico():
     from jarvis.ui import web
 
     html = web.page()
-    assert 'id="face"' in html and 'id="open-face"' in html and "window.Face" in html
-    assert "Orbe.montar" in html or "O.montar" in html
+    assert 'id="foco-barra"' in html and 'id="open-face"' in html and "window.Face" in html  # a FACE virou o modo foco do layout principal
+    assert "O.montar" in html and 'id="face-orbe"' not in html  # um só componente de orbe

@@ -8,7 +8,6 @@ const el = (tag, props = {}, ...filhos) => { const n = Object.assign(document.cr
 function montarAba() {
   const botao = el("button", { type: "button", textContent: "Agenda" });
   botao.dataset.aba = "agenda";
-  botao.setAttribute("aria-selected", "false");
   $("abas").append(botao);
   const secao = el("section", { id: "agenda", className: "aba", hidden: true },
     el("h2", { textContent: "Agenda e e-mails" }),

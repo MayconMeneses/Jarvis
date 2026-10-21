@@ -4,10 +4,10 @@
     if (res.error) addError(res.error, originalText, files);
     else {
       const q = res.qualidade;
-      const el = add("jarvis", res.text, "via " + res.brain + (q && q.media != null ? ` · qualidade ${q.media.toFixed(1)}/10` : ""));
+      const el = add("jarvis", res.text, "via " + res.brain + (q && q.media != null ? ` · qualidade ${q.media.toFixed(1).replace(".", ",")}/10` : ""));
       if (q) {
         el.querySelector(".meta").title = Object.entries(q.notas)
-          .map(([k, v]) => `${CRITERIA[k] || k}: ${v == null ? "—" : v.toFixed(1)} (${q.motivos[k]})`).join("\n");
+          .map(([k, v]) => `${CRITERIA[k] || k}: ${v == null ? "—" : v.toFixed(1).replace(".", ",")} (${q.motivos[k]})`).join("\n");
       }
       (res.actions || []).forEach(addActionCard);
     }

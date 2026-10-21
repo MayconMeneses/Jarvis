@@ -29,6 +29,11 @@ import { ligarOficina } from "./painel-oficina.js";
 import { ligarCriarComIA } from "./painel-oficina-ia.js";
 import { executar as rodarNoSandbox } from "./sandbox.js";
 import { Saber } from "./saber.js";
+import { ligarNavegacao } from "./navegacao.js";
+import { ligarRetomada } from "./rascunho.js";
+import { ligarTeclado } from "./teclado.js";
+import { ligarAtualizacao } from "./atualizacao.js";
+import { erroHumano } from "./erros.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -39,14 +44,25 @@ async function iniciarMemoria() {
     if (navigator.storage?.persist) navigator.storage.persist();  // pede ao iPhone para não apagar a memória
     return new Memoria(armazem);
   } catch (e) {
-    adicionar("Este navegador não deixa guardar dados (modo privado?). A memória vale só enquanto o app estiver aberto.", "aviso");
+    adicionar(erroHumano(e), "aviso");
     return new Memoria(new ArmazemMemoria());
   }
 }
 
+// Sem o conhecimento (rede caída no primeiro uso, arquivo corrompido) o app abre mesmo assim, só com o motor básico.
+async function carregarSaber() {
+  try {
+    const r = await fetch("dados/saber.json");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return new Saber(await r.json());
+  } catch (e) {
+    setTimeout(() => adicionar("Não consegui carregar a base de conhecimento (" + erroHumano(e) + ") Abro só com o básico; ao reabrir com internet ela volta.", "aviso"), 0);
+    return new Saber({});
+  }
+}
+
 async function main() {
-  const saber = new Saber(await (await fetch("dados/saber.json")).json());
-  const memoria = await iniciarMemoria();
+  const [saber, memoria] = await Promise.all([carregarSaber(), iniciarMemoria()]);  // em paralelo: o JSON de 200 KB não espera o IndexedDB
   await ligarAparencia(memoria);
   const uso = new Uso(memoria), agentes = new Agentes(memoria);
   const contar = (fonte, dados) => uso.registrar(fonte, dados).catch(() => {});  // contadores locais: nunca atrapalham a conversa
@@ -197,8 +213,9 @@ async function main() {
   let modelosProntos = null;
   const oficina = ligarOficina({ memoria, aoRodar: (e) => agentes.marcar("oficina", e), avisar: (t) => adicionar(t, "aviso"), carregarModelos: async () => (modelosProntos ||= await (await fetch("dados/modelos.json")).json()) });
   ligarCriarComIA({ conversa: conversaOficina, oficina, avisar: (t) => adicionar(t, "aviso") });
-  document.querySelectorAll("#abas button").forEach((b) => b.addEventListener("click", () => {
-    document.querySelectorAll("#abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  const abas = [...document.querySelectorAll("#abas button[data-aba]")];
+  abas.forEach((b) => b.addEventListener("click", () => {
+    abas.forEach((x) => { if (x === b) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
     b.scrollIntoView?.({ inline: "center", block: "nearest" });  // a aba escolhida não fica escondida na rolagem da barra
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
@@ -206,6 +223,9 @@ async function main() {
     if (b.dataset.aba === "agenda") aoAbrirAgenda();
     if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
+  ligarNavegacao();
+  ligarRetomada({ campo: $("texto"), abas });
+  ligarTeclado();
 
   const anterior = await conversa.carregar();
   if (anterior.length) {  // conversa contínua: ao reabrir (ou se o iPhone recarregar o app), ela continua de onde parou
@@ -221,7 +241,7 @@ async function main() {
   const lembreteInsta = await instagram.aviso();  // segunda-feira: avisa e FALA (voz do navegador), uma vez por semana
   if (lembreteInsta) { adicionar(lembreteInsta.texto, "jarvis aviso"); falar(lembreteInsta.fala, true); }
   religar();
-  if ("serviceWorker" in navigator && window.isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if ("serviceWorker" in navigator && window.isSecureContext) { ligarAtualizacao(); navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {}); }
 }
 
-main().catch((e) => adicionar("Não consegui iniciar: " + e.message, "jarvis erro"));
+main().catch((e) => adicionar("Não consegui iniciar: " + erroHumano(e) + " Feche e abra o app de novo.", "jarvis erro"));

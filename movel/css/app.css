@@ -15,7 +15,7 @@ h2 { margin: 8px 0 4px; font-size: 1.05rem; }
 #orbe { width: 56px; height: 56px; flex: none; margin: -8px -6px -8px -8px; }
 #abas { display: flex; gap: 6px; border-bottom: 1px solid var(--linha); padding-bottom: 8px; }
 #abas button { flex: 1; border-radius: 10px; }
-#abas button[aria-selected="true"] { background: #0d2a3a; border-color: var(--ciano); color: var(--ciano); }
+#abas button[aria-current="page"] { background: #0d2a3a; border-color: var(--ciano); color: var(--ciano); }
 .aba { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding-top: 8px; -webkit-overflow-scrolling: touch; }
 #conversa { overflow: hidden; }
 #mensagens { flex: 1; overflow-y: auto; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; -webkit-overflow-scrolling: touch; }

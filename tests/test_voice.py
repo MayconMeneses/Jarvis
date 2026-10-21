@@ -52,7 +52,7 @@ def test_loud_background_raises_threshold():
 
 def test_clean_for_speech_removes_markdown_code_and_links():
     text = "**RAM:** 95%\n- item\n```py\nx=1\n```\nveja https://exemplo.com `npm`"
-    assert clean_for_speech(text) == "RAM: 95% item (código na janela) veja link npm"
+    assert clean_for_speech(text) == "rám: noventa e cinco por cento. item. código na janela. veja link npm"
 
 
 def test_long_answers_are_shortened_for_speech():
@@ -137,6 +137,8 @@ def test_speaker_plays_first_sentence_without_waiting_for_the_rest(monkeypatch):
     import time
     from jarvis.voice import tts
 
+    from sd_falso import sd_falso
+
     played, release = [], threading.Event()
 
     class SlowEdge:
@@ -145,19 +147,20 @@ def test_speaker_plays_first_sentence_without_waiting_for_the_rest(monkeypatch):
         def synthesize(self, text):
             if text.startswith("Segunda"):
                 release.wait(2)  # a 2ª frase demora para sintetizar
-            return text
+            return np.full(2400, 3000, dtype=np.int16)
 
-    fake_sd = types_module(play=lambda pcm, rate: played.append((time.time(), pcm)), wait=lambda: None)
+    fake_sd, registro = sd_falso()
     monkeypatch.setitem(__import__("sys").modules, "sounddevice", fake_sd)
     speaker = tts.Speaker(motor="online")
     speaker.edge = SlowEdge()
     t = threading.Thread(target=speaker.say, args=("Primeira frase bem longa para não ser juntada. Segunda frase também longa o bastante.",))
     t.start()
-    time.sleep(0.3)
-    assert [p for _, p in played] == ["Primeira frase bem longa para não ser juntada."]  # já tocou
+    time.sleep(0.4)
+    assert len(registro.fluxos) == 1 and registro.fluxos[0].escritos  # a 1ª já tocou
+    assert sum(b.size for b in registro.fluxos[0].escritos) < 10000  # só a 1ª parte (2400 + pausa de 220 ms); a 2ª ainda não
     release.set()
     t.join(3)
-    assert len(played) == 2
+    assert sum(b.size for b in registro.fluxos[0].escritos) >= 14000
 
 
 def types_module(**attrs):

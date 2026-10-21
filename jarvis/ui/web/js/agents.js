@@ -67,6 +67,7 @@
 
     function desenharLista() {
       refs.itens.clear();
+      if (!dados.agentes.length) { $("ag-lista").replaceChildren(no("li", "Nenhum agente cadastrado ainda.", "ag-faz")); return; }
       $("ag-lista").replaceChildren(...dados.agentes.map((a) => {
         const li = no("li"), b = no("button", null, "ag-item");
         b.type = "button";

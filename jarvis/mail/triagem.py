@@ -83,11 +83,10 @@ def classificar(cfg: Config, mails: list[Mail], perguntar_ia=None, arquivo: Path
         nivel, certo = heuristica(m, cfg.email.regras)
         if nivel == SUSPEITO:  # segurança vale mais que o cache
             saida[m.id] = {"nivel": SUSPEITO, "fonte": "segurança"}
-        elif m.id in cache and cache[m.id].get("nivel") in NIVEIS:
-            saida[m.id] = {"nivel": cache[m.id]["nivel"], "fonte": "cache"}
-        elif certo:
+        elif certo:  # regra do usuário e heurística são de graça: recalcula sempre, para a edição das regras valer na hora
             saida[m.id] = {"nivel": nivel, "fonte": "regra"}
-            cache[m.id] = {"nivel": nivel, "fonte": "regra", "t": agora}
+        elif m.id in cache and cache[m.id].get("nivel") in NIVEIS:  # só a resposta da IA (que custa) fica em cache
+            saida[m.id] = {"nivel": cache[m.id]["nivel"], "fonte": "cache"}
         else:
             saida[m.id] = {"nivel": nivel, "fonte": "heurística"}  # provisório se a IA não puder ajudar
             duvida.append(m)
