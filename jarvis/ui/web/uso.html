@@ -24,14 +24,14 @@
       <section class="uso-sec uso-graficos"><div><h3>Gasto por dia</h3><canvas id="uso-dias" role="img" aria-label="Gasto por dia"></canvas></div>
         <div><h3>Por modelo</h3><canvas id="uso-rosca" role="img" aria-label="Gasto por modelo"></canvas><ul id="uso-legenda"></ul></div></section>
       <section class="uso-sec"><h3>Detalhe</h3>
-        <table id="uso-tabela"><caption class="sr-only">Uso por modelo</caption><thead></thead><tbody></tbody></table>
-        <table id="uso-tabela2"><caption class="sr-only">Uso por projeto</caption><thead></thead><tbody></tbody></table>
+        <div class="uso-rolar"><table id="uso-tabela"><caption class="sr-only">Uso por modelo</caption><thead></thead><tbody></tbody></table></div>
+        <div class="uso-rolar"><table id="uso-tabela2"><caption class="sr-only">Uso por projeto</caption><thead></thead><tbody></tbody></table></div>
       </section>
     </div>
     <details class="uso-sec"><summary>Teto, orçamento e preços</summary>
       <div class="uso-cfg" id="uso-cfg"></div>
       <p class="uso-nota">Preços em US$ por 1 milhão de tokens. Valores de fábrica são estimativas A CONFERIR; modelo sem preço aparece destacado, nunca como zero.</p>
-      <table id="uso-precos"><thead><tr><th>Modelo</th><th>Entrada</th><th>Saída</th></tr></thead><tbody></tbody></table>
+      <div class="uso-rolar"><table id="uso-precos"><thead><tr><th>Modelo</th><th>Entrada</th><th>Saída</th></tr></thead><tbody></tbody></table></div>
       <div class="uso-barra"><button type="button" id="uso-salvar">Salvar</button><button type="button" id="uso-preco-novo">Adicionar modelo</button></div>
     </details>
     <p class="feedback" id="uso-info" role="status"></p>

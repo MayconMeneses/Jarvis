@@ -70,15 +70,17 @@ def test_piper_devolve_int16_e_aplica_reverb_sem_mudar_tamanho(tmp_path, monkeyp
     voz._voz = Falsa()
     monkeypatch.setattr(local, "voz_instalada", lambda pasta=None: True)
     pcm = voz.synthesize("teste")
-    assert pcm.dtype == np.int16 and pcm.size == 4410 and voz.sample_rate == 22050
+    assert pcm.dtype == np.int16 and pcm.size == 4410 + 3087 + 1323 and voz.sample_rate == 22050
     seco = local.PiperVoice(efeito=False, pasta=tmp_path)
     seco._voz = Falsa()
     assert not np.array_equal(pcm, seco.synthesize("teste"))
 
 
-def test_reverb_nao_estoura_o_volume():
+def test_reverb_nao_estoura_o_volume_e_nao_corta_o_eco():
     pcm = np.full(5000, 32000, dtype=np.int16)
-    assert np.abs(local.com_reverb_discreto(pcm, 22050)).max() <= 32000
+    saida = local.com_reverb_discreto(pcm, 22050)
+    assert np.abs(saida).max() <= 32000
+    assert saida.size == 5000 + 1323 and np.abs(saida[5000:5000 + 500]).max() > 0  # o eco continua depois do fim da fala
 
 
 class _Voz:
@@ -98,7 +100,7 @@ def test_speaker_local_e_o_padrao_e_edge_so_reserva():
     s.local, s.edge = _Voz(True, 22050), _Voz(True, 24000)
     assert s._sintetizar("oi")[1] == 22050 and s.edge.chamadas == 0
     s.local.ok = False  # ex.: voz ainda baixando
-    assert s._sintetizar("oi")[1] == 24000
+    assert s._sintetizar("outra")[1] == 24000
 
 
 def test_speaker_online_nao_toca_na_voz_local():

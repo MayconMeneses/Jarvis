@@ -5,30 +5,55 @@ Um link com erro não derruba os outros: vira um aviso. O link nunca aparece em 
 
 from __future__ import annotations
 
-import hashlib
+import ipaddress
 import os
+import socket
+import threading
 import time
 import urllib.error
 import urllib.request
 from datetime import datetime, time as hora, timedelta
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from jarvis.agenda import fontes, ics, ocorrencias, tz
-from jarvis.config import Config, data_dir
+from jarvis.config import Config
 
 TTL = 15 * 60  # segundos: a agenda do Google demora a refletir mudanças, buscar mais seguido não ajuda
 MAX_RESPOSTA = 5_000_000
 
 
 def _pasta() -> Path:
-    return data_dir() / "agenda_cache"
+    return fontes.pasta_cache()
 
 
-def _arquivo(pasta: Path, apelido: str) -> Path:
-    return pasta / (hashlib.sha1(apelido.encode("utf-8")).hexdigest()[:16] + ".ics")
+def checar_destino(url: str) -> None:
+    """Recusa https que aponta (direto ou pelo DNS) para a própria máquina ou a rede local: o link vem de fora e pode mentir."""
+    fontes.validar_url(url)
+    host = urlsplit(url).hostname or ""
+    try:
+        enderecos = {ipaddress.ip_address(host)}
+    except ValueError:
+        try:
+            enderecos = {ipaddress.ip_address(i[4][0].split("%")[0]) for i in socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)}
+        except (OSError, ValueError):
+            return  # sem resolver, a conexão também falha
+    if not all(e.is_global for e in enderecos):
+        raise ValueError("endereço de rede interna não é permitido")
 
 
-def baixar(url: str, opener=urllib.request.urlopen) -> str:
+class _SoDestinoPublico(urllib.request.HTTPRedirectHandler):
+    """Cada redirecionamento passa pela mesma checagem (https, nada de rede interna)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        checar_destino(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def baixar(url: str, opener=None) -> str:
+    if opener is None:  # caminho real; os testes entregam um opener falso
+        checar_destino(url)
+        opener = urllib.request.build_opener(_SoDestinoPublico).open
     pedido = urllib.request.Request(url, headers={"User-Agent": "SuperJarvis/1.0 (agenda)"})
     with opener(pedido, timeout=15) as resp:
         return resp.read(MAX_RESPOSTA).decode("utf-8", "replace")
@@ -45,9 +70,9 @@ def _erro_curto(exc: Exception) -> str:
 
 def obter(apelido: str, url: str, pasta: Path, opener, agora: float) -> tuple[str, str | None]:
     """Texto iCal da agenda: do cache se tem menos de 15 minutos; se a rede falhar, a cópia antiga com aviso."""
-    arq = _arquivo(pasta, apelido)
+    arq = fontes.arquivo_cache(pasta, apelido, url)
     try:
-        if arq.exists() and agora - arq.stat().st_mtime < TTL:
+        if arq.exists() and 0 <= agora - arq.stat().st_mtime < TTL:  # relógio que voltou no tempo não congela o cache
             return arq.read_text(encoding="utf-8"), None
     except OSError:
         pass
@@ -63,14 +88,16 @@ def obter(apelido: str, url: str, pasta: Path, opener, agora: float) -> tuple[st
             raise RuntimeError(f"{apelido}: {motivo}.") from None
     try:
         pasta.mkdir(parents=True, exist_ok=True)
-        arq.write_text(texto, encoding="utf-8")
-        os.utime(arq, (agora, agora))  # a idade do cache é medida pelo mesmo relógio
+        temporario = arq.with_name(f"{arq.name}.{os.getpid()}.{threading.get_ident()}.tmp")  # troca atômica: ninguém lê arquivo pela metade
+        temporario.write_text(texto, encoding="utf-8")
+        os.utime(temporario, (agora, agora))  # a idade do cache é medida pelo mesmo relógio
+        os.replace(temporario, arq)
     except OSError:
         pass  # sem cache; segue com o que baixou
     return texto, None
 
 
-def carregar(cfg: Config, ini: datetime, fim: datetime, zona=None, links: list[dict] | None = None, opener=urllib.request.urlopen,
+def carregar(cfg: Config, ini: datetime, fim: datetime, zona=None, links: list[dict] | None = None, opener=None,
              agora: float | None = None, pasta: Path | None = None) -> dict:
     """{"ocorrencias": [Ocorrencia...], "avisos": [...]} de todas as agendas, na janela [ini, fim)."""
     zona = zona or tz.local()

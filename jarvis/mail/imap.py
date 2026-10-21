@@ -12,6 +12,7 @@ import email.policy
 import email.utils
 import imaplib
 import re
+import ssl
 
 from jarvis import keys
 from jarvis.config import Config
@@ -69,8 +70,25 @@ def _previa(msg) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", texto)).strip()[:300]
 
 
+def _conexao_segura(host: str, porta: int, timeout: float = 20):
+    """IMAP sobre TLS COM verificação de certificado e de nome (o padrão do Python 3.11 não verifica nada)."""
+    return imaplib.IMAP4_SSL(host, porta, ssl_context=ssl.create_default_context(), timeout=timeout)
+
+
+def _fechar(box) -> None:
+    if box is None:
+        return
+    try:
+        box.logout()
+    except Exception:
+        try:
+            box.shutdown()
+        except Exception:
+            pass
+
+
 class ImapAccount:
-    def __init__(self, conf: dict, senha: str | None = None, fabrica=imaplib.IMAP4_SSL) -> None:
+    def __init__(self, conf: dict, senha: str | None = None, fabrica=_conexao_segura) -> None:
         self.conf, self._senha, self._fabrica = conf, senha, fabrica
         self.name = nome_da_conta(conf["apelido"])
 
@@ -79,41 +97,51 @@ class ImapAccount:
         if not senha:
             raise MailError(f"sem senha de app para {self.conf['apelido']} no cofre")
         host = validar_host(self.conf["host"])
+        box = None
         try:
             box = self._fabrica(host, int(self.conf.get("porta", 993)), timeout=20)
             box.login(self.conf["usuario"], senha)
             box.select("INBOX", readonly=True)  # nada é marcado, movido ou apagado
-        except (imaplib.IMAP4.error, OSError) as exc:
+        except (imaplib.IMAP4.error, OSError, ValueError) as exc:
+            _fechar(box)  # login recusado ou queda no meio: sem isso o socket fica aberto até o coletor de lixo
             raise MailError(f"IMAP {self.conf['apelido']}: não consegui entrar ({type(exc).__name__})") from None
         return box
 
     def list_recent(self, limit: int, unread_only: bool) -> list[Mail]:
-        box = self._abrir()
-        try:
-            _, dados = box.uid("SEARCH", None, "UNSEEN" if unread_only else "ALL")
-            uids = (dados[0] or b"").split()[-limit:][::-1]
-            mails = []
-            for uid in uids:
-                tipo, partes = box.uid("FETCH", uid, "(FLAGS BODY.PEEK[HEADER] BODY.PEEK[TEXT]<0.2000>)")
-                if tipo != "OK":
-                    continue
-                cabecalho = next((p[1] for p in partes if isinstance(p, tuple) and b"HEADER" in p[0]), b"")
-                corpo = next((p[1] for p in partes if isinstance(p, tuple) and b"TEXT" in p[0]), b"")
+        for tentativa in (1, 2):
+            box = self._abrir()
+            try:
+                return self._ler(box, limit, unread_only)
+            except (imaplib.IMAP4.abort, ConnectionError, TimeoutError) as exc:
+                if tentativa == 2:  # a conexão caiu no meio da leitura: reabre uma vez (login recusado não repete: evita bloqueio da conta)
+                    raise MailError(f"IMAP {self.conf['apelido']}: conexão caiu ({type(exc).__name__})") from None
+            except (imaplib.IMAP4.error, OSError) as exc:
+                raise MailError(f"IMAP {self.conf['apelido']}: falha ao ler ({type(exc).__name__})") from None
+            finally:
+                _fechar(box)
+        return []
+
+    def _ler(self, box, limit: int, unread_only: bool) -> list[Mail]:
+        _, dados = box.uid("SEARCH", None, "UNSEEN" if unread_only else "ALL")
+        uids = (dados[0] or b"").split()[-limit:][::-1]
+        mails = []
+        for uid in uids:
+            tipo, partes = box.uid("FETCH", uid, "(FLAGS BODY.PEEK[HEADER] BODY.PEEK[TEXT]<0.2000>)")
+            if tipo != "OK":
+                continue
+            cabecalho = next((p[1] for p in partes if isinstance(p, tuple) and b"HEADER" in p[0]), b"")
+            corpo = next((p[1] for p in partes if isinstance(p, tuple) and b"TEXT" in p[0]), b"")
+            flags = b" ".join(p[0] if isinstance(p, tuple) else p for p in partes if isinstance(p, (tuple, bytes)))
+            try:  # um e-mail malformado não derruba a leitura dos outros
                 msg = email.message_from_bytes(cabecalho + b"\r\n" + corpo, policy=email.policy.default)
-                flags = b" ".join(p[0] if isinstance(p, tuple) else p for p in partes if isinstance(p, (tuple, bytes)))
                 mails.append(Mail(
                     id=f"{self.name}:{uid.decode()}", conta=self.name,
                     remetente=_decodificar(msg.get("From")), assunto=_decodificar(msg.get("Subject")) or "(sem assunto)",
-                    data=msg.get("Date", ""), previa=_previa(msg), nao_lido=b"\\Seen" not in flags,
+                    data=str(msg.get("Date", "")), previa=_previa(msg), nao_lido=b"\\Seen" not in flags,
                     lista=msg.get("List-Unsubscribe") is not None))
-            return mails
-        except (imaplib.IMAP4.error, OSError) as exc:
-            raise MailError(f"IMAP {self.conf['apelido']}: falha ao ler ({type(exc).__name__})") from None
-        finally:
-            try:
-                box.logout()
-            except Exception:
-                pass
+            except (ValueError, LookupError, TypeError, AttributeError):
+                continue
+        return mails
 
     def apply_category(self, native_ids: list[str], category: str) -> None:
         raise MailError("contas IMAP são somente leitura: a Jarvis não marca e-mails nelas")

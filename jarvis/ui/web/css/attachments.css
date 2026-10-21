@@ -1,14 +1,14 @@
   /* anexos */
-  #chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; background: rgba(4, 10, 16, .85); border-top: 1px solid var(--line); }
+  #chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; background: color-mix(in srgb, var(--bg) 88%, transparent); border-top: 1px solid var(--line); }
   #chips:empty { display: none; }
   #chips:not(:empty) + form { border-top: 0; }
   .chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 4px 3px 9px;
           font: 12px var(--mono); color: var(--text); background: var(--cyan-soft); border: 1px solid var(--line-strong); }
   .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 230px; }
   .chip small { color: var(--muted); }
-  .chip button { padding: 0 6px; height: 20px; border: 0; font-size: 14px; line-height: 1; }
+  .chip button { padding: 0 8px; min-height: 24px; height: 24px; border: 0; font-size: 14px; line-height: 1; }
   .drop-overlay { position: fixed; inset: 8px; display: none; place-items: center; z-index: 10;
-                  border: 2px dashed var(--cyan); background: rgba(4, 12, 20, .88); font: 600 14px var(--mono);
+                  border: 2px dashed var(--cyan); background: color-mix(in srgb, var(--bg) 88%, transparent); font: 600 14px var(--mono);
                   letter-spacing: .12em; color: var(--cyan); text-transform: uppercase; pointer-events: none; }
   body.dragging .drop-overlay { display: grid; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

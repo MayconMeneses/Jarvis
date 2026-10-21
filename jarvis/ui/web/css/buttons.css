@@ -8,7 +8,6 @@
   button:active:not(:disabled) { transform: scale(.97); }
   button:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
   button:disabled { opacity: .4; cursor: default; }
-  .primary { background: var(--cyan); color: #022233; border-color: var(--cyan); font-weight: 700; }
-  .primary:hover:not(:disabled) { background: #74ddff; }
+  .primary { background: var(--cyan); color: var(--on-accent); border-color: var(--cyan); font-weight: 700; }
   .icon-btn { display: inline-grid; place-items: center; width: 44px; padding: 0; }
   .icon-btn svg { width: 20px; height: 20px; }

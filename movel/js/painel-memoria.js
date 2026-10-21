@@ -1,4 +1,5 @@
 // Aba Memória: ver, buscar, editar, apagar, salvar e restaurar a cópia de segurança. Tudo só neste aparelho.
+import { erroHumano } from "./erros.js";
 import { cifrar, decifrar, eCifrado } from "./cripto.js";
 import { ligarGrafo } from "./painel-grafo.js";
 
@@ -52,7 +53,7 @@ export function ligarMemoria(memoria, avisar) {
       await memoria.guardar($("nota-ref").value, $("nota-corpo").value, aberta?.tipo || "nota");
       $("editor").hidden = true;
       await listar();
-    } catch (e) { avisar(e.message); }
+    } catch (e) { avisar(erroHumano(e, "Não consegui salvar a nota.")); }
   });
   $("nota-apagar").addEventListener("click", async () => {
     if (aberta && confirm(`Apagar a nota "${aberta.ref}"?`)) { await memoria.apagar(aberta.ref); $("editor").hidden = true; await listar(); }
@@ -66,7 +67,7 @@ export function ligarMemoria(memoria, avisar) {
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 5000);
       avisar("Cópia segura gerada. Guarde a senha: sem ela a cópia não abre.");
-    } catch (e) { avisar("Não consegui gerar a cópia: " + e.message); }
+    } catch (e) { avisar(erroHumano(e, "Não consegui gerar a cópia.")); }
     $("senha-copia").value = "";
   });
   $("importar").addEventListener("click", () => $("arquivo").click());
@@ -77,7 +78,7 @@ export function ligarMemoria(memoria, avisar) {
       const conteudo = await arquivo.text();
       avisar(`Restaurei ${await memoria.importar(eCifrado(conteudo) ? await decifrar(conteudo, $("senha-copia").value) : conteudo)} notas.`);
       await listar();
-    } catch (e) { avisar("Não consegui restaurar: " + e.message); }
+    } catch (e) { avisar(erroHumano(e, "Não consegui restaurar.")); }
     $("senha-copia").value = "";
     ev.target.value = "";
   });

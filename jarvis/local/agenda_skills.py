@@ -20,7 +20,7 @@ PADROES = [
                          r"^e-?mails?\s+(importantes?|urgentes?|de acao)$|^tem algo importante no e-?mail$"),
     ("emails", r"^(meus e-?mails|ver (os |meus )?e-?mails|como (estao|esta) (os |meus |a minha )?(e-?mails|caixa de entrada)|"
                r"resumo (dos |de )?(meus )?e-?mails|e-?mails( novos| recentes| nao lidos)?)$"),
-    ("bom_dia", r"^(bom dia|boa tarde|boa noite)( jarvis)?$"),
+    ("bom_dia", r"^(bom dia|boa tarde|boa noite)([\s,]+jarvis)?$"),
 ]
 DIRETOS = {"agenda_hoje", "agenda_semana", "agenda_proximo", "noticias_assunto", "email_importante", "emails", "bom_dia"}
 

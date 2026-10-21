@@ -1,4 +1,5 @@
 // Tela de conversa: mensagens, voz (ditado, leitura e conversa por voz contínua) e estado visual.
+import { erroHumano } from "./erros.js";
 import { renderizar } from "./md.js";
 import { ligarEscuta, ligarFala } from "./orbe-voz.js";
 
@@ -93,7 +94,7 @@ export function ligarDitado(aoOuvir) {
   $("mic").hidden = false;
   $("mic").addEventListener("click", async () => {
     $("mic").classList.add("ativo");
-    try { const t = await ouvirUmaVez(); if (t) aoOuvir(t); } catch { /* sem permissão: nada a fazer */ } finally { $("mic").classList.remove("ativo"); }
+    try { const t = await ouvirUmaVez(); if (t) aoOuvir(t); } catch (e) { if (!/no-speech|aborted/.test(e.message)) adicionar(erroHumano(e), "jarvis erro"); } finally { $("mic").classList.remove("ativo"); }
   });
 }
 
@@ -113,7 +114,7 @@ export function ligarConversaPorVoz(responder) {
     while (ativo) {
       let texto = "";
       try { estado("ouvindo…"); texto = (await ouvirUmaVez()).trim(); } catch (e) {
-        adicionar("Não consegui usar o microfone (" + e.message + "). Confira a permissão do Safari para este site.", "jarvis erro");
+        adicionar(erroHumano(e), "jarvis erro");
         break;
       }
       if (!texto) continue;  // silêncio: volta a ouvir

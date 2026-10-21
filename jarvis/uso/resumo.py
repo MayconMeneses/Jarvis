@@ -67,7 +67,7 @@ def resumo(reg: Registro, periodo: str = "mes", agora: float | None = None, filt
     ia = [l for l in linhas if l["provedor"] != "local"]
     locais = len(linhas) - len(ia)
     subs = [l for l in ia if l["sub"]]
-    todas = reg.linhas(desde=0.0)
+    opcoes = reg.opcoes()
     cfg = configuracao.carregar(reg)
     return {
         "periodo": periodo, "rotulo": PERIODOS[periodo], "filtros": filtros, "totais": _soma(ia),
@@ -77,7 +77,6 @@ def resumo(reg: Registro, periodo: str = "mes", agora: float | None = None, filt
         "subagentes": {**_soma(subs), "pct": round(100 * len(subs) / len(ia), 1) if ia else 0.0},
         "locais": {"local": locais, "ia": len(ia), "pct_local": round(100 * locais / len(linhas), 1) if linhas else 0.0},
         "sem_preco": sorted({l["modelo"] for l in ia if not l["preco_ok"] and l["modelo"]}),
-        "opcoes": {"modelos": sorted({l["modelo"] for l in todas if l["modelo"]}), "projetos": sorted({l["projeto"] for l in todas if l["projeto"]}),
-                   "provedores": sorted({l["provedor"] for l in todas})},
-        "cota": cota.estado(reg, agora, cfg), "orcamento": orcamento.mes(reg, agora, cfg), "config": cfg, "vazio": not todas,
+        "opcoes": {k: opcoes[k] for k in ("modelos", "projetos", "provedores")},
+        "cota": cota.estado(reg, agora, cfg), "orcamento": orcamento.mes(reg, agora, cfg), "config": cfg, "vazio": opcoes["vazio"],
     }

@@ -1,0 +1,115 @@
+  <dialog id="brains" aria-labelledby="brains-title">
+    <h2 id="brains-title">Cérebros da Jarvis</h2>
+
+    <section class="brain">
+      <h3><label for="tema">Aparência</label></h3>
+      <select id="tema" aria-describedby="fb-tema">
+        <option value="hud">HUD ciano (padrão)</option><option value="ambar">Âmbar</option>
+        <option value="esmeralda">Esmeralda</option><option value="contraste">Alto contraste</option></select>
+      <p class="feedback" id="fb-tema" role="status">Os efeitos (aurora e orbe) ficam no seletor "Efeitos", ao lado do orbe.</p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="standalone" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Só a inteligência da Jarvis (sem nenhuma IA)</b>
+          <small>Nada de Claude, Gemini ou NVIDIA: sem chave, sem assinatura, sem limite. Ela obedece comandos (abrir, PC, clima, notícias, vagas, memória, projetos, dashboards) e pesquisa na internet resumindo frases dos próprios sites. Muda na hora.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-standalone" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="llm-local" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Cérebro generativo local</b> <small id="st-llm"></small>
+          <small>Um modelo de linguagem pequeno rodando no seu PC (sem API e sem nuvem): conversa livre e cria sistemas pensando. É lento e bem menos capaz que o Claude. Para instalar, diga à Jarvis: "instalar cérebro local" e aprove o cartão (download de cerca de 1,1 GB).</small></span>
+      </span></label>
+      <p class="feedback" id="fb-llm" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="voz-online" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Usar a voz online (Microsoft)</b>
+          <small>Desligado (padrão): a Jarvis fala com uma voz masculina própria, instalada no PC e que funciona sem internet. Ligado: usa a voz neural online da Microsoft, que depende de internet e de terceiros.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-voz" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="autonomo-on" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Aprender sozinha</b>
+          <small>Com o PC parado, a Jarvis pesquisa na internet os assuntos sobre os quais você mais pergunta (até 3 por dia) e guarda um resumo com as fontes, marcado "não verificado". Você vê, edita ou apaga as notas na Memória. Só lê: nunca baixa nem executa nada.</small></span>
+      </span></label>
+      <p class="feedback" id="fb-autonomo" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="mobile-on" style="margin-top:3px;accent-color:var(--cyan)">
+        <span><b>Jarvis no celular</b> <small id="mobile-url"></small>
+          <small>Um app (iPhone, Android ou qualquer navegador) que conversa com a Jarvis do PC. De qualquer lugar pelo Tailscale (grátis), ou só no mesmo Wi-Fi sem ele. Você pareia com um código; as ações que mudam o PC continuam precisando da sua aprovação aqui.</small></span>
+      </span></label>
+      <p><button type="button" class="ghost" id="mobile-code">Gerar código de pareamento</button></p>
+      <ul id="mobile-devices"></ul>
+      <p class="feedback" id="fb-mobile" role="status"></p>
+    </section>
+
+    <section class="brain">
+      <h3>Claude <small id="st-claude"></small></h3>
+      <p>Principal, pela sua assinatura. É o único que usa as ferramentas (PC, e-mail, arquivos, internet, código).</p>
+    </section>
+
+    <section class="brain" data-provider="gemini">
+      <h3>Gemini <small id="st-gemini"></small></h3>
+      <p>Chave gratuita do Google AI Studio. <button type="button" class="ghost linklike" data-link="https://aistudio.google.com/apikey">Criar chave grátis</button></p>
+      <div class="key-row">
+        <label for="key-gemini" class="sr-only">Chave de API do Gemini</label>
+        <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Gemini">
+        <button type="button" class="primary" data-save="gemini">Salvar e testar</button>
+      </div>
+      <fieldset class="modes" style="border:0;padding:0;margin:0">
+        <legend class="label" style="margin-bottom:4px">Quando usar</legend>
+        <label><input type="radio" name="uso" value="reserva"><span>Só como reserva<small>Quando o limite do Claude acabar ou ele falhar.</small></span></label>
+        <label><input type="radio" name="uso" value="simples"><span>Perguntas simples<small>Conversa rápida vai para o Gemini e economiza o limite do Claude.</small></span></label>
+      </fieldset>
+      <p style="margin-top:6px">Em qualquer modo: diga <b>"Gemini, ..."</b> ou <b>"pergunte ao Gemini ..."</b>.</p>
+      <p class="feedback" id="fb-gemini" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="gemini">Remover chave</button>
+    </section>
+
+    <section class="brain" data-provider="nvidia">
+      <h3>NVIDIA <small id="st-nvidia"></small></h3>
+      <p>Reserva extra (grátis, ~40 pedidos/min). <button type="button" class="ghost linklike" data-link="https://build.nvidia.com">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-nvidia" class="sr-only">Chave de API da NVIDIA</label>
+        <input id="key-nvidia" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave da NVIDIA">
+        <button type="button" class="primary" data-save="nvidia">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-nvidia" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="nvidia">Remover chave</button>
+    </section>
+
+    <section class="brain" data-provider="local">
+      <h3>Modo independente <small class="on-ok">● sempre ativo</small></h3>
+      <p>Sem IA: abre programas e sites, mostra o estado do PC, clima, notícias, vagas, hora e data, e pesquisa
+        na internet resumindo com frases dos próprios sites. Responde na hora os comandos diretos e assume
+        quando nenhuma IA está disponível.</p>
+    </section>
+
+    <section class="brain" data-provider="brave">
+      <h3>Brave Search <small id="st-brave"></small></h3>
+      <p>Buscador (não é IA): deixa a pesquisa do modo independente com a web completa. Grátis, ~2.000
+        buscas/mês. Sem ela, usa Wikipedia e DuckDuckGo. <button type="button" class="ghost linklike" data-link="https://brave.com/search/api/">Criar chave</button></p>
+      <div class="key-row">
+        <label for="key-brave" class="sr-only">Chave da Brave Search API</label>
+        <input id="key-brave" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do Brave">
+        <button type="button" class="primary" data-save="brave">Salvar e testar</button>
+      </div>
+      <p class="feedback" id="fb-brave" role="status"></p>
+      <button type="button" class="ghost linklike" data-remove="brave">Remover chave</button>
+    </section>
+
+    <div class="dialog-actions"><button type="button" id="close-brains">Fechar</button></div>
+  </dialog>

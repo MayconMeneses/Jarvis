@@ -27,8 +27,9 @@
     function linha(nome, detalhe, testar, remover, fbId) {
       const li = no("li"), t = no("button", "Testar"), r = no("button", "Remover");
       t.type = r.type = "button"; r.className = "danger";
-      t.addEventListener("click", async () => { dizer(fbId, "Testando…", true); const x = await testar(nome); dizer(fbId, x.mensagem, x.ok); });
-      r.addEventListener("click", async () => { const x = await remover(nome); await recarregar(); dizer(fbId, x.mensagem, x.ok); });
+      const SEM = "Não consegui falar com a Jarvis agora. Tente de novo.";
+      t.addEventListener("click", async () => { dizer(fbId, "Testando…", true); try { const x = await testar(nome); dizer(fbId, x.mensagem, x.ok); } catch (e) { dizer(fbId, SEM, false); } });
+      r.addEventListener("click", async () => { try { const x = await remover(nome); await recarregar(); dizer(fbId, x.mensagem, x.ok); } catch (e) { dizer(fbId, SEM, false); } });
       li.append(no("span", nome + (detalhe ? " · " + detalhe : "")), t, r);
       return li;
     }
@@ -48,7 +49,8 @@
       if (!ponte) return;
       if (!nome || !link) { dizer("ae-ag-fb", "Preencha o nome e o link da agenda.", false); return; }
       dizer("ae-ag-fb", "Conectando…", true);
-      const r = await ponte.conectar_agenda(nome, link, $("ae-ag-cor").value);
+      let r;
+      try { r = await ponte.conectar_agenda(nome, link, $("ae-ag-cor").value); } catch (e) { $("ae-ag-link").value = ""; dizer("ae-ag-fb", "Não consegui falar com a Jarvis agora. Tente de novo.", false); return; }
       $("ae-ag-link").value = "";  // o link não fica na tela
       if (!r.ok) { dizer("ae-ag-fb", r.mensagem, false); return; }
       await recarregar();
@@ -61,7 +63,8 @@
       if (!ponte) return;
       if (!nome || !user || !senha) { dizer("ae-im-fb", "Preencha nome, e-mail e senha de app.", false); return; }
       dizer("ae-im-fb", "Conectando…", true);
-      const r = await ponte.conectar_imap(nome, $("ae-im-host").value, user, senha);
+      let r;
+      try { r = await ponte.conectar_imap(nome, $("ae-im-host").value, user, senha); } catch (e) { $("ae-im-senha").value = ""; dizer("ae-im-fb", "Não consegui falar com a Jarvis agora. Tente de novo.", false); return; }
       $("ae-im-senha").value = "";  // a senha não fica na tela
       if (!r.ok) { dizer("ae-im-fb", r.mensagem, false); return; }
       await recarregar();

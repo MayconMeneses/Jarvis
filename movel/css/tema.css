@@ -22,7 +22,7 @@ html[data-tema="contraste"] {
 }
 
 /* Cores que o app.css deixou fixas passam a seguir o tema. */
-#abas button[aria-selected="true"], .msg.eu { background: var(--sel); }
+#abas button[aria-current="page"], .msg.eu { background: var(--sel); }
 .msg.eu { border-color: var(--sel-borda); }
 button:active { background: var(--ativo); }
 .msg pre, #of-saida, #grafo, .cartao-memoria pre { background: var(--codigo); }

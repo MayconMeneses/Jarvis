@@ -17,6 +17,7 @@ from jarvis.config import data_dir
 from jarvis.uso import precos
 
 GRATIS = {"gemini", "nvidia", "local", "llm"}  # sem custo por token (cota/limites à parte)
+VERSAO_ESQUEMA = 1
 COLUNAS = ("ts", "dia", "fonte", "provedor", "modelo", "projeto", "sessao", "sub", "tin", "tout", "cw", "cw1h", "cr", "custo_rep")
 ESQUEMA = """
 CREATE TABLE IF NOT EXISTS uso (
@@ -42,9 +43,23 @@ class Registro:
         self.caminho = caminho or caminho_padrao()
         self.caminho.parent.mkdir(parents=True, exist_ok=True)
         self._trava = threading.RLock()
-        self._db = sqlite3.connect(self.caminho, check_same_thread=False)
+        self._db = sqlite3.connect(self.caminho, check_same_thread=False, timeout=15)  # várias threads (RLock) e, às vezes, outro processo
         self._db.row_factory = sqlite3.Row
+        self._db.execute("PRAGMA busy_timeout=15000")
+        self._db.execute("PRAGMA journal_mode=WAL")  # leitor não bloqueia o escritor; um commit por resposta fica barato
+        self._db.execute("PRAGMA synchronous=NORMAL")
         self._db.executescript(ESQUEMA)
+        self._migrar()
+
+    def _migrar(self) -> None:
+        """Versão do esquema em PRAGMA user_version. 0 = banco criado antes do versionamento (já tem o esquema atual)."""
+        with self._trava:
+            versao = self._db.execute("PRAGMA user_version").fetchone()[0]
+            if versao > VERSAO_ESQUEMA:
+                return  # banco de uma versão mais nova (downgrade): só usa as colunas que conhece, sem rebaixar o número
+            # futuras migrações entram aqui: if versao < 2: self._db.execute("ALTER TABLE ...")
+            if versao < VERSAO_ESQUEMA:
+                self._db.execute(f"PRAGMA user_version={VERSAO_ESQUEMA}")
 
     def fechar(self) -> None:
         with self._trava:
@@ -118,6 +133,15 @@ class Registro:
         with self._trava:
             brutas = self._db.execute(sql + " ORDER BY ts", args).fetchall()
         return [self._completar(dict(r), tabela) for r in brutas]
+
+    def opcoes(self) -> dict:
+        """Valores distintos para os filtros da janela, sem carregar nem precificar o histórico inteiro."""
+        with self._trava:
+            def distintos(campo: str) -> list[str]:
+                return [r[0] for r in self._db.execute(f"SELECT DISTINCT {campo} FROM uso WHERE {campo}<>'' ORDER BY {campo}")]
+
+            return {"modelos": distintos("modelo"), "projetos": distintos("projeto"), "provedores": distintos("provedor"),
+                    "vazio": self._db.execute("SELECT 1 FROM uso LIMIT 1").fetchone() is None}
 
     @staticmethod
     def _completar(linha: dict, tabela: dict) -> dict:

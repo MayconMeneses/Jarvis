@@ -58,8 +58,10 @@ def test_limitador_de_taxa():
 
 
 def test_fala_avisa_o_orbe_antes_de_tocar_e_no_fim(monkeypatch):
+    from sd_falso import sd_falso
+
     ordem = []
-    fake_sd = types.SimpleNamespace(play=lambda pcm, taxa: ordem.append("play"), wait=lambda: None, stop=lambda: ordem.append("stop"))
+    fake_sd, _ = sd_falso(ordem=ordem)
     monkeypatch.setitem(__import__("sys").modules, "sounddevice", fake_sd)
 
     class Voz:
@@ -72,17 +74,18 @@ def test_fala_avisa_o_orbe_antes_de_tocar_e_no_fim(monkeypatch):
     s = tts.Speaker(motor="online", on_visual=lambda p: (eventos.append(p), ordem.append(p["tipo"])), atraso_ms=120)
     s.edge = Voz()
     s.say("Uma frase simples.")
-    assert ordem == ["fala", "play", "fim"]
+    assert ordem == ["fala", "play", "fim"]  # o orbe é avisado antes do primeiro som
     fala = eventos[0]
-    assert fala["dt"] == 40 and fala["atraso_ms"] == 120 and len(fala["env"]) == 10
+    assert fala["dt"] == 40 and fala["atraso_ms"] == 120 and len(fala["env"]) == 16  # 0,4 s de fala + 220 ms de pausa
     s.stop()
     assert eventos[-1] == {"tipo": "fim"}
 
 
 def test_erro_no_orbe_nao_atrapalha_a_fala(monkeypatch):
-    tocou = []
-    monkeypatch.setitem(__import__("sys").modules, "sounddevice",
-                        types.SimpleNamespace(play=lambda *a: tocou.append(1), wait=lambda: None, stop=lambda: None))
+    from sd_falso import sd_falso
+
+    fake_sd, registro = sd_falso()
+    monkeypatch.setitem(__import__("sys").modules, "sounddevice", fake_sd)
 
     class Voz:
         sample_rate = 22050
@@ -96,7 +99,7 @@ def test_erro_no_orbe_nao_atrapalha_a_fala(monkeypatch):
     s = tts.Speaker(motor="online", on_visual=quebra)
     s.edge = Voz()
     s.say("Frase que precisa ser falada.")
-    assert tocou == [1]
+    assert len(registro.fluxos) == 1 and registro.fluxos[0].escritos
 
 
 def test_microfone_entra_na_fila_de_tamanho_1_e_sai_a_20hz():

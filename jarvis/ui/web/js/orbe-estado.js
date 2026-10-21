@@ -3,7 +3,7 @@
   // O desenho fica em orbe.js. Dados reais: envelope da fala (calculado no Python, lido pelo relógio local)
   // e volume do microfone (enviado a ~20 Hz). Contrato do window.onVoice: ver results.js.
   window.Orbe = (() => {
-    const NOMES = { idle: "Em espera", listening: "Ouvindo", thinking: "Pensando", speaking: "Falando" };
+    const NOMES = { idle: "Em espera", listening: "Ouvindo", thinking: "Processando", speaking: "Falando" };
     const MODOS = ["completo", "suave", "desligado"];
     const s = { estado: "idle", nivel: 0, env: null, t0: 0, dt: 40, atraso: 80, mic: 0, micT: 0, fixo: null, modo: "completo", reduzido: false };
     const reduzido = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -14,6 +14,7 @@
       if (!NOMES[novo]) novo = "idle";
       if (s.estado === novo) return;
       s.estado = novo;
+      if (document.body) document.body.dataset.state = novo;  // a cor do rótulo e o cartão central seguem o estado real (voz inclusive)
       const el = document.getElementById("orbe-estado");
       if (el) el.textContent = NOMES[novo];
       avisar();

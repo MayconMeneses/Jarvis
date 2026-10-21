@@ -2,15 +2,26 @@
 
 from __future__ import annotations
 
+import hashlib
 import ipaddress
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from jarvis import keys
-from jarvis.config import Config
+from jarvis.config import Config, data_dir
 
 
 def _chave(apelido: str) -> str:
     return f"ical:{apelido}"
+
+
+def pasta_cache() -> Path:
+    return data_dir() / "agenda_cache"
+
+
+def arquivo_cache(pasta: Path, apelido: str, url: str) -> Path:
+    """Cópia local da agenda. A chave inclui o link: trocar o link do mesmo apelido nunca serve a agenda antiga."""
+    return pasta / (hashlib.sha1(f"{apelido}|{url}".encode("utf-8")).hexdigest()[:16] + ".ics")
 
 
 def validar_url(url: str) -> str:
@@ -43,6 +54,12 @@ def adicionar(cfg: Config, apelido: str, url: str, cor: str = "") -> None:
 
 
 def remover(cfg: Config, apelido: str) -> None:
+    url = keys.get_key(_chave(apelido))
+    if url:  # os eventos em cache também são dado pessoal: somem junto com o link
+        try:
+            arquivo_cache(pasta_cache(), apelido, url).unlink(missing_ok=True)
+        except OSError:
+            pass
     keys.delete_key(_chave(apelido))
     cfg.agendas = [a for a in cfg.agendas if a.get("apelido") != apelido]
 

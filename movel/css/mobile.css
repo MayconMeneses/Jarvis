@@ -1,0 +1,76 @@
+/* Camada de polimento para iPhone: barra de abas embaixo (alcance do polegar), teclado virtual, alvos de 44 px e aviso de versão nova.
+   Carregado por último: só complementa app.css e tema.css. */
+#app { height: var(--app-alt, 100dvh); min-height: 0; }
+html[data-teclado] #app { padding-bottom: 8px; }
+html[data-teclado] #abas { display: none; }
+
+/* Barra de abas embaixo, com material translúcido; o miolo rola por baixo */
+header { order: 0; }
+.aba { order: 1; }
+#abas { order: 9; position: relative; overflow: visible; border-bottom: 0; border-top: 1px solid var(--linha); padding: 8px 0 0; margin-top: 4px;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; scroll-snap-type: none; }
+#abas > button { min-width: 0; padding: 8px 2px; font-size: .8rem; border-radius: 12px; border-color: transparent; background: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#abas > button[aria-current="page"] { background: var(--sel); border-color: var(--ciano); color: var(--ciano); font-weight: 600; }
+#abas > button:active { transform: scale(.97); }
+#abas-mais { position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 180px; display: flex; flex-direction: column; gap: 4px; padding: 8px; z-index: 5;
+  background: color-mix(in srgb, var(--painel) 88%, transparent); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--linha); border-radius: 16px; box-shadow: 0 12px 32px rgba(0, 0, 0, .5); transform-origin: bottom right; animation: abrir-mais 160ms var(--ease); }
+#abas-mais button { width: 100%; text-align: left; border-radius: 10px; border-color: transparent; background: transparent; }
+#abas-mais button[aria-current="page"] { color: var(--ciano); background: var(--sel); }
+@keyframes abrir-mais { from { opacity: 0; transform: scale(.94) translateY(6px); } }
+
+/* Conversa mais compacta: sobra mais tela para as mensagens */
+#atalhos { scrollbar-width: none; flex: none; }
+#atalhos::-webkit-scrollbar, #of-arquivos::-webkit-scrollbar { display: none; }
+#voz-barra { margin: 4px 0; flex: none; }
+#voz-barra button { flex: 1 1 auto; }
+#form { flex: none; padding-top: 4px; }
+#conversa > .voz, #conversa > .nota, #dica-voz { flex: none; }
+#conversa > .nota { margin: 4px 0 0; }
+.voz { min-height: 44px; }
+.voz input[type="checkbox"], label > input[type="checkbox"] { width: 24px; height: 24px; min-height: 24px; flex: none; accent-color: var(--ciano); }
+label:has(> input[type="checkbox"]) { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+#mic, #enviar { width: 44px; padding: 0; flex: none; }
+#enviar { background: var(--sel); border-color: var(--ciano); color: var(--ciano); }
+
+/* Mensagens: texto longo nunca estoura, rolagem com inércia e sem "puxar" a página inteira */
+#mensagens, .aba { overscroll-behavior: contain; scroll-padding-bottom: 16px; }
+.msg { max-width: 94%; }
+.msg pre, #of-saida { max-width: 100%; }
+.msg img, .msg table { max-width: 100%; }
+.msg { animation: entra 180ms var(--ease); }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } }
+#estado { max-width: 45%; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Alvos de toque de 44 px em tudo que é clicável */
+summary, #notas li, #nv-lista button, #of-arquivos button { min-height: 44px; }
+#notas li { display: flex; flex-direction: column; justify-content: center; }
+select { max-width: 100%; text-overflow: ellipsis; }
+textarea { resize: vertical; max-height: 50vh; }
+
+/* Aviso de versão nova (acima da barra, sem tapar o campo de texto) */
+#nova-versao { position: fixed; left: 16px; right: 16px; bottom: calc(var(--base) + 76px); z-index: 20; display: flex; justify-content: center; animation: entra 220ms var(--ease); }
+#nova-versao button { background: var(--ciano); color: #00131a; border-color: var(--ciano); font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+
+/* 320 px (iPhone SE e janelas estreitas) */
+@media (max-width: 360px) {
+  #app { padding-left: 10px; padding-right: 10px; }
+  #abas > button { font-size: .72rem; }
+  h1 { letter-spacing: .12em; }
+  .msg { max-width: 98%; }
+}
+/* Telas largas (iPad, desktop): a barra volta a ser só uma linha centralizada */
+@media (min-width: 761px) { #abas { grid-template-columns: repeat(5, 1fr); } }
+
+/* Transparência reduzida e contraste: o material vira sólido */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #abas-mais { background: var(--painel); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) { .msg, #abas-mais, #nova-versao { animation: none !important; } }
+
+/* As abas rolam; nada dentro delas encolhe até sumir (o editor da Oficina ficava com uma linha só em telas baixas) */
+.aba > * { flex-shrink: 0; }
+#mensagens { flex-shrink: 1; min-height: 0; }
+#of-editor, #nota-corpo, #ig-dados { min-height: 11rem; }
+#oficina .linha select { flex: 1 1 100%; }
+#of-saida { min-height: 3em; }

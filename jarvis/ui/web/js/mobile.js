@@ -1,9 +1,10 @@
   // ── Jarvis no celular ────────────────────────────────────────
   async function refreshMobile() {
-    const s = await window.pywebview.api.mobile_status();
+    let s;
+    try { s = await window.pywebview.api.mobile_status(); } catch (e) { return; }
     document.getElementById("mobile-on").checked = s.ligado;
     document.getElementById("mobile-url").textContent = s.ligado ? s.url : "";
-    document.getElementById("mobile-devices").innerHTML = "";
+    document.getElementById("mobile-devices").replaceChildren();
     s.aparelhos.forEach((a) => {
       const li = document.createElement("li");
       li.textContent = a.nome + " ";

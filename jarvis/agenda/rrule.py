@@ -73,10 +73,12 @@ def _periodo(base: datetime, regra: dict, n: int) -> list[datetime]:
         dias = [segunda + timedelta(days=d) for d in semana]
     elif freq == "MONTHLY":
         ano, mes = divmod(base.year * 12 + base.month - 1 + n * passo, 12)
-        dias = _dias_do_mes(ano, mes + 1, regra, base)
+        dias = _dias_do_mes(ano, mes + 1, regra, base) if not regra["mes"] or mes + 1 in regra["mes"] else []
     else:
         ano = base.year + n * passo
-        dias = [d for mes in (regra["mes"] or [base.month]) for d in _dias_do_mes(ano, mes, regra, base)]
+        dias = [d for mes in sorted(set(regra["mes"] or [base.month])) if 1 <= mes <= 12 for d in _dias_do_mes(ano, mes, regra, base)]
+    if freq in ("DAILY", "WEEKLY") and regra["mes"]:  # BYMONTH limita qualquer frequência, não só a anual
+        dias = [d for d in dias if d.month in regra["mes"]]
     return [x for x in (datetime.combine(d, hora) for d in dias) if x >= base]
 
 

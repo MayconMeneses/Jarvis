@@ -26,8 +26,11 @@
     }));
   }
 
+  const OF_SEM_PONTE = "Não consegui falar com a Jarvis agora. Feche e abra a Oficina de novo.";
+
   async function ofCarregarProjetos(escolher) {
-    const res = await window.pywebview.api.of_projetos();
+    let res;
+    try { res = await window.pywebview.api.of_projetos(); } catch (e) { ofSay(OF_SEM_PONTE, "falhou"); return; }
     ofProjeto.replaceChildren(...res.projetos.map((p) => new Option(p, p)));
     if (escolher) ofProjeto.value = escolher;
     ofAviso.textContent = (res.python ? "" : "Python não encontrado neste PC. ") + (res.node ? "" : "Node.js não encontrado (JavaScript indisponível). ")
@@ -36,7 +39,8 @@
   }
 
   async function ofAbrir() {
-    const res = await window.pywebview.api.of_abrir(ofProjeto.value);
+    let res;
+    try { res = await window.pywebview.api.of_abrir(ofProjeto.value); } catch (e) { ofSay(OF_SEM_PONTE, "falhou"); return; }
     if (res.error) { ofSay(res.error, "falhou"); return; }
     ofArquivos = res.arquivos;
     const primeiro = Object.keys(ofArquivos).sort()[0] || "";
@@ -48,7 +52,8 @@
 
   async function ofSalvar() {
     if (!ofProjeto.value) { ofSay("Crie um projeto primeiro.", "falhou"); return false; }
-    const res = await window.pywebview.api.of_salvar(ofProjeto.value, ofNome.value, ofEditor.value);
+    let res;
+    try { res = await window.pywebview.api.of_salvar(ofProjeto.value, ofNome.value, ofEditor.value); } catch (e) { ofSay("Não consegui salvar agora. O texto continua no editor.", "falhou"); return false; }
     if (res.error) { ofSay(res.error, "falhou"); return false; }
     ofArquivos[res.caminho] = ofEditor.value;
     ofNome.value = res.caminho;
@@ -59,8 +64,10 @@
   async function ofExecutar(metodo, ...args) {
     if (!(await ofSalvar())) return;
     ofSay("Rodando no sandbox…");
-    const res = await window.pywebview.api[metodo](ofProjeto.value, ...args);
-    ofSay(res.error || res.texto, res.error || !res.ok ? "falhou" : "ok");
+    try {
+      const res = await window.pywebview.api[metodo](ofProjeto.value, ...args);
+      ofSay(res.error || res.texto, res.error || !res.ok ? "falhou" : "ok");
+    } catch (e) { ofSay("Não consegui rodar agora. Tente de novo em instantes.", "falhou"); }
   }
 
   document.getElementById("open-oficina").addEventListener("click", async () => { ofDialog.showModal(); await ofCarregarProjetos(); });
@@ -100,9 +107,16 @@
     if (!ofProjeto.value) { ofSay("Crie um projeto primeiro (botão Novo projeto).", "falhou"); return; }
     if (descricao.length < 10) { ofSay("Descreva o que criar (pelo menos uma frase).", "falhou"); return; }
     if (!confirm("A Jarvis vai escrever os arquivos deste projeto com IA e rodar os testes que ela mesma criou, no sandbox. Continuar?")) return;
+    const botaoIa = document.getElementById("of-ia");
+    botaoIa.disabled = true;  // uma criação por vez
+    try { await ofCriarComIa(descricao); } catch (e) { ofSay("Perdi o contato com a Jarvis durante a criação. Confira os arquivos do projeto.", "falhou"); }
+    botaoIa.disabled = false;
+  });
+
+  async function ofCriarComIa(descricao) {
     const inicio = await window.pywebview.api.of_criar_ia(ofProjeto.value, descricao);
     if (inicio.error) { ofSay(inicio.error, "falhou"); return; }
-    for (;;) {
+    for (let voltas = 0; voltas < 900; voltas++) {  // no máximo ~30 min
       await new Promise((r) => setTimeout(r, 2000));
       const est = await window.pywebview.api.of_estado_ia();
       if (est.rodando) { ofSay("✨ " + (est.status || "criando…")); continue; }
@@ -114,4 +128,4 @@
         r.avisos.length ? "\nAtenção: " + r.avisos.join("; ") : ""].join("\n"), r.testes.includes("terminou bem") ? "ok" : "falhou");
       return;
     }
-  });
+  }

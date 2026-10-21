@@ -9,27 +9,28 @@
 
   /* Temas (data-tema no <html>). Contraste AA conferido em tests/test_tema.py. */
   :root[data-tema="ambar"] {
-    --bg: #0a0703; --panel: rgba(26, 16, 8, .72); --panel-solid: #1a1008;
+    --bg: #0a0703; --bg-2: #1c1206; --glow: #ffe2b0; --panel-rgb: 26, 16, 8; --panel: rgba(26, 16, 8, .72); --panel-solid: #1a1008;
     --text: #fff1dc; --muted: #c9a47a; --faint: #a07f58;
     --cyan: #ffb347; --cyan-rgb: 255, 179, 71; --orange: #ff7a45; --magenta: #ff6fb0;
     --ok: #8be08a; --danger: #ff6b6b; --danger-soft: rgba(255, 107, 107, .1);
     --aurora-2: 255, 111, 60;
   }
   :root[data-tema="esmeralda"] {
-    --bg: #030a06; --panel: rgba(10, 26, 18, .72); --panel-solid: #0a1a12;
+    --bg: #030a06; --bg-2: #07200f; --glow: #c4ffe0; --panel-rgb: 10, 26, 18; --panel: rgba(10, 26, 18, .72); --panel-solid: #0a1a12;
     --text: #e0fff0; --muted: #86bda0; --faint: #6a9e84;
     --cyan: #3ee08f; --cyan-rgb: 62, 224, 143; --orange: #ffb03c; --magenta: #ff6fb0;
     --ok: #7dfa9a; --danger: #ff6b78; --danger-soft: rgba(255, 107, 120, .1);
     --aurora-2: 40, 170, 220;
   }
   :root[data-tema="contraste"] {
-    --bg: #000000; --panel: #000000; --panel-solid: #000000;
+    --bg: #000000; --bg-2: #000000; --glow: #ffffff; --panel-rgb: 0, 0, 0; --panel: #000000; --panel-solid: #000000;
     --line: rgba(255, 255, 255, .6); --line-strong: #ffffff;
     --text: #ffffff; --muted: #dcdcdc; --faint: #bdbdbd;
     --cyan: #ffe14d; --cyan-rgb: 255, 225, 77; --cyan-soft: rgba(255, 225, 77, .18);
     --orange: #ffa24d; --magenta: #ff85e0; --ok: #5dff9a; --danger: #ff8f8f; --danger-soft: rgba(255, 143, 143, .14);
   }
   :root[data-tema="contraste"] body { background: var(--bg); }
+  :root[data-tema="contraste"] .orbe-box, :root[data-tema="contraste"] .briefing { background: var(--bg); }
   :root[data-tema="contraste"] h1 { text-shadow: none; }
   .primary:hover:not(:disabled) { background: color-mix(in srgb, var(--cyan) 78%, #fff); }
 
@@ -64,9 +65,34 @@
 
   /* Movimento: o sistema pede menos, ou o dono desligou os efeitos. Vale para reator/HUD, bolhas e aurora. */
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    *, *::before, *::after, dialog::backdrop { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
     #aurora { display: none; }
   }
-  :root[data-efeitos="desligado"] *, :root[data-efeitos="desligado"] *::before, :root[data-efeitos="desligado"] *::after {
+  :root[data-efeitos="desligado"] *, :root[data-efeitos="desligado"] *::before, :root[data-efeitos="desligado"] *::after, :root[data-efeitos="desligado"] dialog::backdrop {
     animation: none !important; transition-duration: .01ms !important;
+  }
+
+  /* Campos de formulário que não têm estilo próprio (senha da cópia, nome do arquivo etc.) seguem o tema. */
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"]), select) {
+    font: 12.5px var(--mono); color: var(--text); background: rgba(var(--cyan-rgb), .05);
+    border: 1px solid var(--line-strong); border-radius: 2px; padding: 5px 8px; min-height: 30px;
+  }
+  :where(select) option { background: var(--panel-solid); color: var(--text); }
+  :where(input)::placeholder { color: var(--faint); }
+  :where(input[type="checkbox"], input[type="radio"]) { accent-color: var(--cyan); }
+  .ghost { background: transparent; }
+  button:disabled { cursor: not-allowed; }
+
+  /* Diálogos: entram com um fade curto e subida de 6 px (a saída é imediata: fechar nunca pode parecer lento). */
+  dialog[open] { animation: dlg-abre .18s var(--ease) both; }
+  dialog[open]::backdrop { animation: dlg-fundo .18s ease-out both; }
+  @keyframes dlg-abre { from { opacity: 0; transform: translateY(6px) scale(.985); } }
+  @keyframes dlg-fundo { from { opacity: 0; } }
+  dialog h2 { overflow-wrap: anywhere; }
+
+  /* Cores forçadas do Windows (Alto Contraste do sistema): bordas e foco ficam com as cores do sistema. */
+  @media (forced-colors: active) {
+    button, input, select, textarea, dialog, .msg, .card, .painel, .caixa, .briefing { border: 1px solid ButtonText; }
+    :focus-visible { outline: 2px solid Highlight; }
+    #aurora { display: none; }
   }

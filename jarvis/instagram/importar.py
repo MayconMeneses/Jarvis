@@ -37,8 +37,20 @@ _MILHAR = re.compile(r"^\d{1,3}([.,]\d{3})+$")
 _COD = re.compile(r"/(?:p|reel|reels|tv)/([A-Za-z0-9_-]+)")
 
 
+MAX_NUMERO = 10**12  # acima disso é lixo (ou ataque): o SQLite só guarda 64 bits e int() de texto enorme levanta erro
+
+
 def numero(valor: object) -> int | None:
-    """"1,2 mil" -> 1200, "3.4K" -> 3400, "1.234" -> 1234, "oculto"/"-" -> None. Texto ilegível também vira None."""
+    """"1,2 mil" -> 1200, "3.4K" -> 3400, "1.234" -> 1234, "oculto"/"-" -> None. Texto ilegível ou absurdo também vira None."""
+    n = _numero(valor)
+    return n if n is not None and n <= MAX_NUMERO else None
+
+
+def _numero(valor: object) -> int | None:
+    if isinstance(valor, (int, float)) and not isinstance(valor, bool) and not (valor == valor and abs(valor) < 1e18):
+        return None  # NaN, infinito ou enorme
+    if isinstance(valor, str) and len(valor) > 40:
+        return None
     if valor is None or isinstance(valor, bool):
         return None
     if isinstance(valor, (int, float)):

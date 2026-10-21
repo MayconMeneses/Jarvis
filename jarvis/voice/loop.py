@@ -20,6 +20,7 @@ from jarvis.voice.stt import SAMPLE_RATE, Transcriber
 log = logging.getLogger(__name__)
 
 FRAME = 1280  # 80 ms a 16 kHz, o tamanho que o openWakeWord espera
+CAUDA_ECO_S = 0.35  # depois de falar, espera o eco da sala morrer antes de voltar a ouvir
 
 
 class Recorder:
@@ -89,7 +90,17 @@ class VoiceLoop(threading.Thread):
 
     # chamados pela janela/bandeja
     def listen_now(self) -> None:
+        self.interromper()  # apertar o botão enquanto ela fala também a faz calar
         self._manual.set()
+
+    def interromper(self) -> None:
+        """Barge-in: corta a fala em andamento (o som para em ~40 ms)."""
+        stop = getattr(self.speaker, "stop", None)
+        if stop is not None:
+            try:
+                stop()
+            except Exception:
+                log.debug("falha ao interromper a fala", exc_info=True)
 
     def set_paused(self, paused: bool) -> None:
         (self.paused.set if paused else self.paused.clear)()
@@ -100,12 +111,17 @@ class VoiceLoop(threading.Thread):
 
     def speak(self, text: str) -> None:
         """Fala por iniciativa própria (ex.: saudação) sem ouvir a si mesma."""
+        self._falar(text)
+
+    def _falar(self, text: str) -> None:
+        """Toda fala passa por aqui: o microfone é ignorado durante e um instante depois, e o áudio velho é descartado."""
         self._speaking.set()
         try:
             self.speaker.say(text)
         except Exception:
             log.exception("falha ao falar")
         finally:
+            self._stop.wait(CAUDA_ECO_S)  # eco da sala; sai mais cedo se o app está fechando
             self._drain()
             self._speaking.clear()
 
@@ -131,6 +147,8 @@ class VoiceLoop(threading.Thread):
             self.notify({"status": f"Voz indisponível: {exc}"})
 
     def _on_audio(self, data, _frames, _time, _status) -> None:
+        if self._speaking.is_set():
+            return  # a Jarvis está falando: nada do que o microfone pega (o eco dela) entra na fila
         frame = data[:, 0].copy()
         try:
             self._frames.put_nowait(frame)
@@ -164,8 +182,11 @@ class VoiceLoop(threading.Thread):
             return None
 
     def _drain(self) -> None:
-        while not self._frames.empty():
-            self._frames.get_nowait()
+        while True:
+            try:
+                self._frames.get_nowait()
+            except queue.Empty:
+                return
 
     def _listen(self, wake) -> None:
         while not self._stop.is_set():
@@ -218,4 +239,4 @@ class VoiceLoop(threading.Thread):
         self.notify({"answer": result})
         if self.speak_answers:
             self.notify({"status": "Falando…"})
-            self.speaker.say(result.get("text") or "Não consegui responder agora.")
+            self._falar(result.get("text") or "Não consegui responder agora.")

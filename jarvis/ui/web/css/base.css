@@ -1,12 +1,13 @@
   /* Visual HUD (inspirado nas referências do usuário): ciano = ouvindo/parada,
      laranja = pensando, magenta = falando. Sempre escuro, como um HUD. */
   :root {
-    --bg: #04070c; --panel: rgba(10, 22, 34, .72); --panel-solid: #0a1622;
+    --bg: #040a14; --bg-2: #0a1a30; --glow: #bff3ff; --panel-rgb: 8, 20, 36; --panel: rgba(10, 22, 34, .72); --panel-solid: #0a1622;
     --line: rgba(var(--cyan-rgb), .22); --line-strong: rgba(var(--cyan-rgb), .55);
     --text: #dff4ff; --muted: #7fa3b8; --faint: #6a889d;
     --cyan: #3fd0ff; --cyan-rgb: 63, 208, 255; --cyan-soft: rgba(var(--cyan-rgb), .12);
     --orange: #ff9a3c; --magenta: #ff4fb8;
     --ok: #4fe3a5; --danger: #ff5a6e; --danger-soft: rgba(255, 90, 110, .1);
+    --on-accent: #022233; --sunken: rgba(0, 0, 0, .42);
     --state: var(--cyan);
     --mono: "Cascadia Mono", "Consolas", ui-monospace, monospace;
     --ease: cubic-bezier(.2, .8, .2, 1);
@@ -20,11 +21,10 @@
     font-variant-numeric: tabular-nums;
     display: flex; flex-direction: column;
     background:
-      radial-gradient(90% 45% at 50% 0%, rgba(var(--cyan-rgb), .13), transparent 70%),
       linear-gradient(rgba(var(--cyan-rgb), .045) 1px, transparent 1px) 0 0 / 22px 22px,
       linear-gradient(90deg, rgba(var(--cyan-rgb), .045) 1px, transparent 1px) 0 0 / 22px 22px,
-      var(--bg);
+      radial-gradient(70% 55% at 50% 42%, var(--bg-2), var(--bg) 78%);
     -webkit-font-smoothing: antialiased;
   }
   body[data-state="thinking"] { --state: var(--orange); }
-  body[data-state="speaking"] { --state: var(--magenta); }
+  body[data-state="speaking"] { --state: var(--glow); }
