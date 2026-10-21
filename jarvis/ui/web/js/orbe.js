@@ -8,13 +8,13 @@
     const TAU = Math.PI * 2, instancias = [];
     // Alvo de cada estado: cor, brilho (a), giro (rad/s), velocidade da ondulação, amplitude, espalhamento, radar, spinner.
     const ALVO = {
-      idle:      { r: 63,  g: 208, b: 255, a: 0.55, giro: 0.06, vel: 0.35, amp: 0.25, espalha: 0.09, radar: 0, spin: 0 },
+      idle:      { r: 63,  g: 208, b: 255, a: 0.6, giro: 0.06, vel: 0.35, amp: 0.3, espalha: 0.14, radar: 0, spin: 0 },
       listening: { r: 63,  g: 208, b: 255, a: 0.9,  giro: 0.12, vel: 0.8,  amp: 1,    espalha: 0.1,  radar: 1, spin: 0 },
       thinking:  { r: 255, g: 154, b: 60,  a: 0.85, giro: 0.6,  vel: 1.6,  amp: 0.35, espalha: 0.06, radar: 0, spin: 1 },
       speaking:  { r: 110, g: 220, b: 255, a: 0.85,    giro: 0.14, vel: 1,    amp: 1,    espalha: 0.12, radar: 0, spin: 0 },
     };
     const CAMPOS = ["r", "g", "b", "a", "giro", "vel", "amp", "espalha", "radar", "spin"];
-    const PERFIL = { completo: { N: 32, M: 88, P: 60, full: true }, suave: { N: 20, M: 48, P: 30, full: false }, leve: { N: 20, M: 56, P: 30, full: true } };
+    const PERFIL = { completo: { N: 26, M: 80, P: 60, full: true }, suave: { N: 20, M: 48, P: 30, full: false }, leve: { N: 20, M: 56, P: 30, full: true } };
     function corDoTema() {  // espera/ouvindo seguem --cyan; processando segue --orange; falando é o --glow
       const T = window.Cores.ler(), rgb = (c) => (c.match(/\d+/g) || []).slice(0, 3).map(Number);
       const pinta = (e, v) => { if (v.length === 3) [ALVO[e].r, ALVO[e].g, ALVO[e].b] = v; };
@@ -93,7 +93,7 @@
 
       document.addEventListener("visibilitychange", () => { if (document.hidden) parar(); else ligar(); });
       O.aoMudar(ligar);
-      const ctl = { ligar, parar, ativar, debug };
+      const ctl = { ligar, parar, ativar, debug, roda: () => !!raf };
       instancias.push(ctl);
       ligar();
       return ctl;

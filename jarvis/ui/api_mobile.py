@@ -8,6 +8,8 @@ from jarvis import config
 from jarvis.mobile import tailscale
 
 log = logging.getLogger(__name__)
+AVISO_REDE = ("Conexão sem criptografia na rede local: use só em Wi-Fi de confiança. "
+              "Para mais segurança, instale o Tailscale (HTTPS e acesso de qualquer lugar).")
 
 
 class MobileMixin:
@@ -53,10 +55,18 @@ class MobileMixin:
         if self._mobile is not None:
             self._mobile.parar()
 
+    def mobile_aviso_rede(self) -> str:
+        """Aviso curto quando o servidor fala HTTP puro na rede local sem Tailscale (quem está no mesmo Wi-Fi pode espiar o tráfego)."""
+        ligado = bool(self._mobile and self._mobile.ativo)
+        if ligado and self.mobile_modo == "rede" and not (self._mobile.url or "").startswith("https://"):
+            return AVISO_REDE
+        return ""
+
     def mobile_status(self) -> dict:
         cfg = config.load()
         return {"ligado": bool(self._mobile and self._mobile.ativo), "url": self._mobile.url if self._mobile else "",
-                "aparelhos": self._pair().listar(), "modo": self.mobile_modo, "porta": cfg.celular_porta}
+                "aparelhos": self._pair().listar(), "modo": self.mobile_modo, "porta": cfg.celular_porta,
+                "aviso_rede": self.mobile_aviso_rede()}
 
     def mobile_set(self, on: bool) -> dict:
         cfg = config.load()

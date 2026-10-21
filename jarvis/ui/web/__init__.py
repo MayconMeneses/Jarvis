@@ -9,8 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 BASE = Path(__file__).parent
-CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'toolbar', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'radar', 'central', 'caixas', 'design']
-JS = ['core', 'cores', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe-filamentos', 'orbe', 'results', 'inputs', 'menu-nav', 'toolbar', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'face-paineis', 'face', 'radar', 'briefing', 'leitura', 'caixas', 'main']
+CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'toolbar', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'radar', 'central', 'ondas', 'foco-mic', 'caixas', 'arrastar', 'design']
+JS = ['core', 'cores', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe-filamentos', 'orbe', 'ondas', 'results', 'inputs', 'menu-nav', 'toolbar', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'face-paineis', 'foco-mic', 'face', 'radar', 'briefing', 'leitura', 'caixas', 'layout-salvo', 'arrastar', 'main']
 
 
 def _join(folder: str, ext: str, names: list[str]) -> str:

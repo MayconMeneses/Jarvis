@@ -87,6 +87,10 @@ class VoiceConfig:
     atraso_visual_ms: int = 80   # atraso do som (alto-falante/Bluetooth) para o orbe acompanhar a fala
     # 0 a 1: menor = ativa mais fácil (e com mais alarmes falsos).
     sensibilidade: float = 0.5
+    # Modo foco: ao entrar, liga a escuta ("Jarvis, ...") e mostra o microfone; ao sair volta ao estado de antes.
+    foco_escuta_auto: bool = True
+    # Também entende "Jarvis, comando" lendo a transcrição local (sem "hey"); só ativo no modo foco.
+    ativacao_por_texto: bool = True
 
 
 from jarvis.radar.ajustes import RadarConfig  # noqa: E402  (definida em radar/ para o config.py não crescer)
@@ -145,6 +149,8 @@ class Config:
     face_ao_abrir: bool = False  # abrir a tela FACE (HUD em tela cheia dentro da janela) ao iniciar; opt-in
     # Tema da janela: "hud" | "ambar" | "esmeralda" | "contraste" (alto contraste). Ver jarvis/ui/api_tema.py.
     tema: str = "hud"
+    # Posição das caixas arrastadas na janela (fração 0..1 da área livre). Só números; ver jarvis/ui/api_layout.py.
+    layout_caixas: dict = field(default_factory=dict)
     llm_modelo: str = "qwen2.5-coder-1.5b"
     llm_endpoint: str = ""  # opcional: servidor já rodando (Ollama/LM Studio), ex.: http://127.0.0.1:11434
     # Agendas iCal: {"apelido", "cor"}. O link secreto de cada uma fica no cofre do Windows, nunca aqui.

@@ -47,7 +47,7 @@ def _inteiro(valor) -> int:
 
 
 def importar_json(reg: Registro, texto: str) -> dict:
-    """Mescla um JSON exportado (as linhas repetidas não duplicam). Levanta ValueError se o arquivo não for válido."""
+    """Mescla um JSON exportado (idempotente: linha já existente, mesmo ao vivo/jsonl, não duplica). Levanta ValueError se o arquivo não for válido."""
     try:
         dados = json.loads(texto)
     except json.JSONDecodeError as exc:
@@ -67,9 +67,9 @@ def importar_json(reg: Registro, texto: str) -> dict:
                      "projeto": str(l.get("projeto", ""))[:80], "sessao": sessao, "sub": bool(l.get("sub")), "uso": uso,
                      "custo_rep": float(rep) if isinstance(rep, (int, float)) and 0 <= rep < 1e9 else None,
                      "chave": f"imp|{l['ts']}|{l['provedor']}|{modelo}|{sessao}|{uso['in']}|{uso['out']}|{uso['cw']}|{uso['cr']}"})
-    reg.inserir_lote(lote)
+    novas = reg.inserir_lote_sem_repetir(lote)
     if isinstance(dados.get("config"), dict):
         configuracao.salvar(reg, dados["config"])
     if isinstance(dados.get("precos"), dict):
         precos.salvar(dados["precos"])
-    return {"linhas": len(lote)}
+    return {"linhas": len(lote), "novas": novas}

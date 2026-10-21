@@ -103,3 +103,40 @@ test("textos de terceiros não são interpretados: só texto puro", () => {
   assert.ok(t.includes("<img src=x onerror=alert(1)>"));  // chega como texto; md.js e textContent nunca criam HTML
   assert.match(textoEmails({ dados: { ...EMAILS, sem_contas: true } }), /ainda não tem conta/);
 });
+
+test("resposta hostil do PC: formato errado cai no cache/erro, texto vira só texto limpo e limitado", async () => {
+  const c = cenario({ "/api/parear": () => json({ token: "tok123" }), "/api/agenda": () => json(AGENDA) });
+  await c.pc.parear("https://pc.exemplo.ts.net:8765", "123456");
+  assert.equal((await c.pc.obter("agenda")).ok, true);
+  for (const lixo of [null, "texto", 7, [], { hoje: null }, { sem_agendas: false, hoje: "x", semana: { a: 1 }, proximo: 5 }]) {
+    c.rotas["/api/agenda"] = () => json(lixo);
+    const r = await c.pc.obter("agenda");
+    if (r.ok) textoAgenda(r); else assert.match(r.erro, /inesperado|PC/);
+  }
+  c.rotas["/api/agenda"] = () => json(null);
+  const r = await c.pc.obter("agenda");   // resposta inválida: usa a última cópia boa, marcada como cópia
+  assert.equal(r.ok, true); assert.equal(r.doCache, true); assert.match(r.erro, /inesperado/);
+  c.rotas["/api/emails"] = () => json({ sem_contas: false, contagem: { acao: "9", info: -1, ruido: 1e99 }, baldes: { acao: [null, 3, { de: { x: 1 }, assunto: "A".repeat(5000) + "\u0007" }], info: "x", ruido: [] } });
+  const e = await c.pc.obter("emails");
+  assert.equal(e.ok, true);
+  assert.equal(e.dados.contagem.acao, 0); assert.equal(e.dados.contagem.ruido, 1e9);
+  assert.equal(e.dados.baldes.acao.length, 1); assert.equal(e.dados.baldes.acao[0].assunto.length, 300); assert.equal(e.dados.baldes.acao[0].de, "");
+  assert.doesNotThrow(() => textoEmails(e));
+});
+
+test("cache corrompido no IndexedDB não derruba: vira erro", async () => {
+  const c = cenario({ "/api/parear": () => json({ token: "tok123" }), cair: true });
+  await c.pc.parear("https://pc.exemplo.ts.net:8765", "123456").catch(() => {});
+  await c.memoria.armazem.gravar("pc:pareado", { url: "https://pc.exemplo.ts.net:8765", token: "t", desde: "x" });
+  await c.memoria.armazem.gravar("pc:cache:agenda", { quando: "x", dados: "lixo" });
+  const r = await c.pc.obter("agenda");
+  assert.equal(r.ok, false);
+});
+
+test("token do pareamento absurdo é recusado", async () => {
+  for (const token of ["x".repeat(600), "com espaço", "quebra\nlinha", ""]) {
+    const c = cenario({ "/api/parear": () => json({ token }) });
+    await assert.rejects(c.pc.parear("https://pc.exemplo.ts.net:8765", "123456"), /inesperada/);
+    assert.equal(await c.pc.pareado(), false);
+  }
+});

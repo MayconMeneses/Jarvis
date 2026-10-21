@@ -26,3 +26,5 @@
   .dialog-actions { display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--line); }
   #mobile-devices { list-style: none; margin: 0 0 8px; padding: 0; }
   #mobile-devices li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 3px 0; font-size: 13px; overflow-wrap: anywhere; }
+  .aviso-rede { margin: 4px 0 6px; padding: 4px 8px; font-size: 12px; line-height: 1.4; color: var(--muted); border-left: 2px solid var(--orange); overflow-wrap: anywhere; }
+  .aviso-rede[hidden] { display: none; }

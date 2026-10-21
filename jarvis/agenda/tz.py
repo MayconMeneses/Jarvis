@@ -1,4 +1,5 @@
-"""Fusos horários dos eventos. Sem o pacote tzdata (comum no Windows) usa deslocamentos fixos conhecidos."""
+"""Fusos horários dos eventos: zoneinfo real (o pacote tzdata é dependência do projeto e vai no instalador).
+Se mesmo assim o banco de fusos faltar, cai em deslocamentos fixos conhecidos (Brasil)."""
 
 from __future__ import annotations
 
@@ -37,6 +38,6 @@ def resolver(tzid: str | None) -> tzinfo | None:
         from zoneinfo import ZoneInfo
 
         return ZoneInfo(nome)
-    except Exception:  # sem tzdata ou nome inválido
+    except Exception:  # banco de fusos ausente ou nome inválido (ZoneInfoNotFoundError, ValueError)
         horas = _FIXOS.get(nome)
         return timezone(timedelta(hours=horas)) if horas is not None else None

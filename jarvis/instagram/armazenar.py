@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS post (rodada_id INTEGER NOT NULL, chave TEXT NOT NULL
   legenda TEXT, likes INTEGER, comentarios INTEGER, views INTEGER, salvamentos INTEGER, compartilhamentos INTEGER,
   PRIMARY KEY (rodada_id, chave));
 """
+VERSAO_ESQUEMA = 2  # 1 = esquema original (sem versão gravada); 2 = no máximo um perfil "próprio" (índice único parcial)
 
 
 def caminho() -> Path:
@@ -37,6 +38,24 @@ class Armazem:
         with closing(sqlite3.connect(self.path, timeout=15)) as db:
             db.execute("PRAGMA journal_mode=WAL")
             db.executescript(SCHEMA)
+            self._migrar(db)
+
+    @staticmethod
+    def _migrar(db: sqlite3.Connection) -> None:
+        """Versão do esquema em PRAGMA user_version. Banco de versão mais nova (downgrade) é tolerado e não é rebaixado."""
+        versao = db.execute("PRAGMA user_version").fetchone()[0]
+        if versao >= VERSAO_ESQUEMA:
+            return
+        db.execute("BEGIN IMMEDIATE")
+        try:
+            if versao < 2:  # bancos antigos podem ter 2+ "próprios": fica o de maior id de linha, os outros viram concorrentes
+                db.execute("UPDATE perfil SET proprio = 0 WHERE proprio = 1 AND rowid <> (SELECT MAX(rowid) FROM perfil WHERE proprio = 1)")
+                db.execute("CREATE UNIQUE INDEX IF NOT EXISTS perfil_um_proprio ON perfil(proprio) WHERE proprio = 1")
+            db.execute(f"PRAGMA user_version = {VERSAO_ESQUEMA}")
+            db.execute("COMMIT")
+        except Exception:
+            db.execute("ROLLBACK")
+            raise
 
     def _db(self) -> sqlite3.Connection:
         db = sqlite3.connect(self.path, timeout=15)
@@ -56,6 +75,9 @@ class Armazem:
 
     def definir_perfis(self, seguidores: dict[str, int | None], proprio: str = "") -> None:
         with closing(self._db()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            if proprio:  # no máximo um próprio: zera os outros antes (o índice único parcial exigiria, e o REPLACE apagaria a linha)
+                db.execute("UPDATE perfil SET proprio = 0 WHERE proprio = 1 AND arroba <> ?", (proprio,))
             for arroba, seg in seguidores.items():
                 atual = db.execute("SELECT seguidores FROM perfil WHERE arroba = ?", (arroba,)).fetchone()
                 db.execute("INSERT OR REPLACE INTO perfil (arroba, seguidores, proprio) VALUES (?, ?, ?)",
@@ -73,10 +95,11 @@ class Armazem:
 
     def rodada_para_importar(self, agora: datetime, nova: bool = False) -> int:
         """A última rodada, se for da mesma semana ISO; senão (ou se pedido) uma rodada nova."""
-        todas = self.rodadas()
-        if todas and not nova and datetime.fromisoformat(todas[-1]["criada"]).isocalendar()[:2] == agora.isocalendar()[:2]:
-            return todas[-1]["id"]
         with closing(self._db()) as db, db:
+            db.execute("BEGIN IMMEDIATE")  # ler a última e criar a nova numa só transação: duas chamadas não criam rodada duplicada
+            ultima = db.execute("SELECT id, criada FROM rodada ORDER BY id DESC LIMIT 1").fetchone()
+            if ultima and not nova and datetime.fromisoformat(ultima["criada"]).isocalendar()[:2] == agora.isocalendar()[:2]:
+                return ultima["id"]
             return db.execute("INSERT INTO rodada (criada) VALUES (?)", (agora.isoformat(timespec="seconds"),)).lastrowid
 
     def gravar_posts(self, rodada_id: int, posts: list[dict]) -> tuple[int, int]:

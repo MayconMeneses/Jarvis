@@ -166,3 +166,12 @@ test("lembrete semanal: só ligado, segunda de 9h a 20h, com rodada, uma vez por
   assert.equal(await new Instagram(new Memoria(), () => segunda).aviso(segunda), null);
   assert.ok(memoria);
 });
+
+test("JSON hostil do Instagram: posts que não é lista, nulo e números gigantes não derrubam nem poluem o protótipo", async () => {
+  for (const t of ['{"posts":"abc"}', '{"posts":5}', "null"]) assert.throws(() => ler(t), /não (achei|consegui)/);
+  assert.throws(() => ler('{"posts":"abc"}'), (e) => !/is not a function/.test(e.message));
+  const r = ler(`[{"__proto__":{"admin":true},"perfil":"a","data":"2026-10-01","likes":1e999,"views":{"x":1},"comentarios":"${"9".repeat(5000)}"}]`);
+  assert.equal(r.posts.length, 1);
+  assert.equal({}.admin, undefined);
+  assert.equal(r.posts[0].likes, null);
+});

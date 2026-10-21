@@ -38,12 +38,14 @@
       document.body.classList.add("foco"); barra.hidden = false;
       $("face-legenda").textContent = legenda;
       ligar();
+      if (window.FocoMic) window.FocoMic.entrar();
       $("face-fechar").focus();
     }
     function fechar() {
       if (!foco) return;
       foco = false; document.body.classList.remove("foco"); barra.hidden = true;
       if (telaCheia && api()) { api().face_tela_cheia(); telaCheia = false; }
+      if (window.FocoMic) window.FocoMic.sair();
       ligar();
       if (antes && antes.focus && antes.offsetParent) antes.focus(); else $("tb-mais-btn").focus();
     }

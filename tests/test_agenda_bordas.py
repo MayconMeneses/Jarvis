@@ -3,8 +3,6 @@
 import zoneinfo
 from datetime import datetime, timedelta, timezone
 
-import pytest
-
 from jarvis.agenda import ics, ocorrencias
 
 BRT = timezone(timedelta(hours=-3))
@@ -39,10 +37,7 @@ def test_bymonth_limita_a_regra_diaria_e_semanal():
 
 
 def test_horario_de_verao_mantem_a_hora_de_parede():
-    try:
-        zona = zoneinfo.ZoneInfo("America/New_York")
-    except zoneinfo.ZoneInfoNotFoundError:
-        pytest.skip("sem banco de fusos (tzdata)")
+    zona = zoneinfo.ZoneInfo("America/New_York")  # tzdata é dependência do projeto: sem skip
     texto = _cal("DTSTART;TZID=America/New_York:20261027T090000\r\nRRULE:FREQ=WEEKLY;COUNT=3\r\nSUMMARY:x")
     a, b = datetime(2026, 10, 1, tzinfo=zona), datetime(2026, 12, 1, tzinfo=zona)
     achadas = ocorrencias.ocorrencias(ics.ler(texto), a, b, zona)

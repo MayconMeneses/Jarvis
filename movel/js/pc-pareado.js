@@ -1,6 +1,8 @@
 // PC pareado (opcional, SOMENTE LEITURA): o Jarvis do PC entrega agenda, e-mails, bom dia e agentes ao celular.
 // O token do pareamento fica só no IndexedDB deste aparelho (chave "pc:pareado", fora da cópia de segurança). Nada é enviado ao PC além do pedido de leitura.
+import { validarResposta } from "./pc-validar.js";
 const CHAVE = "pc:pareado";
+const MAX_RESPOSTA = 2_000_000;
 const CACHE = "pc:cache:";
 const ROTAS = { agenda: "/api/agenda", emails: "/api/emails", briefing: "/api/briefing", agentes: "/api/agents" };
 export const OFFLINE = "PC desligado ou fora da rede.";
@@ -35,8 +37,8 @@ export class PcPareado {
     try { r = await this._chamar(url + "/api/parear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo: cod, nome }) }); }
     catch { throw new Error(OFFLINE); }
     if (!r.ok) throw new Error(r.status === 403 ? "código inválido, vencido ou bloqueado; gere outro na janela do PC" : `o PC respondeu HTTP ${r.status}`);
-    const { token } = await r.json();
-    if (typeof token !== "string" || !token) throw new Error("resposta inesperada do PC");
+    const { token } = (await r.json()) || {};
+    if (typeof token !== "string" || !token || token.length > 512 || /[^!-~]/.test(token)) throw new Error("resposta inesperada do PC");
     await this.armazem.gravar(CHAVE, { url, token, desde: this.agora().toISOString() });
     return url;
   }
@@ -54,13 +56,14 @@ export class PcPareado {
     try {
       const r = await this._chamar(p.url + ROTAS[rota], { headers: { Authorization: `Bearer ${p.token}` } });
       if (r.ok) {
-        const dados = await r.json(), quando = this.agora().toISOString();
-        await this.armazem.gravar(CACHE + rota, { quando, dados });
-        return { ok: true, dados, quando, doCache: false };
-      }
-      erro = r.status === 401 ? "O PC não reconhece mais este celular. Pareie de novo." : "O PC não conseguiu ler agora.";
+        if (Number(r.headers?.get?.("content-length")) > MAX_RESPOSTA) throw new Error("resposta grande demais");
+        const dados = validarResposta(rota, await r.json()), quando = this.agora().toISOString();
+        if (!dados) erro = "O PC respondeu algo inesperado.";
+        else { await this.armazem.gravar(CACHE + rota, { quando, dados }); return { ok: true, dados, quando, doCache: false }; }
+      } else erro = r.status === 401 ? "O PC não reconhece mais este celular. Pareie de novo." : "O PC não conseguiu ler agora.";
     } catch { /* sem rede, PC desligado ou tempo esgotado */ }
-    const guardado = await this.armazem.ler(CACHE + rota);
-    return guardado ? { ok: true, dados: guardado.dados, quando: guardado.quando, doCache: true, erro } : { ok: false, erro };
+    const guardado = await this.armazem.ler(CACHE + rota), limpo = guardado && validarResposta(rota, guardado.dados);
+    if (guardado) guardado.dados = limpo;
+    return limpo ? { ok: true, dados: guardado.dados, quando: guardado.quando, doCache: true, erro } : { ok: false, erro };
   }
 }

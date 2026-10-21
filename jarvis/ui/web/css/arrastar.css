@@ -1,0 +1,28 @@
+  /* ── caixas arrastáveis (>= 1100 px): camada livre sobre o palco, alça de mover e estados de arrasto ───────────
+     Só variáveis dos temas. Sem animação de encaixe com efeitos suave/desligado ou prefers-reduced-motion. */
+  .palco { position: relative; }
+  .camada-livre { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+  .camada-livre > * { pointer-events: auto; position: absolute; left: 0; top: 0; margin: 0; max-height: min(64vh, 520px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .camada-livre > .painel { width: clamp(210px, 18vw, 300px); }
+  .camada-livre > .extra { display: block; }
+  .camada-livre > .caixa { width: clamp(240px, 22vw, 340px); }
+  .camada-livre > .canal { display: flex; width: clamp(260px, 23vw, 380px); height: clamp(280px, 44vh, 440px); border-width: 1px; background: rgba(var(--panel-rgb), .55); overflow: hidden; }
+  .camada-livre > .canal #log { flex: 1; height: auto; min-height: 80px; }
+  .camada-livre > .canal form { flex-wrap: wrap; }
+  .camada-livre > .canal textarea { flex: 1 1 100%; order: -1; }
+  .camada-livre > .canal #send { margin-left: auto; }
+  .camada-livre .gauge { grid-template-columns: 38px 1fr 34px; gap: 8px; margin: 5px 0; }
+  body.foco .camada-livre { display: none; }
+
+  .arr-pega { display: none; position: absolute; top: 4px; right: 4px; z-index: 2; width: 30px; height: 30px; min-height: 0; padding: 0; font-size: 16px; line-height: 1; color: var(--muted); background: transparent; border: 1px solid transparent; cursor: grab; touch-action: none; }
+  .arr-ativo .arr-pega { display: block; }
+  .arr-pega[hidden] { display: none; }
+  .caixa > .arr-pega { right: 50px; top: 6px; }
+  .arr-pega:hover, .arr-pega[aria-pressed="true"] { color: var(--cyan); border-color: var(--line-strong); }
+  .arr-ativo .painel > .rot, .arr-ativo .canal > .rot, .arr-ativo .caixa > header .rot { cursor: grab; touch-action: none; user-select: none; padding: 9px 0; margin: -9px 0; }
+  .arr-pegada { z-index: 20; cursor: grabbing; border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 10px 26px -8px rgba(var(--panel-rgb), .9); }
+  .arr-pegada .rot, .arr-pegada .arr-pega { cursor: grabbing; }
+  .arr-proibido { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
+  .arr-snap { transition: transform .18s var(--ease); }
+  :root:not([data-efeitos="completo"]) .arr-snap { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .arr-snap { transition: none; } }

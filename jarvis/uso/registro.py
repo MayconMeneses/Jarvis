@@ -90,6 +90,22 @@ class Registro:
             for l in linhas:
                 self._gravar(self._tupla(**l))
 
+    def inserir_lote_sem_repetir(self, linhas: list[dict]) -> int:
+        """Como inserir_lote, mas pula a linha que já existe com os mesmos valores (ts, provedor, modelo, sessão, tokens).
+        Torna idempotente reimportar uma exportação, mesmo para linhas ao vivo/jsonl, que têm outra chave. Devolve quantas entraram."""
+        novas = 0
+        with self._trava, self._db:
+            for l in linhas:
+                t = self._tupla(**l)
+                # t: 1=ts 4=provedor 5=modelo 7=sessao 9=tin 10=tout 11=cw 13=cr
+                achou = self._db.execute(
+                    "SELECT 1 FROM uso WHERE ts=? AND provedor=? AND modelo=? AND sessao=? AND tin=? AND tout=? AND cw=? AND cr=? LIMIT 1",
+                    (t[1], t[4], t[5], t[7], t[9], t[10], t[11], t[13])).fetchone()
+                if not achou:
+                    self._gravar(t)
+                    novas += 1
+        return novas
+
     def ao_vivo(self, provedor: str, modelo: str = "", uso: dict | None = None, custo_rep: float | None = None,
                 ts: float | None = None) -> None:
         self.inserir(ts=ts or time.time(), fonte="ao_vivo", provedor=provedor, modelo=modelo, uso=uso, custo_rep=custo_rep)

@@ -49,6 +49,7 @@ def build_voice(cfg: Config, api: Api, window):
         ),
         sensitivity=cfg.voz.sensibilidade,
         speak_answers=cfg.voz.falar_respostas,
+        por_texto=cfg.voz.ativacao_por_texto,
     )
 
 

@@ -30,6 +30,7 @@
         </div>
         <div class="tb-grupo" role="group" aria-labelledby="tbg-ajustes">
           <span class="tb-rotulo" id="tbg-ajustes">Ajustes</span>
+          <button type="button" role="menuitem" id="layout-padrao" title="Devolve todas as caixas ao lugar de origem (arrastar vale a partir de 1100 px de largura)">▣ Restaurar layout<small>Caixas voltam ao lugar padrão</small></button>
           <button type="button" role="menuitem" id="open-brains" title="Cadastrar Gemini/NVIDIA e escolher quando usar">⚙ Cérebros<small>Chaves, voz, modos e aparência</small></button>
           <label class="fx">Efeitos <select id="efeitos" title="Animação do orbe: completo, suave (menos movimento) ou desligado">
             <option value="completo">completo</option><option value="suave">suave</option><option value="desligado">desligado</option></select></label>
@@ -135,6 +136,8 @@
         <button type="button" id="face-fechar" title="Voltar (Esc)">Sair (Esc)</button>
       </div>
       <p id="orbe-estado" class="estado" role="status" aria-live="polite">Em espera</p>
+      <div class="orbe-linha">
+      <div class="onda-painel" aria-hidden="true"><span class="rot">Entrada</span><canvas id="onda-entrada" class="onda"></canvas></div>
       <div class="orbe-box">
         <canvas id="orbe" class="reactor" aria-hidden="true"></canvas>
         <div class="briefing" id="briefing" aria-labelledby="br-titulo" aria-busy="true">
@@ -148,6 +151,18 @@
           </div>
         </div>
       </div>
+      <div class="onda-painel" aria-hidden="true"><span class="rot">Saída</span><canvas id="onda-saida" class="onda"></canvas></div>
+      </div>
+      <div class="escuta-linha" id="escuta-linha">
+        <button type="button" id="escuta" class="escuta" aria-pressed="false" aria-label="Falar com a Jarvis" title="Falar com a Jarvis: clique e fale"><canvas id="escuta-anel" aria-hidden="true"></canvas></button>
+      </div>
+      <div class="foco-mic" id="foco-mic-caixa">
+        <div class="foco-mic-linha">
+          <button type="button" id="foco-mic" class="foco-mic-botao" data-estado="desligado" aria-pressed="false" aria-label="Microfone desligado. Clique para ligar" title="Clique para ligar ou desligar o microfone"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/><path class="corte" d="M4 4l16 16"/></svg></button>
+          <button type="button" id="foco-mic-agora" class="foco-mic-agora" title="Falar agora, sem dizer Jarvis (barra de espaço)">Falar agora (Espaço)</button>
+        </div>
+        <p id="foco-mic-rotulo" class="foco-mic-rotulo" role="status" aria-live="polite">Microfone desligado</p>
+      </div>
       <p id="face-legenda" class="legenda"></p>
       <section class="caixas" aria-label="Informações">
         <article class="caixa" id="cx-clima" data-cx="clima" aria-labelledby="cx-clima-t" aria-busy="true">
@@ -160,6 +175,10 @@
         </article>
         <article class="caixa" id="cx-noticias" data-cx="noticias" aria-labelledby="cx-noticias-t" aria-busy="true">
           <header><h2 id="cx-noticias-t" class="rot">Últimas notícias</h2><button type="button" class="cx-atualizar" data-cx="noticias" aria-label="Atualizar notícias" title="Atualizar notícias">↻</button></header>
+          <p class="cx-msg" role="status"></p><ul class="cx-lista"></ul>
+        </article>
+        <article class="caixa" id="cx-tecnologia" data-cx="tecnologia" aria-labelledby="cx-tecnologia-t" aria-busy="true">
+          <header><h2 id="cx-tecnologia-t" class="rot">Notícias de tecnologia</h2><button type="button" class="cx-atualizar" data-cx="tecnologia" aria-label="Atualizar notícias de tecnologia" title="Atualizar notícias de tecnologia">↻</button></header>
           <p class="cx-msg" role="status"></p><ul class="cx-lista"></ul>
         </article>
       </section>

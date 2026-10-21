@@ -82,10 +82,28 @@ def preco_de(modelo: str, tabela: dict) -> dict | None:
     return p
 
 
-def calcular(modelo: str, uso: dict, tabela: dict | None = None) -> tuple[float, bool]:
-    """(custo em USD, preço_conhecido). Sem preço devolve (0.0, False): quem mostra deve destacar."""
-    tabela = tabela or carregar()
+FAMILIAS = ("opus", "sonnet", "haiku")
+
+
+def preco_aproximado(modelo: str, tabela: dict) -> dict | None:
+    """Preço exato ou, na falta, o da mesma família ("claude-opus-4-1" usa o do opus da tabela). Sempre uma ESTIMATIVA."""
     p = preco_de(modelo, tabela)
+    if p:
+        return p
+    nome = normalizar(modelo)
+    for familia in FAMILIAS:
+        if familia in nome:  # várias versões da família: o mais caro (estimativa conservadora e independente da ordem da tabela)
+            candidatos = [preco_de(c, tabela) for c in (tabela.get("modelos") or {}) if familia in c]
+            candidatos = [c for c in candidatos if c]
+            return max(candidatos, key=lambda c: (c["in"], c["out"])) if candidatos else None
+    return None
+
+
+def calcular(modelo: str, uso: dict, tabela: dict | None = None, aproximar: bool = False) -> tuple[float, bool]:
+    """(custo em USD, preço_conhecido). Sem preço devolve (0.0, False): quem mostra deve destacar.
+    aproximar=True aceita o preço da família do modelo (usado onde o custo já é rotulado "estimado")."""
+    tabela = tabela or carregar()
+    p = preco_aproximado(modelo, tabela) if aproximar else preco_de(modelo, tabela)
     if p is None:
         return 0.0, False
     m = tabela["multiplicadores"]

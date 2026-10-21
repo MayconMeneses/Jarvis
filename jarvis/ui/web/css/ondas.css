@@ -1,0 +1,27 @@
+  /* ── ondas de áudio laterais (só em telas largas) e orbe pequeno de escuta ──────────────────────────────────────
+     Só variáveis dos 4 temas. Painéis com colchetes finos como os demais. Tudo é desenho em canvas (ondas.js). */
+  .orbe-linha { display: block; }
+  .onda-painel { display: none; }
+  .escuta-linha { display: flex; justify-content: center; margin-top: -10px; padding: 0 0 4px; position: relative; }
+  .escuta-linha[hidden] { display: none; }
+  .escuta { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: rgba(var(--panel-rgb), .55); }
+  .escuta canvas { width: 32px; height: 32px; pointer-events: none; }
+  .escuta:hover:not(:disabled) { border-color: var(--line-strong); }
+  .escuta[aria-pressed="true"] { border-color: var(--cyan); box-shadow: 0 0 14px -3px var(--cyan); }
+  .escuta[data-estado="thinking"] { border-color: var(--orange); }
+  [data-efeitos="desligado"] .escuta { transition: none; }
+
+  @container centro (min-width: 760px) {
+    .orbe-linha { --lado: min(78cqw, calc(100cqh - 104px), 780px); display: grid; grid-template-columns: 64px auto 64px; justify-content: center; align-items: center; gap: 12px; }
+    .orbe-linha .orbe-box { margin: 0; }
+    .onda-painel { position: relative; display: block; width: 64px; height: calc(var(--lado) * .56); padding: 0; }
+    .onda-painel::before, .onda-painel::after { content: ""; position: absolute; width: 9px; height: 9px; border: solid var(--cyan); pointer-events: none; }
+    .onda-painel::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .onda-painel::after { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
+    .onda-painel .rot { position: absolute; left: 0; right: 0; top: -22px; margin: 0; text-align: center; font-size: 9.5px; letter-spacing: .16em; }
+    .onda { display: block; width: 100%; height: 100%; background: rgba(var(--panel-rgb), .4); border: 1px solid var(--line); }
+  }
+  body.foco .onda-painel { display: none; }
+  body.foco .orbe-linha { display: block; }
+  @media (prefers-reduced-motion: reduce) { .escuta { transition: none; } }
+  .escuta::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; }

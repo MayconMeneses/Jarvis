@@ -1,6 +1,7 @@
 // Aba Memória: ver, buscar, editar, apagar, salvar e restaurar a cópia de segurança. Tudo só neste aparelho.
 import { erroHumano } from "./erros.js";
 import { cifrar, decifrar, eCifrado } from "./cripto.js";
+import { resumoRestauracao } from "./restaurar.js";
 import { ligarGrafo } from "./painel-grafo.js";
 
 const $ = (id) => document.getElementById(id);
@@ -76,7 +77,7 @@ export function ligarMemoria(memoria, avisar) {
     if (!arquivo) return;
     try {
       const conteudo = await arquivo.text();
-      avisar(`Restaurei ${await memoria.importar(eCifrado(conteudo) ? await decifrar(conteudo, $("senha-copia").value) : conteudo)} notas.`);
+      avisar(resumoRestauracao(await memoria.restaurar(eCifrado(conteudo) ? await decifrar(conteudo, $("senha-copia").value) : conteudo)));
       await listar();
     } catch (e) { avisar(erroHumano(e, "Não consegui restaurar.")); }
     $("senha-copia").value = "";

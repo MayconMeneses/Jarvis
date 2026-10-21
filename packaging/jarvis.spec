@@ -14,6 +14,7 @@ datas += collect_data_files("openwakeword")       # modelo "hey jarvis" e de áu
 datas += collect_data_files("faster_whisper")     # VAD silero
 datas += collect_data_files("webview")
 datas += collect_data_files("certifi")
+datas += collect_data_files("tzdata")             # banco de fusos para zoneinfo no Windows
 datas += collect_data_files("docx")               # modelo padrão do Word
 datas += collect_data_files("pptx")               # modelo padrão do PowerPoint
 datas += collect_data_files("fpdf")

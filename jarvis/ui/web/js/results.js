@@ -19,6 +19,7 @@
   const STATUS_TO_ORB = { "Ouvindo…": "listening", "Transcrevendo…": "thinking", "Pensando…": "thinking", "Falando…": "speaking" };
   window.onVoice = (ev) => {
     if (window.Orbe && window.Orbe.evento(ev)) return;  // {tipo: "fala"|"fim"|"mic"}: só o orbe
+    if (ev.escuta !== undefined && window.FocoMic) window.FocoMic.evento(ev.escuta);  // estado do microfone no modo foco
     if (ev.status !== undefined) {
       voiceStatus.textContent = ev.status;
       if (!busy) setOrb(STATUS_TO_ORB[ev.status] || "idle");

@@ -8,7 +8,7 @@
     const PX = new Float32Array(NMAX * (MMAX + 1)), PY = new Float32Array(NMAX * (MMAX + 1));
     const COS = new Float32Array(MMAX + 1), SEN = new Float32Array(MMAX + 1);
     const W1 = new Uint8Array(NMAX), W2 = new Uint8Array(NMAX), FASE = new Float32Array(NMAX), AMPF = new Float32Array(NMAX), BALDE = new Uint8Array(NMAX);
-    for (let f = 0; f < NMAX; f++) { W1[f] = 3 + (f % 3); W2[f] = 6 + (f % 3); FASE[f] = f * OURO; AMPF[f] = 0.55 + 0.9 * ((f * 0.618) % 1); }  // cada fio passeia mais ou menos: os fios se cruzam
+    for (let f = 0; f < NMAX; f++) { W1[f] = 3 + (f % 3); W2[f] = 6 + (f % 3); FASE[f] = f * OURO; AMPF[f] = 0.4 + 1.5 * ((f * 0.618) % 1); }  // cada fio passeia mais ou menos: os fios se cruzam
     let mTabela = 0, spriteCv = null, spriteChave = "";
 
     function tabela(M) {
@@ -51,7 +51,7 @@
       }
       ctx.lineJoin = "round"; ctx.lineCap = "round";
       for (let b = 0; b < FAIXAS; b++) {
-        const alfa = lim(vivo * (0.22 + 0.12 * b));
+        const alfa = lim(vivo * (0.2 + 0.1 * b));
         ctx.beginPath();
         for (let f = 0; f < N; f++) {
           if (BALDE[f] !== b) continue;
@@ -59,8 +59,8 @@
           ctx.moveTo(PX[base], PY[base]);
           for (let j = 1; j <= M; j++) ctx.lineTo(PX[base + j], PY[base + j]);
         }
-        ctx.lineWidth = 3.4 * esc; ctx.strokeStyle = `rgba(${p.r | 0},${p.g | 0},${p.b | 0},${alfa * 0.3})`; ctx.stroke();  // halo
-        ctx.lineWidth = Math.max(0.9, 1.25 * esc); ctx.strokeStyle = `rgba(${p.r | 0},${p.g | 0},${p.b | 0},${lim(alfa * 0.95)})`; ctx.stroke();  // fio
+        ctx.lineWidth = 3 * esc; ctx.strokeStyle = `rgba(${p.r | 0},${p.g | 0},${p.b | 0},${alfa * 0.2})`; ctx.stroke();  // halo
+        ctx.lineWidth = Math.max(0.8, 1.05 * esc); ctx.strokeStyle = `rgba(${p.r | 0},${p.g | 0},${p.b | 0},${lim(alfa * 0.95)})`; ctx.stroke();  // fio
       }
       // Pontos de luz: nós de energia andando pelos filamentos; 1 em 7 pisca mais forte com a voz.
       if (c.P > 0) {

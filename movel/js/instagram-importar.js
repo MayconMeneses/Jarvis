@@ -34,7 +34,7 @@ function tabela(texto) {
   const avisos = [], cru = texto.trim().replace(/^﻿/, "");
   if (cru[0] === "[" || cru[0] === "{") {
     const dados = JSON.parse(cru);
-    const itens = Array.isArray(dados) ? dados : dados.posts || [];
+    const itens = Array.isArray(dados) ? dados : Array.isArray(dados?.posts) ? dados.posts : [];
     return [itens.filter((i) => i && typeof i === "object").map((i) => ({ ...i })), avisos];
   }
   const cab = cru.split(/\r?\n/)[0] || "";
