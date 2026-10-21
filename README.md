@@ -69,6 +69,7 @@ As regras do projeto, para quem contribui (inclusive o Claude Code), estão em [
 | `jarvis/pc/` | Leitura do PC, ações com aprovação, abrir programas e capturar a tela |
 | `jarvis/dev/` | Projetos, fila do Claude Code, revisão de mudanças e sessões |
 | `jarvis/mail/`, `jarvis/info/`, `jarvis/voice/` | E-mail; clima, notícias e vagas; voz |
+| `jarvis/radar/` | Radar de Notícias: fontes, coleta, pontuação, resumo, roteiro, áudio e agendamento |
 | `jarvis/eval/` | Métricas e benchmarks |
 | `packaging/` | PyInstaller e Inno Setup |
 | `tests/` | Suíte de testes |
@@ -97,6 +98,14 @@ python -m jarvis --chave gemini
 ```bash
 python -m jarvis --chave nvidia
 ```
+
+## Novidades da versão 0.25
+
+- **HUD central**: o orbe de filamentos fica no meio da janela, com o panorama do dia dentro dele, painéis laterais (telemetria, sessões, e-mails, agentes) e o canal de conversa à direita. Todos os botões ficam no menu **☰** (tecla M), agrupados; **FACE** virou o **Modo foco** (tecla F).
+- **Caixas de informação**: clima, oportunidades de emprego e últimas notícias, cada uma com **Ler para mim** (a Jarvis lê em voz alta, com tradução para o português quando o texto vem em outro idioma).
+- **Voz melhorada**: leitura mais natural e fala interrompível; o microfone e a voz Piper local seguem funcionando sem internet.
+- **Segurança**: conteúdo de e-mail, site e notícia segue sendo tratado como dado de terceiros; ajustes no backend, no celular e na leitura de textos externos.
+- **Radar de Notícias** (menu ☰, grupo "Saber e fazer"): boletim diário do seu nicho, com áudio. Detalhes na seção [Radar de Notícias](#radar-de-notícias).
 
 ## Novidades das versões 0.21 a 0.23
 
@@ -324,6 +333,19 @@ O primeiro roda os benchmarks sem gastar IA. O segundo também avalia as respost
   - robustez: 93,5% com erro de digitação;
   - resumo extrativo: ROUGE-L 0,35, **abaixo** do Lead-2 (0,43);
   - Claude: BERTScore 0,91 e juiz 9,7/10.
+
+## Radar de Notícias
+
+Boletim diário do **seu nicho**, sem chave de API e sem mensalidade. Funciona sem IA; a IA (opcional) só melhora o texto.
+
+- **Comece:** `radar nicho inteligência artificial na saúde` (ou o painel **📰 Radar**), depois `radar` para gerar agora e `radar ligar` para agendar (padrão 07:00, dias úteis, enquanto a Jarvis estiver aberta; se estava fechada, roda ao abrir e avisa "boletim atrasado").
+- **Comandos:** `radar`, `radar texto`, `ouvir radar`, `parar radar`, `abrir radar`, `radar fontes`, `radar +fonte <endereço>`, `radar -fonte <nome>`, `radar busca <tema>`, `radar semana`, `radar arquivo <termo>`, `radar status`, `radar hora 7:30`.
+- **Fontes:** RSS/Atom. Você joga um endereço, ela acha o feed, confere (XML válido, item nos últimos 7 dias, título/link/data) e dá a nota; credibilidade que não dá para medir fica marcada como "palpite". Catálogo curado de partida; Google News, Bing e Reddit ficam de fora por padrão.
+- **Do feed ao boletim:** pontuação 0–100 com os motivos (relevância, fonte, ineditismo, impacto, frescor, −30 clickbait), deduplicação por link e título ("também em"), 5 principais + 2 de radar, dois por fonte no máximo. Os melhores itens têm a página lida (respeitando `robots.txt`); o resto fica só no RSS, e o boletim diz qual é qual.
+- **Sem IA:** título limpo, lead e frases com número/data do próprio texto (no máximo 3 por item), rótulos honestos (`[opinião]`, `[possível paywall]`, `[não classificado]`). Manchete própria, jargão, ângulo e conexões só existem com IA e são omitidos, nunca inventados. Com IA, todo número e nome do texto gerado precisa existir na fonte, senão o item volta ao resumo extrativo.
+- **Áudio:** roteiro feito para o ouvido (números por extenso, siglas, "Segundo o veículo…"), até 900 palavras, voz local (Piper) ou a do Windows, salvo em `.wav`; **nunca toca sozinho**.
+- **Onde ficam:** boletins em `Documentos\Jarvis\Radar\AAAA-MM-DD\` (`boletim.md`, `boletim.html`, `roteiro-audio.txt`, `boletim.wav`) e uma nota `Radar/AAAA-MM-DD` na memória; fontes e histórico em `%LOCALAPPDATA%\SuperJarvis\radar.db`. Áudios com mais de 30 dias são apagados; o texto fica.
+- **Segurança:** notícia é dado de terceiros. Só `http(s)` e nada de rede interna (SSRF, inclusive em redirecionamentos); HTML escapado e sem JavaScript; texto que tenta dar ordens à IA (inclusive com caracteres invisíveis, homóglifos ou letras separadas) é marcado ⚠ e não vai à IA. A IA do Radar roda em chamada própria, **sem ferramentas**; as ferramentas do MCP do Radar são só de leitura.
 
 ## Autoaperfeiçoamento
 

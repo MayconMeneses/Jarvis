@@ -89,6 +89,9 @@ class VoiceConfig:
     sensibilidade: float = 0.5
 
 
+from jarvis.radar.ajustes import RadarConfig  # noqa: E402  (definida em radar/ para o config.py não crescer)
+
+
 def _only_known(kind: type, raw: dict) -> dict:
     known = {f.name for f in fields(kind)}
     return {k: v for k, v in raw.items() if k in known}
@@ -155,6 +158,7 @@ class Config:
     nvidia: ProviderConfig = field(default_factory=_nvidia)
     email: EmailConfig = field(default_factory=EmailConfig)
     voz: VoiceConfig = field(default_factory=VoiceConfig)
+    radar: RadarConfig = field(default_factory=RadarConfig)  # boletim diário de notícias (jarvis/radar)
     # Projetos de código que a Jarvis pode analisar: {"nome": "C:\\caminho\\da\\pasta"}
     projetos: dict[str, str] = field(default_factory=dict)
 
@@ -163,7 +167,7 @@ class Config:
         values = _only_known(cls, raw)
         nested = {
             "claude": ClaudeConfig, "gemini": ProviderConfig,
-            "nvidia": ProviderConfig, "email": EmailConfig, "voz": VoiceConfig,
+            "nvidia": ProviderConfig, "email": EmailConfig, "voz": VoiceConfig, "radar": RadarConfig,
         }
         defaults = cls()
         for name, kind in nested.items():

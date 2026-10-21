@@ -146,6 +146,22 @@ def build_autonomo(cfg: Config, api: Api, window):
                     ultimo_pedido=lambda: api._ultimo_pedido, chave_brave=lambda: keys.get_key("brave"), avaliar_semana=avaliar_semana)
 
 
+def build_radar(cfg: Config, api: Api, window):
+    """Radar de Notícias (ver jarvis/radar): boletim diário no horário escolhido, enquanto a Jarvis estiver aberta."""
+    from jarvis import config
+    from jarvis.radar import servico
+    from jarvis.radar.agendador import RadarAgendador
+
+    def entregar(texto: str) -> None:
+        api._conversation.note(texto)
+        api._diary("Radar: " + texto[:120])
+        push(window, {"aviso": texto})  # só avisa: o áudio nunca toca sozinho
+
+    agendador = RadarAgendador(config.load, api._memory, entregar)
+    servico.registrar(agendador)  # os comandos "radar ..." usam este (o aviso chega na janela)
+    return agendador
+
+
 def build_session_watcher(api: Api, window):
     """Avisa quando uma sessão do Claude Code no PC passa a esperar o usuário."""
     from jarvis.dev import sessions
