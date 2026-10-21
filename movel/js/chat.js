@@ -1,7 +1,9 @@
 // Tela de conversa: mensagens, voz (ditado, leitura e conversa por voz contínua) e estado visual.
 import { erroHumano } from "./erros.js";
 import { renderizar } from "./md.js";
-import { ligarEscuta, ligarFala } from "./orbe-voz.js";
+import { ligarEscuta } from "./orbe-voz.js";
+import { Escuta } from "./escuta.js";
+import { saida } from "./voz-saida.js";
 
 const $ = (id) => document.getElementById(id);
 const Reconhecimento = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -25,7 +27,7 @@ export function atualizar(bolha, texto) {
 
 // O orbe (canvas) mostra o estado; o texto em #estado diz o mesmo para quem não vê a animação.
 let orbe = null;
-export const usarOrbe = (o) => { orbe = o; };
+export const usarOrbe = (o) => { orbe = o; saida.usarOrbe(o); };
 
 export function pensando(sim, texto = "pensando…") {
   if (sim) orbe?.definirEstado("pensando"); else if (orbe?.estadoAtual === "pensando") orbe.definirEstado("ocioso");
@@ -34,58 +36,36 @@ export function pensando(sim, texto = "pensando…") {
 }
 
 // ── fala ────────────────────────────────────────────────────────────────
-// O iPhone só libera a fala depois de um toque do usuário: "destrava" no primeiro toque na tela.
-let destravada = false;
-export function destravarFala() {
-  if (destravada || !("speechSynthesis" in window)) return;
-  destravada = true;
-  const mudo = new SpeechSynthesisUtterance(" ");
-  mudo.volume = 0;
-  window.speechSynthesis.speak(mudo);
-}
-
-function escolherVoz() {
-  const vozes = window.speechSynthesis.getVoices();
-  return vozes.find((v) => /pt[-_]BR/i.test(v.lang)) || vozes.find((v) => /^pt/i.test(v.lang)) || null;
-}
+// A voz (aparelho ou Gemini, com reserva) está em voz-saida.js. O iPhone só libera fala e áudio depois de um toque: "destrava" no primeiro toque.
+export const destravarFala = () => saida.destravar();
+saida.aoMudar((e) => { if (e === "falando") $("estado").textContent = "falando…"; else if ($("estado").textContent === "falando…") $("estado").textContent = "pronta"; });
 
 export const textoParaFala = (texto) => texto.replace(/```[\s\S]*?```/g, " código omitido. ").replace(/[`*#_>-]+/g, " ").replace(/https?:\/\/\S+/g, " link ").replace(/\s+/g, " ").trim().slice(0, 500);
 
 // Devolve uma promessa que termina quando a fala acaba (para a conversa por voz só voltar a ouvir depois).
 export function falar(texto, forcar = false) {
-  if ((!forcar && !$("falar").checked) || !("speechSynthesis" in window)) return Promise.resolve();
-  const limpo = textoParaFala(texto);
-  if (!limpo) return Promise.resolve();
-  return new Promise((resolver) => {
-    window.speechSynthesis.cancel();
-    const fala = new SpeechSynthesisUtterance(limpo);
-    fala.lang = "pt-BR";
-    const voz = escolherVoz();
-    if (voz) fala.voice = voz;
-    const visual = orbe ? ligarFala(orbe, limpo, fala.rate) : null;  // anima pelo ritmo do texto, não pelo som real
-    const terminar = () => { visual?.fim(); if ($("estado").textContent === "falando…") $("estado").textContent = "pronta"; resolver(); };
-    fala.onstart = () => { visual?.inicio(); $("estado").textContent = "falando…"; };
-    fala.onboundary = (ev) => visual?.limite(ev);
-    fala.onend = fala.onerror = terminar;
-    window.speechSynthesis.speak(fala);
-    setTimeout(terminar, 30000);  // nunca trava a conversa se o navegador não avisar o fim da fala
-  });
+  if (!forcar && !$("falar").checked) return Promise.resolve();
+  return saida.falar(texto);
 }
 
 export const vozDisponivel = () => Boolean(Reconhecimento) && window.isSecureContext;
 
-function ouvirUmaVez() {
-  return new Promise((resolver, rejeitar) => {
-    const rec = new Reconhecimento();
-    rec.lang = "pt-BR";
-    rec.interimResults = false;
-    if (orbe) ligarEscuta(orbe, rec);
-    let ouvido = "";
-    rec.onresult = (ev) => { ouvido = ev.results[0][0].transcript; };
-    rec.onerror = (ev) => rejeitar(new Error(ev.error || "microfone"));
-    rec.onend = () => resolver(ouvido);
-    rec.start();
-  });
+// Só existe UM reconhecimento por vez no iOS: a escuta contínua se solta enquanto o ditado/conversa usa o microfone e volta depois.
+async function ouvirUmaVez() {
+  const retomar = await Escuta.suspender();
+  try {
+    return await new Promise((resolver, rejeitar) => {
+      const rec = new Reconhecimento();
+      rec.lang = "pt-BR";
+      rec.interimResults = false;
+      if (orbe) ligarEscuta(orbe, rec);
+      let ouvido = "";
+      rec.onresult = (ev) => { ouvido = ev.results[0][0].transcript; };
+      rec.onerror = (ev) => rejeitar(new Error(ev.error || "microfone"));
+      rec.onend = () => resolver(ouvido);
+      rec.start();
+    });
+  } finally { retomar(); }
 }
 
 // Ditado de uma frase.
@@ -124,6 +104,7 @@ export function ligarConversaPorVoz(responder) {
       const resposta = await responder(texto);
       estado("falando…");
       await falar(resposta, true);
+      await new Promise((r) => setTimeout(r, 500));  // anti-eco: o microfone só reabre depois da cauda da fala
     }
     ativo = false;
     botao.setAttribute("aria-pressed", "false");

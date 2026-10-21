@@ -1,5 +1,5 @@
 :root {
-  --fundo: #04070c; --painel: #0b121c; --linha: #16324a; --ciano: #00e5ff; --texto: #dff6ff; --suave: #8fb0c4;
+  --fundo: #040a14; --painel: #0a1626; --linha: #16324a; --ciano: #3fd0ff; --texto: #dff6ff; --suave: #8fb0c4;
   --erro: #ff6b6b; --ok: #4be3a0; --laranja: #ff9a3c;
   --topo: env(safe-area-inset-top, 0px); --base: env(safe-area-inset-bottom, 0px);
 }
@@ -12,7 +12,6 @@ header { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
 h1 { margin: 0; font-size: 1.1rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ciano); }
 h2 { margin: 8px 0 4px; font-size: 1.05rem; }
 #estado { margin-left: auto; font-size: .8rem; color: var(--suave); }
-#orbe { width: 56px; height: 56px; flex: none; margin: -8px -6px -8px -8px; }
 #abas { display: flex; gap: 6px; border-bottom: 1px solid var(--linha); padding-bottom: 8px; }
 #abas button { flex: 1; border-radius: 10px; }
 #abas button[aria-current="page"] { background: #0d2a3a; border-color: var(--ciano); color: var(--ciano); }

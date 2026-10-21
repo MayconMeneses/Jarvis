@@ -1,13 +1,18 @@
 // Cérebro > Agentes: lista o estado dos processos do app (tudo com textContent, nada de HTML montado de texto).
 const $ = (id) => document.getElementById(id);
 
+// Contexto que decide "ligado" e "último" de cada agente do app (usado aqui e na caixa Agentes do Início).
+export async function contextoAgentes({ autonomo, avaliador, cerebro }) {
+  const historico = await avaliador.historico();
+  return {
+    ligados: { aprender: await autonomo.ligado(), avaliacao: (await autonomo.ligado()) && (await avaliador.disponivel()), cerebro: cerebro.ligado() },
+    ultimos: { avaliacao: historico[0] ? Date.parse(historico[0].quando) : null },
+  };
+}
+
 export function ligarAgentes({ agentes, autonomo, avaliador, cerebro }) {
   async function atualizar() {
-    const historico = await avaliador.historico();
-    const contexto = {
-      ligados: { aprender: await autonomo.ligado(), avaliacao: (await autonomo.ligado()) && (await avaliador.disponivel()), cerebro: cerebro.ligado() },
-      ultimos: { avaliacao: historico[0] ? Date.parse(historico[0].quando) : null },
-    };
+    const contexto = await contextoAgentes({ autonomo, avaliador, cerebro });
     $("ag-lista").replaceChildren(...(await agentes.todos(contexto)).map((a) => {
       const li = document.createElement("li"), estado = document.createElement("span"), detalhe = document.createElement("small");
       li.dataset.estado = a.situacao;

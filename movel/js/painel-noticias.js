@@ -62,7 +62,8 @@ function montarRadar(ctx) {
   return { raiz, aoAbrir };
 }
 
-export function ligarNoticias(ctx) {
+// semCaixas: as caixas moram no Início (hud-central.js); esta aba fica só com o leitor e o Radar.
+export function ligarNoticias(ctx, { semCaixas = false } = {}) {
   const botao = el("button", { type: "button", textContent: "Notícias" });
   botao.dataset.aba = "noticias";
   $("abas").append(botao);
@@ -73,6 +74,7 @@ export function ligarNoticias(ctx) {
   let montadas = null;
   return () => {  // chamado ao abrir a aba
     radar.aoAbrir().catch(() => {});
+    if (semCaixas) return;
     if (!montadas) montadas = CAIXAS.map((montar) => montar(caixas, ctx));
     else montadas.forEach((c) => c.atualizar());
   };

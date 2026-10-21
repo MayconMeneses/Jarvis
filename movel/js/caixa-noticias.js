@@ -10,8 +10,8 @@ function desenhar(d, corpo, ctx) {
   ctx.noticias.ultima = d.itens;  // "ler notícia 3" no chat lê o terceiro item desta lista
   const lista = el("ol", { className: "caixa-lista" });
   d.itens.forEach((n) => {
-    const ouvir = el("button", { type: "button", textContent: "Ouvir", className: "mini" });
-    ouvir.setAttribute("aria-label", `Ouvir o trecho: ${n.titulo}`);
+    const ouvir = el("button", { type: "button", textContent: "Ler para mim", className: "mini" });
+    ouvir.setAttribute("aria-label", `Ler para mim o trecho: ${n.titulo}`);
     ouvir.addEventListener("click", () => ctx.ouvir?.(n, { completo: false }));
     const completo = el("button", { type: "button", textContent: "Artigo completo", className: "mini" });
     completo.setAttribute("aria-label", `Ouvir o artigo completo: ${n.titulo}`);

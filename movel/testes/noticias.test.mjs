@@ -159,7 +159,7 @@ test("caixa de notícias: carregando -> ok, textContent, links só http(s), bot�
   assert.equal(caixa.estado(), "ok");
   const links = achar(raiz, (n) => n.tag === "a");
   assert.ok(links.length >= 6 && links.every((a) => /^https?:\/\//.test(a.href) && a.rel === "noopener noreferrer" && a.target === "_blank"));
-  assert.ok(achar(raiz, (n) => n.tag === "button" && n.textContent === "Ouvir").length >= 6);
+  assert.ok(achar(raiz, (n) => n.tag === "button" && n.textContent === "Ler para mim").length >= 6);
   assert.ok(ctx.noticias.ultima.length >= 6);
   assert.equal(linkSeguro("x", "javascript:alert(1)").tag, "span");
   assert.equal(linkSeguro("x", "https://x.org").tag, "a");

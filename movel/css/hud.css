@@ -1,0 +1,50 @@
+/* Início (HUD central) do celular: topo, palco do orbe com o cartão de briefing, caixas reordenáveis. Só variáveis dos temas. */
+#topo { display: flex; align-items: baseline; gap: 10px; padding-bottom: 4px; }
+#topo #estado { margin-left: auto; }
+#hora { font: 600 .8rem var(--mono); font-variant-numeric: tabular-nums; color: var(--suave); }
+#hud { padding-top: 0; }
+#palco { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px 0 8px; }
+.rotulo-estado { margin: 0; font: 600 .72rem/1 var(--mono); letter-spacing: .42em; text-indent: .42em; color: var(--ciano); transition: color var(--dur) var(--ease); }
+#palco[data-estado="pensando"] .rotulo-estado { color: var(--laranja); }
+#palco[data-estado="falando"] .rotulo-estado { color: var(--brilho); }
+
+/* O orbe é quadrado: largura = o espaço livre, sem passar da altura que sobra (telas baixas) nem de 440 px (iPad) */
+#orbe-caixa { position: relative; container-type: inline-size; width: min(100%, max(240px, calc(var(--app-alt, 100dvh) - 330px)), 440px); aspect-ratio: 1 / 1; }
+#orbe { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
+
+/* Cartão central: cabe no miolo livre do anel de filamentos (raio do anel = 0,66 do raio do orbe) */
+.cartao-central { position: absolute; left: 50%; top: 50%; width: 47%; transform: translate(-50%, -50%); padding: 6px 8px 4px; text-align: center;
+  background: color-mix(in srgb, var(--painel) 78%, transparent); border: 1px solid color-mix(in srgb, var(--ciano) 28%, var(--linha)); border-radius: 6px; }
+.cartao-central::before, .cartao-central::after { content: ""; position: absolute; width: 10px; height: 10px; border: 0 solid var(--ciano); pointer-events: none; }
+.cartao-central::before { left: -1px; top: -1px; border-width: 2px 0 0 2px; }
+.cartao-central::after { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
+.bf-ola { margin: 0 0 2px; font: 600 clamp(.5rem, 2.8cqi, .64rem) var(--mono); letter-spacing: .12em; color: var(--suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bf-abas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+.bf-aba { min-height: 36px; padding: 0 1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--suave);
+  font: 600 clamp(.5rem, 2.6cqi, .64rem) var(--mono); letter-spacing: 0; white-space: nowrap; }
+.bf-aba[aria-selected="true"] { color: var(--ciano); border-bottom-color: var(--ciano); }
+.bf-painel { padding-top: 4px; min-height: 3.6em; }
+.bf-titulo { display: block; width: 100%; min-height: 28px; padding: 0 2px; border: 0; border-radius: 4px; background: transparent; color: var(--texto);
+  font-family: inherit; font-weight: 700; font-size: clamp(.64rem, 3.6cqi, .82rem); line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.bf-linha { margin: 0; font-size: clamp(.58rem, 3.1cqi, .74rem); line-height: 1.3; color: var(--suave); overflow-wrap: anywhere; }
+.pilula { min-height: 44px; padding: 6px 18px; font: 600 .72rem var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--ciano); }
+
+/* Caixas */
+.hud-barra { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.hud-barra h2 { margin: 0; font: 600 .75rem var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--suave); }
+#reordenar[aria-pressed="true"] { border-color: var(--ciano); color: var(--ciano); background: var(--sel); }
+#hud-caixas { display: grid; gap: 12px; padding-bottom: 8px; }
+#hud-aviso { margin: 0; min-height: 1.2em; }
+.item-caixa > .caixa { margin: 0; }
+.mover { display: flex; align-items: center; gap: 8px; padding: 4px 8px; margin-bottom: 4px; background: var(--sel); border: 1px dashed var(--ciano); border-radius: 12px; }
+.mover span { flex: 1; min-width: 0; font: 600 .75rem var(--mono); color: var(--ciano); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mover button { min-width: 48px; }
+#hud-caixas[data-reordenando] .item-caixa { animation: balanca 1.6s var(--ease) infinite alternate; }
+@keyframes balanca { from { transform: translateY(0); } to { transform: translateY(-1px); } }
+.sem-marca { list-style: none; padding-left: 0; }
+.caixa progress { display: block; margin: 4px 0; }
+#pc-aviso { margin: 0 0 6px; }
+@media (min-width: 700px) { #hud-caixas { grid-template-columns: 1fr 1fr; align-items: start; } }
+@media (max-height: 640px) { .rotulo-estado { display: none; } }
+@media (prefers-reduced-motion: reduce) { #hud-caixas[data-reordenando] .item-caixa { animation: none; } }
+html[data-tema="contraste"] .cartao-central { background: #000; border-color: #fff; }
