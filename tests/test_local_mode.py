@@ -81,7 +81,7 @@ def test_questions_become_web_research_and_chit_chat_gets_help(local, monkeypatc
     asked = []
     monkeypatch.setattr(local, "_pesquisa", lambda text, tema="": asked.append(tema) or "resumo")
     assert local.handle("O que é energia solar?") == "resumo" and asked == ["o que e energia solar"]
-    assert "modo independente" in local.handle("valeu")
+    assert "Não entendi" in local.handle("valeu")  # antes devolvia o bloco genérico de funções (a queixa do dono); agora admite e oferece caminhos
 
 
 # ── roteador ─────────────────────────────────────────────────────────────

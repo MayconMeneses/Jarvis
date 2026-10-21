@@ -21,6 +21,9 @@ import { Conversa } from "./conversa.js";
 import * as contexto from "./contexto.js";
 import { ArmazemIndexedDB, ArmazemMemoria, Memoria } from "./memoria.js";
 import { Motor } from "./motor.js";
+import { Entendimento } from "./entendimento.js";
+import { carregar as carregarAutoconhecimento, detectarAparelho } from "./autoconhecimento.js";
+import { montarWidget } from "./entendimento-ui.js";
 import { ligarAutonomo } from "./painel-autonomo.js";
 import { ligarCerebro } from "./painel-cerebro.js";
 import { ligarMemoria } from "./painel-memoria.js";
@@ -79,6 +82,12 @@ async function main() {
   // A busca do Brave é contada por chamada (o proxy do usuário recebe a chave; aqui só passa a contagem).
   const buscarMedido = (url, opcoes) => { if (String(url).includes("/brave/res/v1/")) contar("brave"); return fetch(url, opcoes); };
   const motor = new Motor({ saber, memoria, buscar: buscarMedido, brave: () => nuvem.brave() });
+  const entradasApp = await carregarAutoconhecimento();  // dados/autoconhecimento.json (no cache do app: funciona offline)
+  motor.entendimento = await new Entendimento({
+    memoria, entradas: entradasApp, aparelho: detectarAparelho({ ua: navigator.userAgent, toques: navigator.maxTouchPoints, instalado: navigator.standalone === true || matchMedia("(display-mode: standalone)").matches }),
+    estado: async () => ({ ultimaCopia: await memoria.meta("ultima_copia"), nuvem: await nuvem.configurada(), pc: await pc.pareado(), instalado: navigator.standalone === true || matchMedia("(display-mode: standalone)").matches }),
+    executar: (f) => motor._porRegex(f), classificar: (t) => motor.classificar(t),
+  }).iniciar();
   const cerebro = new Cerebro({ aoUsar: contar });
   const conversa = new Conversa(memoria);
   const nome = async () => (await memoria.meta("nome")) || "Maycon";
@@ -90,7 +99,7 @@ async function main() {
 
   async function perguntarIA(texto) {
     const dados = (await motor.consultarAntes(texto)) || "";
-    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados });
+    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados, app: motor.entendimento?.contextoApp(texto) || "" });
     const mensagens = [{ role: "system", content: sistema }, ...conversa.paraPrompt()];  // cabe no contexto do modelo, sempre
     const bolha = adicionar("…", "jarvis", cerebro.modelo);
     pensando(true, "IA pensando…");
@@ -112,7 +121,7 @@ async function main() {
   // Nuvem (as chaves do usuário): histórico maior, porque esses modelos aguentam bem mais contexto.
   async function perguntarNuvem(texto) {
     const dados = (await motor.consultarAntes(texto)) || "";
-    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados });
+    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados, app: motor.entendimento?.contextoApp(texto) || "" });
     const bolha = adicionar("…", "jarvis");
     pensando(true, "consultando a nuvem…");
     try {
@@ -154,6 +163,18 @@ async function main() {
     throw ultimo;
   }
 
+  // Mostra uma resposta da Jarvis com os botões/cartão do entendimento (se houver).
+  const mostrar = (texto, widget) => montarWidget(widget, adicionar(texto, "jarvis"), acoesEntendimento);
+  const abrirPainel = ({ aba, foco }) => {
+    document.querySelector(`#abas button[data-aba="${aba}"]`)?.click();
+    if (foco) setTimeout(() => $(foco)?.focus?.(), 50);
+  };
+  const acoesEntendimento = {
+    escolher: (frase, id) => motor.entendimento.escolher(frase, id), mostrar, abrir: abrirPainel, foco: () => Foco.alternar(),
+    enviar: (t) => enviar(t), confirmarAtalho: (p) => motor.entendimento.confirmarAtalho(p),
+    apagarAprendizado: async () => { await motor.entendimento.aprend.apagarTudo(); return "Apaguei tudo que aprendi sobre como você fala."; },
+  };
+
   // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou).
   async function responder(texto) {
     await conversa.adicionar("user", texto);
@@ -161,12 +182,13 @@ async function main() {
     pensando(true);
     let resposta = "";
     try {
-      resposta = await motor.responder(texto);  // regras primeiro: dados exatos, instantâneo, sem gastar bateria
+      motor.entendimento?.tomarWidget();
+      resposta = await motor.responder(texto);  // regras e entendimento (sem IA) primeiro: dados exatos, instantâneo, sem gastar bateria
       const comIA = resposta === null && (cerebro.ligado() || await nuvem.configurada());
-      if (comIA) { pensando(false); resposta = await responderComIA(texto); }
+      if (comIA) { pensando(false); await motor.entendimento?.registrarIA(texto); resposta = await responderComIA(texto); }
       if (!comIA || resposta === null) {
         if (resposta === null || resposta === undefined) resposta = await motor.fallback(texto);
-        adicionar(resposta, "jarvis");
+        mostrar(resposta, motor.entendimento?.tomarWidget());
       }
     } catch (e) {
       adicionar("Algo deu errado: " + e.message + ". A conversa continua: pode perguntar de novo.", "jarvis erro");
@@ -255,7 +277,7 @@ async function main() {
   } else {
     adicionar("Olá! Eu sou a Jarvis e rodo **só neste celular**: minha memória e meu cérebro ficam aqui. Pode escrever ou tocar em **Conversar por voz**. Diga \"ajuda\" para ver o que sei fazer.", "jarvis");
   }
-  for (const aviso of await avisos({ memoria, saber, nome: await nome() })) adicionar(aviso, "jarvis aviso");
+  for (const aviso of await avisos({ memoria, saber, nome: await nome(), entendimento: motor.entendimento })) adicionar(aviso, "jarvis aviso");
   agentes.marcar("proativo", "ok");
   const gasto = await uso.resumo();
   if (gasto.alerta) adicionar(`Atenção: você já usou ${gasto.pct.toFixed(0)}% do orçamento de IA deste mês (painel Uso de IA, na aba Cérebro).`, "jarvis aviso");

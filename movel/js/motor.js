@@ -5,6 +5,7 @@ import * as gerar from "./gerar.js";
 import { Habilidades } from "./habilidades.js";
 import { instalarAutonomo } from "./motor-autonomo.js";
 import { instalarDocumentos } from "./motor-documentos.js";
+import { instalarEntendimento } from "./motor-entendimento.js";
 import { instalarExtras } from "./motor-extra.js";
 import { instalarInstagram } from "./instagram-motor.js";
 import { instalarPc } from "./motor-pc.js";
@@ -37,15 +38,11 @@ export const PADROES = [
 // O que o modelo de IA pode receber já pronto, como dado real (só leitura).
 export const CONSULTAS_PARA_IA = new Set(["hora", "data", "memoria", "ux", "comparar"]);
 
-export const AJUDA = "Estou no **modo independente** (rodo só neste celular, sem servidor). Consigo:\n"
-  + "- **clima, notícias, vagas** (\"clima em Fortaleza\", \"notícias de tecnologia\", \"vagas\" depois de \"minha stack é Python e React\"), **projetos** (\"anota no projeto Loja que ...\", \"ficha do projeto Loja\")\n"
-  + "- **evoluir**: \"quais habilidades de programador\", \"treino da semana\", \"checklist de segurança\", \"revise este diff\" (cole o diff na linha seguinte), \"qual stack para uma loja virtual\"\n"
-  + "- **hora e data**, **memória** (\"lembre que...\", \"me lembre de ligar para o João amanhã\", \"o que você sabe sobre mim\", \"apague a nota X\")\n"
-  + "- **programação**: \"explique SOLID\", \"mostre o padrão Observer em JavaScript\", \"como fazer fatorial em Go\", \"compare React e Vue\"\n"
-  + "- **design**: \"contraste #767676 sobre #ffffff\", \"paleta a partir de #3b82f6\", \"tokens css para #3b82f6\", \"escala tipográfica\"\n"
-  + "- **gerar**: \"crie uma tabela clientes com nome texto, idade inteiro\", \"gere um dockerfile para node\", \"gere um workflow para python\"\n"
-  + "- **internet**: \"pesquise sobre ...\" e \"aprenda sobre ...\" (Wikipédia; guardo o resumo na memória)\n"
-  + "- **cérebro de IA no celular** (aba Cérebro): conversa livre e ideias, sem enviar nada para fora.";
+// Frase sem destino: nunca é o bloco de funções (isso era o defeito). A ajuda de verdade é curta e contextual (motor-entendimento.js).
+export const SEM_ENTENDER = "Não entendi esse pedido. Pode dizer de outro jeito? Para ver exemplos do que posso fazer, diga \"ajuda\".";
+// Regras genéricas que também pegam frases sobre o próprio app ("como fazer backup", "o que é o modo foco"): aí o autoconhecimento tem prioridade.
+const AMPLOS = new Set(["algoritmo", "explicar", "pesquisa", "aprender", "comparar", "ajuda", "memoria", "noticias", "noticias_tec", "noticias_assunto", "clima", "vagas", "radar",
+  "padrao", "recomendar", "evoluir", "habilidades", "checklist", "hora", "data"]);
 
 const para = (limpo, regex) => regex.exec(limpo);
 
@@ -63,6 +60,20 @@ export class Motor {
   }
 
   async responder(texto) {
+    const e = this.entendimento;
+    if (!e) return this._porRegex(texto);
+    const prep = await e.preparar(texto);  // "sim"/"2" ao "você quis dizer", atalhos ensinados e apelidos do usuário
+    if (prep.resposta !== undefined) return prep.resposta;
+    const intencao = this.classificar(prep.texto);
+    if (!intencao || AMPLOS.has(intencao)) {
+      const via = await e.entender(prep.texto, { amplo: Boolean(intencao) });
+      if (via !== null) return via;
+    }
+    if (intencao) e.aprend.contar("ok").catch(() => {});
+    return this._porRegex(prep.texto);
+  }
+
+  async _porRegex(texto) {
     const intencao = this.classificar(texto);
     if (!intencao) return null;
     try { return await this[`_${intencao}`](texto, limpar(texto)); } catch (e) { return `Tentei, mas não consegui: ${e.message}`; }
@@ -76,7 +87,7 @@ export class Motor {
 
   async fallback(texto) {
     const explicado = this.saber.explicar(texto, this.saber.linguagem(texto)) || await this._aprendido(texto);
-    return explicado || AJUDA;
+    return explicado || (this.entendimento ? this.entendimento.baixa(texto) : SEM_ENTENDER);
   }
 
   async _aprendido(texto) {
@@ -86,7 +97,6 @@ export class Motor {
 
   _hora() { const a = this.agora(); return `Agora são ${dois(a.getHours())}:${dois(a.getMinutes())}.`; }
   _data() { return `Hoje é ${dataPorExtenso(this.agora())}.`; }
-  _ajuda() { return AJUDA; }
 
   async _lembrar(texto) {
     const fato = texto.replace(/^\s*(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?/i, "").trim();
@@ -203,6 +213,7 @@ export class Motor {
 }
 
 instalarExtras(Motor, PADROES);
+instalarEntendimento(Motor, PADROES);
 instalarDocumentos(Motor, PADROES);
 instalarAutonomo(Motor, PADROES);
 instalarInstagram(Motor, PADROES);
