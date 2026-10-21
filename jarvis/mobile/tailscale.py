@@ -12,6 +12,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis.config import data_dir
 
 CANDIDATOS = (r"C:\Program Files\Tailscale\tailscale.exe", r"C:\Program Files (x86)\Tailscale\tailscale.exe")
@@ -23,7 +24,7 @@ def achar() -> str | None:
     return shutil.which("tailscale") or next((c for c in CANDIDATOS if os.path.isfile(c)), None)
 
 
-def estado(rodar=subprocess.run) -> dict:
+def estado(rodar=processos.executar) -> dict:
     """{"instalado", "ligado", "nome", "ip"}: o endereço deste PC dentro da rede Tailscale (nome vazio se não houver)."""
     exe = achar()
     vazio = {"instalado": exe is not None, "ligado": False, "nome": "", "ip": ""}
@@ -41,7 +42,7 @@ def estado(rodar=subprocess.run) -> dict:
     return {"instalado": True, "ligado": True, "nome": str(eu.get("DNSName", "")).rstrip("."), "ip": ips[0]}
 
 
-def certificado(nome: str, pasta: Path | None = None, rodar=subprocess.run) -> tuple[str, str]:
+def certificado(nome: str, pasta: Path | None = None, rodar=processos.executar) -> tuple[str, str]:
     """Pede o certificado HTTPS do nome *.ts.net ao Tailscale. Levanta OSError com o motivo se não conseguir."""
     exe = achar()
     if exe is None or not nome:

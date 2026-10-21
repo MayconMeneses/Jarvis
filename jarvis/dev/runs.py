@@ -20,6 +20,7 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis import environment
 from jarvis.agentes import registro as agentes
 from jarvis.brains.claude_cli import child_env
@@ -82,7 +83,7 @@ def command(run: Run, claude: ClaudeConfig) -> list[str]:
     return cmd
 
 
-def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.run, mem=None) -> Run:
+def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=processos.executar, mem=None) -> Run:
     run.status = "rodando"
     store.save(run)
     mode = MODES[run.modo]
@@ -102,7 +103,6 @@ def execute(run: Run, store: RunStore, claude: ClaudeConfig, runner=subprocess.r
             command(run, claude), input=_project_context(run, mem) + prompt,
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             cwd=run.pasta, env=child_env(), timeout=timeout,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         data = json.loads(proc.stdout or "{}")
         text = str(data.get("result") or proc.stderr or "").strip()

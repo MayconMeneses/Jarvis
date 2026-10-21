@@ -11,6 +11,7 @@ import ast
 import re
 import subprocess
 
+from jarvis import proc as processos
 from jarvis.dev.habilidades.base import Resultado, codigo_de, limitar
 from jarvis.dev.habilidades.checagens_design import arquitetura, design_de_interface
 from jarvis.dev.habilidades.checagens_extras import acessibilidade, automacao, estrutura, observabilidade
@@ -84,8 +85,7 @@ def versionamento(p: Projeto) -> Resultado:
     if p.existe(".git"):
         nota += 40
         try:
-            saida = subprocess.run(["git", "rev-list", "--count", "HEAD"], cwd=p.raiz, capture_output=True, text=True, timeout=10,
-                                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout.strip()
+            saida = processos.executar(["git", "rev-list", "--count", "HEAD"], cwd=p.raiz, capture_output=True, text=True, timeout=10).stdout.strip()
             commits = int(saida) if saida.isdigit() else 0
         except (OSError, subprocess.TimeoutExpired, ValueError):
             commits = 0

@@ -7,12 +7,12 @@ Não usa clean_for_speech (que corta em 600 caracteres): o boletim inteiro é fa
 from __future__ import annotations
 
 import os
-import subprocess
 import wave
 from pathlib import Path
 
 import numpy as np
 
+from jarvis import proc as processos
 from jarvis.voice import tts
 
 PAUSA_S = 0.30  # silêncio entre frases
@@ -49,11 +49,11 @@ def gravar_wav(caminho: Path, pcm: np.ndarray, taxa: int) -> Path:
     return caminho
 
 
-def sapi_para_arquivo(texto: str, destino: Path, rodar=subprocess.run) -> Path:
+def sapi_para_arquivo(texto: str, destino: Path, rodar=processos.executar) -> Path:
     """Reserva sem Piper: voz do Windows gravando direto em .wav. O texto vai pela entrada padrão, nunca no comando."""
     destino.parent.mkdir(parents=True, exist_ok=True)
     rodar(["powershell", "-NoProfile", "-NonInteractive", "-Command", _SAPI], input=texto, text=True, encoding="utf-8",
-          timeout=600, env={**os.environ, "JARVIS_WAV": str(destino)}, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=True)
+          timeout=600, env={**os.environ, "JARVIS_WAV": str(destino)}, check=True)
     if not destino.exists() or destino.stat().st_size < 1000:
         raise RuntimeError("a voz do Windows não gerou o áudio")
     return destino

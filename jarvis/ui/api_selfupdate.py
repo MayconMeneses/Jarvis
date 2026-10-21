@@ -43,13 +43,13 @@ class SelfUpdateMixin:
     def restart_jarvis(self) -> dict:
         """Abre uma Jarvis nova (com o código atualizado) e fecha esta."""
         import os
-        import subprocess
         import sys
+
+        from jarvis import proc as processos
 
         command = [sys.executable] + ([] if getattr(sys, "frozen", False) else ["-m", "jarvis"])
         env = dict(os.environ, JARVIS_REINICIO="1")  # a nova espera esta liberar a instância única
-        subprocess.Popen(command, cwd=os.getcwd(), env=env,
-                         creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+        processos.abrir_visivel(command, cwd=os.getcwd(), env=env, creationflags=processos.DETACHED_PROCESS)  # nova Jarvis independente desta
         if self._quit is not None:
             threading.Timer(0.5, self._quit).start()
         return {"ok": True}

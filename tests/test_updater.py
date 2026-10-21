@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from jarvis import __version__, updater
+from jarvis import __version__, proc, updater
 
 DATA = b"MZ instalador de mentira"
 SHA = hashlib.sha256(DATA).hexdigest()
@@ -109,7 +109,7 @@ def test_mixin_checks_pushes_card_and_installs(tmp_path, monkeypatch):
     api = Fake()
     assert api.check_update()["estado"] == "pronta" and pushed[0]["update"]["versao"] == "0.99.0"
     started = []
-    monkeypatch.setattr(updater.subprocess, "Popen", lambda cmd, **k: started.append(cmd))
+    monkeypatch.setattr(proc.subprocess, "Popen", lambda cmd, **k: started.append(cmd))
     assert api.install_update() == {"ok": True} and started and "/SILENT" in started[0]
 
 

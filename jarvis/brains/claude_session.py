@@ -20,6 +20,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis import environment
 from jarvis.brains.base import Answer, BrainUnavailable, Message
 from jarvis.brains.claude_cli import child_env, render_prompt
@@ -45,7 +46,7 @@ class ClaudeSession:
     name = "claude"
 
     def __init__(self, cfg: ClaudeConfig, workdir: Path | None = None,
-                 mcp_config: Path | None = None, popen=subprocess.Popen) -> None:
+                 mcp_config: Path | None = None, popen=processos.abrir) -> None:
         self.cfg = cfg
         self.workdir = workdir or data_dir() / "claude-workspace"
         self.mcp_config = mcp_config
@@ -90,7 +91,6 @@ class ClaudeSession:
                 self.command(system), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace",
                 cwd=self.workdir, env=child_env(), bufsize=1,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
         except FileNotFoundError as exc:
             raise BrainUnavailable("Claude Code não está instalado ou fora do PATH") from exc

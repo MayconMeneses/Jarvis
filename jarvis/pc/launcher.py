@@ -14,15 +14,14 @@ import difflib
 import json
 import os
 import shutil
-import subprocess
 import time
 import unicodedata
 import webbrowser
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis.config import data_dir
 
-NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 CACHE_SECONDS = 24 * 3600
 
 # Programas do Windows por apelido (pt-BR e en).
@@ -55,9 +54,9 @@ def fold(text: str) -> str:
 
 def _load_start_apps() -> dict[str, str]:
     script = "Get-StartApps | ForEach-Object { $_.Name + \"`t\" + $_.AppID }"
-    result = subprocess.run(
+    result = processos.executar(
         ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
-        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, creationflags=NO_WINDOW,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
     )
     apps = {}
     for line in result.stdout.splitlines():
@@ -104,7 +103,7 @@ def find_app(query: str, apps: dict[str, str]) -> tuple[str, str] | None:
 
 # ── abrir ────────────────────────────────────────────────────────────────
 
-def open_app(query: str, apps: dict[str, str] | None = None, runner=subprocess.Popen) -> str:
+def open_app(query: str, apps: dict[str, str] | None = None, runner=processos.abrir_visivel) -> str:
     q = fold(query)
     if q in BROWSER_WORDS:
         webbrowser.open("https://www.google.com")
@@ -114,13 +113,15 @@ def open_app(query: str, apps: dict[str, str] | None = None, runner=subprocess.P
         if builtin.endswith(":"):
             os.startfile(builtin)  # ms-settings:
         else:
-            runner([builtin], creationflags=0)
+            # cmd e PowerShell são programas de console: aqui o console novo é justamente o que o usuário pediu.
+            console = processos.CREATE_NEW_CONSOLE if builtin in ("cmd.exe", "powershell.exe") else 0
+            runner([builtin], creationflags=console)
         return f"{query.strip().capitalize()} aberto."
     found = find_app(query, apps if apps is not None else app_index())
     if not found:
         raise ValueError(f"não encontrei o programa '{query}' no Menu Iniciar")
     name, app_id = found
-    runner(["explorer.exe", f"shell:AppsFolder\\{app_id}"], creationflags=NO_WINDOW)
+    runner(["explorer.exe", f"shell:AppsFolder\\{app_id}"])
     return f"{name} aberto."
 
 
@@ -145,29 +146,29 @@ def special_folders() -> dict[str, Path]:
     }
 
 
-def open_folder(target: str, runner=subprocess.Popen) -> str:
+def open_folder(target: str, runner=processos.abrir_visivel) -> str:
     folder = special_folders().get(fold(target))
     if folder is None:
         candidate = Path(target.strip().strip('"')).expanduser()
         folder = candidate if candidate.is_absolute() else None
     if folder is None or not folder.is_dir():
         raise ValueError(f"pasta não encontrada: {target}")
-    runner(["explorer.exe", str(folder)], creationflags=NO_WINDOW)
+    runner(["explorer.exe", str(folder)])
     return f"Pasta aberta: {folder}"
 
 
-def open_project(cfg, name: str, with_terminal: bool = False, runner=subprocess.Popen) -> str:
+def open_project(cfg, name: str, with_terminal: bool = False, runner=processos.abrir_visivel) -> str:
     from jarvis.dev import projects
 
     registered, folder = projects.resolve(cfg, name)
     code = shutil.which("code")
     if code:
-        runner([code, str(folder)], creationflags=NO_WINDOW)
+        runner([code, str(folder)])
         opened = f"{registered} aberto no VS Code"
     else:
-        runner(["explorer.exe", str(folder)], creationflags=NO_WINDOW)
+        runner(["explorer.exe", str(folder)])
         opened = f"{registered} aberto no Explorador (VS Code não encontrado)"
     if with_terminal and shutil.which("wt"):
-        runner(["wt", "-d", str(folder)], creationflags=0)
+        runner(["wt", "-d", str(folder)])
         opened += " e no Terminal"
     return opened + "."

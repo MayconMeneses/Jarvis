@@ -12,12 +12,12 @@ from __future__ import annotations
 import json
 import re
 import shutil
-import subprocess
 import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis.llm import arquivos as seguro
 from jarvis.llm import contexto
 
@@ -77,7 +77,7 @@ def conferir(caminho: str, conteudo: str) -> str | None:
         with tempfile.TemporaryDirectory() as pasta:
             arquivo = Path(pasta) / "t.js"
             arquivo.write_text(conteudo, encoding="utf-8")
-            saida = subprocess.run([node, "--check", str(arquivo)], capture_output=True, text=True, timeout=30)
+            saida = processos.executar([node, "--check", str(arquivo)], capture_output=True, text=True, timeout=30)
             if saida.returncode:
                 return "erro de sintaxe JavaScript: " + saida.stderr.strip().splitlines()[-1][:200]
     return None
