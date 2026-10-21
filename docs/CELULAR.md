@@ -31,6 +31,10 @@ respostas em voz alta. Para remover um aparelho (celular perdido), use **Remover
 
 ## Segurança
 
+- **Aviso de rede (`aviso_rede`)**: o estado da ponte (`mobile_status()` em `jarvis/ui/api_mobile.py`) devolve o texto curto
+  `aviso_rede` quando o servidor está no modo `rede` falando HTTP puro (sem HTTPS e sem Tailscale); nos demais casos vem vazio (`""`).
+  A janela deve mostrar esse texto perto do botão do celular quando não estiver vazio. O padrão de `celular_rede` não foi alterado.
+
 - Desligado por padrão. Só responde a aparelhos pareados (token guardado como hash; código de uso único; 5 erros bloqueiam por 5 minutos).
 - O celular **só conversa**. Ações que mudam o PC (apagar, instalar, criar projeto, enviar e-mail) continuam sendo cartões que **você aprova na
   janela do PC**; o app só avisa "N ações esperando".

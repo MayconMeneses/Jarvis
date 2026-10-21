@@ -18,7 +18,7 @@ from jarvis.info import jobs, news, weather
 
 log = logging.getLogger(__name__)
 
-TTL = {"clima": 900.0, "noticias": 600.0, "vagas": 1800.0}
+TTL = {"clima": 900.0, "noticias": 600.0, "tecnologia": 840.0, "vagas": 1800.0}
 MAX_ITENS = 5
 _CONTROLE = re.compile(r"[\x00-\x1f\x7f-\x9f​-‏‪-‮  ]+")
 
@@ -32,6 +32,43 @@ def _link(valor) -> str:
     """Só http(s): nada de javascript:, file: etc. (a janela também confere)."""
     url = str(valor or "").strip()
     return url[:500] if url.lower().startswith(("https://", "http://")) else ""
+
+
+MAX_TEC = 6
+
+
+def _manchetes_tecnologia(limite: int) -> list[dict]:
+    """Lê os feeds do catálogo "tecnologia" em paralelo; feed sujo ou fora do ar só some. Sem nenhum feed lido, levanta erro."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    feeds = news.FEEDS["tecnologia"]
+
+    def uma(par):
+        nome, url = par
+        try:
+            return news.parse(news.fetch(url), nome)
+        except Exception:  # noqa: BLE001  (rede, XML malicioso/quebrado)
+            log.debug("info: feed %s indisponível", nome, exc_info=True)
+            return None
+
+    with ThreadPoolExecutor(max_workers=len(feeds)) as pool:
+        lotes = list(pool.map(uma, feeds.items()))
+    if all(lote is None for lote in lotes):
+        raise OSError("nenhum feed de tecnologia")
+    agora = _agora()
+    todos = sorted((i for lote in lotes if lote for i in lote), key=lambda i: i["_quando"], reverse=True)
+    saida, vistos, por_fonte = [], set(), {}
+    for i in todos:
+        chave = i["titulo"].lower()[:60]
+        if chave in vistos or por_fonte.get(i["fonte"], 0) >= 3 or not i["_quando"] or i["_quando"] > agora + 3600:
+            continue
+        vistos.add(chave)
+        por_fonte[i["fonte"]] = por_fonte.get(i["fonte"], 0) + 1
+        saida.append({"titulo": _txt(i["titulo"], 180), "fonte": _txt(i["fonte"], 40), "resumo": _txt(i.get("resumo"), 280),
+                      "link": _link(i.get("link")), "quando": int(i["_quando"])})
+        if len(saida) >= limite:
+            break
+    return saida
 
 
 def _agora() -> float:
@@ -97,6 +134,14 @@ class InfoMixin:
                      "link": _link(m.get("link"))} for m in lista[:MAX_ITENS]], "Sem manchetes agora."
 
         return self._info_pegar("noticias", bool(forcar), carregar)
+
+    def info_tecnologia(self, forcar: bool = False) -> dict:
+        """Últimas manchetes de TECNOLOGIA (Tecnoblog, Canaltech, Olhar Digital), com fonte e hora. Só leitura."""
+        def carregar():
+            lista = _manchetes_tecnologia(MAX_TEC)
+            return lista, "Sem notícias de tecnologia agora."
+
+        return self._info_pegar("tecnologia", bool(forcar), carregar)
 
     def info_vagas(self, forcar: bool = False) -> dict:
         try:

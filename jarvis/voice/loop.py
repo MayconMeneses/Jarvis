@@ -14,52 +14,15 @@ from collections.abc import Callable
 import numpy as np
 
 from jarvis.agentes import registro as agentes
+from jarvis.voice.ativacao import (FALANDO, OUVINDO, PROCESSANDO, LimitadorTranscricao, Segmentador, estado_base,
+                                   extrair_comando)
+from jarvis.voice.gravador import FRAME, PreRoll, Recorder, rms  # noqa: F401  (FRAME/Recorder também importados daqui)
 from jarvis.voice.nivel import LimitadorTaxa, nivel_mic
 from jarvis.voice.stt import SAMPLE_RATE, Transcriber
 
 log = logging.getLogger(__name__)
 
-FRAME = 1280  # 80 ms a 16 kHz, o tamanho que o openWakeWord espera
 CAUDA_ECO_S = 0.35  # depois de falar, espera o eco da sala morrer antes de voltar a ouvir
-
-
-class Recorder:
-    """Decide quando a fala começou e terminou, pela energia do som.
-
-    Lógica pura (sem microfone) para poder ser testada com áudio sintético.
-    """
-
-    def __init__(self, noise_floor: float, silence_s: float = 0.9,
-                 max_s: float = 15.0, no_speech_s: float = 4.0) -> None:
-        self.threshold = max(noise_floor * 3.0, 400.0)
-        self.frames: list[np.ndarray] = []
-        self.speech_started = False
-        self._silent = 0
-        self._silence_frames = int(silence_s * SAMPLE_RATE / FRAME)
-        self._max_frames = int(max_s * SAMPLE_RATE / FRAME)
-        self._no_speech_frames = int(no_speech_s * SAMPLE_RATE / FRAME)
-
-    def feed(self, frame: np.ndarray) -> bool:
-        """Retorna True quando a gravação deve terminar."""
-        self.frames.append(frame)
-        loud = rms(frame) > self.threshold
-        if loud:
-            self.speech_started = True
-            self._silent = 0
-        elif self.speech_started:
-            self._silent += 1
-        if not self.speech_started and len(self.frames) >= self._no_speech_frames:
-            return True
-        return self._silent >= self._silence_frames or len(self.frames) >= self._max_frames
-
-    def audio(self) -> np.ndarray:
-        if not self.speech_started:
-            return np.zeros(0, dtype=np.float32)
-        return np.concatenate(self.frames).astype(np.float32) / 32768.0
-
-
-def rms(frame: np.ndarray) -> float:
-    return float(np.sqrt(np.mean(frame.astype(np.float32) ** 2))) if frame.size else 0.0
 
 
 class VoiceLoop(threading.Thread):
@@ -71,6 +34,7 @@ class VoiceLoop(threading.Thread):
         transcriber: Transcriber,
         sensitivity: float = 0.5,
         speak_answers: bool = True,
+        por_texto: bool = True,
     ) -> None:
         super().__init__(daemon=True, name="jarvis-voz")
         self.respond = respond
@@ -87,6 +51,21 @@ class VoiceLoop(threading.Thread):
         self._noise = 300.0
         self._mostrar_mic = threading.Event()  # ligado só enquanto grava a fala (o orbe "ouve")
         self._nivel_mic: queue.Queue[float] = queue.Queue(maxsize=1)
+        self.por_texto_permitido = por_texto  # config voz.ativacao_por_texto
+        self._por_texto = threading.Event()   # "Jarvis, ..." lido na transcrição: só ligado no modo foco
+        self._pre = PreRoll()
+        self._limite = LimitadorTranscricao()
+        self.estado = estado_base(False, ligado=False)  # o que o botão do microfone mostra
+
+    def _estado(self, estado: str) -> None:
+        self.estado = estado
+        self.notify({"escuta": estado})
+
+    def _base(self) -> None:
+        self._estado(estado_base(self.paused.is_set()))
+
+    def set_por_texto(self, ligado: bool) -> None:
+        (self._por_texto.set if ligado and self.por_texto_permitido else self._por_texto.clear)()
 
     # chamados pela janela/bandeja
     def listen_now(self) -> None:
@@ -104,7 +83,8 @@ class VoiceLoop(threading.Thread):
 
     def set_paused(self, paused: bool) -> None:
         (self.paused.set if paused else self.paused.clear)()
-        self.notify({"status": "Escuta pausada" if paused else "Diga “Hey Jarvis”"})
+        self._base()
+        self.notify({"status": "Escuta pausada" if paused else "Diga “Jarvis” e o comando"})
 
     def stop(self) -> None:
         self._stop.set()
@@ -116,6 +96,7 @@ class VoiceLoop(threading.Thread):
     def _falar(self, text: str) -> None:
         """Toda fala passa por aqui: o microfone é ignorado durante e um instante depois, e o áudio velho é descartado."""
         self._speaking.set()
+        self._estado(FALANDO)
         try:
             self.speaker.say(text)
         except Exception:
@@ -124,6 +105,7 @@ class VoiceLoop(threading.Thread):
             self._stop.wait(CAUDA_ECO_S)  # eco da sala; sai mais cedo se o app está fechando
             self._drain()
             self._speaking.clear()
+            self._base()
 
     # ── thread ───────────────────────────────────────────────────────────
     def run(self) -> None:
@@ -137,14 +119,17 @@ class VoiceLoop(threading.Thread):
             threading.Thread(target=self._enviar_nivel_mic, daemon=True, name="jarvis-visual").start()
             with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="int16",
                                 blocksize=FRAME, callback=self._on_audio):
-                self.notify({"status": "Diga “Hey Jarvis”"})
+                self.notify({"status": "Diga “Jarvis” e o comando"})
+                self._base()
                 agentes.marcar("voz", agentes.OK, "escutando")
                 self._listen(wake)
             agentes.marcar("voz", agentes.DESLIGADO, "parada")
+            self._estado(estado_base(True))
         except Exception as exc:
             agentes.erro("voz", exc)
             log.exception("voz indisponível")
             self.notify({"status": f"Voz indisponível: {exc}"})
+            self._estado(estado_base(True))
 
     def _on_audio(self, data, _frames, _time, _status) -> None:
         if self._speaking.is_set():
@@ -189,26 +174,83 @@ class VoiceLoop(threading.Thread):
                 return
 
     def _listen(self, wake) -> None:
+        seg = Segmentador(self._noise)
         while not self._stop.is_set():
             frame = self._next_frame()
             if frame is None:
                 continue
-            if self._speaking.is_set():
-                continue  # falando a saudação: não ouvir a própria voz
             manual = self._manual.is_set()  # o botão funciona mesmo com a escuta pausada
-            if self.paused.is_set() and not manual:
+            if self._speaking.is_set() or (self.paused.is_set() and not manual):
+                seg.reiniciar()  # falando (não ouvir a própria voz) ou pausada
                 continue
-            self._noise = 0.95 * self._noise + 0.05 * rms(frame)
+            energia = rms(frame)
+            self._noise = 0.95 * self._noise + 0.05 * energia
+            self._pre.add(frame)
             if manual or max(wake.predict(frame).values()) >= self.sensitivity:
                 self._manual.clear()
-                self._handle_turn()
+                self._turno(manual)
                 wake.reset()
-                self._drain()
-                if not self.paused.is_set():
-                    self.notify({"status": "Diga “Hey Jarvis”"})
+                seg.reiniciar()
+            elif self._por_texto.is_set():
+                seg.limiar = max(self._noise * 3.0, 400.0)
+                if self._chamada_por_texto(seg.feed(frame, energia)):
+                    wake.reset()
+                    seg.reiniciar()
+
+    def _chamada_por_texto(self, audio) -> bool:
+        """Transcreve uma frase ouvida ao fundo; só age se ela COMEÇA chamando "Jarvis". O texto não é guardado."""
+        if audio is None or not self._limite.permite():
+            return False
+        comando = extrair_comando(self.transcriber.transcribe(audio))
+        if comando is None:
+            return False
+        self._turno_com_comando(comando)
+        return True
+
+    def _turno(self, manual: bool) -> None:
+        """Palavra de ativação ou botão. Se o comando veio na mesma frase ("Hey Jarvis, que horas são"), usa-o direto."""
+        self._turno_com_comando("" if manual else self._comando_na_frase(self._pre.take()))
+
+    def _turno_com_comando(self, comando: str) -> None:
+        self._pre.take()
+        if comando:
+            self._responder(comando)
+        else:
+            self._handle_turn()
+        self._drain()
+        if not self.paused.is_set():
+            self.notify({"status": "Diga “Jarvis” e o comando"})
+        self._base()
+
+    def _comando_na_frase(self, semente: list) -> str:
+        """Continua gravando a frase em que a palavra de ativação disparou e devolve o que veio depois do nome."""
+        self._estado(OUVINDO)
+        rec = Recorder(self._noise)
+        for f in semente:  # o áudio de antes do disparo (só na memória)
+            if rec.feed(f):
+                break
+        antes, vazios = rec.loud, 0
+        while not self._stop.is_set() and not rec.done:
+            f = self._next_frame()
+            if f is None:
+                vazios += 1
+                if vazios >= 10:
+                    break
+                continue
+            vazios = 0
+            rec.feed(f)
+        if rec.loud - antes < 4:  # nada além do nome: só chamou
+            return ""
+        self._estado(PROCESSANDO)
+        audio = rec.audio()
+        comando = extrair_comando(self.transcriber.transcribe(audio))
+        if comando is None:  # o modelo disparou mas a transcrição não trouxe o nome
+            return ""
+        return comando
 
     def _handle_turn(self) -> None:
         self.notify({"status": "Ouvindo…", "listening": True})
+        self._estado(OUVINDO)
         if hasattr(self.speaker, "chime"):
             try:
                 self.speaker.chime()  # avisa na hora que está ouvindo
@@ -230,11 +272,16 @@ class VoiceLoop(threading.Thread):
                 break
         self._mostrar_mic.clear()
         self.notify({"status": "Transcrevendo…", "listening": False})
+        self._estado(PROCESSANDO)
         text = self.transcriber.transcribe(recorder.audio())
         if not text:
             self.notify({"status": "Não entendi. Tente de novo."})
             return
+        self._responder(text)
+
+    def _responder(self, text: str) -> None:
         self.notify({"user": text, "status": "Pensando…"})
+        self._estado(PROCESSANDO)
         result = self.respond(text)
         self.notify({"answer": result})
         if self.speak_answers:

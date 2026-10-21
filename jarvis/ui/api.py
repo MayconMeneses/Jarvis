@@ -20,9 +20,11 @@ from jarvis.pc import actions
 from jarvis.ui.api_agents import AgentsMixin
 from jarvis.ui.api_agenda import AgendaMixin
 from jarvis.ui.api_brains import BrainsMixin
+from jarvis.ui.api_escuta import EscutaMixin
 from jarvis.ui.api_face import FaceMixin
 from jarvis.ui.api_files import FilesMixin
 from jarvis.ui.api_info import InfoMixin
+from jarvis.ui.api_layout import LayoutMixin
 from jarvis.ui.api_leitura import LeituraMixin
 from jarvis.ui.api_learning import LearningMixin
 from jarvis.ui.api_mobile import MobileMixin
@@ -39,7 +41,7 @@ from jarvis.ui.api_visual import VisualMixin
 log = logging.getLogger(__name__)
 
 
-class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, RadarMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin, VisualMixin, FaceMixin, TemaMixin, AgentsMixin, UsoMixin, LeituraMixin, InfoMixin):
+class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, RadarMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin, VisualMixin, FaceMixin, TemaMixin, AgentsMixin, UsoMixin, LeituraMixin, InfoMixin, EscutaMixin, LayoutMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(

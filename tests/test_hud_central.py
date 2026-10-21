@@ -112,7 +112,7 @@ def test_vagas_com_perfil_lista_ate_5_e_cortam_texto(monkeypatch):
 
 def test_ponte_nao_expoe_escrita_nem_segredo():
     publicos = [n for n in dir(InfoMixin) if not n.startswith("_")]
-    assert sorted(publicos) == ["info_briefing", "info_clima", "info_noticias", "info_uso", "info_vagas"]
+    assert sorted(publicos) == ["info_briefing", "info_clima", "info_noticias", "info_tecnologia", "info_uso", "info_vagas"]
     codigo = (api_info.__file__ and open(api_info.__file__, encoding="utf-8").read())
     assert "keyring" not in codigo and "send_message" not in codigo and ".save(" not in codigo
 

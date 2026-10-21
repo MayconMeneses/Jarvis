@@ -67,6 +67,6 @@ class UsoMixin:
             if Path(escolha if isinstance(escolha, str) else escolha[0]).stat().st_size > 50_000_000:
                 return {"error": "Arquivo grande demais (mais de 50 MB)."}
             texto = Path(escolha if isinstance(escolha, str) else escolha[0]).read_text(encoding="utf-8")
-            return {"text": f"{exportar.importar_json(servico.registro(), texto)['linhas']} linha(s) importadas."}
+            return {"text": f"{exportar.importar_json(servico.registro(), texto)['novas']} linha(s) novas importadas."}
         except (OSError, ValueError) as exc:
             return {"error": f"Não consegui importar: {exc}"}

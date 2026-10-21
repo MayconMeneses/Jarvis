@@ -13,7 +13,7 @@ Formato (Claude Code 2.1.x, verificado por estrutura, sem ler conversas):
   `queued_command` / `commandMode: task-notification`), com <task-id> (= agentId), <status> e <usage>.
   A última notificação da mesma task-id vale. <result> e <summary> são ignorados (e descartados).
 - INFERIDO (rotulado): sem notificação, "rodando" = arquivo mexido há menos de RODANDO_SEGUNDOS.
-- ESTIMADO (rotulado): custo = tokens x tabela PRECOS_USD_MTOK (aproximada); modelo desconhecido = sem custo.
+- ESTIMADO (rotulado): custo = tokens x tabela de jarvis/uso/precos.py (fonte única, aproximada por família); modelo desconhecido = sem custo.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ from datetime import datetime
 from pathlib import Path
 
 from jarvis.dev.sessions_model import claude_home
+from jarvis.uso import precos
 
 RODANDO_SEGUNDOS = 60.0
 JANELA_PADRAO_S = 3600.0   # só lista os que mexeram na última hora (ou ainda rodam)
@@ -35,8 +36,6 @@ MAX_TEXTO = 80
 CONCLUIDO, FALHOU, PARADO, RODANDO, INATIVO = "concluido", "falhou", "parado", "rodando", "inativo"
 STATUS_FINAIS = {"completed": CONCLUIDO, "failed": FALHOU, "error": FALHOU, "killed": PARADO, "stopped": PARADO,
                  "cancelled": PARADO, "canceled": PARADO}
-# US$ por milhão de tokens: (entrada, saída). Cache: leitura 0,1x e escrita 1,25x da entrada. APROXIMADO.
-PRECOS_USD_MTOK = {"opus": (15.0, 75.0), "sonnet": (3.0, 15.0), "haiku": (1.0, 5.0)}
 _RE_ID = re.compile(r"<task-id>\s*([\w.-]{1,64})\s*</task-id>")
 _RE_STATUS = re.compile(r"<status>\s*([\w-]{1,32})\s*</status>")
 _RE_USO = {c: re.compile(rf"<{c}>\s*(\d+)\s*</{c}>") for c in ("subagent_tokens", "tool_uses", "duration_ms")}
@@ -176,11 +175,9 @@ class _Uso(_Incremental):
 
 
 def custo_estimado(modelo: str, t: dict[str, int]) -> float | None:
-    """US$ ESTIMADO pela tabela aproximada; None se o modelo não está nela."""
-    for familia, (preco_in, preco_out) in PRECOS_USD_MTOK.items():
-        if familia in modelo.lower():
-            return round((t["in"] * preco_in + t["out"] * preco_out + t["cc"] * preco_in * 1.25 + t["cr"] * preco_in * 0.1) / 1e6, 4)
-    return None
+    """US$ ESTIMADO pela tabela única de preços (uso/precos.py); None se o modelo não tem preço."""
+    custo, conhecido = precos.calcular(modelo, {"in": t["in"], "out": t["out"], "cw": t["cc"], "cr": t["cr"]}, aproximar=True)
+    return round(custo, 4) if conhecido else None
 
 
 @dataclass

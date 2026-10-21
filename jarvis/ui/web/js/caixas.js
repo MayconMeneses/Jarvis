@@ -9,14 +9,23 @@
       if (r.estado === "erro" || r.ok === false) return "erro";
       return r.itens.length ? "ok" : "vazio";
     }
+    // Hora relativa em pt-BR a partir de um instante em segundos (futuro ou ausente = vazio/"agora").
+    function relativo(ts, agora) {
+      const t = Number(ts), s = Math.floor((Number(agora == null ? Date.now() / 1000 : agora) - t));
+      if (!Number.isFinite(t) || t <= 0 || !Number.isFinite(s)) return "";
+      if (s < 60) return "agora";
+      if (s < 3600) return "há " + Math.floor(s / 60) + " min";
+      if (s < 86400) return "há " + Math.floor(s / 3600) + " h";
+      return s < 604800 ? "há " + Math.floor(s / 86400) + " d" : new Date(t * 1000).toLocaleDateString("pt-BR");
+    }
     const linkSeguro = (u) => (/^https?:\/\//i.test(String(u || "")) ? String(u) : "");
-    return { hora, classificar, linkSeguro };
+    return { hora, classificar, linkSeguro, relativo };
   })();
   if (typeof module !== "undefined") module.exports = CaixasRegras;
 
   if (typeof document !== "undefined" && document.getElementById("cx-clima")) (() => {
     const api = () => (window.pywebview && window.pywebview.api) || null;
-    const ROTULO = { clima: "o clima", vagas: "as oportunidades", noticias: "as notícias" };
+    const ROTULO = { clima: "o clima", vagas: "as oportunidades", noticias: "as notícias", tecnologia: "as notícias de tecnologia" };
     const emVoo = {};
     function no(tag, texto, cls) { const e = document.createElement(tag); if (texto != null) e.textContent = texto; if (cls) e.className = cls; return e; }
 
@@ -49,7 +58,7 @@
     function itemLista(tipo, it, msg) {
       const li = no("li", null, "cx-item");
       li.append(no("p", it.titulo, "cx-titulo"));
-      const meta = tipo === "vaga" ? [it.local, it.fonte, it.nota != null ? "nota " + it.nota : ""] : [it.fonte];
+      const meta = tipo === "vaga" ? [it.local, it.fonte, it.nota != null ? "nota " + it.nota : ""] : [it.fonte, CaixasRegras.relativo(it.quando)];
       li.append(no("p", meta.filter(Boolean).join(" · "), "cx-meta"));
       const ac = no("div", null, "cx-acoes"), abrir = botaoAbrir(it.link);
       if (abrir) ac.append(abrir);
@@ -87,7 +96,7 @@
     }
 
     const caixas = {};
-    for (const nome of ["clima", "vagas", "noticias"]) {
+    for (const nome of ["clima", "vagas", "noticias", "tecnologia"]) {
       const el = document.getElementById("cx-" + nome);
       const leitura = no("p", null, "cx-leitura"); leitura.setAttribute("role", "status"); el.append(leitura);  // anuncia os passos do "Ler para mim"
       caixas[nome] = { el, lista: el.querySelector(".cx-lista"), msg: el.querySelector(".cx-msg"), leitura };

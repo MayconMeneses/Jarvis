@@ -9,7 +9,10 @@ export const CAMPOS_NUMERICOS = ["likes", "comentarios", "views", "salvamentos",
 const VAZIOS = new Set(["", "-", "--", "n/d", "nd", "na", "n/a", "oculto", "ocultos", "hidden", "null", "none", "nan", "?"]);
 const MULT = { mil: 1e3, k: 1e3, mi: 1e6, m: 1e6, milhao: 1e6, milhoes: 1e6 };
 
-export function numero(valor) {
+// Métricas são contagens: finitas e até 1e12 (acima disso é dado corrompido ou hostil => n/d, como no PC).
+export const numero = (valor) => { const n = numeroBruto(valor); return Number.isFinite(n) && n <= 1e12 ? n : null; };
+
+function numeroBruto(valor) {
   if (valor == null || typeof valor === "boolean") return null;
   if (typeof valor === "number") return valor >= 0 ? Math.floor(valor + 0.5) : null;
   const texto = fold(valor).trim();

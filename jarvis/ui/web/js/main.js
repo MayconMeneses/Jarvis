@@ -10,4 +10,5 @@
     } catch (err) { /* o aviso é só um extra */ }
     showSuggestions();
     mic.hidden = !(await window.pywebview.api.voice_available());
+    if (window.Ondas) window.Ondas.definirDisponivel(!mic.hidden);
   });

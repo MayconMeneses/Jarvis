@@ -1,6 +1,7 @@
 // Memória própria do celular: notas, diário e configurações, só neste aparelho (IndexedDB).
 // O "armazenamento" é trocável: no navegador usa IndexedDB; nos testes, um Map em memória.
 import { fold, isoData } from "./util.js";
+import { lerCopia } from "./restaurar.js";
 
 export class ArmazemMemoria {
   constructor() { this.dados = new Map(); }
@@ -92,11 +93,13 @@ export class Memoria {
     return JSON.stringify({ formato: "jarvis-movel-1", exportado: this.relogio().toISOString(), notas, meta }, null, 1);
   }
 
-  async importar(texto) {
-    const dados = JSON.parse(texto);
-    if (dados.formato !== "jarvis-movel-1" || !Array.isArray(dados.notas)) throw new Error("arquivo de cópia inválido");
-    for (const n of dados.notas) await this.armazem.gravar(NOTA + String(n.ref).slice(0, 120), { ...n, corpo: String(n.corpo).slice(0, 20000) });
-    for (const [k, v] of Object.entries(dados.meta || {})) await this.armazem.gravar(META + k, v);
-    return dados.notas.length;
+  // Restaura só o que passa na validação (ver restaurar.js). Devolve o relatório; `importar` devolve só a contagem de notas.
+  async restaurar(texto) {
+    const r = lerCopia(texto);
+    for (const n of r.notas) await this.armazem.gravar(NOTA + n.ref, n);
+    for (const [k, v] of Object.entries(r.meta)) await this.armazem.gravar(META + k, v);
+    return r;
   }
+
+  async importar(texto) { return (await this.restaurar(texto)).notas.length; }
 }
