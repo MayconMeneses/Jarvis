@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+    <channel>
+        <title><![CDATA[BBC Brasil]]></title>
+        <description><![CDATA[BBC Brasil - Notícias, vídeos, análise e contexto em português - BBC News Brasil]]></description>
+        <link>https://www.bbc.com/portuguese</link>
+        <image>
+            <url>http://www.bbc.co.uk/portuguese/images/gel/rss_logo.gif</url>
+            <title>BBC Brasil</title>
+            <link>https://www.bbc.com/portuguese</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Wed, 21 Oct 2026 11:20:46 GMT</lastBuildDate>
+        <atom:link href="https://feeds.bbci.co.uk/portuguese/rss.xml" rel="self" type="application/rss+xml"/>
+        <copyright><![CDATA[Copyright British Broadcasting Corporation ]]></copyright>
+        <language><![CDATA[pt-br]]></language>
+        <ttl>15</ttl>
+        <item>
+            <title><![CDATA[Mesmo com 'Exército' de Janones, esquerda não tem força digital do bolsonarismo, diz Marcos Nobre]]></title>
+            <description><![CDATA[Professor e filósofo, Nobre organizou estudo sobre o 'Partido Digital Bolsonarista', forma virtual de legenda partidária que elege candidatos e pauta agendas políticas. Para ele, estrutura não tem paralelo na esquerda, nem mesmo com eleição de influencers ou 'Exército de Lula'.]]></description>
+            <link>https://www.bbc.com/portuguese/articles/cw99z4pj1mr4o?at_medium=RSS&amp;at_campaign=rss</link>
+            <guid isPermaLink="false">https://www.bbc.com/portuguese/articles/cw99z4pj1mr4o#0</guid>
+            <pubDate>Wed, 21 Oct 2026 06:51:39 GMT</pubDate>
+            <media:thumbnail width="240" height="135" url="https://ichef.bbci.co.uk/ace/ws/240/cpsprodpb/3b94/live/fa06afe0-ccc2-11f1-951b-8fbc7a9ea030.jpg"/>
+        </item>
+        <item>
+            <title><![CDATA[Perfis usam mulheres de IA em campanha por Flávio e Lula para vender conteúdo adulto]]></title>
+            <description><![CDATA[Levantamento da BBC News Brasil identificou que páginas têm quase 7 milhões de seguidores e centenas de milhares de curtidas. Avatares apoiam Lula e Bolsonaro.]]></description>
+            <link>https://www.bbc.com/portuguese/articles/cmgr8qz1095jo?at_medium=RSS&amp;at_campaign=rss</link>
+            <guid isPermaLink="false">https://www.bbc.com/portuguese/articles/cmgr8qz1095jo#0</guid>
+            <pubDate>Tue, 20 Oct 2026 22:35:54 GMT</pubDate>
+            <media:thumbnail width="240" height="135" url="https://ichef.bbci.co.uk/ace/ws/240/cpsprodpb/f79d/live/c0334720-ccbc-11f1-9a39-31b474234113.jpg"/>
+        </item>
+        <item>
+            <title><![CDATA[Eleição no Brasil é a mais importante para o mundo fora dos EUA em 2026, diz Nobel de Economia]]></title>
+            <description><![CDATA[Daron Acemoglu, que leciona no MIT, nos EUA, argumenta à BBC News Brasil que retorno de um Bolsonaro ao poder ameaça colapsar a democracia liberal brasileira — que encabeça o mundo em desenvolvimento]]></description>
+            <link>https://www.bbc.com/portuguese/articles/ckvg74ve4371o?at_medium=RSS&amp;at_campaign=rss</link>
+            <guid isPermaLink="false">https://www.bbc.com/portuguese/articles/ckvg74ve4371o#0</guid>
+            <pubDate>Tue, 20 Oct 2026 20:25:22 GMT</pubDate>
+            <media:thumbnail width="240" height="135" url="https://ichef.bbci.co.uk/ace/ws/240/cpsprodpb/9a0c/live/f0402260-ccc3-11f1-951b-8fbc7a9ea030.jpg"/>
+        </item>
+        <item>
+            <title><![CDATA[Análise: quem está por trás dos tumultos na França e quem pode se beneficiar deles?]]></title>
+            <description><![CDATA[País está dividido sobre o que levou a alguns dos piores distúrbios vistos em cidades francesas na história moderna; mas quem ganha com o caos no país?]]></description>
+            <link>https://www.bbc.com/portuguese/articles/c6x29lmmmexno?at_medium=RSS&amp;at_campaign=rss</link>
+            <guid isPermaLink="false">https://www.bbc.com/portuguese/articles/c6x29lmmmexno#0</guid>
+            <pubDate>Wed, 21 Oct 2026 10:37:50 GMT</pubDate>
+            <media:thumbnail width="240" height="134" url="https://ichef.bbci.co.uk/ace/ws/240/cpsprodpb/f8fb/live/9d496cd0-cc9e-11f1-94e6-edd4c60b2e1d.jpg"/>
+        </item>
+</channel>
+</rss>

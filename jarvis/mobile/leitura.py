@@ -105,12 +105,14 @@ def briefing_publico(nome: str, agora: datetime, agenda: dict, emails: dict) -> 
     return {"gerado": agora.isoformat(), "texto": "\n".join(linhas)}
 
 
-def agentes_publicos(retrato: dict) -> dict:
-    """Resumo do painel de agentes: só id, nome, estado e idade. Sem detalhe livre, caminho, erro nem subagente."""
+def agentes_publicos(retrato: dict, subagentes: dict | None = None) -> dict:
+    """Resumo do painel de agentes: só id, nome, estado e idade. Sem detalhe livre, caminho nem erro.
+    `subagentes` (opcional) = {total, contagem, itens} já limpo por leitura_pc.sessoes_publicas."""
     def numero(v):
         return round(float(v), 1) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
-    return {"server_now": numero(retrato.get("server_now")), "resumo": {str(k): int(v) for k, v in (retrato.get("resumo") or {}).items()},
+    extra = {"subagentes": subagentes} if subagentes else {}
+    return {**extra, "server_now": numero(retrato.get("server_now")), "resumo": {str(k): int(v) for k, v in (retrato.get("resumo") or {}).items()},
             "agentes": [{"id": limpo(a.get("id"), 30), "nome": limpo(a.get("nome"), 40), "state": limpo(a.get("state"), 10),
                          "age_s": numero(a.get("age_s"))} for a in retrato.get("agentes", [])]}
 
@@ -132,7 +134,7 @@ class _Cache:
 
 def montar(carregar_cfg: Callable[[], object], vivos: Callable[[], dict] = lambda: {}, relogio: Callable[[], float] = time.monotonic,
            agora: Callable[[], datetime] = datetime.now, ttl: float = TTL) -> dict[str, Callable[[], dict]]:
-    """Callbacks do servidor do celular: {"agenda","emails","briefing","agentes"}. Só lê as fontes que o PC já tem conectadas."""
+    """Callbacks do servidor do celular: {"agenda","emails","briefing","agentes","vitais","sessoes","tarefas","uso","radar"}. Só lê as fontes que o PC já tem conectadas."""
     def agenda() -> dict:
         from jarvis.agenda import servico
 
@@ -156,9 +158,15 @@ def montar(carregar_cfg: Callable[[], object], vivos: Callable[[], dict] = lambd
     def briefing() -> dict:
         return briefing_publico(carregar_cfg().user_name, agora().astimezone(), agenda_c(), emails_c())
 
+    from jarvis.mobile import leitura_montar, leitura_pc
+
+    extra = leitura_montar.montar_extra(relogio=relogio, agora=agora)
+    subagentes = extra.pop("_subagentes")
+
     def agentes() -> dict:
         from jarvis.agentes import painel
 
-        return agentes_publicos(painel.retrato(carregar_cfg(), vivos=vivos()))
+        sub = leitura_pc.sessoes_publicas([], subagentes(), 0.0, agora())["subagentes"]
+        return agentes_publicos(painel.retrato(carregar_cfg(), vivos=vivos()), sub)
 
-    return {"agenda": agenda_c, "emails": emails_c, "briefing": briefing, "agentes": agentes}
+    return {"agenda": agenda_c, "emails": emails_c, "briefing": briefing, "agentes": agentes, **extra}

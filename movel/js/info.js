@@ -1,5 +1,6 @@
 // Informações do dia pela internet, direto do celular: clima (Open-Meteo), notícias (feeds via rss2json e Hacker News) e vagas
 // (GitHub e Remotive). Só fontes que o navegador aceita (CORS); só leitura; nunca se candidata a nada.
+import { manchetes } from "./noticias-fontes.js";
 import { fold } from "./util.js";
 
 const WMO = { 0: "céu limpo", 1: "predomínio de sol", 2: "parcialmente nublado", 3: "nublado", 45: "neblina", 48: "neblina com geada", 51: "garoa fraca", 53: "garoa", 55: "garoa forte",
@@ -13,50 +14,34 @@ async function json(buscar, url) {
 }
 
 // ── clima ───────────────────────────────────────────────────────────────
-export async function clima(cidade, buscar = (...a) => fetch(...a)) {
-  if (!cidade) return 'Em que cidade? Diga "clima em Fortaleza" ou "minha cidade é Fortaleza" para eu lembrar.';
+// Dados do clima (para a caixa e para o texto). Levanta Error se a cidade não existe ou a rede falha.
+export async function climaDados(cidade, buscar = (...a) => fetch(...a)) {
   const geo = (p) => json(buscar, `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt${p}`);
-  let lugar = (await geo("&countryCode=BR")).results?.[0] || (await geo("")).results?.[0];
-  if (!lugar) return `Não achei a cidade "${cidade}".`;
+  const lugar = (await geo("&countryCode=BR")).results?.[0] || (await geo("")).results?.[0];
+  if (!lugar) return null;
   const d = await json(buscar, `https://api.open-meteo.com/v1/forecast?latitude=${lugar.latitude}&longitude=${lugar.longitude}&timezone=auto&forecast_days=1`
     + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code");
   const agora = d.current || {}, dia = d.daily || {};
-  const nome = [lugar.name, lugar.admin1].filter(Boolean).join(", ");
-  const chuva = (dia.precipitation_probability_max || [null])[0];
-  return `Em ${nome} agora faz ${Math.round(agora.temperature_2m)}°C, ${WMO[agora.weather_code] || "tempo indefinido"}, com sensação de ${Math.round(agora.apparent_temperature)}°C. `
-    + `Hoje a máxima é ${Math.round(dia.temperature_2m_max[0])}°C e a mínima ${Math.round(dia.temperature_2m_min[0])}°C` + (chuva != null ? `, com ${chuva}% de chance de chuva` : "") + ".";
+  const primeiro = (v) => (Array.isArray(v) ? v[0] : null);
+  return { local: [lugar.name, lugar.admin1].filter(Boolean).join(", "), agoraC: Math.round(agora.temperature_2m), sensacaoC: Math.round(agora.apparent_temperature),
+    umidade: agora.relative_humidity_2m ?? null, condicao: WMO[agora.weather_code] || "tempo indefinido", ventoKmh: Math.round(agora.wind_speed_10m || 0),
+    maxC: Math.round(primeiro(dia.temperature_2m_max)), minC: Math.round(primeiro(dia.temperature_2m_min)), chuvaPct: primeiro(dia.precipitation_probability_max) ?? null };
+}
+
+export async function clima(cidade, buscar = (...a) => fetch(...a)) {
+  if (!cidade) return 'Em que cidade? Diga "clima em Fortaleza" ou "minha cidade é Fortaleza" para eu lembrar.';
+  const c = await climaDados(cidade, buscar);
+  if (!c) return `Não achei a cidade "${cidade}".`;
+  return `Em ${c.local} agora faz ${c.agoraC}°C, ${c.condicao}, com sensação de ${c.sensacaoC}°C. `
+    + `Hoje a máxima é ${c.maxC}°C e a mínima ${c.minC}°C` + (c.chuvaPct != null ? `, com ${c.chuvaPct}% de chance de chuva` : "") + ".";
 }
 
 // ── notícias ────────────────────────────────────────────────────────────
-export const FEEDS = {
-  gerais: { G1: "https://g1.globo.com/rss/g1/", "BBC Brasil": "https://feeds.bbci.co.uk/portuguese/rss.xml", "Agência Brasil": "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml" },
-  tecnologia: { Tecnoblog: "https://tecnoblog.net/feed/", Canaltech: "https://canaltech.com.br/rss/", "Olhar Digital": "https://olhardigital.com.br/feed/" },
-};
-
-export async function noticias(tipo = "gerais", limite = 5, buscar = (...a) => fetch(...a)) {
-  const porFonte = {}, avisos = [];
-  await Promise.all(Object.entries(FEEDS[tipo] || FEEDS.gerais).map(async ([nome, url]) => {
-    try {
-      const d = await json(buscar, `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
-      porFonte[nome] = (d.items || []).map((i) => ({ fonte: nome, titulo: String(i.title || "").trim(), link: i.link, quando: Date.parse(String(i.pubDate || "").replace(" ", "T") + "Z") || 0 }))
-        .sort((a, b) => b.quando - a.quando);
-    } catch (e) { avisos.push(`${nome}: ${e.message}`); }
-  }));
-  if (tipo === "tecnologia") {  // Hacker News: manchetes de tecnologia do mundo (em inglês)
-    try {
-      const ids = (await json(buscar, "https://hacker-news.firebaseio.com/v0/topstories.json")).slice(0, 3);
-      porFonte["Hacker News"] = await Promise.all(ids.map(async (id) => { const i = await json(buscar, `https://hacker-news.firebaseio.com/v0/item/${id}.json`); return { fonte: "Hacker News", titulo: i.title, link: i.url || `https://news.ycombinator.com/item?id=${id}`, quando: 0 }; }));
-    } catch (e) { avisos.push(`Hacker News: ${e.message}`); }
-  }
-  const escolhidas = [], vistos = new Set();
-  while (escolhidas.length < limite && Object.values(porFonte).some((l) => l.length)) {
-    for (const nome of Object.keys(porFonte)) {
-      const item = porFonte[nome].shift();
-      if (item && escolhidas.length < limite && !vistos.has(item.titulo.toLowerCase().slice(0, 60))) { vistos.add(item.titulo.toLowerCase().slice(0, 60)); escolhidas.push(item); }
-    }
-  }
-  if (!escolhidas.length) return "Não consegui carregar notícias agora" + (avisos.length ? ` (${avisos.join("; ")})` : "") + ".";
-  return `**Manchetes (${tipo}):**\n` + escolhidas.map((n) => `- ${n.titulo} — ${n.fonte} ${n.link}`).join("\n") + (avisos.length ? `\n\n_Fora do ar: ${avisos.join("; ")}_` : "");
+// Feeds por CORS direto, pelo Worker do dono (proxy) ou pela reserva rss2json: veja noticias-fontes.js.
+export async function noticias(tipo = "gerais", limite = 5, buscar = (...a) => fetch(...a), proxy = null) {
+  const { itens, avisos } = await manchetes(tipo, { buscar, proxy, limite });
+  if (!itens.length) return "Não consegui carregar notícias agora" + (avisos.length ? ` (${avisos.join("; ")})` : "") + ".";
+  return `**Manchetes (${tipo}):**\n` + itens.map((n) => `- ${n.titulo} — ${n.fonte} ${n.link}`).join("\n") + (avisos.length ? `\n\n_Fora do ar: ${avisos.join("; ")}_` : "");
 }
 
 // ── perfil e vagas ──────────────────────────────────────────────────────
@@ -116,6 +101,16 @@ export async function coletarVagas(buscar = (...a) => fetch(...a)) {
     })(),
   ]);
   return { vagas, avisos };
+}
+
+// Vagas já pontuadas para a caixa: { itens: [{ titulo, fonte, link, motivos, quando }], avisos, semPerfil }. Sem stack no perfil mostra as mais recentes.
+export async function listarVagas(memoria, buscar, limite = 8) {
+  const p = await perfil(memoria);
+  const { vagas: todas, avisos } = await coletarVagas(buscar);
+  const semPerfil = !p.stack;
+  const itens = (semPerfil ? todas.map((v) => [0, [], v]).sort((a, b) => b[2].quando - a[2].quando) : todas.map((v) => [...pontuar(v, p), v]).filter(([pts]) => pts > 0).sort((a, b) => b[0] - a[0]))
+    .slice(0, limite).map(([, motivos, v]) => ({ titulo: v.titulo, fonte: v.fonte, link: v.link, motivos, quando: v.quando }));
+  return { itens, avisos, semPerfil };
 }
 
 export async function vagas(memoria, buscar) {

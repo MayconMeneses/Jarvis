@@ -25,8 +25,12 @@ import { ligarCerebro } from "./painel-cerebro.js";
 import { ligarMemoria } from "./painel-memoria.js";
 import { Instagram } from "./instagram.js";
 import { ligarInstagram } from "./painel-instagram.js";
+import { Documentos } from "./documentos.js";
+import { montarDocumentos } from "./painel-documentos.js";
 import { ligarOficina } from "./painel-oficina.js";
 import { ligarCriarComIA } from "./painel-oficina-ia.js";
+import { criarContexto } from "./noticias-ctx.js";
+import { ligarNoticias } from "./painel-noticias.js";
 import { executar as rodarNoSandbox } from "./sandbox.js";
 import { Saber } from "./saber.js";
 import { ligarNavegacao } from "./navegacao.js";
@@ -200,6 +204,8 @@ async function main() {
   const instagram = new Instagram(memoria);
   const pc = new PcPareado({ armazem: memoria.armazem });
   Object.assign(motor, { autonomo, avaliador, instagram, pc, uso });
+  const noticiasCtx = criarContexto({ memoria, nuvem, ia: conversaOficina, buscar: buscarMedido, avisar: (t) => adicionar(t, "aviso") });  // caixas, Radar e Ler para mim
+  motor.noticiasCtx = noticiasCtx;
   ligarAgentes({ agentes, autonomo, avaliador, cerebro });
   ligarUso({ uso, avisar: (t) => adicionar(t, "aviso") });
   const aoAbrirAgenda = ligarPc({ pc, avisar: (t) => adicionar(t, "aviso") });
@@ -213,6 +219,9 @@ async function main() {
   let modelosProntos = null;
   const oficina = ligarOficina({ memoria, aoRodar: (e) => agentes.marcar("oficina", e), avisar: (t) => adicionar(t, "aviso"), carregarModelos: async () => (modelosProntos ||= await (await fetch("dados/modelos.json")).json()) });
   ligarCriarComIA({ conversa: conversaOficina, oficina, avisar: (t) => adicionar(t, "aviso") });
+  motor.documentos = new Documentos({ memoria, conversa: conversaOficina, nuvem, buscar: buscarMedido, brave: () => nuvem.brave() });  // anexos, criar documentos e pesquisa em níveis
+  montarDocumentos($("documentos"), { documentos: motor.documentos, avisar: (t) => adicionar(t, "aviso") });
+  const aoAbrirNoticias = ligarNoticias(noticiasCtx);
   const abas = [...document.querySelectorAll("#abas button[data-aba]")];
   abas.forEach((b) => b.addEventListener("click", () => {
     abas.forEach((x) => { if (x === b) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
@@ -221,6 +230,7 @@ async function main() {
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
     if (b.dataset.aba === "instagram") aoAbrirInstagram();
     if (b.dataset.aba === "agenda") aoAbrirAgenda();
+    if (b.dataset.aba === "noticias") aoAbrirNoticias();
     if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
   ligarNavegacao();
