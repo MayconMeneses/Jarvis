@@ -80,6 +80,7 @@ def uso_de_ia(c: Contexto) -> Aviso | None:
     return None
 
 
+from jarvis import proc as processos
 from jarvis.proativo.evolucao import evolucao_semanal  # noqa: E402  (a regra mora em evolucao.py)
 from jarvis.proativo.instagram import instagram_semanal  # noqa: E402  (a regra mora em instagram.py)
 
@@ -94,7 +95,7 @@ def projetos_sem_commit(projetos: dict[str, str], dias: int = DIAS_PARADO, agora
         if not (Path(pasta) / ".git").exists():
             continue
         try:
-            saida = subprocess.run(["git", "log", "-1", "--format=%ct"], cwd=pasta, capture_output=True, text=True, timeout=5)
+            saida = processos.executar(["git", "log", "-1", "--format=%ct"], cwd=pasta, capture_output=True, text=True, timeout=5)
             idade = (agora - int(saida.stdout.strip())) / 86400
         except (OSError, ValueError, subprocess.TimeoutExpired):
             continue

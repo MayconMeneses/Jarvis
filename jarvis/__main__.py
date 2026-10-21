@@ -20,10 +20,14 @@ import sqlite3
 import sys
 from datetime import datetime
 
-from jarvis import config, keys, log, memory_db, memory_obsidian
-from jarvis.brains import NoBrainAvailable, build_router
-from jarvis.chat import Conversation
-from jarvis.llm import memoria_viva
+from jarvis import proc
+
+proc.ocultar_consoles()  # antes dos demais imports: até o keyring/platform rodam `cmd /c ver` ao carregar
+
+from jarvis import config, keys, log, memory_db, memory_obsidian  # noqa: E402
+from jarvis.brains import NoBrainAvailable, build_router  # noqa: E402
+from jarvis.chat import Conversation  # noqa: E402
+from jarvis.llm import memoria_viva  # noqa: E402
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
 

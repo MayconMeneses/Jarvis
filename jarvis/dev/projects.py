@@ -14,6 +14,7 @@ from datetime import date
 from pathlib import Path
 
 from jarvis import memory_db
+from jarvis import proc as processos
 from jarvis.config import Config
 from jarvis.dev import modelos
 
@@ -51,10 +52,7 @@ def _git(path: Path, *args: str) -> str:
 
 def _git_raw(path: Path, *args: str) -> str:
     """Saída sem cortar espaços: no `git status --porcelain` o 1º caractere faz parte do código."""
-    result = subprocess.run(
-        ["git", *args], cwd=path, capture_output=True, text=True, encoding="utf-8",
-        errors="replace", timeout=20, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-    )
+    result = processos.executar(["git", *args], cwd=path, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or "git falhou")
     return result.stdout

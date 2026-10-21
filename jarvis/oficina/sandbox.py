@@ -15,6 +15,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from jarvis import proc as processos
+
 TEMPO_PADRAO = 10
 MAX_SAIDA = 20_000
 MEMORIA_MB = 512
@@ -106,7 +108,7 @@ def _limitar_no_windows(proc: subprocess.Popen) -> None:
 def _matar(proc: subprocess.Popen) -> None:
     try:
         if os.name == "nt":
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True, timeout=10)
+            processos.executar(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True, timeout=10)
         else:
             proc.kill()
     except (OSError, subprocess.TimeoutExpired):
@@ -116,8 +118,8 @@ def _matar(proc: subprocess.Popen) -> None:
 def executar(comando: list[str], pasta: Path, tempo: int = TEMPO_PADRAO) -> Resultado:
     inicio = time.monotonic()
     try:
-        proc = subprocess.Popen(comando, cwd=pasta, env=_ambiente_limpo(), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                text=True, encoding="utf-8", errors="replace", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        proc = processos.abrir(comando, cwd=pasta, env=_ambiente_limpo(), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                text=True, encoding="utf-8", errors="replace")
     except OSError as exc:
         return Resultado(erro=f"não consegui iniciar: {exc}", codigo=-1)
     _limitar_no_windows(proc)

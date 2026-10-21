@@ -12,6 +12,7 @@ import subprocess
 import threading
 import time
 
+from jarvis import proc as processos
 from jarvis.agentes import registro as agentes
 from jarvis.brains.base import BrainUnavailable
 from jarvis.llm import catalogo, cliente
@@ -27,7 +28,7 @@ def porta_livre() -> int:
 
 
 class Servidor:
-    def __init__(self, id_modelo: str, endpoint: str = "", ocioso: float = OCIOSO_SEGUNDOS, lancar=subprocess.Popen) -> None:
+    def __init__(self, id_modelo: str, endpoint: str = "", ocioso: float = OCIOSO_SEGUNDOS, lancar=processos.abrir) -> None:
         self.id_modelo, self.endpoint, self.ocioso, self._lancar = id_modelo, endpoint.strip(), ocioso, lancar
         self._proc = None
         self._url = ""
@@ -50,8 +51,7 @@ class Servidor:
             if self._proc is not None and self._proc.poll() is None and self._url:
                 return self._url
             porta = porta_livre()
-            self._proc = self._lancar(self.comando(porta), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                      creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            self._proc = self._lancar(self.comando(porta), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             self._url = f"http://127.0.0.1:{porta}"
             limite = time.monotonic() + ESPERA_CARGA
             while time.monotonic() < limite:

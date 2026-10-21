@@ -13,6 +13,8 @@ import sys
 import time
 from collections.abc import Callable
 
+from jarvis import proc as processos
+
 TAREFAS = [
     ("eh_par", "eh_par(n) devolve True se n é par", [[[4], True], [[7], False], [[0], True]]),
     ("soma_lista", "soma_lista(xs) devolve a soma dos números da lista", [[[[1, 2, 3]], 6], [[[]], 0]]),
@@ -36,7 +38,7 @@ def executar(codigo: str, funcao: str, casos: list) -> bool:
     if getattr(sys, "frozen", False):
         raise RuntimeError("a avaliação só roda a partir do código-fonte (precisa do Python)")
     try:
-        saida = subprocess.run([sys.executable, "-I", "-c", EXECUTOR], input=json.dumps({"codigo": codigo, "funcao": funcao, "casos": casos}),
+        saida = processos.executar([sys.executable, "-I", "-c", EXECUTOR], input=json.dumps({"codigo": codigo, "funcao": funcao, "casos": casos}),
                                capture_output=True, text=True, timeout=10)
         return saida.returncode == 0 and all(json.loads(saida.stdout))
     except (subprocess.TimeoutExpired, ValueError, OSError):

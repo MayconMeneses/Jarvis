@@ -14,6 +14,7 @@ import time
 
 import numpy as np
 
+from jarvis import proc as processos
 from jarvis.voice.audio import CHIME_RATE, acabamento, chime_wave  # noqa: F401 - reexportados
 from jarvis.voice.cache import FRASES_COMUNS, CacheFrases
 from jarvis.voice.reprodutor import Reprodutor
@@ -62,10 +63,9 @@ _SAPI_SCRIPT = (
 
 def speak_sapi(text: str, registrar=None) -> None:
     """Fala pela voz do Windows. `registrar(proc)` deixa quem chamou encerrar o processo (barge-in)."""
-    proc = subprocess.Popen(
+    proc = processos.abrir(
         ["powershell", "-NoProfile", "-NonInteractive", "-Command", _SAPI_SCRIPT],
         stdin=subprocess.PIPE, text=True, encoding="utf-8",
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
     if registrar:
         registrar(proc)

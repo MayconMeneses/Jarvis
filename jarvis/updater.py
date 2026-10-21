@@ -10,11 +10,11 @@ import hashlib
 import json
 import logging
 import re
-import subprocess
 import urllib.request
 from pathlib import Path
 
 from jarvis import __version__
+from jarvis import proc as processos
 
 log = logging.getLogger(__name__)
 
@@ -124,6 +124,7 @@ def install(folder: Path, current: str = __version__, runner=None) -> bool:
     ready = pending(folder, current)  # confere o SHA-256 de novo, logo antes de executar
     if ready is None:
         return False
-    (runner or subprocess.Popen)([str(ready["path"]), "/SILENT", "/CLOSEAPPLICATIONS", "/RESTARTAPPLICATIONS", "/NORESTART"],
-           creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+    # Instalador: processo separado (DETACHED) para sobreviver ao fechamento desta Jarvis; ele mostra a própria janela.
+    (runner or processos.abrir_visivel)([str(ready["path"]), "/SILENT", "/CLOSEAPPLICATIONS", "/RESTARTAPPLICATIONS", "/NORESTART"],
+                                        creationflags=processos.DETACHED_PROCESS)
     return True

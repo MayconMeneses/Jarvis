@@ -16,11 +16,11 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis import __version__
 from jarvis.config import data_dir
 
 PASS, FAIL, BLOCKED, NOT_RUN = "PASS", "FAIL", "BLOCKED", "NOT_RUN"
-_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 
 def gate_of(checks: dict) -> str:
@@ -35,8 +35,8 @@ def gate_of(checks: dict) -> str:
 
 def _git(root: Path, *args: str) -> str | None:
     try:
-        done = subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, encoding="utf-8",
-                              errors="replace", timeout=60, creationflags=_NO_WINDOW)
+        done = processos.executar(["git", *args], cwd=root, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=60)
     except (OSError, subprocess.SubprocessError):
         return None
     return done.stdout if done.returncode == 0 else None

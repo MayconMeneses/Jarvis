@@ -22,6 +22,7 @@ from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis import verification
 from jarvis.config import data_dir
 
@@ -142,7 +143,7 @@ def _run(runner, command: list[str], cwd: Path, log: list[dict]):
     label = " ".join([Path(command[0]).name, *command[1:]])
     try:
         done = runner(command, cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace",
-                      timeout=900, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                      timeout=900)
     except (OSError, subprocess.SubprocessError) as exc:  # tempo esgotado, programa ausente: não deu para medir
         log.append({"comando": label,
                     "codigo_saida": None, "erro": type(exc).__name__, "duracao_s": round(time.time() - started, 1)})
@@ -152,7 +153,7 @@ def _run(runner, command: list[str], cwd: Path, log: list[dict]):
     return done
 
 
-def run_checks(root: Path, runner=subprocess.run) -> dict:
+def run_checks(root: Path, runner=processos.executar) -> dict:
     """Testes (pytest) e benchmark offline num processo novo, com o código já alterado."""
     python, log = _python(root), []
     tests = _run(runner, [python, "-m", "pytest", "-q", "--no-header", "-p", "no:cacheprovider"], root, log)
@@ -188,7 +189,7 @@ def compare(current: dict | None, base: dict | None, tolerance: float = 0.02) ->
     return worse
 
 
-def verify(root: Path, runner=subprocess.run, isolate: bool = True) -> dict:
+def verify(root: Path, runner=processos.executar, isolate: bool = True) -> dict:
     """Roda a verificação (em cópia limpa do código, se houver Git), compara e grava o registro."""
     started = time.time()
     with verification.clean_copy(root) if isolate else _in_place(root) as (where, isolated):

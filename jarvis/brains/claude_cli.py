@@ -13,6 +13,7 @@ import os
 import subprocess
 from pathlib import Path
 
+from jarvis import proc as processos
 from jarvis import environment
 from jarvis.brains.base import Answer, BrainUnavailable, Message
 from jarvis.config import ClaudeConfig, data_dir
@@ -68,7 +69,7 @@ class ClaudeCLI:
     def ask(self, messages: list[Message], system: str) -> Answer:
         self.workdir.mkdir(parents=True, exist_ok=True)
         try:
-            proc = subprocess.run(
+            proc = processos.executar(
                 self.command(system),
                 input=render_prompt(messages),
                 capture_output=True,
@@ -78,8 +79,6 @@ class ClaudeCLI:
                 cwd=self.workdir,
                 env=child_env(),
                 timeout=self.cfg.timeout_seconds,
-                # Sem janela de console piscando quando a Jarvis roda pela bandeja.
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
         except FileNotFoundError as exc:
             raise BrainUnavailable("Claude Code não está instalado ou fora do PATH") from exc

@@ -42,8 +42,7 @@ def main(argv: list[str] | None = None) -> int:
     commands = bench.bench_commands(LocalEngine())
     from jarvis.eval import entendimento as ent
 
-    print("
-".join(ent.linhas(ent.medir(LocalEngine()))))
+    print("\n".join(ent.linhas(ent.medir(LocalEngine()))))
     print("3/ Resumos…")
     summaries = bench.bench_summaries(encoder)
 
