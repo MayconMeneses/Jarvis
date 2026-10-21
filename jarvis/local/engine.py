@@ -12,7 +12,8 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import agenda_skills, dev_skills, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, skills, uso_skills, websearch
+from jarvis.local import agenda_skills, dev_skills, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, radar_skills, skills, uso_skills, websearch
+from jarvis.local.padroes import PATTERNS
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
 WEEKDAYS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
@@ -58,63 +59,12 @@ class LocalEngine:
         self._brave_key = brave_key or (lambda: keys.get_key("brave"))
 
     # ── classificação ────────────────────────────────────────────────────
-    PATTERNS = [
-        *agenda_skills.PADROES,  # agenda, e-mails, notícias de X e bom dia (jarvis/local/agenda_skills.py)
-        *instagram_skills.PADROES,  # analista de Instagram (instagram_skills.py): antes de tudo, comandos bem específicos
-        ("uso_ia", r"\b(quanto (eu )?(gastei|gasto|usei)|cota d[oa] claude|uso d[aeo] (ia|claude|tokens)|gasto com (ia|claude)|tokens (gastos|usados))\b"),
-        ("sessoes", r"\bsess(ao|oes)\b.*\b(claude|code|esperando|aguardando|parada)\b|\bclaude code\b.*\b(esperando|aguardando)\b"),
-        ("dashboard", r"^(cri[ae]|faca|fazer|faz|ger[ae]|gerar|mont[ae]|montar)\s+(um\s+|o\s+)?dashboard(\s+(de|do|da|dos|das|com|para|pra)(\s+.+)?)?$"),
-        ("anotar_projeto", r"^anot\w*\s+(no|na|ao|em)\s+(projeto\s+)?.+?\s+que\s+.+$"),
-        ("ficha", r"^(ficha|anotacoes)\s+(do\s+)?projeto\s+.+$"),
-        ("projetos", r"^(meus projetos|quais (sao )?(os )?(meus )?projetos|lista\w*\s+(os\s+)?(meus\s+)?projetos)$"),
-        ("perfil", r"^((meu|minha)\s+(stack|nivel|modalidade|ingles|cidade)\s*(e|eh|sao|:|=)\s*.+|(quero\s+)?evit\w+\s+.+)$"),
-        ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
-        ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
-        # Habilidades de programador (jarvis/local/habilidades_skills.py): avaliar projetos, evoluir, checklists.
-        ("revisar", r"^(revis\w+|analis\w+|avali\w+)\s+(este|esse|o|a)\s+(diff|patch|trecho|pull request|codigo abaixo|codigo a seguir)\b[\s\S]*$"),
-        ("avaliar_projeto", r"^(avali\w+|revis\w+|analis\w+|audit\w+)\s+(o\s+|a\s+)?(projeto|codigo|repositorio|sistema|[a-z]:\\).*$|"
-                            r"^(avali\w+|revis\w+)\s+(o\s+|a\s+)?(voce mesma|a si mesma|si mesma|seu proprio codigo|seu codigo|proprio codigo)\b.*$"),
-        ("habilidades", r"^(quais (sao )?(as )?(minhas |suas )?habilidades.*|minhas habilidades|suas habilidades|habilidades de programador.*|"
-                        r"que habilidades.*|lista de habilidades)$"),
-        ("evoluir", r"^(o que (devo|eu devo|posso|preciso) (estudar|evoluir|melhorar|praticar).*|qual (e )?(a )?(minha |sua )?proxima habilidade.*|"
-                    r"proxima habilidade.*|(qual (e )?(o )?|me de (o )?)?treino (da|de) semana.*|como (evoluir|melhorar|praticar)( como programador| minhas habilidades)?.*|plano de (estudo|evolucao).*)$"),
-        ("checklist", r"^(checklist|lista de verificacao)\s+.+$"),
-        # Programação (jarvis/local/dev_skills.py): criar sistemas, comparar, recomendar e explicar tecnologias.
-        # Engenharia e UX (engenharia_skills.py) e cérebro local, aprender e avaliar (llm_skills.py).
-        ("criar_com_ia", r"^(cri[ae]|desenvolv\w+|programe)\b.*\b(com (a )?ia( local)?|com o (cerebro|modelo) local|com a llm|pensando)\b.*$"),
-        ("avaliar_llm", r"^(avali\w+|test\w+)\s+(o |a )?(cerebro|modelo|llm)( local)?\b.*$"),
-        ("aprender", r"^(aprend\w+|estud\w+)\s+(sobre|a respeito de)\s+.{3,}$"),
-        ("llm_instalar", r"^(instal\w+|baix\w+|lig\w+|ativ\w+)\s+(o |a )?(cerebro|modelo|ia|llm)( generativ\w+)? (local|proprio|proprio)\b.*$"),
-        ("llm_status", r"(cerebro|modelo|llm) local|o que (voce )?(aprendeu|estudou)|aprendizado (automatico|autonomo)|(aprenda|estude) sozinha"),
-        ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
-        ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
-        ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
-                       r"^(recomend\w+|sugir\w+|indic\w+)\s+(uma?\s+)?(stack|tecnologia|linguagem|framework)\b.*|"
-                       r"^(o que|qual)\s+(devo|eu devo|posso)\s+usar\b.*"),
-        ("padrao", r"\b(padroes? de projeto|design patterns?|padrao (strategy|observer|factory|decorator|adapter|repository|command|builder))\b"),
-        ("ux_ferramenta", r"^(?=.*(#[0-9a-f]{3}|\b[0-9a-f]{6}\b)).*\b(contraste|paleta|tokens?)\b|\b(escala tipografica|escala de tipos)\b"),
-        ("gerar", r"^(cri[ae]|ger[ae]|gerar|faca|escrev\w+|mont[ae])\s+(um|uma|o|a)?\s*(tabela|esquema sql|adr|registro de decisao|historia de usuario|openapi|swagger|workflow|pipeline|dockerfile|editorconfig)\b.*$"),
-        ("algoritmo", r"^(como (fazer|faco|escrever|implementar|programar|criar|calcular)|escreva|escrever|mostre|mostra|me mostre|me de|exemplo de|algoritmo (de|para)|codigo (de|para)|implemente|programa (de|para))\b.+$"),
-        ("logica", r"^(como (resolver|resolvo|pensar|raciocinar)\b.*|me ajuda(r)? a (resolver|pensar)\b.*|logica de programacao|quais (conceitos|algoritmos)\b.*|que (conceitos|algoritmos)\b.*)$"),
-        ("tecnologia", r"^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+(?P<tema>.+)$"),
-        ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
-        ("hora", r"\b(que horas?|hora atual|horas sao)\b"), ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
-        ("processos", r"\b(processos|programas)\b.*\b(pesad\w*|mais us\w*|consum\w*)\b"),
-        ("pc", r"\b(como (esta|ta) (o\s+)?(meu\s+)?(pc|computador)|status do (pc|computador)|uso de (ram|cpu|memoria|disco)|"
-               r"memoria ram|quanto de (ram|memoria|disco))\b"),
-        ("clima", r"\b(clima|previsao do tempo|vai chover|temperatura)\b(\s+(em|de|no|na)\s+(?P<cidade>.+))?"),
-        ("noticias", r"\bnoticias?\b"),
-        # Só pedidos de vagas ("lembre que prefiro vagas remotas" não é um pedido).
-        ("vagas", r"^((tem|ha|existe\w*|quero|ver|mostr\w*|me mostr\w*|procur\w*|busc\w*|busqu\w*|lista\w*|quais)\b.{0,25}\bvagas?\b|vagas?\b)"),
-        ("ajuda", r"^(ajuda|o que voce (faz|sabe fazer)|comandos|me ajuda)$"),
-        ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
-                     r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
-    ]
+    PATTERNS = PATTERNS  # a lista mora em padroes.py (limite de 300 linhas por arquivo)
     MODULOS = {**agenda_skills.MODULOS, "padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
                "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status, "avaliar_llm": llm_skills.avaliar,
-               "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), **instagram_skills.MODULOS}
-    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
+               "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), "radar": radar_skills.comando, **instagram_skills.MODULOS}
+    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil", "radar"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)
@@ -127,10 +77,10 @@ class LocalEngine:
     def is_direct_command(self, text: str) -> bool:
         """Comando curto que o motor local resolve sozinho (vai antes da IA, sem gastar limite)."""
         found = self.classify(text)
-        if not found or found[0] not in self.DIRECT or (len(text) > 80 and found[0] not in instagram_skills.INTENTS):
+        if not found or found[0] not in self.DIRECT or (len(text) > 80 and found[0] not in instagram_skills.INTENTS and found[0] != "radar"):
             return False
         # "abre X e analisa Y" fica com a IA; em "meu nível é pleno" o "é" faz parte do comando.
-        return found[0] in ("perfil", "agenda_proximo") or found[0] in instagram_skills.INTENTS or " e " not in clean(text)
+        return found[0] in ("perfil", "agenda_proximo", "radar") or found[0] in instagram_skills.INTENTS or " e " not in clean(text)
 
     # ── execução ─────────────────────────────────────────────────────────
     def ask(self, messages: list[Message], system: str = "") -> Answer:

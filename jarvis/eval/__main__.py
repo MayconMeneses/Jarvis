@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     summaries = bench.bench_summaries(encoder)
 
     print("5/ Cenários adversariais…")
-    adversarial = adv.bench_injection()
+    adversarial = adv.bench_all()
     answers, repeated = None, []
     if args.ias or args.juiz:
         from jarvis.brains import build_router
