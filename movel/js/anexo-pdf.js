@@ -1,6 +1,7 @@
 // Leitor MÍNIMO de PDF com texto (sem pdf.js: nada de CDN, funciona offline e cabe na CSP). Lê os objetos, descomprime os fluxos
 // FlateDecode e extrai os operadores de texto (Tj, TJ, ', "). Não cobre: PDF escaneado (imagem), fontes com codificação própria
 // (Type0/Identity-H sem tabela legível), objetos dentro de ObjStm e PDF com senha. Nesses casos avisa em vez de inventar texto.
+import { decodificarWin1252 } from "./texto-win1252.js";
 export const MAX_BYTES_PDF = 15 * 1024 * 1024, MAX_PAGINAS = 200, MAX_FLUXO = 12 * 1024 * 1024;
 
 const binario = (bytes) => { let s = ""; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return s; };
@@ -100,7 +101,7 @@ function cadeia(s, i) {  // lê "( ... )" a partir do "(" em s[i]; devolve [byte
   return [out, i];
 }
 
-const latim = (s) => new TextDecoder("windows-1252").decode(paraBytes(s));
+const latim = (s) => decodificarWin1252(paraBytes(s));
 
 export function textoDoFluxo(s) {
   let saida = "", pilha = [], yAnterior = null;

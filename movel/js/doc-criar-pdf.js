@@ -1,17 +1,15 @@
 // Cria um PDF simples (A4) só com texto, nas fontes padrão do PDF (Helvetica e Courier, codificação WinAnsi): sem fontes embutidas.
 // Quebra de linha e de página automáticas; tabelas em Courier (colunas alinhadas). Letras fora do WinAnsi viram "?".
 import { semMarcas } from "./doc-markdown.js";
+import { byteWin1252 } from "./texto-win1252.js";
 
 const L = 595, A = 842, MARGEM = 56, LARGURA_UTIL = L - 2 * MARGEM;
 export const MAX_PAGINAS = 100;
-const WIN = { "•": 0x95, "–": 0x96, "—": 0x97, "“": 0x93, "”": 0x94, "‘": 0x91, "’": 0x92, "…": 0x85, "€": 0x80, "™": 0x99 };
 
 export function winAnsi(texto) {
   let s = "";
   for (const ch of String(texto).replace(/\t/g, "    ")) {
-    const c = ch.codePointAt(0);
-    const valido = (c >= 32 && c <= 126) || (c >= 160 && c <= 255);
-    s += String.fromCharCode(WIN[ch] ?? (valido ? c : 63));
+    s += String.fromCharCode(byteWin1252(ch) ?? 63);
   }
   return s.replace(/[\\()]/g, "\\$&");
 }

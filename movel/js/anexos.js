@@ -1,5 +1,6 @@
 // Lê um arquivo escolhido pelo usuário (seletor de arquivos ou "Compartilhar" do iOS) e devolve o TEXTO dele.
 // Tudo o que vem de dentro do arquivo é dado de terceiros: este módulo só extrai texto, nunca interpreta como comando.
+import { decodificarWin1252 } from "./texto-win1252.js";
 import { lerDocx } from "./anexo-docx.js";
 import { descreverImagem } from "./anexo-imagem.js";
 import { lerPdf } from "./anexo-pdf.js";
@@ -15,7 +16,7 @@ const ANTIGOS = { doc: "Word antigo (.doc)", xls: "Excel antigo (.xls)", ppt: "P
 export const extensao = (nome) => (/\.([A-Za-z0-9]+)$/.exec(nome || "")?.[1] || "").toLowerCase();
 
 export function decodificarTexto(bytes) {
-  try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes).replace(/^﻿/, ""); } catch { return new TextDecoder("windows-1252").decode(bytes); }
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes).replace(/^﻿/, ""); } catch { return decodificarWin1252(bytes); }
 }
 const pareceBinario = (bytes) => bytes.subarray(0, 4096).includes(0);
 
