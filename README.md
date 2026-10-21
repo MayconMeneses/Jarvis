@@ -249,7 +249,7 @@ Ferramentas MCP para o Claude: `consultar_tecnologia`, `listar_tecnologias`, `co
 - Clique no **clipe** ou **arraste arquivos** para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens (até 25 MB).
 - A Jarvis lê cada anexo pela ferramenta `ler_anexo`. As imagens são **vistas** pelo Claude, o que serve para prints de erro, telas e diagramas.
 - Para criar ou melhorar algo, ela salva o resultado com `salvar_arquivo` em `Documentos\Jarvis`, **sem nunca sobrescrever** (cria "nome (2)").
-- As cópias dos anexos ficam em `%LOCALAPPDATA%\SuperJarvisnexos` por 30 dias. O arquivo original não é alterado.
+- As cópias dos anexos ficam em `%LOCALAPPDATA%\SuperJarvis\anexos` por 30 dias. O arquivo original não é alterado.
 
 ## Pesquisa na internet e criação de documentos
 
