@@ -16,7 +16,7 @@ class NoBrainAvailable(RuntimeError):
 
 class Router:
     def __init__(self, brains: Sequence[Brain], prefer: Callable[[str], str | None] | None = None,
-                 visible: Callable[[Brain], bool] | None = None) -> None:
+                 visible: Callable[[Brain], bool] | None = None, contexto: Callable[[str], str] | None = None) -> None:
         if not brains:
             raise ValueError("é preciso ao menos um cérebro")
         self.brains = list(brains)
@@ -24,6 +24,8 @@ class Router:
         self.visible = visible
         # Recebe o texto do pedido e diz qual cérebro tentar primeiro (ver policy.py).
         self.prefer = prefer
+        # Recebe o texto do pedido e devolve fatos extras para o prompt de sistema das IAs (RAG do autoconhecimento da Jarvis).
+        self.contexto = contexto
 
     def order(self, messages: list[Message]) -> list[Brain]:
         brains = [b for b in self.brains if self.visible is None or self.visible(b)]
@@ -50,6 +52,11 @@ class Router:
 
     def ask(self, messages: list[Message], system: str) -> Answer:
         failures = []
+        if self.contexto and messages:
+            try:
+                system += self.contexto(messages[-1]["content"])
+            except Exception:  # melhor esforço: sem o contexto extra a IA ainda responde
+                log.info("contexto extra indisponível", exc_info=True)
         for brain in self.order(messages):
             try:
                 resposta = brain.ask(messages, system)

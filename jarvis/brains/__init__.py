@@ -56,6 +56,10 @@ def build_router(cfg: Config) -> Router:
 
         if local.is_direct_command(text):
             return "local"  # comando direto: na hora, sem gastar limite de nenhuma IA
+        from jarvis.local import entendimento
+
+        if entendimento.rota_local(text):
+            return "local"  # pergunta sobre a própria Jarvis com resposta certa no autoconhecimento: na hora e sem gastar IA
         found, now = local.classify(text), config.load()
         if found and (found[0] in ("criar_com_ia", "llm_instalar", "llm_status") or (now.llm_local and now.somente_independente)):
             return "local"  # gerenciar o cérebro local é com o motor próprio; sem IA externa, o motor só pega o que sabe fazer
@@ -79,7 +83,9 @@ def build_router(cfg: Config) -> Router:
             return current.modo_independente or current.somente_independente
         return not current.somente_independente
 
-    return Router(brains, prefer=prefer, visible=visible)
+    from jarvis.local import entendimento
+
+    return Router(brains, prefer=prefer, visible=visible, contexto=entendimento.contexto_para_ia)
 
 
 __all__ = [

@@ -4,12 +4,17 @@ A ORDEM IMPORTA: o primeiro padrão que casar vence. Comandos mais específicos 
 ("pesquisa", "noticias"). Cada nome corresponde a um método `_nome` do LocalEngine ou a uma entrada em MODULOS.
 """
 
-from jarvis.local import agenda_skills, instagram_skills
+from jarvis.local import agenda_skills, ensino, instagram_skills
 from jarvis.local.radar_skills import PADRAO as _RADAR
 
 PATTERNS = [
     # Radar de Notícias (radar_skills.py): ANTES de "noticias" e "pesquisa", que também casariam com "radar notícias".
     ("radar", _RADAR),
+    # Aprendizado do jeito de falar do usuário (ensino.py / evolucao.py): antes de "llm_status", que também casa "o que você aprendeu".
+    ("esquecer_aprendizado", r"^(apag\w+|esquec\w+|limp\w+|zer\w+)\s+(tudo\s+)?(o que\s+)?(voce\s+)?(aprendeu\s+)?(sobre\s+)?(como eu falo|meu jeito de falar|meu vocabulario|meus apelidos|os meus apelidos)$"),
+    ("vocabulario", r"^(meu vocabulario|meus apelidos|o que (voce )?aprendeu (sobre|com|de) (como eu falo|meu jeito( de falar)?|mim|eu)|o que (voce )?aprendeu comigo|aprendeu alguma coisa (sobre|com) (mim|eu)|quais (frases|apelidos) (voce )?aprendeu)$"),
+    ("evolucao_relatorio", r"^(como (voce )?(esta|ta|estou) evoluindo|relatorio de evolucao|qual (a )?(sua )?taxa de entendimento)$"),
+    ("ensinar", ensino.PADRAO_ENSINAR),
     *agenda_skills.PADROES,  # agenda, e-mails, notícias de X e bom dia (jarvis/local/agenda_skills.py)
     *instagram_skills.PADROES,  # analista de Instagram (instagram_skills.py): antes de tudo, comandos bem específicos
     ("uso_ia", r"\b(quanto (eu )?(gastei|gasto|usei)(?! (no|na|nos|nas|com|em|de|do|da|dos|das|pra|para) (?!ia\b|claude|tokens?|gemini|nvidia|hoje|semana|mes|ultim|total|tudo|sempre|esse|este|essa|esta|nesse|neste|\d))|cota d[oa] claude|uso d[aeo] (ia|claude|tokens)|gasto com (ia|claude)|tokens (gastos|usados))\b"),

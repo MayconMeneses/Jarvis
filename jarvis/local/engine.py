@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import agenda_skills, dev_skills, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, radar_skills, skills, uso_skills, websearch
+from jarvis.local import agenda_skills, dev_skills, ensino, entendimento, evolucao, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, radar_skills, skills, uso_skills, websearch
 from jarvis.local.padroes import PATTERNS
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
@@ -57,6 +57,7 @@ class LocalEngine:
 
         self._load_config = load_config or config.load
         self._brave_key = brave_key or (lambda: keys.get_key("brave"))
+        self._pendente = None  # opções de um "Você quis dizer" aguardando 1, 2 ou 3 (ver entendimento.py)
 
     # ── classificação ────────────────────────────────────────────────────
     PATTERNS = PATTERNS  # a lista mora em padroes.py (limite de 300 linhas por arquivo)
@@ -64,7 +65,7 @@ class LocalEngine:
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
                "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status, "avaliar_llm": llm_skills.avaliar,
                "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), "radar": radar_skills.comando, **instagram_skills.MODULOS}
-    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil", "radar"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
+    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil", "radar", "vocabulario", "evolucao_relatorio", "ensinar", "esquecer_aprendizado"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)
@@ -87,15 +88,46 @@ class LocalEngine:
         text = messages[-1]["content"] if messages else ""
         return Answer(text=self.handle(text) + NOTE, brain="local")
 
+    # Pedidos genéricos (algoritmo, pesquisa...) que podem, na verdade, ser uma pergunta sobre a própria Jarvis.
+    GENERICOS = {"algoritmo", "tecnologia", "pesquisa"}
+
     def handle(self, text: str) -> str:
+        escolha = entendimento.escolher_pendente(self, text)
+        if escolha is not None:
+            return escolha
         found = self.classify(text)
         intent, args = found if found else ("pergunta", {})
         try:
-            if intent in self.MODULOS:
-                return self.MODULOS[intent](text, self._load_config())
-            return getattr(self, f"_{intent}")(text, **args)
+            if intent == "pergunta" or intent in self.GENERICOS:
+                sobre_mim = entendimento.apelido(self, text) if intent == "pergunta" else None
+                if sobre_mim is not None:
+                    return sobre_mim
+                c = entendimento.conhecimento_alto(text)
+                if c is not None:
+                    return entendimento.executar(self, c, text)
+                duvida = entendimento.duvida_sobre_mim(self, text)
+                if duvida is not None:
+                    return duvida
+            return self.executar(intent, text, args)
         except Exception as exc:  # nunca derruba a conversa
             return f"Tentei, mas não consegui: {exc}"
+
+    def executar(self, intent: str, text: str, args: dict) -> str:
+        if intent in self.MODULOS:
+            return self.MODULOS[intent](text, self._load_config())
+        return getattr(self, f"_{intent}")(text, **args)
+
+    def _ensinar(self, text: str) -> str:
+        return ensino.propor(self, text)
+
+    def _vocabulario(self, text: str) -> str:
+        return evolucao.vocabulario()
+
+    def _evolucao_relatorio(self, text: str) -> str:
+        return evolucao.relatorio()[0]
+
+    def _esquecer_aprendizado(self, text: str) -> str:
+        return evolucao.esquecer()
 
     def _abrir(self, text: str, alvo: str = "") -> str:
         from jarvis.dev import projects
@@ -231,13 +263,10 @@ class LocalEngine:
         return websearch.format_answer(tema, websearch.research(tema, 5, brave_key=self._brave_key()))
 
     def _pergunta(self, text: str) -> str:
-        """Sem comando reconhecido: perguntas viram pesquisa na internet; o resto, ajuda."""
+        """Sem comando reconhecido: algoritmo/comparação conhecidos; o resto vai para o entendimento (casador, "você quis dizer")."""
         low = clean(text)
         if dev_skills.algorithm(text):
             return dev_skills.algorithm(text)  # "quicksort em C#": só o nome do algoritmo e a linguagem
         if re.search(r"\bou\b", low) and (len(dev_skills.conhecimento.mentioned(text)) >= 2 or len(dev_skills.logica.mentioned_concepts(text)) >= 2):
             return dev_skills.compare(text)  # "Python ou Node?", "pilha ou fila?"
-        if len(low.split()) >= 2 and (text.strip().endswith("?") or re.match(
-                r"^(o que|quem|qual|quais|como|quando|onde|por que|porque|quanto|explique|defina)\b", low)):
-            return self._pesquisa(text, tema=low)
-        return HELP
+        return entendimento.fallback(self, text, self._load_config())

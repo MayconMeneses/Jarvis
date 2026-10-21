@@ -1,0 +1,76 @@
+// Frases-exemplo dos comandos do motor (os PADROES de motor*.js e radar-motor.js), ditas do jeito que gente fala.
+// Servem para entender pedidos que a regex exata não pega ("que oras são", "me diz a data"). Cada linha:
+//   [intenção, rótulo, frase que o motor entende (ou null se precisa de argumento), dica de como pedir, [frases de exemplo]]
+// Só os comandos com frase executável e SOMENTE de leitura rodam quando a confiança é alta; os que mudam algo (anotar, apagar, avaliar) só mostram a dica.
+// O teste "comandos x padrões" garante que toda intenção do motor está aqui e que cada frase executável cai na intenção certa.
+import { FRASES_DO_PC } from "./intencao-frases-pc.js";
+
+export const COMANDOS = [
+  ["hora", "Ver a hora", "que horas são", "", ["que horas são", "me diz as horas", "qual a hora agora", "horário atual", "tem hora aí"]],
+  ["data", "Ver a data de hoje", "que dia é hoje", "", ["que dia é hoje", "qual a data de hoje", "em que dia estamos", "data de hoje", "dia da semana de hoje"]],
+  ["memoria", "Ver o que sei sobre você", "o que você sabe sobre mim", "", ["o que você sabe sobre mim", "o que você lembra de mim", "minhas notas", "mostrar minha memória", "o que tem guardado na memória", "quais lembranças você guardou"]],
+  ["lembrar", "Guardar uma lembrança", null, 'Diga: "lembre que minha senha do wifi é rosa" (não guarde senhas importantes).', ["guarda isso na memória", "anota uma coisa pra mim", "memorize uma informação", "lembra disso depois"]],
+  ["lembrete", "Criar um lembrete", null, 'Diga: "me lembre de ligar para o João amanhã".', ["me avisa amanhã de uma coisa", "criar um lembrete", "lembrete para depois", "me avise dia 20 de pagar a conta"]],
+  ["esquecer", "Apagar uma nota", null, 'Diga: "apague a nota Compras".', ["apagar uma nota", "esquece uma nota da memória", "remover nota", "deletar anotação"]],
+  ["aprender", "Aprender um assunto na internet", null, 'Diga: "aprenda sobre redes neurais".', ["aprende um assunto novo", "estude um tema para mim", "quero que você aprenda algo"]],
+  ["pesquisa", "Pesquisar na internet", null, 'Diga: "pesquise sobre energia solar".', ["pesquisar na internet", "procura isso na web", "buscar informações sobre um assunto", "faz uma pesquisa"]],
+  ["pesquisa_niveis", "Pesquisa em níveis", null, 'Diga: "pesquise a fundo sobre energia solar".', ["pesquisa profunda", "pesquisa rápida", "pesquisar em níveis", "pesquisa detalhada sobre um tema"]],
+  ["cancelar_pesquisa", "Cancelar a pesquisa", null, 'Diga: "cancelar a pesquisa".', ["parar a pesquisa", "cancela a pesquisa em andamento"]],
+  ["explicar", "Explicar um assunto", null, 'Diga: "explique SOLID" ou "o que é uma API".', ["explica um conceito", "me fala sobre um assunto", "o que significa uma coisa de programação", "descreva um conceito"]],
+  ["comparar", "Comparar duas coisas", null, 'Diga: "compare React e Vue".', ["comparar duas tecnologias", "qual a diferença entre duas coisas", "react ou vue qual melhor", "versus"]],
+  ["padrao", "Padrões de projeto", "padrões de projeto", "", ["padrões de projeto", "design patterns", "quais padrões você sabe", "mostra o padrão observer", "padrão factory"]],
+  ["algoritmo", "Mostrar um algoritmo ou código", null, 'Diga: "como fazer fatorial em Go".', ["me mostra um algoritmo", "escreve um código de ordenação", "exemplo de código", "implementar uma função"]],
+  ["ux", "Cores, contraste e tipografia", null, 'Diga: "contraste #767676 sobre #ffffff" ou "paleta a partir de #3b82f6".', ["contraste entre duas cores", "gerar paleta de cores", "tokens css de uma cor", "escala tipográfica", "acessibilidade de cor"]],
+  ["gerar", "Gerar tabela, Dockerfile, workflow...", null, 'Diga: "crie uma tabela clientes com nome texto" ou "gere um dockerfile para node".', ["gerar dockerfile", "criar tabela sql", "gere um workflow de ci", "criar openapi", "gerar editorconfig"]],
+  ["revisar", "Revisar código", null, 'Diga "revise este diff" e cole o código na linha seguinte.', ["revisar um diff", "analisa esse código", "avaliar um pull request", "revisão de código"]],
+  ["anotar_projeto", "Anotar num projeto", null, 'Diga: "anota no projeto Loja que o banco é PostgreSQL".', ["anotar no projeto", "guardar informação de um projeto", "registrar no projeto que algo"]],
+  ["ficha", "Ficha de um projeto", null, 'Diga: "ficha do projeto Loja".', ["ficha do projeto", "anotações do projeto", "ver as notas de um projeto"]],
+  ["projetos", "Meus projetos", "meus projetos", "", ["meus projetos", "quais projetos eu tenho", "listar os projetos", "mostra meus projetos"]],
+  ["perfil", "Ajustar seu perfil", null, 'Diga: "minha stack é Python e React" ou "minha cidade é Fortaleza".', ["minha stack é", "minha cidade é", "meu nível é", "mudar meu perfil", "atualizar minhas preferências"]],
+  ["vagas", "Vagas de emprego", "vagas", "", ["vagas de emprego", "tem vagas para mim", "procurar vagas de programador", "quero ver vagas", "oportunidades de trabalho"]],
+  ["habilidades", "Habilidades de programador", "quais são as minhas habilidades", "", ["quais habilidades de programador", "minhas habilidades", "lista de habilidades", "o que preciso saber como programador"]],
+  ["evoluir", "Treino e evolução", "treino da semana", "", ["treino da semana", "o que devo estudar", "como evoluir como programador", "plano de estudo", "próxima habilidade"]],
+  ["checklist", "Checklist", null, 'Diga: "checklist de segurança".', ["checklist de segurança", "lista de verificação", "checklist de testes"]],
+  ["recomendar", "Recomendar tecnologia", null, 'Diga: "qual stack para uma loja virtual".', ["qual stack usar", "qual linguagem escolher", "recomenda um framework", "que tecnologia devo usar"]],
+  ["clima", "Clima", "clima", "", ["como está o clima", "previsão do tempo", "vai chover hoje", "temperatura agora", "clima na minha cidade"]],
+  ["noticias", "Notícias", "notícias", "", ["notícias de hoje", "quais as novidades", "me atualiza das notícias", "manchetes", "o que está acontecendo"]],
+  ["noticias_tec", "Notícias de tecnologia", "notícias de tecnologia", "", ["notícias de tecnologia", "novidades de tech", "manchetes de programação", "últimas de tecnologia"]],
+  ["noticias_assunto", "Notícias de um assunto", null, 'Diga: "notícias sobre economia".', ["notícias sobre um assunto", "manchetes de esportes", "últimas notícias de política"]],
+  ["radar", "Radar de notícias", "radar", "", ["radar", "radar de notícias", "mostrar o radar", "resumo do radar"]],
+  ["ouvir_radar", "Ouvir o Radar", "ouvir o radar", "", ["ouvir o radar", "ler o radar em voz alta", "toca o boletim", "escutar o radar"]],
+  ["ler_noticia", "Ler uma notícia", null, 'Diga: "leia a notícia 2".', ["ler a notícia", "ouvir uma manchete", "leia a matéria"]],
+  ["parar_leitura", "Parar a leitura", "parar", "", ["parar de ler", "silêncio", "chega de falar", "pare a leitura"]],
+  ["continuar_leitura", "Continuar a leitura", "continuar", "", ["continuar a leitura", "retomar", "pode continuar lendo"]],
+  ["criar_documento", "Criar um documento", null, 'Diga: "crie um documento Word sobre vendas" (também planilha, apresentação e PDF).', ["criar um documento", "gerar uma planilha", "fazer uma apresentação", "montar um pdf", "escrever um relatório em word"]],
+  ["resumir_anexo", "Resumir o anexo", null, 'Anexe um arquivo e diga: "resuma o anexo".', ["resumir o arquivo anexado", "o que diz o anexo", "ler o anexo"]],
+  ["perguntar_anexo", "Perguntar sobre o anexo", null, 'Anexe um arquivo e pergunte, por exemplo: "qual o total no anexo".', ["pergunta sobre o anexo", "no arquivo anexado tem"]],
+  ["aprendeu", "O que aprendi sozinha", "o que você aprendeu", "", ["o que você aprendeu sozinha", "quais assuntos você estudou", "o que você já estudou"]],
+  ["avaliar_cerebro", "Avaliar o cérebro", null, 'Diga: "avalie o cérebro" (gasta tempo e bateria do aparelho).', ["avaliar o cérebro", "testar meu cérebro", "nota do cérebro", "como está o cérebro"]],
+  ["uso_ia", "Uso e gasto de IA", "uso de ia", "", ["quanto gastei com ia", "uso de ia", "quantos tokens usei", "gasto com nuvem"]],
+  ["ig_analisar", "Analisar o Instagram", null, 'Diga: "analisar instagram".', ["analisar meu instagram", "começar análise de instagram"]],
+  ["ig_pesquisar", "Pesquisar um perfil do Instagram", null, 'Diga: "pesquise o instagram @perfil".', ["pesquisar perfil do instagram", "buscar um perfil no instagram"]],
+  ["ig_importar", "Importar posts do Instagram", null, 'Diga "importar posts" e cole os dados na linha seguinte.', ["importar posts do instagram"]],
+  ["ig_configurar", "Configurar o Instagram", null, 'Diga: "configurar instagram" e o que quer ajustar.', ["configurar a análise de instagram"]],
+  ["ig_relatorio", "Relatório do Instagram", "relatório de instagram", "", ["relatório do instagram", "relatório sobre instagram"]],
+  ["ig_comparar", "Comparar rodadas do Instagram", null, 'Diga: "compare com a rodada anterior".', ["comparar com a rodada anterior", "comparar as rodadas do instagram"]],
+  ["ig_apagar", "Apagar dados do Instagram", null, 'Diga: "apague os dados do instagram" e depois confirme.', ["apagar os dados do instagram", "excluir posts do instagram"]],
+  ["ig_lembrete", "Lembrete semanal do Instagram", null, 'Diga: "ligar o lembrete semanal de instagram".', ["lembrete semanal de instagram", "ativar o lembrete do instagram"]],
+  ["pc_agenda", "Agenda (PC pareado)", "minha agenda", "", ["minha agenda", "o que tenho hoje", "meus compromissos", "agenda da semana"]],
+  ["pc_proximo", "Próximo compromisso", "próximo compromisso", "", ["qual meu próximo compromisso", "o que vem agora na agenda", "próxima reunião"]],
+  ["pc_emails", "E-mails (PC pareado)", "meus emails", "", ["meus e-mails", "tenho emails novos", "e-mails importantes", "caixa de entrada"]],
+  ["pc_bomdia", "Bom dia", "bom dia", "", ["bom dia", "boa tarde", "boa noite", "olá bom dia jarvis"]],
+  ["pc_vitais", "Saúde do PC", "como está o pc", "", ["como está meu computador", "saúde do pc", "uso de cpu e ram", "vitais do pc", "espaço no disco do pc"]],
+  ["pc_sessoes", "Sessões do Claude Code", "minhas sessões do claude", "", ["sessões do claude code", "tem claude esperando por mim", "como estão as sessões"]],
+  ["pc_uso", "Cota do Claude", "minha cota", "", ["minha cota do claude", "quanto sobra da cota", "uso do claude"]],
+  ["pc_tarefas", "Tarefas do PC", "tarefas do pc", "", ["tarefas de código do pc", "minhas tarefas no pc"]],
+  ["pc_radar", "Radar do PC", "radar do pc", "", ["boletim do pc", "radar do computador"]],
+  ["evolucao_fala", "O que aprendi sobre como você fala", "o que você aprendeu sobre como eu falo", "", ["como estou evoluindo", "o que você aprendeu sobre como eu falo", "o que você aprendeu com minhas frases", "relatório de evolução", "você está entendendo melhor"]],
+  ["esquecer_fala", "Apagar o que aprendi sobre como você fala", null, 'Diga: "apague tudo que você aprendeu sobre como eu falo".', ["apagar o aprendizado de fala", "limpar frases não entendidas"]],
+  ["ensinar", "Ensinar um apelido", null, 'Diga: "quando eu disser bom dia chefe, mostre minha agenda".', ["quando eu disser uma frase faça um comando", "isso significa outra coisa", "ensinar um atalho"]],
+  ["ajuda", "Ajuda", "ajuda", "", ["ajuda", "me ajuda", "comandos", "o que você sabe fazer", "lista de comandos"]],
+];
+
+export const ALVOS_COMANDOS = COMANDOS.map(([id, rotulo, executar, dica, exemplos]) => ({ id, tipo: "comando", rotulo, executar, dica, exemplos: [...new Set([...exemplos, ...(FRASES_DO_PC[id] || [])])], palavras: [] }));
+
+// Comandos que só leem (nunca mudam nada): são os únicos que um apelido ensinado pelo usuário pode disparar.
+export const SOMENTE_LEITURA = new Set(COMANDOS.filter(([id, , executar]) => executar && !["avaliar_cerebro", "parar_leitura", "continuar_leitura", "esquecer_fala", "ensinar"].includes(id)).map(([id]) => id));

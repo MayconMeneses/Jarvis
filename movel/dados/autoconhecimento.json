@@ -1,0 +1,2222 @@
+[
+ {
+  "id": "celular-outro-aparelho",
+  "titulo": "Colocar a Jarvis em outro celular",
+  "exemplos": [
+   "como colocar o Jarvis em outro celular",
+   "quero usar a Jarvis no meu celular novo",
+   "como instalo a Jarvis em outro telefone",
+   "como passo a Jarvis para outro aparelho",
+   "trocei de celular, como uso a Jarvis de novo",
+   "como ponho a Jarvis no celular da minha esposa"
+  ],
+  "palavras": [
+   "outro celular",
+   "celular novo",
+   "telefone novo",
+   "instalar no celular",
+   "trocar de celular"
+  ],
+  "resposta": "A Jarvis do celular é um app web (PWA): não existe loja de aplicativos. Em qualquer celular novo você abre o endereço dela no navegador e adiciona à tela de início. Cada celular tem a sua própria Jarvis e a sua própria memória; para levar as notas de um aparelho ao outro use a cópia de segurança.",
+  "passos": [
+   "No celular novo, abra https://mayconmeneses.github.io/Jarvis/ (Safari no iPhone, Chrome no Android).",
+   "iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início. Android: menu do Chrome e Instalar app ou Adicionar à tela inicial.",
+   "Abra a Jarvis pelo ícone novo e, se quiser a IA em nuvem, cadastre as chaves na aba Cérebro (as chaves não vão na cópia de segurança).",
+   "Para trazer a memória do celular antigo: no antigo, aba Memória, Salvar cópia segura; no novo, aba Memória, Restaurar cópia."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "celular-iphone",
+   "celular-android",
+   "backup-levar-memoria",
+   "chaves-celular-nuvem"
+  ]
+ },
+ {
+  "id": "celular-iphone",
+  "titulo": "Instalar a Jarvis no iPhone",
+  "exemplos": [
+   "instalar no iPhone",
+   "como instalo a Jarvis no iphone",
+   "como adiciono a Jarvis na tela inicial do Safari",
+   "como transformar a Jarvis em app no iPhone",
+   "jarvis no iphone como faz",
+   "onde fica o compartilhar para adicionar a tela de inicio",
+   "onde instalo a Jarvis no iPhone"
+  ],
+  "palavras": [
+   "iphone",
+   "safari",
+   "tela de início",
+   "compartilhar",
+   "adicionar à tela de início",
+   "pwa"
+  ],
+  "resposta": "No iPhone a Jarvis se instala pelo Safari, sem App Store e sem conta de desenvolvedor.",
+  "passos": [
+   "Abra https://mayconmeneses.github.io/Jarvis/ no Safari.",
+   "Toque no botão Compartilhar.",
+   "Escolha Adicionar à Tela de Início e confirme.",
+   "Abra pelo ícone da tela de início: ela abre em tela cheia, como um app."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "celular-outro-aparelho",
+   "celular-limites-iphone",
+   "celular-cerebro-ia"
+  ]
+ },
+ {
+  "id": "celular-android",
+  "titulo": "Instalar a Jarvis no Android",
+  "exemplos": [
+   "como instalo a Jarvis no android",
+   "instalar no android",
+   "jarvis no celular samsung",
+   "como adicionar a jarvis na tela inicial do chrome",
+   "dá para usar a Jarvis no Android"
+  ],
+  "palavras": [
+   "android",
+   "chrome",
+   "instalar app",
+   "tela inicial",
+   "samsung",
+   "motorola"
+  ],
+  "resposta": "No Android a Jarvis também é um app web: abra o endereço no Chrome e instale pelo menu do navegador.",
+  "passos": [
+   "Abra https://mayconmeneses.github.io/Jarvis/ no Chrome.",
+   "Toque no menu (três pontinhos) e escolha Instalar app ou Adicionar à tela inicial.",
+   "Abra pelo ícone novo. O resto funciona como no iPhone: memória no aparelho, chaves na aba Cérebro."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "celular-outro-aparelho",
+   "celular-iphone"
+  ]
+ },
+ {
+  "id": "celular-independente",
+  "titulo": "O que a Jarvis do celular faz sozinha",
+  "exemplos": [
+   "o que a Jarvis do celular faz",
+   "a Jarvis do celular precisa do PC ligado",
+   "preciso do computador para usar a Jarvis no celular",
+   "a Jarvis funciona sem internet no celular",
+   "como funciona a Jarvis do celular",
+   "a Jarvis do celular funciona sem o computador ligado",
+   "dá para usar a Jarvis no celular sem o PC"
+  ],
+  "palavras": [
+   "celular independente",
+   "sem pc",
+   "offline",
+   "app web",
+   "funciona sozinha"
+  ],
+  "resposta": "A Jarvis do celular roda só no aparelho: memória própria, a mesma base de conhecimento do PC, motor de regras, pesquisa pela Wikipédia e avisos ao abrir. O PC pareado é opcional.",
+  "passos": [
+   "Memória, notas e diário ficam no próprio celular (IndexedDB).",
+   "Hora, data, lembretes, tópicos de programação, geradores e contraste funcionam sem internet.",
+   "Pesquisar e aprender usam a Wikipédia (ou o Brave, se você cadastrar a chave).",
+   "Cérebro de IA é opcional: no aparelho (WebLLM) ou na nuvem com as suas chaves."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "celular-cerebro-ia",
+   "pc-pareado-celular",
+   "celular-limites-iphone"
+  ]
+ },
+ {
+  "id": "celular-pwa-atualizar",
+  "titulo": "Atualizar a Jarvis do celular",
+  "exemplos": [
+   "como atualizo a Jarvis no celular",
+   "a Jarvis do celular não atualiza",
+   "como pegar a versão nova no iPhone",
+   "o celular está com a versão antiga"
+  ],
+  "palavras": [
+   "atualizar celular",
+   "versão nova",
+   "cache",
+   "recarregar",
+   "service worker"
+  ],
+  "resposta": "O app do celular se atualiza quando o endereço publicado muda: feche a Jarvis por completo e abra de novo, com internet. Se continuar na versão antiga, o navegador guardou a casca em cache.",
+  "passos": [
+   "Feche o app por completo (no iPhone, deslize para cima no seletor de apps) e abra de novo, com internet.",
+   "Se não mudou, abra o endereço https://mayconmeneses.github.io/Jarvis/ no Safari ou no Chrome e recarregue a página.",
+   "Em último caso, remova o ícone da tela de início e adicione de novo. Antes, salve a cópia segura da memória."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "backup-celular-salvar",
+   "celular-desinstalar"
+  ]
+ },
+ {
+  "id": "celular-desinstalar",
+  "titulo": "Desinstalar a Jarvis do celular",
+  "exemplos": [
+   "como desinstalo a Jarvis do celular",
+   "remover a Jarvis do iPhone",
+   "como apagar o app da Jarvis do celular",
+   "quero tirar a Jarvis do meu telefone"
+  ],
+  "palavras": [
+   "desinstalar celular",
+   "remover app",
+   "apagar ícone",
+   "limpar dados"
+  ],
+  "resposta": "Como é um app web, basta remover o ícone da tela de início. A memória fica guardada no navegador; para apagar de verdade, limpe os dados do site nas configurações do navegador. Salve a cópia segura antes se quiser guardar as notas.",
+  "passos": [
+   "Segure o ícone da Jarvis na tela de início e escolha Remover (iPhone) ou Desinstalar (Android).",
+   "Para apagar também as notas e as chaves: nas configurações do Safari ou do Chrome, dados dos sites, remova o endereço da Jarvis.",
+   "Antes disso, se quiser guardar as notas: aba Memória, Salvar cópia segura."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "backup-celular-salvar",
+   "pc-desinstalar"
+  ]
+ },
+ {
+  "id": "celular-limites-iphone",
+  "titulo": "Limites do iPhone",
+  "exemplos": [
+   "quais os limites da Jarvis no iPhone",
+   "por que a Jarvis não avisa com o app fechado",
+   "a Jarvis manda notificação no iPhone",
+   "o iPhone fecha a Jarvis sozinho",
+   "por que o cérebro de IA não funciona no meu iPhone"
+  ],
+  "palavras": [
+   "limites iphone",
+   "notificação push",
+   "segundo plano",
+   "webgpu",
+   "ios 26",
+   "app fechado"
+  ],
+  "resposta": "Um site no iPhone não acorda sozinho em segundo plano: os avisos aparecem quando você abre a Jarvis. O cérebro de IA dentro do aparelho precisa de Safari com WebGPU (iOS 26 ou mais novo) e deixa o celular mais quente.",
+  "passos": [
+   "Sem notificações push nativas: bom dia, lembretes e treino aparecem ao abrir o app.",
+   "Ditado por voz e leitura em voz alta exigem HTTPS (o endereço do GitHub Pages já é).",
+   "Modelos de até 1B conversam bem menos que o Claude; a nuvem com suas chaves é mais capaz.",
+   "App nativo da App Store exigiria Mac, Xcode e conta de desenvolvedor paga: não foi feito."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "celular-cerebro-ia",
+   "voz-celular",
+   "celular-iphone"
+  ]
+ },
+ {
+  "id": "celular-cerebro-ia",
+  "titulo": "Cérebro de IA no celular",
+  "exemplos": [
+   "como ligo o cérebro de IA no celular",
+   "como baixar o modelo no iPhone",
+   "a Jarvis do celular pode ter IA",
+   "como ativo o webllm",
+   "o cérebro do aparelho não liga"
+  ],
+  "palavras": [
+   "cérebro do aparelho",
+   "webllm",
+   "modelo no celular",
+   "baixar e ligar",
+   "gemma"
+  ],
+  "resposta": "Na aba Cérebro do celular você baixa um modelo pequeno uma vez e ele roda dentro do aparelho, sem mandar suas conversas para fora. É opcional e exige Safari com WebGPU.",
+  "passos": [
+   "Abra a aba Cérebro e escolha o modelo (o recomendado é o Gemma 3 1B, cerca de 710 MB).",
+   "Use Wi-Fi e toque em Baixar e ligar; o download é feito uma vez e fica no aparelho.",
+   "Se o aviso disser que não há suporte, o seu Safari ainda não tem WebGPU: atualize o iOS ou use as chaves de nuvem."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "chaves-celular-nuvem",
+   "celular-limites-iphone"
+  ]
+ },
+ {
+  "id": "chaves-celular-nuvem",
+  "titulo": "Chaves de IA no celular",
+  "exemplos": [
+   "onde coloco a chave do Gemini no celular",
+   "como cadastro a chave de api no celular",
+   "como uso o Gemini na Jarvis do celular",
+   "onde fica a nuvem no app do celular",
+   "como colocar a chave da OpenAI no celular",
+   "onde coloco chaves de IA no iPhone"
+  ],
+  "palavras": [
+   "chave gemini celular",
+   "nuvem",
+   "provedor",
+   "groq",
+   "openrouter",
+   "salvar e testar"
+  ],
+  "resposta": "No celular, aba Cérebro, seção Nuvem: escolha o provedor, cole a chave e toque em Salvar e testar. A chave fica só neste aparelho e não vai na cópia de segurança.",
+  "passos": [
+   "Abra a aba Cérebro e role até Nuvem: suas chaves de API.",
+   "Escolha o provedor (Google Gemini, OpenAI, Groq, OpenRouter ou Outro) e cole a chave.",
+   "Toque em Salvar e testar: se o modelo padrão foi aposentado, o app procura outro que a chave enxergue.",
+   "Escolha em Quando usar a nuvem: só se o aparelho falhar ou sempre que as regras não entenderem."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "proxy-cloudflare",
+   "chave-gemini-pc",
+   "backup-levar-memoria"
+  ]
+ },
+ {
+  "id": "proxy-cloudflare",
+  "titulo": "Proxy grátis da Cloudflare (NVIDIA e Brave no celular)",
+  "exemplos": [
+   "como uso a NVIDIA no celular",
+   "o que é o proxy da Cloudflare",
+   "como crio o worker da Cloudflare",
+   "a chave do Brave não funciona no celular",
+   "onde pego a url base da NVIDIA",
+   "como reimplantar o proxy",
+   "como configuro a NVIDIA no celular"
+  ],
+  "palavras": [
+   "proxy",
+   "cloudflare",
+   "worker",
+   "nvidia celular",
+   "brave celular",
+   "cors",
+   "url base"
+  ],
+  "resposta": "A NVIDIA e o Brave não deixam o navegador chamar a API deles; por isso, no celular, você cria uma vez um proxy seu e grátis na Cloudflare Workers. O proxy não guarda chave nenhuma.",
+  "passos": [
+   "Em dash.cloudflare.com, crie a conta grátis e vá em Workers & Pages, Create, Worker.",
+   "Edit code, apague tudo e cole o código do proxy (a aba Cérebro tem o botão Copiar o código do proxy). Toque em Deploy.",
+   "NVIDIA: a URL base é o endereço do Worker mais /v1. Brave: só o endereço, sem /v1.",
+   "Para as rotas de notícias, leitura de páginas e agenda, cole a versão nova do código e dê Deploy de novo: a URL não muda. Teste abrindo /saude no endereço."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "chaves-celular-nuvem",
+   "chave-brave"
+  ]
+ },
+ {
+  "id": "backup-celular-salvar",
+  "titulo": "Salvar a cópia segura no celular",
+  "exemplos": [
+   "como faço backup no celular",
+   "como salvo a cópia segura da memória",
+   "como exportar minhas notas do celular",
+   "como guardo as notas da Jarvis",
+   "salvar cópia segura"
+  ],
+  "palavras": [
+   "backup",
+   "cópia segura",
+   "exportar notas",
+   "aes",
+   "senha da cópia"
+  ],
+  "resposta": "Na aba Memória do celular, Salvar cópia segura gera um arquivo criptografado (AES-256) com uma senha que só você sabe. Sem a senha não há como abrir nem recuperar.",
+  "passos": [
+   "Abra a aba Memória e toque em Salvar cópia segura.",
+   "Digite uma senha e guarde o arquivo onde quiser (Arquivos, iCloud Drive).",
+   "Anote a senha: a Jarvis nunca a guarda."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "backup-levar-memoria",
+   "backup-restaurar",
+   "backup-pc"
+  ]
+ },
+ {
+  "id": "backup-restaurar",
+  "titulo": "Restaurar a cópia segura",
+  "exemplos": [
+   "como restaurar no celular novo",
+   "como restauro a cópia segura",
+   "como importo minhas notas",
+   "como recupero a memória da Jarvis",
+   "restaurar cópia",
+   "como recupero as notas num aparelho novo"
+  ],
+  "palavras": [
+   "restaurar cópia",
+   "importar memória",
+   "recuperar notas",
+   "backup"
+  ],
+  "resposta": "Em Memória, Restaurar cópia (celular) ou Restaurar… (PC): escolha o arquivo e digite a senha. As notas são fundidas com as que já existem; nada é apagado.",
+  "passos": [
+   "Abra a aba Memória no celular (ou a janela ◈ Memória no PC).",
+   "Toque em Restaurar cópia (celular) ou Restaurar… (PC) e escolha o arquivo da cópia.",
+   "Digite a senha da cópia."
+  ],
+  "plataformas": [
+   "celular",
+   "pc"
+  ],
+  "relacionados": [
+   "backup-levar-memoria",
+   "backup-celular-salvar"
+  ]
+ },
+ {
+  "id": "backup-levar-memoria",
+  "titulo": "Levar a memória de um aparelho para outro",
+  "exemplos": [
+   "como levo minhas memórias para outro aparelho",
+   "como passo as notas do celular para o PC",
+   "como levar a memória da Jarvis para o celular novo",
+   "posso sincronizar a Jarvis do PC com a do celular",
+   "como migro minhas notas",
+   "como levo as notas de um iphone para outro"
+  ],
+  "palavras": [
+   "levar memória",
+   "sincronizar",
+   "migrar notas",
+   "outro aparelho",
+   "pc para celular"
+  ],
+  "resposta": "A cópia segura (AES-256) tem o mesmo formato no PC e no celular, então o arquivo abre nos dois. Não existe sincronização automática: você salva a cópia de um lado e restaura no outro.",
+  "passos": [
+   "No aparelho de origem: Salvar cópia segura, com uma senha.",
+   "Leve o arquivo para o outro aparelho (iCloud Drive, Arquivos, e-mail para você mesmo).",
+   "No aparelho de destino: Restaurar cópia, com a mesma senha. As notas são fundidas."
+  ],
+  "plataformas": [
+   "celular",
+   "pc"
+  ],
+  "relacionados": [
+   "backup-celular-salvar",
+   "backup-restaurar",
+   "backup-pc"
+  ]
+ },
+ {
+  "id": "backup-pc",
+  "titulo": "Backup da memória no PC",
+  "exemplos": [
+   "como faço backup da memória no PC",
+   "onde fica a memória da Jarvis",
+   "como exporto as notas do computador",
+   "onde está o arquivo memoria.db",
+   "cópia segura no pc"
+  ],
+  "palavras": [
+   "backup pc",
+   "memoria.db",
+   "cópia segura pc",
+   "exportar"
+  ],
+  "resposta": "No PC a memória é um único arquivo SQLite (memoria.db em %APPDATA%\\SuperJarvis). Para uma cópia criptografada, abra ◈ Memória, digite uma senha e use Cópia segura. Copiar o memoria.db também serve de backup.",
+  "passos": [
+   "Abra a janela ◈ Memória.",
+   "Digite uma senha de pelo menos 8 caracteres e use Cópia segura.",
+   "Escolha onde gravar o arquivo jarvis-copia.jarvis-backup.",
+   "Alternativa simples: copie o arquivo memoria.db."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "backup-restaurar",
+   "backup-levar-memoria",
+   "obsidian-opcional"
+  ]
+ },
+ {
+  "id": "obsidian-opcional",
+  "titulo": "Obsidian e a memória",
+  "exemplos": [
+   "preciso do obsidian",
+   "como ligo a Jarvis ao Obsidian",
+   "a Jarvis ainda usa o Obsidian",
+   "como exporto a memória para o Obsidian"
+  ],
+  "palavras": [
+   "obsidian",
+   "cofre",
+   "vault",
+   "exportar memória"
+  ],
+  "resposta": "O Obsidian é opcional: a memória da Jarvis é um banco próprio dentro do programa. Notas que você já tinha na pasta Jarvis/ do seu cofre são copiadas na primeira vez; também dá para exportar a memória para o cofre.",
+  "passos": [
+   "Importar de novo: python -m jarvis --importar-obsidian com o caminho do cofre.",
+   "Exportar: botão Exportar… na janela Memória, ou python -m jarvis --exportar-memoria com a pasta de destino."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "backup-pc"
+  ]
+ },
+ {
+  "id": "pc-instalar",
+  "titulo": "Instalar a Jarvis no PC",
+  "exemplos": [
+   "como instalo a Jarvis no computador",
+   "onde baixo o instalador da Jarvis",
+   "como instalar no windows",
+   "instalador da Jarvis",
+   "a Jarvis precisa de administrador para instalar"
+  ],
+  "palavras": [
+   "instalar pc",
+   "instalador",
+   "setup",
+   "windows",
+   "exe"
+  ],
+  "resposta": "No Windows, rode o instalador SuperJarvis-Setup (arquivo .exe). Ele instala só para o seu usuário, em %LOCALAPPDATA%\\Programs\\SuperJarvis, sem pedir administrador, e cria o atalho no menu Iniciar.",
+  "passos": [
+   "Rode o arquivo SuperJarvis-Setup-<versão>.exe.",
+   "O atalho na área de trabalho e abrir com o Windows são opcionais.",
+   "O Claude Code e o git ficam fora do instalador: sem o Claude Code, ela usa Gemini ou NVIDIA (se houver chave) ou o modo independente.",
+   "Só uma Jarvis abre por vez; abrir de novo apenas avisa que ela já está na bandeja."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "pc-atualizar",
+   "pc-desinstalar",
+   "chave-gemini-pc"
+  ]
+ },
+ {
+  "id": "pc-atualizar",
+  "titulo": "Atualizar a Jarvis no PC",
+  "exemplos": [
+   "como atualizar",
+   "como atualizo a Jarvis no computador",
+   "tem versão nova da Jarvis",
+   "a Jarvis se atualiza sozinha",
+   "como instalar a atualização"
+  ],
+  "palavras": [
+   "atualizar",
+   "atualização automática",
+   "versão nova",
+   "update",
+   "instalador novo"
+  ],
+  "resposta": "Na versão instalada a Jarvis procura atualizações ao abrir e a cada 6 horas; quando há uma nova, baixa, confere e avisa na janela. Um instalador já baixado e conferido é instalado na abertura. Suas configurações, chaves e memória são mantidas.",
+  "passos": [
+   "Deixe a Jarvis aberta com internet: ela confere sozinha.",
+   "Quando aparecer o aviso de versão nova, aceite: o instalador fecha esta Jarvis e abre a nova.",
+   "Para desligar a checagem, atualizacao_automatica no config.json.",
+   "Sem a versão instalada (rodando pelo código), atualize com git pull e reinstale."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "pc-instalar",
+   "pc-desinstalar"
+  ]
+ },
+ {
+  "id": "pc-desinstalar",
+  "titulo": "Desinstalar a Jarvis do PC",
+  "exemplos": [
+   "como desinstalar",
+   "como desinstalo a Jarvis do computador",
+   "quero remover a Jarvis do windows",
+   "como apagar a Jarvis",
+   "desinstalar a Jarvis"
+  ],
+  "palavras": [
+   "desinstalar",
+   "remover",
+   "apagar jarvis",
+   "configurações aplicativos"
+  ],
+  "resposta": "Desinstale em Configurações do Windows, Aplicativos. Suas configurações, chaves e a memória são mantidas de propósito; se quiser apagar tudo, remova a pasta SuperJarvis em %APPDATA% e %LOCALAPPDATA% e as chaves no Gerenciador de Credenciais.",
+  "passos": [
+   "Configurações, Aplicativos, Super Jarvis, Desinstalar.",
+   "Para guardar as notas antes, faça a cópia segura em ◈ Memória.",
+   "Para apagar de vez: pasta %APPDATA%\\SuperJarvis, pasta %LOCALAPPDATA%\\SuperJarvis e as chaves no Gerenciador de Credenciais."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "backup-pc",
+   "celular-desinstalar"
+  ]
+ },
+ {
+  "id": "chave-gemini-pc",
+  "titulo": "Chave do Gemini",
+  "exemplos": [
+   "onde coloco a chave do Gemini",
+   "como cadastro a chave do Gemini no PC",
+   "como crio uma chave gratuita do Google AI Studio",
+   "como configuro o Gemini",
+   "a chave do Gemini não funciona"
+  ],
+  "palavras": [
+   "gemini",
+   "chave",
+   "aistudio",
+   "api key",
+   "cérebros",
+   "engrenagem"
+  ],
+  "resposta": "No PC, abra ⚙ Cérebros, cole a chave do Gemini e use Salvar e testar. A chave é grátis em aistudio.google.com/apikey, é testada antes de guardar e fica no Gerenciador de Credenciais do Windows, nunca em arquivo.",
+  "passos": [
+   "Crie a chave em https://aistudio.google.com/apikey.",
+   "Abra ⚙ Cérebros, seção Gemini, cole a chave e use Salvar e testar.",
+   "Escolha o uso: só como reserva (quando o limite do Claude acaba) ou perguntas simples (economiza o Claude).",
+   "Pelo terminal: python -m jarvis --chave gemini (a chave é digitada sem aparecer na tela)."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "chave-nvidia",
+   "chave-brave",
+   "chaves-celular-nuvem"
+  ]
+ },
+ {
+  "id": "chave-nvidia",
+  "titulo": "Chave da NVIDIA",
+  "exemplos": [
+   "como configuro a chave da nvidia",
+   "onde crio a chave da NVIDIA",
+   "como cadastro a nvidia no PC",
+   "a nvidia deu erro 404",
+   "qual modelo da nvidia a Jarvis usa"
+  ],
+  "palavras": [
+   "nvidia",
+   "nim",
+   "build.nvidia.com",
+   "chave nvidia",
+   "modelo"
+  ],
+  "resposta": "A chave gratuita vem de build.nvidia.com (menu de API keys). Cadastre em ⚙ Cérebros, seção NVIDIA, ou por python -m jarvis --chave nvidia. A Jarvis usa todos os modelos de conversa que a sua chave enxerga e ignora por 3 dias os que a NVIDIA encerrou.",
+  "passos": [
+   "Crie a chave em https://build.nvidia.com.",
+   "Abra ⚙ Cérebros, seção NVIDIA, cole a chave e use Salvar e testar.",
+   "Se um modelo foi encerrado (erro 404 ou 410), a Jarvis troca sozinha para outro do leque."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "chave-gemini-pc",
+   "proxy-cloudflare"
+  ]
+ },
+ {
+  "id": "chave-brave",
+  "titulo": "Chave do Brave Search",
+  "exemplos": [
+   "como ativar o brave",
+   "onde coloco a chave do Brave",
+   "para que serve a chave do Brave Search",
+   "como melhorar a pesquisa na internet sem IA",
+   "como cadastro o brave"
+  ],
+  "palavras": [
+   "brave",
+   "busca",
+   "pesquisa",
+   "chave brave",
+   "search api"
+  ],
+  "resposta": "O Brave Search é um buscador (não é IA), gratuito até cerca de 2.000 buscas por mês, que melhora a pesquisa do modo independente. Cadastre a chave em ⚙ Cérebros, seção Brave Search; sem ela a Jarvis usa Wikipédia e DuckDuckGo.",
+  "passos": [
+   "Crie a chave em https://brave.com/search/api/.",
+   "Abra ⚙ Cérebros, seção Brave Search, cole a chave e use Salvar e testar.",
+   "Para tirar, use Remover chave no mesmo lugar."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "pesquisa-sem-ia",
+   "proxy-cloudflare"
+  ]
+ },
+ {
+  "id": "claude-code-requisito",
+  "titulo": "Claude Code e assinatura",
+  "exemplos": [
+   "preciso do Claude Code para usar a Jarvis",
+   "a Jarvis funciona sem o Claude",
+   "como ligo o Claude na Jarvis",
+   "o Claude não responde",
+   "como faço login no Claude Code",
+   "preciso ter o Claude instalado para a Jarvis funcionar",
+   "a Jarvis depende do Claude Code"
+  ],
+  "palavras": [
+   "claude code",
+   "assinatura",
+   "claude auth",
+   "login",
+   "limite do claude"
+  ],
+  "resposta": "O Claude é o cérebro principal e usa a sua assinatura pelo Claude Code instalado e logado (confira com claude auth status); nunca cobra por API. Sem ele, a Jarvis usa Gemini, NVIDIA ou o modo independente.",
+  "passos": [
+   "Instale o Claude Code e faça o login.",
+   "No terminal, rode claude auth status para conferir.",
+   "Se o limite do Claude acabar, o Gemini ou a NVIDIA respondem; sem nenhuma, o motor próprio continua."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "modo-sem-ia",
+   "uso-ia",
+   "chave-gemini-pc"
+  ]
+ },
+ {
+  "id": "modo-sem-ia",
+  "titulo": "Modo sem IA (só a inteligência da Jarvis)",
+  "exemplos": [
+   "o que é o modo independente",
+   "como uso a Jarvis sem IA",
+   "como desligo as IAs",
+   "como ativo só a inteligência da Jarvis",
+   "a Jarvis funciona sem internet e sem chave"
+  ],
+  "palavras": [
+   "sem ia",
+   "modo independente",
+   "somente independente",
+   "motor local",
+   "sem chave"
+  ],
+  "resposta": "Em ⚙ Cérebros, marque Só a inteligência da Jarvis (sem nenhuma IA): a partir do próximo pedido nada chama Claude, Gemini ou NVIDIA, e não precisa de chave, assinatura nem limite. Ela obedece comandos, memória, projetos, programação e pesquisa, mas não conversa livremente.",
+  "passos": [
+   "Abra ⚙ Cérebros e marque Só a inteligência da Jarvis (sem nenhuma IA).",
+   "Desmarque para as IAs voltarem a ajudar.",
+   "No config.json o nome é somente_independente."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "o-que-voce-faz",
+   "llm-local",
+   "pesquisa-sem-ia"
+  ]
+ },
+ {
+  "id": "llm-local",
+  "titulo": "Cérebro generativo local",
+  "exemplos": [
+   "como instalo o cérebro local",
+   "o que é o cérebro local",
+   "como uso uma IA que roda no meu PC",
+   "instalar modelo qwen",
+   "como avalio o cérebro local"
+  ],
+  "palavras": [
+   "cérebro local",
+   "llama",
+   "qwen",
+   "modelo local",
+   "ollama"
+  ],
+  "resposta": "É um modelo pequeno (Qwen2.5) rodando no seu PC pelo llama.cpp, sem API e sem nuvem. Diga instalar cérebro local: a Jarvis monta um cartão com o que será baixado e só baixa depois que você aprova. É lento e bem menos capaz que o Claude.",
+  "passos": [
+   "Diga: instalar cérebro local. Aprove o cartão (motor de cerca de 20 MB e modelo de cerca de 1,1 GB).",
+   "O modelo é escolhido pela sua memória: 1,5B até 8 GB, 3B a partir de 12 GB, 7B a partir de 28 GB.",
+   "Diga status do cérebro local para acompanhar e avalie o cérebro local para medir a nota."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "modo-sem-ia",
+   "claude-code-requisito"
+  ]
+ },
+ {
+  "id": "pc-pareado-celular",
+  "titulo": "Parear o celular com o PC",
+  "exemplos": [
+   "parear celular",
+   "como pareio o celular com o pc",
+   "como conecto o celular ao computador",
+   "onde gero o código de pareamento",
+   "como vejo a agenda do PC no celular",
+   "QR code"
+  ],
+  "palavras": [
+   "parear",
+   "pareamento",
+   "código de 6 dígitos",
+   "tailscale",
+   "jarvis no celular",
+   "pc pareado"
+  ],
+  "resposta": "O pareamento é opcional e só leitura: o celular passa a ver agenda, e-mails e o resumo do dia do PC. Não há QR code; o pareamento é por código de 6 dígitos (vale 5 minutos, uso único) e endereço https do Tailscale.",
+  "passos": [
+   "No PC e no celular, instale o Tailscale (tailscale.com/download) e entre com a mesma conta; no site de administração, ligue MagicDNS e HTTPS Certificates.",
+   "No PC, em ⚙ Cérebros, ligue Jarvis no celular e toque em Gerar código de pareamento. A janela mostra o endereço https do Tailscale.",
+   "No celular, aba Cérebro, PC pareado (opcional): informe o endereço https e o código de 6 dígitos e toque em Parear.",
+   "Para desfazer: Desparear no celular, ou Remover o aparelho na lista do PC (perde o acesso na hora)."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "celular-independente",
+   "tailscale",
+   "celular-pc-conversa"
+  ]
+ },
+ {
+  "id": "tailscale",
+  "titulo": "Tailscale: usar de fora de casa",
+  "exemplos": [
+   "o que é o tailscale",
+   "como uso a Jarvis fora do wifi de casa",
+   "como acesso o pc pelo 4g",
+   "preciso abrir portas no roteador",
+   "por que o celular não acha o PC"
+  ],
+  "palavras": [
+   "tailscale",
+   "4g",
+   "fora de casa",
+   "magicdns",
+   "https certificado"
+  ],
+  "resposta": "O Tailscale liga só os seus aparelhos entre si, de graça para uso pessoal e sem abrir portas no roteador. A Jarvis detecta o Tailscale, pede o certificado HTTPS e escuta somente no endereço dele.",
+  "passos": [
+   "Instale o Tailscale no PC e no celular e entre nos dois com a mesma conta.",
+   "No site de administração do Tailscale, ligue MagicDNS e HTTPS Certificates (uma vez).",
+   "Ligue Jarvis no celular em ⚙ Cérebros; o endereço fica como https://meu-pc.tailXXXX.ts.net:8765.",
+   "Sem Tailscale ela cai para o Wi-Fi local (HTTP, sem voz). Nunca exponha a porta na internet pública."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "pc-pareado-celular",
+   "celular-pc-conversa"
+  ]
+ },
+ {
+  "id": "celular-pc-conversa",
+  "titulo": "App do celular que conversa com o PC",
+  "exemplos": [
+   "como uso o celular para falar com a Jarvis do PC",
+   "o celular pode aprovar as ações do PC",
+   "dá para aprovar ações pelo celular",
+   "a Jarvis do celular depende do PC ligado"
+  ],
+  "palavras": [
+   "celular conversa pc",
+   "ações",
+   "aprovar",
+   "mesmo wifi",
+   "8765"
+  ],
+  "resposta": "Existe um modo em que o celular só conversa com a Jarvis do PC: ele depende do PC ligado e na mesma rede (ou no Tailscale). Ações que mudam o PC continuam sendo cartões que você aprova na janela do PC; o celular só avisa quantas esperam.",
+  "passos": [
+   "Ligue Jarvis no celular em ⚙ Cérebros no PC; aparece o endereço, por exemplo http://192.168.0.12:8765.",
+   "Abra o endereço no navegador do celular e pareie com o código de 6 dígitos.",
+   "Para remover um aparelho (celular perdido), use Remover na lista do mesmo painel."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "pc-pareado-celular",
+   "tailscale"
+  ]
+ },
+ {
+  "id": "seguranca-aprovacao",
+  "titulo": "Como a Jarvis pede aprovação",
+  "exemplos": [
+   "a Jarvis pode apagar coisas sozinha",
+   "o que é o cartão de aprovação",
+   "a Jarvis executa ações sem eu aprovar",
+   "como aprovar uma ação",
+   "é seguro deixar a Jarvis mexer no PC",
+   "a Jarvis apaga arquivos sozinha",
+   "ela faz coisas no PC sem pedir a minha permissão"
+  ],
+  "palavras": [
+   "aprovar",
+   "cartão",
+   "segurança",
+   "ações",
+   "recusar"
+  ],
+  "resposta": "A IA só propõe. Mudar o PC, o e-mail ou o código só acontece depois do seu clique em Aprovar no cartão da janela, e a ação é validada de novo na hora de executar. Conteúdo de e-mail, site e arquivo é tratado como dado de terceiros, nunca como ordem.",
+  "passos": [
+   "A proposta aparece como cartão com o que será feito e o motivo.",
+   "Clique em Aprovar para executar ou Recusar para descartar.",
+   "Processos essenciais do Windows e a própria Jarvis são protegidos."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "o-que-voce-faz",
+   "aprender-vocabulario"
+  ]
+ },
+ {
+  "id": "o-que-voce-faz",
+  "titulo": "O que a Jarvis faz",
+  "exemplos": [
+   "o que você faz",
+   "o que você sabe fazer",
+   "quais são as suas funções",
+   "quais comandos você entende",
+   "me mostra o que você consegue fazer",
+   "pra que você serve"
+  ],
+  "palavras": [
+   "funções",
+   "comandos",
+   "ajuda",
+   "capacidades",
+   "o que sabe"
+  ],
+  "resposta": "Abro programas, sites e pastas; digo o estado do PC; clima, notícias e vagas; agenda e e-mails; memória e projetos; ensino programação; avalio projetos; analiso Instagram; e crio sistemas pronto para rodar com a sua aprovação. Para ver um assunto de cada vez, pergunte por exemplo: o que você faz com agenda, ou como mudo o tema.",
+  "passos": [],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "modo-sem-ia",
+   "comandos-voz-exemplos",
+   "seguranca-aprovacao"
+  ]
+ },
+ {
+  "id": "comandos-voz-exemplos",
+  "titulo": "Exemplos de comandos",
+  "exemplos": [
+   "me dá exemplos de comandos",
+   "o que posso pedir para você",
+   "quais frases você entende",
+   "como falo com você",
+   "dicas de como usar a Jarvis"
+  ],
+  "palavras": [
+   "exemplos",
+   "frases",
+   "comandos",
+   "como usar"
+  ],
+  "resposta": "Alguns exemplos que funcionam sem IA: abre o WhatsApp; como está o PC; que horas são; clima em Fortaleza; notícias de tecnologia; minha agenda; meus e-mails; quanto gastei; lembre que eu prefiro vagas remotas; compare Django e FastAPI; avalie o projeto Loja; radar.",
+  "passos": [],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "o-que-voce-faz",
+   "aprender-ensinar"
+  ]
+ },
+ {
+  "id": "escuta-ligar",
+  "titulo": "Ligar a escuta (microfone)",
+  "exemplos": [
+   "como ligar a escuta",
+   "como ativo o microfone",
+   "como falo com a Jarvis por voz",
+   "como chamo a Jarvis pela voz",
+   "como funciona o hey jarvis",
+   "qual a palavra de ativação"
+  ],
+  "palavras": [
+   "escuta",
+   "microfone",
+   "hey jarvis",
+   "ativação",
+   "voz",
+   "falar agora"
+  ],
+  "resposta": "Chame com Hey Jarvis ou começando a frase com Jarvis (por exemplo, Jarvis, que horas são), clique no 🎤 da janela ou use Falar agora na bandeja. No modo foco a escuta liga sozinha. A transcrição é local: nenhum áudio sai do PC.",
+  "passos": [
+   "Diga Hey Jarvis (pronúncia em inglês) ou Jarvis seguido do comando na mesma frase.",
+   "Ouça o bipe curto: ela começou a ouvir.",
+   "Clique no 🎤 para ligar ou desligar a escuta; Pausar escuta na bandeja desliga a palavra de ativação.",
+   "No celular, o ditado (🎤) exige HTTPS e permissão de microfone no navegador."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "escuta-nao-ouve",
+   "modo-foco",
+   "voz-estranha"
+  ]
+ },
+ {
+  "id": "escuta-nao-ouve",
+  "titulo": "A Jarvis não me escuta",
+  "exemplos": [
+   "não estou te ouvindo",
+   "a Jarvis não me escuta",
+   "ela não responde quando eu falo",
+   "o microfone não funciona",
+   "a Jarvis não ouve minha voz",
+   "por que ela não entende o que eu falo"
+  ],
+  "palavras": [
+   "não escuta",
+   "não ouve",
+   "microfone mudo",
+   "sem resposta de voz",
+   "permissão"
+  ],
+  "resposta": "Confira, nesta ordem: se a escuta está ligada (o 🎤 não pode estar pausado nem Pausar escuta marcado na bandeja), se o Windows deixa o microfone certo liberado para apps, e se você começou a frase com Jarvis ou Hey Jarvis. Citar a Jarvis no meio da frase não a chama.",
+  "passos": [
+   "Veja o estado do microfone na janela: desligado, aguardando, ouvindo, processando ou falando.",
+   "Clique no 🎤 para religar; na bandeja, desmarque Pausar escuta.",
+   "No Windows, Configurações, Privacidade, Microfone: permita o acesso e escolha o dispositivo de entrada certo.",
+   "Fale perto do microfone, com o nome no começo da frase. Se ainda falhar, digite o comando: o texto funciona igual."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "escuta-ligar",
+   "voz-celular",
+   "voz-estranha"
+  ]
+ },
+ {
+  "id": "voz-estranha",
+  "titulo": "Voz da Jarvis estranha ou sem som",
+  "exemplos": [
+   "por que a voz está estranha",
+   "a voz da Jarvis está robótica",
+   "a Jarvis não fala em voz alta",
+   "como mudo a voz",
+   "a voz ficou diferente",
+   "como faço ela falar mais devagar",
+   "a voz da Jarvis está esquisita",
+   "a voz soa robótica demais"
+  ],
+  "palavras": [
+   "voz estranha",
+   "robótica",
+   "sem som",
+   "piper",
+   "francisca",
+   "maria"
+  ],
+  "resposta": "A Jarvis fala com a voz Piper local (sem internet) ou, com internet, com a voz neural Francisca; sem as duas, cai para a voz Maria do Windows, que soa mais robótica. Conferir se há internet e se falar_respostas está ligado resolve a maioria dos casos.",
+  "passos": [
+   "A voz Piper vem no instalador e é copiada na 1ª abertura: se acabou de instalar, reabra a Jarvis uma vez.",
+   "Com internet, a voz neural Francisca (edge-tts) é usada; sem internet, a Piper ou a Maria do Windows.",
+   "No config.json, seção voz: ativa, falar_respostas, voz e sensibilidade.",
+   "Código, links e Markdown não são lidos; respostas longas são resumidas."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "escuta-ligar",
+   "ler-para-mim",
+   "voz-celular"
+  ]
+ },
+ {
+  "id": "voz-celular",
+  "titulo": "Voz no celular",
+  "exemplos": [
+   "o microfone não funciona no celular",
+   "como a Jarvis fala no iPhone",
+   "por que o ditado não funciona no Safari",
+   "como ligo a leitura em voz alta no celular",
+   "falar as respostas em voz alta"
+  ],
+  "palavras": [
+   "voz celular",
+   "ditado",
+   "ler respostas",
+   "https",
+   "safari microfone"
+  ],
+  "resposta": "No celular o ditado (🎤) e a leitura em voz alta precisam de HTTPS (o endereço do GitHub Pages já é) e da permissão de microfone para o navegador. Para ouvir as respostas, marque Falar as respostas em voz alta na aba Conversa.",
+  "passos": [
+   "Abra a Jarvis pelo endereço https e permita o microfone quando o navegador pedir.",
+   "Na aba Conversa, marque Falar as respostas em voz alta.",
+   "Se negou a permissão sem querer, libere o microfone nas configurações do Safari ou do Chrome para o site."
+  ],
+  "plataformas": [
+   "celular"
+  ],
+  "relacionados": [
+   "escuta-nao-ouve",
+   "celular-limites-iphone"
+  ]
+ },
+ {
+  "id": "modo-foco",
+  "titulo": "Modo foco",
+  "exemplos": [
+   "o que é o modo foco",
+   "como entro no modo foco",
+   "como saio do modo foco",
+   "para que serve o modo foco",
+   "tecla F modo foco"
+  ],
+  "palavras": [
+   "modo foco",
+   "tela cheia",
+   "orbe grande",
+   "tecla f",
+   "sair do foco"
+  ],
+  "resposta": "O Modo foco é a tela cheia com o orbe grande e painéis com dados reais. Abra pelo menu ☰ ou com a tecla F; ao entrar, a escuta do microfone liga sozinha e, ao sair, volta ao estado anterior. No celular há o botão Modo foco e Sair do foco.",
+  "passos": [
+   "Tecla F, ou o menu ☰ (tecla M) e Modo foco.",
+   "Para sair, tecla F de novo ou Sair do foco.",
+   "A escuta automática ao entrar vem ligada (voz.foco_escuta_auto)."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "escuta-ligar",
+   "menu-hud",
+   "tema-mudar"
+  ]
+ },
+ {
+  "id": "menu-hud",
+  "titulo": "Menu e HUD central",
+  "exemplos": [
+   "onde ficam os botões da Jarvis",
+   "o que tem no menu",
+   "como abro o menu",
+   "para que serve o orbe",
+   "onde está o botão da memória"
+  ],
+  "palavras": [
+   "menu",
+   "hud",
+   "orbe",
+   "botões",
+   "tecla m"
+  ],
+  "resposta": "O HUD tem o orbe de filamentos no meio, painéis laterais (telemetria, sessões, e-mails, agentes) e o canal de conversa à direita. Todos os botões ficam no menu ☰ (tecla M), agrupados por assunto.",
+  "passos": [
+   "Abra o menu ☰ ou tecle M.",
+   "Os grupos incluem Saber e fazer (Radar, Memória, Agenda e e-mail) e as telas de uso de IA, agentes e Oficina.",
+   "O orbe muda com o estado: ouvindo, pensando e falando."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "modo-foco",
+   "tema-mudar",
+   "caixas-arrastar"
+  ]
+ },
+ {
+  "id": "tema-mudar",
+  "titulo": "Mudar o tema",
+  "exemplos": [
+   "como mudo o tema",
+   "como troco as cores da Jarvis",
+   "quero o tema escuro",
+   "tem tema de alto contraste",
+   "como mudo a aparência",
+   "como desligo a animação do orbe"
+  ],
+  "palavras": [
+   "tema",
+   "aparência",
+   "cores",
+   "âmbar",
+   "esmeralda",
+   "alto contraste",
+   "efeitos"
+  ],
+  "resposta": "Os temas são HUD ciano (padrão), Âmbar, Esmeralda e Alto contraste. No PC, escolha em ⚙ Cérebros, seção Aparência; no celular, aba Cérebro, Aparência. Os efeitos (aurora e orbe) têm um seletor próprio: completo, suave ou desligado.",
+  "passos": [
+   "PC: ⚙ Cérebros, Aparência, escolha o tema.",
+   "Celular: aba Cérebro, Aparência, Tema.",
+   "Efeitos: seletor Efeitos ao lado do orbe (PC) ou Efeitos na Aparência (celular). O Alto contraste não usa a aurora."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "modo-foco",
+   "caixas-arrastar"
+  ]
+ },
+ {
+  "id": "caixas-arrastar",
+  "titulo": "Arrastar e reordenar as caixas",
+  "exemplos": [
+   "como arrasto as caixas",
+   "posso mudar a posição das caixas",
+   "como reorganizo o painel",
+   "como volto o layout ao padrão",
+   "as caixas não arrastam",
+   "como reordeno as caixas no celular"
+  ],
+  "palavras": [
+   "arrastar",
+   "caixas",
+   "layout",
+   "reordenar",
+   "restaurar layout"
+  ],
+  "resposta": "No PC, as caixas (telemetria, clima, notícias, e-mails...) se arrastam pela alça, a partir de 1100 px de largura da janela; a posição é salva. No celular não se arrasta: use Reordenar (subir e descer). Restaurar layout devolve tudo ao padrão.",
+  "passos": [
+   "PC: aumente a janela (mínimo 1100 px) e arraste a caixa pela alça.",
+   "Celular: Início, Reordenar, e use os botões de subir e descer.",
+   "Menu ☰, Restaurar layout (PC) ou menu, Restaurar layout (celular), para voltar ao padrão."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "menu-hud",
+   "tema-mudar"
+  ]
+ },
+ {
+  "id": "agenda-conectar",
+  "titulo": "Conectar a agenda",
+  "exemplos": [
+   "como conectar minha agenda",
+   "como vejo meus compromissos na Jarvis",
+   "como adiciono meu calendário",
+   "como conecto o google agenda",
+   "como ligo o ical",
+   "minha agenda não aparece"
+  ],
+  "palavras": [
+   "agenda",
+   "calendário",
+   "ical",
+   "compromissos",
+   "ics"
+  ],
+  "resposta": "Em ▦ Agenda e e-mail (menu ☰) você conecta um calendário iCal (link .ics), somente leitura. Depois pergunte minha agenda, próximo compromisso ou agenda da semana.",
+  "passos": [
+   "No Google Agenda ou outro calendário, copie o endereço secreto em formato iCal (.ics).",
+   "Abra ▦ Agenda e e-mail na Jarvis e cole o endereço.",
+   "Teste dizendo: minha agenda, próximo compromisso, agenda da semana.",
+   "A Jarvis só lê; nunca cria nem apaga eventos."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "email-conectar",
+   "bom-dia"
+  ]
+ },
+ {
+  "id": "email-conectar",
+  "titulo": "Conectar o e-mail",
+  "exemplos": [
+   "como conecto meu e-mail",
+   "como ligo o gmail na Jarvis",
+   "como vejo meus e-mails",
+   "como configuro o outlook",
+   "senha de app do e-mail",
+   "a Jarvis pode enviar e-mail"
+  ],
+  "palavras": [
+   "email",
+   "gmail",
+   "outlook",
+   "imap",
+   "senha de app",
+   "caixa de entrada"
+  ],
+  "resposta": "Em ▦ Agenda e e-mail você conecta uma conta IMAP com senha de app (guardada no Gerenciador de Credenciais), somente leitura. Gmail e Outlook também têm conexão por OAuth, descrita em docs/CONFIGURAR-EMAIL.md. A Jarvis só organiza com marcadores depois do seu Aprovar e nunca envia, move ou apaga.",
+  "passos": [
+   "Abra ▦ Agenda e e-mail e informe a conta com a senha de app.",
+   "Para Gmail ou Outlook por OAuth, siga o guia docs/CONFIGURAR-EMAIL.md.",
+   "Teste: meus e-mails, tem e-mail importante.",
+   "E-mails que tentam dar ordens à IA são marcados como Suspeito."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "agenda-conectar",
+   "seguranca-aprovacao",
+   "bom-dia"
+  ]
+ },
+ {
+  "id": "bom-dia",
+  "titulo": "Bom dia (resumo do dia)",
+  "exemplos": [
+   "o que é o bom dia",
+   "como peço o resumo do dia",
+   "bom dia jarvis",
+   "como faço ela me dar o resumo da manhã",
+   "a Jarvis fala sozinha de manhã"
+  ],
+  "palavras": [
+   "bom dia",
+   "resumo",
+   "briefing",
+   "manhã",
+   "proativo"
+  ],
+  "resposta": "Diga bom dia (ou boa tarde, boa noite) para receber o resumo do dia: agenda, e-mails que pedem ação, clima e manchetes. Ela também avisa sozinha, se a iniciativa própria estiver ligada, e nunca fala entre 22h e 7h.",
+  "passos": [
+   "Diga: bom dia.",
+   "A voz proativa depende de proativo_voz no config.json.",
+   "Os avisos vêm uma vez por período e ficam na conversa."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "agenda-conectar",
+   "email-conectar",
+   "relatorio-evolucao"
+  ]
+ },
+ {
+  "id": "radar-noticias",
+  "titulo": "Radar de Notícias",
+  "exemplos": [
+   "o que é o radar",
+   "como funciona o radar de notícias",
+   "como crio o meu radar",
+   "como mudo o nicho do radar",
+   "como ligo o boletim diário",
+   "como ouço o radar",
+   "como configuro o radar de notícias",
+   "como funciona o radar"
+  ],
+  "palavras": [
+   "radar",
+   "boletim",
+   "nicho",
+   "feeds",
+   "rss",
+   "noticias"
+  ],
+  "resposta": "O Radar é um boletim diário do seu nicho, sem chave de API e sem mensalidade. Comece com radar nicho e o seu tema, depois radar para gerar agora e radar ligar para agendar (padrão 07:00, dias úteis, com a Jarvis aberta).",
+  "passos": [
+   "Diga: radar nicho inteligência artificial na saúde (ou o seu tema).",
+   "Diga radar para gerar agora e radar ligar para agendar; radar hora 7:30 muda o horário.",
+   "Ouça com ouvir radar; pare com parar radar.",
+   "Fontes: radar fontes, radar +fonte endereço, radar -fonte nome. Outros: radar texto, radar semana, radar busca tema, radar status."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "noticias-comuns",
+   "ler-para-mim"
+  ]
+ },
+ {
+  "id": "noticias-comuns",
+  "titulo": "Notícias e vagas",
+  "exemplos": [
+   "como vejo as notícias",
+   "notícias de tecnologia",
+   "como peço notícias de um assunto",
+   "como vejo vagas de emprego",
+   "como a Jarvis acha vagas"
+  ],
+  "palavras": [
+   "notícias",
+   "manchetes",
+   "tecnologia",
+   "vagas",
+   "assunto"
+  ],
+  "resposta": "Diga notícias (gerais) ou notícias de tecnologia; para um assunto, notícias de futebol (qualquer tema). Para vagas, diga tem vagas para mim; ela pontua de 0 a 100 conforme o seu perfil e nunca se candidata.",
+  "passos": [
+   "Notícias: notícias, notícias de tecnologia, notícias de <assunto>.",
+   "Vagas: tem vagas para mim, procura vagas de desenvolvedor júnior.",
+   "Perfil: diga minha stack é Python, meu nível é pleno, minha cidade é Fortaleza."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "radar-noticias",
+   "perfil-vagas"
+  ]
+ },
+ {
+  "id": "perfil-vagas",
+  "titulo": "Perfil profissional",
+  "exemplos": [
+   "como mudo minha stack",
+   "como atualizo meu perfil de vagas",
+   "como falo para ela minha cidade",
+   "como digo meu nível",
+   "quero evitar vagas de PHP"
+  ],
+  "palavras": [
+   "perfil",
+   "stack",
+   "nível",
+   "cidade",
+   "evitar",
+   "modalidade"
+  ],
+  "resposta": "Diga frases curtas: minha stack é Python e React, meu nível é pleno, minha modalidade é remota, minha cidade é Fortaleza, quero evitar PHP. Ela anota no perfil profissional da memória, que você também edita na janela Memória.",
+  "passos": [
+   "Diga: minha stack é Python e React.",
+   "Diga: meu nível é pleno / minha cidade é Fortaleza / quero evitar PHP.",
+   "Veja e edite a nota Perfil Profissional em ◈ Memória."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "noticias-comuns",
+   "memoria-notas"
+  ]
+ },
+ {
+  "id": "ler-para-mim",
+  "titulo": "Ler para mim",
+  "exemplos": [
+   "como funciona o ler para mim",
+   "a Jarvis pode ler as notícias em voz alta",
+   "como faço ela ler o clima",
+   "como ouvir as notícias",
+   "o botão ler para mim não fala"
+  ],
+  "palavras": [
+   "ler para mim",
+   "ler em voz alta",
+   "caixas de informação",
+   "tradução",
+   "ouvir"
+  ],
+  "resposta": "As caixas de clima, vagas e notícias têm o botão Ler para mim: a Jarvis lê em voz alta, traduzindo para o português quando o texto vem em outro idioma. Para ouvir o boletim do Radar, diga ouvir radar.",
+  "passos": [
+   "Clique em Ler para mim na caixa desejada.",
+   "Se não houver som, veja a entrada e saída de áudio do Windows e se a voz está ativa (voz.ativa no config.json).",
+   "Para o Radar: ouvir radar."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "voz-estranha",
+   "radar-noticias"
+  ]
+ },
+ {
+  "id": "instagram-analista",
+  "titulo": "Analista de Instagram",
+  "exemplos": [
+   "como conectar o instagram",
+   "como analiso meu instagram",
+   "o que o analista de instagram faz",
+   "como importo os posts",
+   "como comparo as rodadas do instagram"
+  ],
+  "palavras": [
+   "instagram",
+   "posts",
+   "relatório",
+   "rodada",
+   "concorrentes"
+  ],
+  "resposta": "O Analista de Instagram não entra na sua conta: você exporta os 12 últimos posts de cada perfil e cola a tabela. Ela gera o relatório e compara com a rodada anterior. Comandos: configurar instagram, importar posts, analisar instagram, relatório de instagram, comparar com a rodada anterior.",
+  "passos": [
+   "Diga: configurar instagram e informe os @ a acompanhar.",
+   "Exporte os posts de cada @ e diga: importar posts; cole a tabela.",
+   "Diga: analisar instagram, depois relatório de instagram.",
+   "Apagar dados e o lembrete semanal passam por cartão de aprovação."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "seguranca-aprovacao",
+   "bom-dia"
+  ]
+ },
+ {
+  "id": "uso-ia",
+  "titulo": "Uso de IA e cota do Claude",
+  "exemplos": [
+   "como ver minha cota do Claude",
+   "quanto eu gastei de IA",
+   "onde vejo o consumo de tokens",
+   "como defino um orçamento de IA",
+   "como sei se o limite do Claude está acabando"
+  ],
+  "palavras": [
+   "cota",
+   "tokens",
+   "gasto",
+   "orçamento",
+   "uso de ia",
+   "custo"
+  ],
+  "resposta": "Diga quanto gastei, cota do Claude ou uso de IA para ver tokens, custo e a cota estimada, sem gastar IA. No PC há a janela ▤ Uso de IA; no celular, Cérebro, Uso de IA, onde também dá para definir orçamento mensal e preços.",
+  "passos": [
+   "Diga: cota do Claude / quanto gastei hoje / uso de IA na semana.",
+   "Janela ▤ Uso de IA no PC: calibre o teto da cota e o orçamento.",
+   "Perto do limite, a Jarvis avisa e passa a economizar o Claude."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "claude-code-requisito",
+   "chave-gemini-pc"
+  ]
+ },
+ {
+  "id": "agentes-painel",
+  "titulo": "Painel de agentes",
+  "exemplos": [
+   "o que é o painel de agentes",
+   "o que são os agentes da Jarvis",
+   "por que o agente está parado",
+   "como rodo um agente agora",
+   "o que significa erro no agente"
+  ],
+  "palavras": [
+   "agentes",
+   "constelação",
+   "rodar agora",
+   "parado",
+   "erro",
+   "proativo"
+  ],
+  "resposta": "O ✦ Agentes mostra a constelação do que roda por trás: iniciativa própria, atualizador, aprendizado, radar e outros, em dia, parados ou com erro. Rodar agora só vale para ações da lista branca, nunca para o estudo autônomo. No iPhone, App estava fechado é normal, não é erro.",
+  "passos": [
+   "Abra ✦ Agentes no menu ☰.",
+   "Clique em um agente para ver o estado e o detalhe.",
+   "Um halo vermelho ou laranja no orbe indica agente com erro ou atenção."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "menu-hud",
+   "relatorio-evolucao"
+  ]
+ },
+ {
+  "id": "oficina-ide",
+  "titulo": "Oficina (IDE)",
+  "exemplos": [
+   "o que é a oficina",
+   "como rodo código na Jarvis",
+   "como uso o criar com IA",
+   "a oficina roda sozinha",
+   "como testo meu código na Jarvis"
+  ],
+  "palavras": [
+   "oficina",
+   "ide",
+   "sandbox",
+   "rodar",
+   "testar",
+   "criar com ia"
+  ],
+  "resposta": "A Oficina (botão ⌨) é um editor dentro da Jarvis com Rodar, Testar e Desfazer em um sandbox (processo separado, pasta temporária, 10 s e 512 MB, sem as suas chaves) e Criar com IA. Nada roda sozinho; o sandbox evita acidentes, mas não protege de código malicioso: revise antes de rodar.",
+  "passos": [
+   "Abra ⌨ Oficina e escolha ou crie um projeto.",
+   "Rodar e Testar executam no sandbox; Desfazer volta a uma versão anterior.",
+   "Criar com IA planeja, escreve, testa e corrige com qualquer cérebro do roteador."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "criar-sistema",
+   "seguranca-aprovacao"
+  ]
+ },
+ {
+  "id": "criar-sistema",
+  "titulo": "Criar um sistema pronto",
+  "exemplos": [
+   "como peço para criar um sistema",
+   "crie um projeto novo",
+   "como a Jarvis cria projetos",
+   "como começo um site novo com a Jarvis"
+  ],
+  "palavras": [
+   "criar sistema",
+   "projeto novo",
+   "fastapi",
+   "react",
+   "modelo pronto"
+  ],
+  "resposta": "Diga, por exemplo: crie um sistema chamado Loja com FastAPI e React em C:\\Projetos. Aparece um cartão e só depois do seu Aprovar ela cria a pasta com exemplo de CRUD, testes, README e git init sem commit. Nunca usa uma pasta que já existe.",
+  "passos": [
+   "Combinações: FastAPI ou Express no back, React (Vite) ou HTML/CSS/JS no front, ou cada peça sozinha.",
+   "Aprove o cartão.",
+   "Depois peça para o Claude Code montar o resto (outro cartão de execução)."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "oficina-ide",
+   "seguranca-aprovacao",
+   "programacao-saber"
+  ]
+ },
+ {
+  "id": "programacao-saber",
+  "titulo": "Aprender programação com a Jarvis",
+  "exemplos": [
+   "o que a Jarvis sabe de programação",
+   "como peço para explicar recursão",
+   "quais linguagens a Jarvis conhece",
+   "como comparo duas tecnologias",
+   "a Jarvis ensina algoritmos"
+  ],
+  "palavras": [
+   "programação",
+   "algoritmos",
+   "tecnologias",
+   "lógica",
+   "padrões de projeto"
+  ],
+  "resposta": "Ela tem uma base própria, offline e sem IA: dezenas de tecnologias, conceitos de lógica, 15 algoritmos clássicos em Python, JavaScript, Go, Java e C#, engenharia, UX e padrões de projeto. Pergunte: o que é React, compare Django e FastAPI, explique recursão, busca binária em Java, qual stack para uma loja virtual.",
+  "passos": [
+   "Explicar: o que é React / explique SOLID.",
+   "Comparar e recomendar: compare Python e Node / qual stack para uma loja virtual.",
+   "Algoritmos: como fazer fatorial em Go.",
+   "Avaliar: avalie o projeto Loja (só lê)."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "criar-sistema",
+   "oficina-ide"
+  ]
+ },
+ {
+  "id": "memoria-notas",
+  "titulo": "Memória e notas",
+  "exemplos": [
+   "como a Jarvis guarda minhas informações",
+   "como peço para lembrar de algo",
+   "o que você sabe sobre mim",
+   "como apago uma nota",
+   "como vejo minhas notas"
+  ],
+  "palavras": [
+   "memória",
+   "notas",
+   "lembrar",
+   "esquecer",
+   "diário"
+  ],
+  "resposta": "Diga lembre que eu prefiro vagas remotas para guardar um fato, o que você sabe sobre mim para ver, ou busque na memória sobre um assunto. No PC, a janela ◈ Memória lista, busca, edita, apaga e exporta; no celular é a aba Memória. A IA só sugere o que guardar e você aprova no cartão.",
+  "passos": [
+   "Guardar: lembre que ... / anota no projeto X que ...",
+   "Consultar: o que você sabe sobre ... / busque na memória sobre ...",
+   "Editar ou apagar: janela ◈ Memória (PC) ou aba Memória (celular)."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "backup-pc",
+   "perfil-vagas"
+  ]
+ },
+ {
+  "id": "projetos-fichas",
+  "titulo": "Projetos e fichas",
+  "exemplos": [
+   "como cadastro um projeto",
+   "como a Jarvis lembra dos meus projetos",
+   "qual o estado do meu projeto",
+   "como esqueço um projeto",
+   "ficha do projeto"
+  ],
+  "palavras": [
+   "projetos",
+   "ficha",
+   "git",
+   "cadastrar",
+   "anotar projeto"
+  ],
+  "resposta": "Cadastre por voz ou texto: meu projeto MeuApp fica em C:\\pasta. Depois use meus projetos, ficha do projeto X e anota no projeto X que decidimos usar Postgres. Executar mudanças no código só acontece com cartão de aprovação e em projeto git, sem commit nem push.",
+  "passos": [
+   "Cadastrar: meu projeto MeuApp fica em C:\\...\\pasta.",
+   "Ver: meus projetos / ficha do projeto MeuApp.",
+   "Anotar: anota no MeuApp que ...",
+   "Cada mudança do Claude Code tem cartão com diff e botões Manter e Desfazer."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "criar-sistema",
+   "memoria-notas"
+  ]
+ },
+ {
+  "id": "anexos-arquivos",
+  "titulo": "Anexos e documentos",
+  "exemplos": [
+   "como mando um arquivo para a Jarvis",
+   "ela lê pdf",
+   "como anexo um documento",
+   "a Jarvis lê planilha excel",
+   "como crio um documento word"
+  ],
+  "palavras": [
+   "anexo",
+   "pdf",
+   "docx",
+   "xlsx",
+   "documento",
+   "clipe"
+  ],
+  "resposta": "Clique no clipe ou arraste arquivos para a janela: texto e código, PDF, Word (.docx), Excel (.xlsx) e imagens, até 25 MB. Para criar documentos (Word, PDF, Excel, PowerPoint) ela salva em Documentos\\Jarvis sem sobrescrever. Anexos e documentos são lidos como dado, nunca como instrução.",
+  "passos": [
+   "Clique no clipe ou arraste o arquivo.",
+   "Peça: resuma o anexo / analise a planilha.",
+   "Imagens só o Claude enxerga (prints de erro, telas).",
+   "Dashboard: crie um dashboard de C:\\pasta\\vendas.xlsx."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "seguranca-aprovacao",
+   "pesquisa-sem-ia"
+  ]
+ },
+ {
+  "id": "pesquisa-sem-ia",
+  "titulo": "Pesquisar na internet",
+  "exemplos": [
+   "como pesquiso na internet",
+   "a Jarvis pesquisa sem IA",
+   "como faço uma pesquisa profunda",
+   "de onde vêm as respostas da pesquisa",
+   "como mando você pesquisar um assunto"
+  ],
+  "palavras": [
+   "pesquisa",
+   "internet",
+   "wikipedia",
+   "duckduckgo",
+   "brave",
+   "fontes"
+  ],
+  "resposta": "Diga pesquise sobre algo. Sem IA, ela resume com frases dos próprios sites (Wikipédia, DuckDuckGo e, se houver chave, Brave), cada uma com a fonte numerada; nada é inventado. Com o Claude há pesquisas em níveis (simples, média, difícil, extra difícil), salvas na memória.",
+  "passos": [
+   "Diga: pesquise sobre ... / pesquisa difícil sobre ...",
+   "Melhore a cobertura cadastrando a chave do Brave.",
+   "As respostas citam a fonte [n]."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "chave-brave",
+   "modo-sem-ia"
+  ]
+ },
+ {
+  "id": "aprender-sozinha",
+  "titulo": "Aprender sozinha",
+  "exemplos": [
+   "como ligo o aprendizado autônomo",
+   "a Jarvis estuda sozinha",
+   "o que você aprendeu sozinha",
+   "como faço ela aprender sobre um assunto",
+   "aprenda sobre kubernetes"
+  ],
+  "palavras": [
+   "aprender sozinha",
+   "autônomo",
+   "estudar",
+   "aprenda sobre",
+   "não verificado"
+  ],
+  "resposta": "Duas formas: aprenda sobre X pesquisa e guarda o resumo como nota Aprendizado/X, com fontes e o aviso não verificado; e o aprendizado autônomo, desligado por padrão em ⚙ Cérebros, que com o PC parado por 10 minutos estuda até 3 assuntos por dia dos que você mais perguntou. O que você aprendeu mostra o que ela estudou.",
+  "passos": [
+   "Na hora: aprenda sobre Docker.",
+   "Autônomo: ligue em ⚙ Cérebros; os assuntos vêm só do que você conversou.",
+   "Para ver: o que você aprendeu."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "aprender-vocabulario",
+   "pesquisa-sem-ia"
+  ]
+ },
+ {
+  "id": "sessoes-claude-code",
+  "titulo": "Sessões do Claude Code",
+  "exemplos": [
+   "alguma sessão está me esperando",
+   "como sei que o claude code precisa de mim",
+   "a Jarvis avisa quando o claude code termina",
+   "monitor de sessões"
+  ],
+  "palavras": [
+   "sessão",
+   "claude code",
+   "esperando",
+   "permissão",
+   "monitor"
+  ],
+  "resposta": "A cada 5 segundos ela olha as sessões do Claude Code abertas e avisa uma vez, em texto e voz, quando uma passa a esperar você (pedido de permissão, pergunta ou fim do turno). Pergunte alguma sessão está me esperando. Só lê os arquivos, nunca escreve neles; avisos com talvez são estimativa.",
+  "passos": [
+   "Pergunte: alguma sessão está me esperando?",
+   "O painel lateral Sessões mostra o estado."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "agentes-painel",
+   "claude-code-requisito"
+  ]
+ },
+ {
+  "id": "jarvis-travou",
+  "titulo": "A Jarvis travou ou está lenta",
+  "exemplos": [
+   "a Jarvis está travando",
+   "a Jarvis está lenta",
+   "a Jarvis não responde",
+   "por que demora para responder",
+   "ela parou de funcionar"
+  ],
+  "palavras": [
+   "travou",
+   "lenta",
+   "não responde",
+   "demora",
+   "erro",
+   "memória alta"
+  ],
+  "resposta": "Comece pelo básico: veja se ainda há limite no Claude (senão ela cai para Gemini, NVIDIA ou o motor próprio, que respondem diferente), feche e reabra pela bandeja (Sair e abrir de novo) e, se a RAM estiver alta, diga como está o PC ou programas pesados.",
+  "passos": [
+   "Diga como está o PC para ver CPU e RAM; programas pesados lista o que consome.",
+   "Sair pela bandeja e abrir de novo reinicia a sessão do Claude.",
+   "Ligue Só a inteligência da Jarvis (sem IA) em ⚙ Cérebros para poupar RAM se o PC for fraco.",
+   "O log fica em %LOCALAPPDATA%\\SuperJarvis\\logs\\jarvis.log; no celular, feche e abra o app."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "claude-code-requisito",
+   "modo-sem-ia",
+   "escuta-nao-ouve"
+  ]
+ },
+ {
+  "id": "aprender-ensinar",
+  "titulo": "Ensinar a Jarvis a entender como eu falo",
+  "exemplos": [
+   "como ensino uma frase nova para a Jarvis",
+   "quando eu disser uma frase minha, execute um comando seu",
+   "posso criar um apelido para um comando",
+   "como faço ela entender do meu jeito",
+   "como crio um atalho de frase"
+  ],
+  "palavras": [
+   "ensinar",
+   "apelido",
+   "atalho",
+   "quando eu disser",
+   "significa",
+   "vocabulário"
+  ],
+  "resposta": "Diga quando eu disser <frase>, faça <comando> (por exemplo: quando eu disser bora, faça minha agenda) ou <frase> significa <comando>. Ela monta um cartão de aprovação e só grava o apelido depois do seu Aprovar. O apelido só pode apontar para comandos seguros que ela já conhece.",
+  "passos": [
+   "Diga: quando eu disser bora, faça minha agenda.",
+   "Aprove o cartão na janela.",
+   "Da próxima vez, bora executa a agenda. Para apagar tudo que ela aprendeu: apague o que você aprendeu sobre como eu falo."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "aprender-vocabulario",
+   "relatorio-evolucao",
+   "nao-entendeu"
+  ]
+ },
+ {
+  "id": "aprender-vocabulario",
+  "titulo": "O que a Jarvis aprendeu sobre como eu falo",
+  "exemplos": [
+   "o que você aprendeu sobre como eu falo",
+   "meu vocabulário",
+   "quais apelidos eu ensinei",
+   "o que você sabe sobre meu jeito de falar",
+   "mostre o que aprendeu comigo"
+  ],
+  "palavras": [
+   "vocabulário",
+   "aprendeu",
+   "apelidos",
+   "frases que não entendi",
+   "meu jeito de falar"
+  ],
+  "resposta": "Diga meu vocabulário ou o que você aprendeu sobre como eu falo: ela lista os apelidos que você ensinou, as frases que mais não entendeu e as correções escolhidas. Tudo fica só no seu PC, em um banco pequeno que você pode apagar quando quiser.",
+  "passos": [
+   "Diga: meu vocabulário.",
+   "Para esquecer tudo: apague o que você aprendeu sobre como eu falo.",
+   "Nada disso é enviado a ninguém."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "aprender-ensinar",
+   "relatorio-evolucao",
+   "privacidade-dados"
+  ]
+ },
+ {
+  "id": "relatorio-evolucao",
+  "titulo": "Relatório semanal de evolução",
+  "exemplos": [
+   "como estou evoluindo",
+   "como você está evoluindo",
+   "relatório de evolução",
+   "qual a sua taxa de entendimento",
+   "quantas frases você não entendeu"
+  ],
+  "palavras": [
+   "evolução",
+   "relatório semanal",
+   "taxa de entendimento",
+   "frases que falharam"
+  ],
+  "resposta": "Uma vez por semana a Jarvis conta, em texto e em fala curta, quanto entendeu do que você disse, quais frases mais falharam e o que aprendeu. Você pode pedir a qualquer hora dizendo como você está evoluindo.",
+  "passos": [
+   "Diga: como você está evoluindo.",
+   "O aviso semanal vem junto da iniciativa própria (proativo) e respeita o silêncio da noite."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "aprender-vocabulario",
+   "aprender-ensinar",
+   "agentes-painel"
+  ]
+ },
+ {
+  "id": "nao-entendeu",
+  "titulo": "Quando a Jarvis não entende",
+  "exemplos": [
+   "por que a Jarvis não me entende",
+   "ela não entende o que eu peço",
+   "a Jarvis responde sempre a mesma coisa",
+   "ela repete a lista de funções",
+   "como faço ela entender melhor"
+  ],
+  "palavras": [
+   "não entende",
+   "mesma resposta",
+   "repete",
+   "entendimento",
+   "errou"
+  ],
+  "resposta": "Quando a confiança é média, ela pergunta Você quis dizer e mostra até três opções (responda 1, 2 ou 3). Quando é baixa, admite que não entendeu, mostra as opções mais próximas e oferece pesquisar na internet. Frases que ela não entendeu ficam registradas só no seu PC; ensine o seu jeito com quando eu disser X, faça Y.",
+  "passos": [
+   "Responda 1, 2 ou 3 (ou a primeira, a segunda, a terceira) ao Você quis dizer.",
+   "Diga pesquisa e o assunto se quiser a web.",
+   "Ensine: quando eu disser X, faça Y.",
+   "Veja o que ela já aprendeu: meu vocabulário."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "aprender-ensinar",
+   "aprender-vocabulario",
+   "modo-sem-ia"
+  ]
+ },
+ {
+  "id": "privacidade-dados",
+  "titulo": "Onde ficam meus dados e chaves",
+  "exemplos": [
+   "onde ficam as minhas chaves",
+   "a Jarvis envia meus dados para algum lugar",
+   "meus dados estão seguros",
+   "onde ficam as senhas da Jarvis",
+   "a Jarvis guarda minhas conversas"
+  ],
+  "palavras": [
+   "privacidade",
+   "chaves",
+   "cofre",
+   "dpapi",
+   "dados",
+   "segurança"
+  ],
+  "resposta": "As chaves ficam no Gerenciador de Credenciais do Windows e os tokens de e-mail, criptografados com DPAPI; nunca em arquivo, log ou Git. A memória é um arquivo local. A transcrição de voz é local. No celular, memória e chaves ficam só no aparelho; só vai para fora o que você manda a um provedor de IA que escolheu.",
+  "passos": [
+   "PC: memória em %APPDATA%\\SuperJarvis\\memoria.db; dados técnicos em %LOCALAPPDATA%\\SuperJarvis.",
+   "Chaves: Gerenciador de Credenciais do Windows.",
+   "Celular: IndexedDB, fora da cópia de segurança no caso das chaves."
+  ],
+  "plataformas": [
+   "pc",
+   "celular"
+  ],
+  "relacionados": [
+   "backup-pc",
+   "seguranca-aprovacao",
+   "chaves-celular-nuvem"
+  ]
+ },
+ {
+  "id": "cerebros-ordem",
+  "titulo": "Qual cérebro responde",
+  "exemplos": [
+   "qual IA a Jarvis usa",
+   "em que ordem os cérebros respondem",
+   "como faço o Gemini responder",
+   "por que o Claude não respondeu",
+   "como economizo o limite do Claude"
+  ],
+  "palavras": [
+   "cérebros",
+   "claude",
+   "gemini",
+   "nvidia",
+   "reserva",
+   "perguntas simples",
+   "ordem"
+  ],
+  "resposta": "Ordem padrão: Claude (pela sua assinatura), depois Gemini e NVIDIA como reserva, e o motor próprio sem IA sempre por último. Comandos diretos (abrir, hora, PC, clima, agenda...) são atendidos na hora pelo motor próprio. Diga Gemini, ... ou pergunte ao Gemini ... para escolher. Em ⚙ Cérebros, Perguntas simples manda conversa curta ao Gemini e poupa o Claude.",
+  "passos": [
+   "⚙ Cérebros: escolha Só como reserva ou Perguntas simples.",
+   "Em qualquer modo: Gemini, <pedido>.",
+   "Sem nenhuma IA: marque Só a inteligência da Jarvis."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "chave-gemini-pc",
+   "claude-code-requisito",
+   "modo-sem-ia",
+   "uso-ia"
+  ]
+ },
+ {
+  "id": "tela-olhar",
+  "titulo": "Olhar a minha tela",
+  "exemplos": [
+   "como peço para ela olhar minha tela",
+   "a Jarvis vê o que eu estou fazendo",
+   "olha minha tela",
+   "ela tira print sozinha"
+  ],
+  "palavras": [
+   "tela",
+   "print",
+   "screenshot",
+   "olhar"
+  ],
+  "resposta": "Diga olha minha tela: ela tira um print de todos os monitores, sem a própria janela, e o Claude analisa. Só é usado quando você pede, e precisa do Claude (Gemini e NVIDIA não usam essa ferramenta).",
+  "passos": [
+   "Diga: olha minha tela e o que quer saber.",
+   "Funciona só com o Claude como cérebro."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "cerebros-ordem",
+   "anexos-arquivos"
+  ]
+ },
+ {
+  "id": "abrir-programas",
+  "titulo": "Abrir programas, sites e pastas",
+  "exemplos": [
+   "como peço para abrir um programa",
+   "abre o whatsapp",
+   "como abro um site pela Jarvis",
+   "como abro uma pasta",
+   "abre o projeto meuapp"
+  ],
+  "palavras": [
+   "abrir",
+   "programa",
+   "site",
+   "pasta",
+   "projeto"
+  ],
+  "resposta": "Diga abre o WhatsApp, abre o VS Code, abre github.com, abre a pasta downloads ou abre o projeto MeuApp. Funciona com programas do Menu Iniciar, sites https, pastas conhecidas e projetos cadastrados, e é atendido na hora, sem gastar IA.",
+  "passos": [
+   "Programa: abre a calculadora.",
+   "Site: abre o site github.com.",
+   "Pasta: abre a pasta downloads.",
+   "Projeto: abre o projeto MeuApp."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "projetos-fichas",
+   "o-que-voce-faz"
+  ]
+ },
+ {
+  "id": "pc-estado",
+  "titulo": "Estado e desempenho do PC",
+  "exemplos": [
+   "como vejo o estado do meu PC",
+   "como sei o que está pesando o computador",
+   "quanta memória livre eu tenho",
+   "como limpo o computador",
+   "como desativo programas da inicialização"
+  ],
+  "palavras": [
+   "pc",
+   "ram",
+   "cpu",
+   "disco",
+   "processos",
+   "inicialização",
+   "temporários"
+  ],
+  "resposta": "Diga como está o PC ou programas pesados. Limpar temporários, encerrar um processo ou desativar um programa da inicialização só é proposto como cartão e executado depois do seu Aprovar; processos essenciais do Windows e a pasta TEMP\\claude são protegidos.",
+  "passos": [
+   "Estado: como está o PC / quanto de RAM estou usando.",
+   "Processos: programas que mais consomem.",
+   "Ações: peça ao Claude e aprove o cartão."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "jarvis-travou",
+   "seguranca-aprovacao"
+  ]
+ },
+ {
+  "id": "melhorar-jarvis",
+  "titulo": "Melhorar e avaliar a própria Jarvis",
+  "exemplos": [
+   "como a Jarvis melhora a si mesma",
+   "avalie o seu código",
+   "como medir se a Jarvis está melhorando",
+   "o que é o benchmark",
+   "como rodo a avaliação de qualidade"
+  ],
+  "palavras": [
+   "avaliar",
+   "benchmark",
+   "melhorar",
+   "evoluir",
+   "métricas",
+   "qualidade"
+  ],
+  "resposta": "Diga avalie o seu código: ela lê o próprio projeto, dá notas de 0 a 100 por aspecto e compara com a vez anterior. As melhorias entram no caderno de melhorias; melhore-se propõe a próxima, com o seu aprovo e a verificação por testes. Para o benchmark de entendimento, rode python -m jarvis.eval.",
+  "passos": [
+   "Diga: avalie o seu código.",
+   "Diga: o que devo estudar? / treino da semana.",
+   "Terminal: python -m jarvis.eval (não gasta IA)."
+  ],
+  "plataformas": [
+   "pc"
+  ],
+  "relacionados": [
+   "relatorio-evolucao",
+   "programacao-saber"
+  ]
+ }
+]

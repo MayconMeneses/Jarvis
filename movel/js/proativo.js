@@ -8,7 +8,7 @@ async function umaVez(memoria, chave) {
   return true;
 }
 
-export async function avisos({ memoria, saber, agora = new Date(), nome = "" }) {
+export async function avisos({ memoria, saber, agora = new Date(), nome = "", entendimento = null }) {
   const lista = [], hoje = isoData(agora);
   if (agora.getHours() < 12 && await umaVez(memoria, "bomdia:" + hoje)) lista.push(`Bom dia${nome ? ", " + nome : ""}! Hoje é ${dataPorExtenso(agora)}.`);
   for (const nota of await memoria.listar("Lembretes/")) {
@@ -22,6 +22,8 @@ export async function avisos({ memoria, saber, agora = new Date(), nome = "" }) 
     const alvo = saber.topicos.filter((t) => t.area !== "logica")[semana % Math.max(1, saber.topicos.filter((t) => t.area !== "logica").length)];
     if (alvo && await umaVez(memoria, `treino:${ano}-${semana}`)) lista.push(`📚 Treino da semana — ${alvo.nome}: ${alvo.exercicios[0]}`);
   }
+  const evolucao = await entendimento?.aprend.avisoSemanal().catch(() => null);  // "como estou evoluindo", uma vez por semana
+  if (evolucao) lista.push(evolucao);
   const dia = Math.floor(agora / 86400000);
   const topico = saber.topicos[dia % Math.max(1, saber.topicos.length)];
   if (topico && await umaVez(memoria, "topico:" + hoje)) lista.push(`💡 Tópico do dia: **${topico.nome}** — ${topico.resumo.split(". ")[0]}. Pergunte "explique ${topico.nome}" para ver mais.`);

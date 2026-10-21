@@ -67,6 +67,7 @@ export function ligarMemoria(memoria, avisar) {
       link.download = `jarvis-copia-${new Date().toLocaleDateString("sv")}.jarvis-backup`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+      await memoria.definirMeta("ultima_copia", new Date().toISOString());
       avisar("Cópia segura gerada. Guarde a senha: sem ela a cópia não abre.");
     } catch (e) { avisar(erroHumano(e, "Não consegui gerar a cópia.")); }
     $("senha-copia").value = "";

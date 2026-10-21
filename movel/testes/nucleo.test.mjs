@@ -92,7 +92,7 @@ test("o motor entende pedidos, guarda memória e agenda lembretes", async () => 
   assert.match(await m.responder("crie uma tabela clientes com nome texto, idade inteiro"), /CREATE TABLE clientes/);
   assert.match(await m.responder("compare monólito e microsserviços"), /×/);
   assert.match(await m.responder("como fazer fatorial em go"), /```go/);
-  assert.match(await m.fallback("receita de bolo"), /modo independente/);
+  assert.match(await m.fallback("receita de bolo"), /não entendi/i);  // antes devolvia o bloco de funções ("modo independente"): era o defeito
 });
 
 test("aprender guarda a nota da Wikipédia (simulada) e passa a consultá-la", async () => {

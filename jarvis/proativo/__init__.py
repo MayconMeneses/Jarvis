@@ -80,9 +80,10 @@ def uso_de_ia(c: Contexto) -> Aviso | None:
     return None
 
 
+from jarvis.proativo.evolucao import evolucao_semanal  # noqa: E402  (a regra mora em evolucao.py)
 from jarvis.proativo.instagram import instagram_semanal  # noqa: E402  (a regra mora em instagram.py)
 
-REGRAS = (bom_dia, treino_da_semana, memoria_alta, projeto_parado, uso_de_ia, instagram_semanal)
+REGRAS = (bom_dia, treino_da_semana, memoria_alta, projeto_parado, uso_de_ia, instagram_semanal, evolucao_semanal)
 
 
 def projetos_sem_commit(projetos: dict[str, str], dias: int = DIAS_PARADO, agora: float | None = None) -> list[tuple[str, int]]:

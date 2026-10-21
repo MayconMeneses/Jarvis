@@ -21,7 +21,7 @@ from jarvis.config import data_dir
 from jarvis.pc import startup
 
 KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails",
-         "executar_tarefa", "criar_projeto", "guardar_memoria", "instagram_apagar", "instagram_lembrete")
+         "executar_tarefa", "criar_projeto", "guardar_memoria", "instagram_apagar", "instagram_lembrete", "aprender_apelido")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -269,17 +269,16 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
 
     if action.kind == "guardar_memoria":  # a IA só sugeriu; gravar é consequência do Aprovar
-        from jarvis.llm import memoria_viva
-
-        return memoria_viva.executar(action.params)
+        return __import__("jarvis.llm.memoria_viva", fromlist=["executar"]).executar(action.params)
 
     if action.kind in ("instagram_apagar", "instagram_lembrete"):  # a IA só propôs; apagar/agendar é consequência do Aprovar
         return __import__("jarvis.instagram.cartoes", fromlist=["executar"]).executar(action)
 
-    if action.kind == "instalar_llm":
-        from jarvis.llm import tarefas
+    if action.kind == "aprender_apelido":  # a IA só propôs; gravar o apelido é consequência do Aprovar
+        return __import__("jarvis.local.ensino", fromlist=["executar"]).executar(action.params)
 
-        tarefas.instalar(action.params["modelo"])
+    if action.kind == "instalar_llm":
+        __import__("jarvis.llm.tarefas", fromlist=["instalar"]).instalar(action.params["modelo"])
         return "Comecei a instalar o cérebro local em segundo plano. Pergunte \"status do cérebro local\" para acompanhar."
 
     raise ValueError(f"tipo de ação desconhecido: {action.kind}")

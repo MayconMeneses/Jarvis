@@ -85,11 +85,12 @@ export class Memoria {
   async meta(chave) { return this.armazem.ler(META + chave); }
   async definirMeta(chave, valor) { await this.armazem.gravar(META + chave, valor); }
 
+  // O que a Jarvis aprendeu sobre como você fala (evolucao:*) fica de fora da cópia: é só deste aparelho.
   // Cópia de segurança: um arquivo JSON que o usuário guarda onde quiser (nada sai do aparelho sozinho).
   async exportar() {
     const notas = await this.listar();
     const meta = {};
-    for (const c of (await this.armazem.chaves()).filter((k) => k.startsWith(META))) meta[c.slice(META.length)] = await this.armazem.ler(c);
+    for (const c of (await this.armazem.chaves()).filter((k) => k.startsWith(META) && !k.startsWith(META + "evolucao:"))) meta[c.slice(META.length)] = await this.armazem.ler(c);
     return JSON.stringify({ formato: "jarvis-movel-1", exportado: this.relogio().toISOString(), notas, meta }, null, 1);
   }
 

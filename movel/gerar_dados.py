@@ -58,17 +58,27 @@ def texto() -> str:
     return json.dumps(montar(), ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
+def autoconhecimento_texto() -> str:
+    """Cópia do autoconhecimento do PC (jarvis/local/dados/autoconhecimento.json), byte a byte: uma fonte só."""
+    from jarvis.local import autoconhecimento
+
+    return autoconhecimento.ARQUIVO.read_text(encoding="utf-8")
+
+
 def main(argv: list[str]) -> int:
     destino = RAIZ / "dados" / "saber.json"
+    auto = RAIZ / "dados" / "autoconhecimento.json"
     if "--conferir" in argv:
         modelos = RAIZ / "dados" / "modelos.json"
         return 0 if (destino.is_file() and destino.read_text(encoding="utf-8") == texto()
-                     and modelos.is_file() and modelos.read_text(encoding="utf-8") == modelos_texto()) else 1
+                     and modelos.is_file() and modelos.read_text(encoding="utf-8") == modelos_texto()
+                     and auto.is_file() and auto.read_text(encoding="utf-8") == autoconhecimento_texto()) else 1
     from jarvis.mobile import icones
 
     destino.parent.mkdir(exist_ok=True)
     destino.write_text(texto(), encoding="utf-8")
     (RAIZ / "dados" / "modelos.json").write_text(modelos_texto(), encoding="utf-8")
+    auto.write_text(autoconhecimento_texto(), encoding="utf-8")
     (RAIZ / "icones").mkdir(exist_ok=True)
     for tamanho in (180, 192, 512):  # só regrava o que mudou (não suja o Git à toa)
         alvo, novo = RAIZ / "icones" / f"icone-{tamanho}.png", icones.png(tamanho)

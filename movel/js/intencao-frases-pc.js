@@ -1,0 +1,27 @@
+// Frases-exemplo de comandos copiadas de jarvis/local/frases_comandos.py (o PC), para o celular entender do mesmo jeito. NÃO são as da bateria
+// de validação do PC. Chave = intenção do motor do celular (intencao-comandos.js). Gerado uma vez; edite à mão se precisar.
+export const FRASES_DO_PC = {
+  hora: ["que horas são", "me diz as horas", "qual é o horário agora", "tem hora aí", "me fala o horário", "horário atual", "marca quantas horas", "pode me dizer as horas"],
+  data: ["que dia é hoje", "qual é a data de hoje", "em que dia estamos", "hoje é que dia da semana", "me diz a data", "que dia do mês é hoje", "dia da semana hoje", "estamos em que dia"],
+  pc_vitais: ["como está o PC", "como está o meu computador", "o pc está lento", "meu computador está travando", "ver uso de memória e processador", "quanta memória ram está livre", "espaço livre no disco", "saúde do computador", "como anda a máquina", "status da máquina", "o notebook está pesado", "programas pesados", "o que está pesando o computador", "quais programas estão gastando memória", "o que está usando a cpu", "o que está deixando o pc lento", "quem está consumindo recursos", "me mostra os processos mais pesados", "lista de programas que mais gastam"],
+  clima: ["clima em Fortaleza", "vai fazer sol amanhã", "como está o tempo lá fora", "preciso de guarda-chuva", "tá calor hoje", "vai esfriar hoje", "previsão para hoje", "como vai estar o tempo", "vai ter chuva"],
+  noticias: ["notícias de tecnologia", "o que está acontecendo no mundo", "quais as novidades de hoje", "me atualiza das notícias", "manchetes do dia", "o que saiu de novo hoje", "me conta as últimas notícias", "novidades em tecnologia"],
+  vagas: ["tem vagas para mim", "tem emprego para mim", "oportunidades de trabalho para dev", "vagas de desenvolvedor", "tem alguma vaga nova", "me mostra oportunidades de emprego", "vagas remotas de programação"],
+  ajuda: ["ajuda", "o que você sabe fazer", "o que você consegue fazer", "quais são seus comandos", "como eu uso você", "me mostra suas funções", "que comandos existem"],
+  projetos: ["meus projetos", "quais projetos eu tenho", "lista meus projetos", "mostra os projetos cadastrados", "quais são os meus projetos"],
+  pc_sessoes: ["alguma sessão está me esperando", "o claude code está esperando alguma coisa", "tem sessão do claude parada", "alguma sessão precisa de mim", "o claude terminou", "o claude code está aguardando"],
+  habilidades: ["quais habilidades de programador", "lista as habilidades de programador", "que habilidades você acompanha", "habilidades de programação"],
+  evoluir: ["o que devo estudar", "qual a próxima habilidade", "o que eu deveria praticar", "me dá o treino da semana", "o que devo melhorar como programador", "sugere o que estudar agora"],
+  pc_uso: ["quanto de ia eu usei", "quanto já gastei de tokens", "como está meu limite do claude", "qual o custo das ias", "quantos tokens usei hoje", "o limite do claude está acabando"],
+  pc_bomdia: ["bom dia", "resumo do meu dia", "me atualiza do dia", "como está o meu dia", "quero o resumo da manhã", "o que tem para hoje"],
+  pc_agenda: ["minha agenda", "o que eu tenho marcado hoje", "tenho reunião hoje", "quais meus compromissos hoje", "mostra a agenda de hoje", "tem algum evento hoje", "como está meu dia na agenda", "agenda da semana", "o que tenho essa semana", "compromissos dos próximos dias", "agenda dos próximos dias", "como está minha semana", "o que está marcado nessa semana"],
+  pc_proximo: ["próximo compromisso", "qual a minha próxima reunião", "o que vem agora na agenda", "quando é meu próximo evento", "próxima reunião"],
+  pc_emails: ["meus e-mails", "chegou algum email", "como está minha caixa de entrada", "tem email novo", "mostra meus emails", "resumo dos emails", "tem mensagem nova no email", "tem e-mail importante", "algum email urgente", "tem algo urgente no email", "algum email precisa de resposta", "emails que pedem ação"],
+  radar: ["radar", "me dá o boletim do radar", "quero o radar de hoje", "gerar o boletim do meu nicho", "radar de notícias"],
+  evolucao_fala: ["meu vocabulário", "o que você aprendeu comigo", "quais frases você aprendeu", "mostra meus apelidos", "como você está evoluindo", "o que você aprendeu do meu jeito de falar"],
+  pesquisa: ["pesquise sobre energia solar", "pesquisar na internet", "procura isso na web", "busca informações na internet", "quero saber sobre um assunto"],
+  lembrar: ["lembre que eu prefiro vagas remotas", "guarda isso na memória", "anota uma coisa para mim", "memoriza uma informação", "registra um fato"],
+  memoria: ["o que você sabe sobre mim", "o que você lembra de mim", "busca nas minhas notas", "o que tem anotado sobre isso"],
+  comparar: ["compare Django e FastAPI", "qual a diferença entre duas tecnologias", "compara essas duas ferramentas", "qual é melhor entre elas"],
+  uso_ia: ["quanto de ia eu usei", "quanto já gastei de tokens", "como está meu limite do claude", "qual o custo das ias", "quantos tokens usei hoje", "o limite do claude está acabando"],
+};
