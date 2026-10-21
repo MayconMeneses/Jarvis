@@ -1,3 +1,4 @@
+import { marca, textoRadar, textoSessoes, textoTarefas, textoUso, textoVitais } from "./pc-texto.js";
 // Pedidos de conversa que dependem do PC pareado: agenda, próximo compromisso, e-mails e bom dia. O objeto `pc` (PcPareado) é ligado pelo main.js.
 // Tudo o que vem do PC é texto de terceiros: só vira texto na tela, nunca instrução.
 const EXTRAS = [
@@ -5,13 +6,18 @@ const EXTRAS = [
   ["pc_proximo", /^((qual (e )?)?(o )?(meu )?proximo compromisso|proximo compromisso)$/],
   ["pc_emails", /^((meus?|os) )?e-?mails?( importantes| de acao| novos)?$|^tenho e-?mails?( novos| importantes)?$/],
   ["pc_bomdia", /^(bom dia|boa tarde|boa noite)$/],
+  ["pc_vitais", /^(como (esta|anda) (o )?(meu )?(pc|computador)|vitais( do pc)?|saude do pc|(cpu|ram|memoria|disco) do pc)$/],
+  ["pc_sessoes", /^((minhas )?sessoes( do claude( code)?)?|sessoes do claude( code)?|tem (algum )?claude (esperando|precisando de mim))$/],
+  ["pc_uso", /^(minha cota|cota( do claude)?|uso do claude|quanto (falta|sobra) (da|na) (minha )?cota)$/],
+  ["pc_tarefas", /^(minhas )?tarefas (do pc|de codigo)$/],
+  ["pc_radar", /^(radar|boletim) do pc$/],
 ];
-const PRECISA = "Isso precisa do PC pareado (opcional): na aba Cérebro, em \"PC pareado\", informe o endereço do PC e o código da janela dele. Sem o PC eu não vejo agenda nem e-mails.";
+const PRECISA = "Isso precisa do PC pareado (opcional): na aba Cérebro, em \"PC pareado\", informe o endereço do PC e o código da janela dele. Sem o PC eu não vejo agenda, e-mails, vitais, sessões nem cota.";
 const hora = (iso) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const dia = (iso) => new Date(iso).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
 const quando = (e, comDia) => (e.dia_inteiro ? "dia inteiro" : hora(e.inicio)) + (comDia ? `, ${dia(e.inicio)}` : "");
 const linha = (e, comDia = false) => `- ${quando(e, comDia)}: ${e.titulo}${e.local ? ` (${e.local})` : ""}`;
-export const marca = (r) => (r.doCache ? `\n(Cópia de ${new Date(r.quando).toLocaleString("pt-BR")}: ${r.erro})` : "");
+export { marca };
 
 export function textoAgenda(r) {
   const a = r.dados;
@@ -31,7 +37,16 @@ export function textoEmails(r) {
   return t + marca(r);
 }
 
+// Pedido de leitura simples: sem PC pareado explica; com PC mostra o texto (ou o aviso amigável / a cópia datada).
+const leitura = (rota, formatar) => async function () {
+  if (!this.pc || !(await this.pc.pareado())) return PRECISA;
+  const r = await this.pc.obter(rota);
+  return r.ok ? formatar(r) : r.erro;
+};
+
 const HANDLERS = {
+  _pc_vitais: leitura("vitais", textoVitais), _pc_sessoes: leitura("sessoes", textoSessoes), _pc_uso: leitura("uso", textoUso),
+  _pc_tarefas: leitura("tarefas", textoTarefas), _pc_radar: leitura("radar", textoRadar),
   async _pc_agenda() {
     if (!this.pc || !(await this.pc.pareado())) return PRECISA;
     const r = await this.pc.obter("agenda");

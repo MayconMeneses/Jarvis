@@ -69,6 +69,18 @@ Ordem de uso (você escolhe na mesma tela): **aparelho primeiro** (padrão, mais
 O proxy **não guarda chave nenhuma**: só repassa o cabeçalho de autenticação, aceita apenas pedidos vindos de `https://mayconmeneses.github.io` (a constante `ORIGEM` no
 arquivo; mude se publicar o app em outro endereço) e só as rotas `/v1/...` (NVIDIA) e `/brave/res/v1/...` (Brave). Quem souber o endereço do seu proxy não consegue usá-lo sem a origem e a chave.
 
+### Reimplantar o proxy (rotas novas: notícias, leitura de páginas e agenda)
+O mesmo Worker agora também serve `GET /rss?url=`, `GET /ler?url=` e `GET /ical?url=` (feeds de notícias, texto de uma página e agenda .ics, todos com CORS só para o app). **A URL do proxy não muda.**
+1. Em dash.cloudflare.com abra **Workers & Pages**, escolha o seu Worker e toque em **Edit code**.
+2. Apague tudo, cole o conteúdo **inteiro** de `movel/proxy/nvidia-worker.js` (a versão nova) e toque em **Deploy**. Não precisa de variável, KV nem Cron.
+3. Teste no navegador: abra `https://SEU-PROXY.workers.dev/saude`. Deve aparecer `{"rotas":["rss","ler","ical","nvidia","brave"],"versao":2}`. Se aparecer "origem não permitida", ainda é a versão antiga.
+
+Como o app sabe se as rotas existem: faz `GET {proxy}/saude` (não exige Origin) e confere se `rotas` contém `rss`, `ler` e `ical`; se não, usa o caminho antigo.
+Regras das rotas novas: só `https` público (sem usuário/senha, só porta 443; localhost, IPs, nomes internos e redirecionamento para eles são recusados), no máximo 3 redirecionamentos, 8 s, 1,5 MB, só tipos esperados (XML/Atom, HTML/texto, calendário), 30 pedidos por minuto por IP, e nunca devolve cabeçalhos nem cookies do site de destino.
+Erros (JSON `{"erro":"..."}`, sem a URL): 400 endereço não permitido, 403 origem, 405 método, 413 grande demais, 415 tipo não aceito, 429 muitos pedidos, 502 falha ao buscar, 504 tempo esgotado.
+`/ler` devolve `{"titulo","texto","idioma","url_final","tamanho"}` (texto puro, até 6000 caracteres, **sempre dado de terceiros**). Atenção: a URL secreta da agenda passa pelo seu Worker (que não a guarda).
+Para quem mexe no código: edite `movel/proxy/fonte/*.js` e rode `node movel/proxy/montar.mjs` para regenerar o arquivo único (o teste `worker.test.mjs` reprova se ficar desatualizado).
+
 ## Oficina: a IDE do celular
 
 A aba **Oficina** faz no celular o que a Oficina do PC faz:

@@ -1,22 +1,17 @@
-// Painel "Agenda e e-mails" (aba Agenda) e o campo opcional "PC pareado" (aba Cérebro). Tudo com textContent; o que vem do PC é texto de terceiros.
-import { OFFLINE } from "./pc-pareado.js";
-import { textoAgenda, textoEmails } from "./motor-pc.js";
+// Aba "PC" (cartões somente leitura, ver painel-pc-geral.js) e o campo opcional "PC pareado" (aba Cérebro). Tudo com textContent; o que vem do PC é texto de terceiros.
+import { montar as montarPainel } from "./painel-pc-geral.js";
+import { Atualizador } from "./pc-atualizador.js";
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, props = {}, ...filhos) => { const n = Object.assign(document.createElement(tag), props); n.append(...filhos); return n; };
 
 function montarAba() {
-  const botao = el("button", { type: "button", textContent: "Agenda" });
-  botao.dataset.aba = "agenda";
+  const botao = el("button", { type: "button", textContent: "PC" });
+  botao.dataset.aba = "agenda";  // o id interno continua "agenda": o main.js abre a aba por ele
   $("abas").append(botao);
-  const secao = el("section", { id: "agenda", className: "aba", hidden: true },
-    el("h2", { textContent: "Agenda e e-mails" }),
-    el("p", { id: "pc-aviso", className: "nota", role: "status" }),
-    el("div", { className: "linha" }, el("button", { type: "button", id: "pc-atualizar", textContent: "Atualizar" })),
-    el("h2", { textContent: "Agenda" }), el("div", { id: "pc-agenda", className: "msg jarvis" }),
-    el("h2", { textContent: "E-mails" }), el("div", { id: "pc-emails", className: "msg jarvis" }),
-    el("p", { className: "nota", textContent: "Somente leitura: vem do seu PC pareado, sem corpo de e-mail e sem links. Com o PC desligado ou fora da rede, mostro a última cópia, com a hora." }));
+  const secao = el("section", { id: "agenda", className: "aba", hidden: true }, el("h2", { textContent: "Seu PC (somente leitura)" }));
   $("app").append(secao);
+  return secao;
 }
 
 function montarPareamento() {
@@ -33,9 +28,10 @@ function montarPareamento() {
   $("cerebro").insertBefore(bloco, alvo);
 }
 
-export function ligarPc({ pc, avisar }) {
-  montarAba();
+export function ligarPc({ pc, avisar, intervaloMs = 30000 }) {
+  const secao = montarAba();
   montarPareamento();
+  const painel = montarPainel(secao, { pc });
 
   async function estado() {
     const p = await pc.pareamento();
@@ -44,24 +40,12 @@ export function ligarPc({ pc, avisar }) {
     return p;
   }
 
-  async function atualizar() {
-    const p = await estado();
-    if (!p) { $("pc-aviso").textContent = "Pareie com o PC na aba Cérebro (PC pareado) para ver a agenda e os e-mails."; $("pc-agenda").replaceChildren(); $("pc-emails").replaceChildren(); return; }
-    $("pc-aviso").textContent = "Atualizando…";
-    const [ag, em] = await Promise.all([pc.obter("agenda"), pc.obter("emails")]);
-    const mostrar = (id, r, fmt) => {
-      const alvo = $(id);
-      alvo.replaceChildren();
-      for (const linha of (r.ok ? fmt(r) : r.erro).split("\n")) alvo.append(el("p", { textContent: linha.replace(/\*\*/g, "") }));
-    };
-    mostrar("pc-agenda", ag, textoAgenda);
-    mostrar("pc-emails", em, textoEmails);
-    const copia = [ag, em].find((r) => r.ok && r.doCache);
-    $("pc-aviso").textContent = copia ? `${copia.erro || OFFLINE} Mostrando a cópia de ${new Date(copia.quando).toLocaleString("pt-BR")}.`
-      : ag.ok || em.ok ? `Atualizado às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.` : (ag.erro || OFFLINE);
-  }
+  const atualizar = async () => { await estado(); return painel.atualizar(); };
+  // Atualização leve: só com a aba PC aberta, página visível e PC pareado.
+  const auto = new Atualizador({ atualizar: painel.atualizar, visivel: () => document.visibilityState === "visible", ativo: () => !secao.hidden, pareado: () => pc.pareado(), intervaloMs });
+  auto.iniciar();
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") auto.tick(); });
 
-  $("pc-atualizar").addEventListener("click", atualizar);
   $("pc-parear").addEventListener("click", async () => {
     $("pc-parear").disabled = true;
     $("pc-status").textContent = "Pareando…";
@@ -72,7 +56,7 @@ export function ligarPc({ pc, avisar }) {
       await estado();
     } catch (e) { $("pc-status").textContent = "Não consegui parear: " + e.message; } finally { $("pc-parear").disabled = false; }
   });
-  $("pc-desparear").addEventListener("click", async () => { await pc.desparear(); avisar("Pareamento removido deste aparelho. Para revogar no PC, use a lista de aparelhos da janela."); await estado(); });
+  $("pc-desparear").addEventListener("click", async () => { await pc.desparear(); avisar("Pareamento removido deste aparelho. Para revogar no PC, use a lista de aparelhos da janela."); await estado(); painel.atualizar(); });
   estado();
-  return atualizar;  // chamado ao abrir a aba Agenda
+  return atualizar;  // chamado ao abrir a aba PC
 }

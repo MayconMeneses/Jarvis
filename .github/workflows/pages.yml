@@ -26,7 +26,8 @@ jobs:
         with:
           node-version: 20
       - name: Testes do app do celular
-        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs movel/testes/modelos.test.mjs movel/testes/criar-ia.test.mjs movel/testes/oficina.test.mjs movel/testes/autonomo.test.mjs movel/testes/visual.test.mjs movel/testes/vivo.test.mjs movel/testes/grafo.test.mjs movel/testes/instagram.test.mjs movel/testes/painel.test.mjs movel/testes/pc.test.mjs movel/testes/celular.test.mjs
+        run: node --test movel/testes/nucleo.test.mjs movel/testes/cerebro.test.mjs movel/testes/conversa.test.mjs movel/testes/nuvem.test.mjs movel/testes/paridade.test.mjs movel/testes/modelos.test.mjs movel/testes/criar-ia.test.mjs movel/testes/oficina.test.mjs movel/testes/autonomo.test.mjs movel/testes/visual.test.mjs movel/testes/vivo.test.mjs movel/testes/grafo.test.mjs movel/testes/instagram.test.mjs movel/testes/painel.test.mjs movel/testes/pc.test.mjs movel/testes/pc-extra.test.mjs movel/testes/celular.test.mjs movel/testes/worker.test.mjs movel/testes/voz.test.mjs movel/testes/radar.test.mjs movel/testes/radar-fluxo.test.mjs movel/testes/noticias.test.mjs movel/testes/leitor.test.mjs
+ movel/testes/anexos.test.mjs movel/testes/documentos.test.mjs movel/testes/pesquisa.test.mjs
       - name: Montar o site (só a pasta movel, sem testes nem scripts Python)
         run: |
           mkdir site

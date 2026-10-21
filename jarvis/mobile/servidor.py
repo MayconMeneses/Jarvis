@@ -28,7 +28,8 @@ CSP = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data
 
 
 ORIGEM_APP = "https://mayconmeneses.github.io"
-ROTAS_LEITURA = {"/api/agenda": "agenda", "/api/emails": "emails", "/api/briefing": "briefing", "/api/agents": "agentes"}
+ROTAS_LEITURA = {"/api/agenda": "agenda", "/api/emails": "emails", "/api/briefing": "briefing", "/api/agents": "agentes",
+                 "/api/vitais": "vitais", "/api/sessoes": "sessoes", "/api/tarefas": "tarefas", "/api/uso": "uso", "/api/radar": "radar"}
 CORS_CAMINHOS = frozenset({"/api/parear", "/api/estado", *ROTAS_LEITURA})  # o /api/chat NÃO é aberto ao app de fora
 MAX_RESPOSTA = 65536
 TIMEOUT_CONEXAO = 30  # segundos sem receber nada: derruba conexão parada (senão cada uma prende uma thread para sempre)

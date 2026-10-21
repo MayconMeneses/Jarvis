@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	 xmlns:media="http://search.yahoo.com/mrss/" >
+
+<channel>
+	<title>Tecnoblog</title>
+	<atom:link href="https://tecnoblog.net/feed/" rel="self" type="application/rss+xml" />
+	<link>https://tecnoblog.net/</link>
+	<description>tecnologia que interessa</description>
+	<lastBuildDate>Wed, 21 Oct 2026 10:54:55 +0000</lastBuildDate>
+	<language>pt-BR</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	
+<atom:link rel="hub" href="https://pubsubhubbub.appspot.com"/>
+<atom:link rel="hub" href="https://pubsubhubbub.superfeedr.com"/>
+<atom:link rel="hub" href="https://websubhub.com/hub"/>
+<atom:link rel="self" href="https://tecnoblog.net/feed/"/>
+	<item>
+		<title>Muse: agente de IA da Meta expôs contratos e planilhas na internet</title>
+		<link>https://tecnoblog.net/noticias/muse-agente-de-ia-da-meta-expos-contratos-e-planilhas-na-internet/</link>
+					<comments>https://tecnoblog.net/noticias/muse-agente-de-ia-da-meta-expos-contratos-e-planilhas-na-internet/#respond</comments>
+		
+		<dc:creator><![CDATA[Yuri Hildebrand]]></dc:creator>
+		<pubDate>Wed, 21 Oct 2026 10:54:49 +0000</pubDate>
+				<category><![CDATA[Segurança e Privacidade]]></category>
+		<category><![CDATA[Claroc]]></category>
+		<category><![CDATA[DNS]]></category>
+		<category><![CDATA[Google Docs]]></category>
+		<category><![CDATA[Meta]]></category>
+		<category><![CDATA[Meta Muse]]></category>
+		<category><![CDATA[Power Point]]></category>
+		<guid isPermaLink="false">https://tecnoblog.net/?post_type=noticias&#038;p=942304</guid>
+
+					<description><![CDATA[<p>Empresa de segurança digital localizou quase 7 mil links com potenciais dados sensíveis.</p>
+<p><a href="https://tecnoblog.net/noticias/muse-agente-de-ia-da-meta-expos-contratos-e-planilhas-na-internet/">Muse: agente de IA da Meta expôs contratos e planilhas na internet</a></p>
+]]></description>
+										<content:encoded><![CDATA[
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad792a0a&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad792a0a" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="539" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2026/09/mascote-muse-1060x539.webp" alt="" class="wp-image-931696"/><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">Compartilhamento por link é única opção de envio disponível no Meta Muse (imagem: divulgação/Meta)</figcaption></figure>
+
+
+<details class="tb-resumo tb-callout padrao">
+    <summary class="tb-callout-titulo">Resumo</summary>
+    <div class="tb-resumo-topicos tb-callout-texto"><ul>
+<li>O recurso Meta Muse, que permitia compartilhar conversas no chat da Meta, foi pausado após a descoberta de quase 7 mil links de conversas expostos na internet.</li>
+<li>A falha de segurança permitia acessar desde o assunto do chat até páginas inteiras com potenciais dados sensíveis, incluindo contratos com nomes e valores, planilhas e calendários internos de empresas.</li>
+<li>A Meta afirmou que pausou o recurso enquanto ajusta a segurança e que a descoberta é de interesse do seu Programa de Recompensa por Bugs para “aprimorar o produto”.</li>
+</ul>
+</div>
+</details>
+
+
+
+<p class="wp-block-paragraph">O agente de IA <a href="https://tecnoblog.net/noticias/meta-muse-zuckerberg-apresenta-agente-de-ia-que-roda-24-horas-por-dia/">Muse</a> expôs quase 7 mil conversas na internet devido ao recurso de compartilhamento. A falha de segurança foi descoberta pela empresa de segurança digital Claroc e informada à Meta, que suspendeu a ferramenta. As URLs deveriam conter apenas trechos de conversas e arquivos, mas a segurança frágil permitia acessar desde o assunto do chat até páginas inteiras com potenciais dados sensíveis.</p>
+
+
+
+<p class="wp-block-paragraph">O caso foi noticiado pelo site <em><a href="https://arstechnica.com/security/2026/10/meta-muse-exposes-users-personal-and-business-secrets-when-they-share-conversations/" target="_blank" class="icon-external">Ars Technica</a></em>, que cobrou uma posição oficial. Em nota, a Meta afirmou que a <a href="https://blog.claroc.io/ghostshares-muse-passive-dns/#_" target="_blank" class="icon-external" rel="nofollow noopener">descoberta</a> é de interesse do seu Programa de Recompensa por Bugs e que situações do tipo são importantes para “aprimorar o produto”. A companhia de Mark Zuckerberg informou que pausou o recurso enquanto não realiza ajustes.</p>
+
+
+
+<h2 id="h-recurso-inocente-acaba-expondo-dados-sensiveis" class="wp-block-heading"><strong>Recurso “inocente” acaba expondo dados sensíveis</strong></h2>
+
+
+
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad792f6a&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad792f6a" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="596" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2025/02/Capa-Mark-Zuckerberg-01-1060x596.png" alt="Arte com a logomarca da Meta à esquerda e o rosto de Mark Zuckerberg à direita. Na parte inferior direita está a logomarca do Tecnoblog." class="wp-image-811594"/><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">Meta Muse é a nova IA agêntica anunciada por Zuckerberg em setembro (ilustração: Vitor Pádua/Tecnoblog)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">O link para mandar um documento para o seu colega de trabalho é um dos recursos mais utilizados na rotina de quem lida com ambientes digitais. Seja um calendário, um texto escrito em serviços como Google Docs ou mesmo apresentações de Power Point, é bastante comum recorrer à ferramenta. Serviços como o Google Drive costumam conter algumas camadas de segurança, como autenticação via login e senha.</p>
+
+
+
+<p class="wp-block-paragraph">O Meta Muse só compartilha conversas e arquivos dessa maneira. A interação é publicada como uma página aberta pronta para ser enviada, que pode ser vista por qualquer pessoa com o link em mãos. Além disso, é possível achar essas páginas por meio de um título simples, baseado no tema da conversa. Isso porque as URLs ficam disponibilizadas no domínio público <em>cf.metaaiusercontent.com</em>.</p>
+
+
+
+<p class="wp-block-paragraph">Entre os exemplos de dados expostos estão desde contratos com nomes e valores até planilhas e calendários internos de empresas reais. Segundo a Claroc, apenas algumas centenas desses quase 7 mil links foram analisados, o que já seria suficiente para mostrar o tamanho do problema.</p>
+
+
+
+<p class="wp-block-paragraph">Vale lembrar que a Meta <a href="https://tecnoblog.net/noticias/meta-muse-zuckerberg-apresenta-agente-de-ia-que-roda-24-horas-por-dia/">anunciou</a> o Muse tendo a privacidade como um dos pilares ao utilizar máquinas virtuais próprias para cada usuário, evitando que a própria empresa tivesse acesso às interações. </p>
+
+
+
+<h2 id="h-recurso-continuou-ativo-apos-a-descoberta-do-problema" class="wp-block-heading"><strong>Recurso continuou ativo após a descoberta do problema</strong></h2>
+
+
+
+<figure class="wp-block-image size-large"><img decoding="async" width="1060" height="583" src="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-24-1060x583.png" alt="" class="wp-image-942305"/><figcaption class="wp-element-caption">Calendário de férias de uma empresa compartilhado por um funcionário foi um dos exemplos de vazamento (imagem: reprodução/Claroc)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">O aviso foi enviado à Meta em 8 de outubro. Desde então, a equipe da Claroc afirma ter acessado o material mais uma vez, no dia 18, quando ainda foi possível encontrar novas URLs de conversas com o Muse. Além do levantamento em si, a Claroc também sugeriu algumas medidas de segurança.</p>
+
+
+
+<p class="wp-block-paragraph">A Meta só afirmou ter pausado novos compartilhamentos nesta terça-feira (20/10), após questionamento do portal <em>Ars Technica</em>. Portanto, foram pelo menos 12 dias em que a funcionalidade continuou disponível.</p>
+
+
+
+<p class="wp-block-paragraph">Vale lembrar que, por enquanto, o Meta Muse só está disponível nos Estados Unidos e no Canadá, e ainda não há previsão de chegada em outros mercados como o Brasil.</p>
+<p><a href="https://tecnoblog.net/noticias/muse-agente-de-ia-da-meta-expos-contratos-e-planilhas-na-internet/">Muse: agente de IA da Meta expôs contratos e planilhas na internet</a></p>
+]]></content:encoded>
+					
+					<wfw:commentRss></wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+		
+		<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/09/mascote-muse-340x191.webp" />
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2026/09/mascote-muse.webp" medium="image">
+			<media:title type="html">Mascote do agente de IA Muse (imagem: divulgação/Meta)</media:title>
+			<media:description type="html">Mascote do agente de IA Muse (imagem: divulgação/Meta)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/09/mascote-muse-340x191.webp" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2025/02/Capa-Mark-Zuckerberg-01.png" medium="image">
+			<media:title type="html">Capa de Mark Zuckerberg-01</media:title>
+			<media:description type="html">Mark Zuckerberg é fundador e CEO da Meta (ilustração: Vitor Pádua/Tecnoblog)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2025/02/Capa-Mark-Zuckerberg-01-340x191.png" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-24.png" medium="image">
+			<media:title type="html">image</media:title>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-24-340x191.png" />
+		</media:content>
+	</item>
+		<item>
+		<title>ChatGPT ganha função que protege as conversas dos olhares fofoqueiros</title>
+		<link>https://tecnoblog.net/noticias/openai-agora-permite-trancar-conversas-sensiveis-no-chatgpt/</link>
+					<comments>https://tecnoblog.net/noticias/openai-agora-permite-trancar-conversas-sensiveis-no-chatgpt/#respond</comments>
+		
+		<dc:creator><![CDATA[Yuri Hildebrand]]></dc:creator>
+		<pubDate>Wed, 21 Oct 2026 10:18:20 +0000</pubDate>
+				<category><![CDATA[Segurança e Privacidade]]></category>
+		<category><![CDATA[ChatGPT]]></category>
+		<category><![CDATA[FaceID]]></category>
+		<category><![CDATA[OpenAI]]></category>
+		<guid isPermaLink="false">https://tecnoblog.net/?post_type=noticias&#038;p=942301</guid>
+
+					<description><![CDATA[<p>Recurso “esconde” interações selecionadas pelo usuário do histórico.</p>
+<p><a href="https://tecnoblog.net/noticias/openai-agora-permite-trancar-conversas-sensiveis-no-chatgpt/">ChatGPT ganha função que protege as conversas dos olhares fofoqueiros</a></p>
+]]></description>
+										<content:encoded><![CDATA[
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad795c1e&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad795c1e" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="596" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2023/06/chatgpt-2_capa-1060x596.png" alt="Ilustração com o logo do ChatGPT ao centro. Na parte inferior direita, o logotipo do &quot;tecnoblog&quot; é visível." class="wp-image-719914"/><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">ChatGPT permite trancar conversas com PIN ou biometria (ilustração: Vitor Pádua/Tecnoblog)</figcaption></figure>
+
+
+<details class="tb-resumo tb-callout padrao">
+    <summary class="tb-callout-titulo">Resumo</summary>
+    <div class="tb-resumo-topicos tb-callout-texto"><ul>
+<li>O ChatGPT lançou um recurso de privacidade que permite aos usuários trancar conversas sensíveis, escondendo-as do histórico, protegendo-as com um PIN ou reconhecimento facial.</li>
+<li>As conversas trancadas não são criptografadas de ponta a ponta, e a OpenAI pode acessá-las; esquecer o PIN resultará na perda irreversível das interações bloqueadas.</li>
+<li>O recurso está disponível para todas as modalidades e assinaturas do ChatGPT, exceto em casos de assuntos legais ou de compliance, e não impede o uso das interações para treinamento da IA.</li>
+</ul>
+</div>
+</details>
+
+
+
+<p class="wp-block-paragraph">O ChatGPT ganhou um novo recurso de privacidade: as conversas trancadas. Usuários da <a href="https://tecnoblog.net/responde/o-que-e-inteligencia-artificial/">inteligência artificial</a> da agora podem selecionar interações sensíveis para escondê-las do histórico do serviço, de modo que quem está por perto não consegue saber de imediato o teor da conversa.</p>
+
+
+
+<p class="wp-block-paragraph">O conteúdo fica protegido por um PIN, e pode ser desbloqueado também com a biometria no smartphone.</p>
+
+
+
+<p class="wp-block-paragraph">A OpenAI explica que mesmo as conversas trancadas não contam com nenhum tipo de <a href="https://tecnoblog.net/responde/o-que-e-criptografia-e-quais-os-tipos/">criptografia</a> de ponta a ponta, assim como ocorre com todos os chats do ChatGPT. A nova função também não muda a forma como a empresa acessa e utiliza as informações.</p>
+
+
+
+<h2 id="h-privacidade-em-situacoes-presenciais" class="wp-block-heading"><strong>Privacidade em situações presenciais</strong></h2>
+
+
+
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad7961e6&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad7961e6" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="596" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-8-1060x596.png" alt="Imagem mostra um cadeado azul fechado, centralizado sobre um fundo abstrato em tons de cinza e azul claro, com formas geométricas que sugerem tecnologia e segurança digital. No canto inferior direito, a marca d'água &quot;Tecnoblog&quot; é visível." class="wp-image-666328"/><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">Conversas trancadas no ChatGPT não funcionam como camada extra de segurança (ilustração: Vitor Pádua/Tecnoblog)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">A possibilidade de trancar o chat impede, basicamente, que olhares curiosos tenham acesso ao conteúdo que você está perguntando à IA. Também dá privacidade para usuários de contas Business, que não podem ter seu PIN resetado pelo administrador do workspace.</p>
+
+
+
+<p class="wp-block-paragraph">Há exceções de acordo com a empresa, e as conversas não ficam impedidas de serem abertas em casos envolvendo assuntos legais ou compliance.</p>
+
+
+
+<h2 id="h-o-que-acontece-se-esquecer-o-pin" class="wp-block-heading"><strong>O que acontece se esquecer o PIN?</strong></h2>
+
+
+
+<p class="wp-block-paragraph">A OpenAI diz que você não perde as mensagens caso erre o PIN, mas, caso precise resetá-lo, todas essas conversas serão apagadas. Uma saída é recorrer à biometria do seu celular no app, por exemplo.</p>
+
+
+
+<p class="wp-block-paragraph">Vale se atentar ao risco caso as interações contenham alguma informação relevante ou arquivos importantes gerados pelo ChatGPT.</p>
+
+
+
+<h2 id="h-como-definir-seu-pin" class="wp-block-heading"><strong>Como definir seu PIN</strong>?</h2>
+
+
+
+<figure class="wp-block-image size-full is-resized"><img decoding="async" width="780" height="438" src="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-23.png" alt="" class="wp-image-942302" style="width:840px;height:auto"/><figcaption class="wp-element-caption">O próprio ChatGPT pede a criação de um PIN ao ativar o recurso (imagem: divulgação/OpenAI)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">O PIN escolhido é um só para toda a sua conta. O próprio chat solicita a criação da chave ao trancar uma conversa pela primeira vez. Após definir os quatro dígitos, a senha vale para todas as interações protegidas com o recurso.</p>
+
+
+
+<p class="wp-block-paragraph">Em caso de erros sucessivos, as conversas ficam bloqueadas por um curto período, justamente para evitar que terceiros acessem o conteúdo.</p>
+
+
+
+<p class="wp-block-paragraph">Se você não tiver mais acesso ao PIN correto e nem à biometria, a única forma de trancar uma nova conversa será resetando a chave – e, consequentemente, deletando o que você já havia protegido anteriormente. Para isso, siga o passo a passo:</p>
+
+
+
+<ul class="wp-block-list">
+<li>Vá em “configurações” e “PIN”.</li>
+
+
+
+<li>Selecione “resetar PIN” e verifique sua identidade para prosseguir.</li>
+
+
+
+<li>Aqui, é necessário consentir com a perda dos conteúdos protegidos. Depois, basta selecionar “resetar PIN e deletar” ou “deletar tudo e resetar”, a depender do seu dispositivo.</li>
+</ul>
+
+
+
+<p class="wp-block-paragraph">É importante dizer que a troca da chave em si não significa perder os arquivos. Caso você lembre seu PIN anterior, basta trocar para uma sequência mais fácil de memorizar para seguir com seus conteúdos protegidos.</p>
+
+
+
+<p class="wp-block-paragraph">O recurso de conversas trancadas fica disponível para praticamente todas as modalidades e assinaturas do ChatGPT, e deve chegar gradualmente para os usuários.</p>
+<p><a href="https://tecnoblog.net/noticias/openai-agora-permite-trancar-conversas-sensiveis-no-chatgpt/">ChatGPT ganha função que protege as conversas dos olhares fofoqueiros</a></p>
+]]></content:encoded>
+					
+					<wfw:commentRss></wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+		
+		<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2023/06/chatgpt-2_capa-340x191.png" />
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2023/06/chatgpt-2_capa.png" medium="image">
+			<media:title type="html">ChatGPT-2_Capa</media:title>
+			<media:description type="html">ChatGPT, da OpenAI (ilustração: Vitor Pádua/Tecnoblog)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2023/06/chatgpt-2_capa-340x191.png" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-8.png" medium="image">
+			<media:title type="html">Segurança Dados Hacker Vazamento Senha</media:title>
+			<media:description type="html">Segurança digital (ilustração: Vitor Pádua/Tecnoblog)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-8-340x191.png" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-23.png" medium="image">
+			<media:title type="html">image</media:title>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-23-340x191.png" />
+		</media:content>
+	</item>
+		<item>
+		<title>Falha em certificados digitais coloca internet em alerta</title>
+		<link>https://tecnoblog.net/noticias/falha-em-certificados-digitais-coloca-internet-em-alerta/</link>
+					<comments>https://tecnoblog.net/noticias/falha-em-certificados-digitais-coloca-internet-em-alerta/#respond</comments>
+		
+		<dc:creator><![CDATA[Gabriel Sérvio]]></dc:creator>
+		<pubDate>Wed, 21 Oct 2026 10:07:38 +0000</pubDate>
+				<category><![CDATA[Segurança e Privacidade]]></category>
+		<category><![CDATA[cibersegurança]]></category>
+		<category><![CDATA[Firefox]]></category>
+		<category><![CDATA[Google Chrome]]></category>
+		<category><![CDATA[HTTPS]]></category>
+		<category><![CDATA[Segurança]]></category>
+		<category><![CDATA[TLS]]></category>
+		<guid isPermaLink="false">https://tecnoblog.net/?post_type=noticias&#038;p=942291</guid>
+
+					<description><![CDATA[<p>Chaves privadas fracas poderiam permitir a criação de certificados falsos para qualquer site.</p>
+<p><a href="https://tecnoblog.net/noticias/falha-em-certificados-digitais-coloca-internet-em-alerta/">Falha em certificados digitais coloca internet em alerta</a></p>
+]]></description>
+										<content:encoded><![CDATA[
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad7983d1&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad7983d1" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="596" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-7-1060x596.png" alt="Ilustração de cadeado vermelho, representando segurança" class="wp-image-666327" /><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">Certificados falsos poderiam ser usados para se passar por sites e serviços legítimos (Imagem: Vitor Pádua/Tecnoblog)</figcaption></figure>
+
+
+<details class="tb-resumo tb-callout padrao">
+    <summary class="tb-callout-titulo">Resumo</summary>
+    <div class="tb-resumo-topicos tb-callout-texto"><ul>
+<li>Oito certificados tiveram suas chaves privadas comprometidas.</li>
+<li>Falha poderia permitir a criação de certificados falsos para se passar por sites e interceptar conexões.</li>
+<li>Principais navegadores já reagiram, mas sistemas Linux, aplicativos e dispositivos de IoT podem levar mais tempo para serem protegidos.</li>
+</ul>
+</div>
+</details>
+
+
+
+<p class="wp-block-paragraph">A descoberta de oito certificados digitais comprometidos da autoridade certificadora eMudhra colocou empresas e pesquisadores de segurança em alerta. As chaves privadas eram tão fracas que poderiam ser recuperadas e usadas para emitir certificados falsos capazes de se passar por sites e serviços legítimos.</p>
+
+
+
+<p class="wp-block-paragraph">Seis dos certificados intermediários afetados eram usados para TLS, tecnologia por trás das conexões HTTPS, enquanto outros dois eram destinados à assinatura de código. Mozilla, Google, Apple e Microsoft receberam o alerta no sábado (17), e fabricantes começaram a bloquear os certificados comprometidos pouco depois.</p>
+
+
+
+<h2 id="h-por-que-os-certificados-comprometidos-sao-perigosos" class="wp-block-heading">Por que os certificados comprometidos são perigosos?</h2>
+
+
+
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad798932&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad798932" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="596" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2025/07/tbr-man-in-the-middle-1060x596.png" alt="Ilustração do ataque Man-in-the-Middle" class="wp-image-839441" /><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">Exploração da falha exigiria interceptar o tráfego entre usuário e serviço (imagem: Vitor Pádua/Tecnoblog)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">O <a href="https://tecnoblog.net/responde/o-que-e-https-entenda-por-que-o-protocolo-e-mais-seguro-que-o-http/" target="_blank" rel="noreferrer noopener">HTTPS</a> usa certificados digitais para comprovar que o usuário está realmente conectado ao site que pretende acessar. Eles funcionam como uma espécie de documento de identidade reconhecido pelo navegador e ajudam a impedir que outro servidor se passe pelo original.</p>
+
+
+
+<p class="wp-block-paragraph">Com acesso às chaves privadas, alguém poderia criar certificados falsos para sites e serviços que seriam aceitos como legítimos por sistemas vulneráveis. Um pesquisador identificado como Wayne demonstrou ter acesso às oito chaves ao usá-las para assinar digitalmente uma mensagem enviada às empresas responsáveis pelos principais navegadores e sistemas. Segundo a Mozilla, seus engenheiros conseguiram recuperar as mesmas chaves pouco depois, confirmando a falha.</p>
+
+
+
+<p class="wp-block-paragraph">Isso não significa que um invasor poderia interceptar qualquer conexão pela internet. Segundo o <em>Ars Technica</em>, ainda seria necessário<a href="https://arstechnica.com/security/2026/10/the-internet-goes-on-high-alert-after-discovery-of-8-compromised-tls-certs/" target="_blank" rel="noreferrer noopener" class="icon-external"> interceptar o tráfego entre a vítima e o serviço</a> para explorar os certificados em um ataque.</p>
+
+
+
+<h2 id="h-como-os-navegadores-reagiram-a-falha" class="wp-block-heading">Como os navegadores reagiram à falha?</h2>
+
+
+
+<p class="wp-block-paragraph">A Mozilla afirma que concluiu o bloqueio dos certificados no Firefox menos de três horas após receber o alerta. A empresa também lançou o Firefox 158.0.1 para ampliar a proteção aos usuários. Chrome e outros navegadores também passaram a rejeitar os certificados comprometidos. </p>
+
+
+
+<p class="wp-block-paragraph">Havia uma exceção no momento da publicação: o Microsoft Edge no Windows 10 ainda conseguia estabelecer conexão com alguns servidores vulneráveis. A Microsoft foi questionada sobre o caso, mas não detalhou quando aplicaria o bloqueio nesse sistema.</p>
+
+
+
+<p class="wp-block-paragraph">Até o momento, não há relatos públicos de certificados fraudulentos utilizados em ataques. Esse tipo de medida já foi adotado em outras situações. O Chrome, por exemplo, <a href="https://tecnoblog.net/noticias/chrome-vai-barrar-milhares-de-sites-que-usam-certificados-da-entrust/" target="_blank" rel="noreferrer noopener">deixou de confiar em certificados</a> da Entrust após o Google apontar problemas na atuação da autoridade certificadora.</p>
+
+
+
+<h2 id="h-correcao-pode-demorar-em-sistemas-e-dispositivos-antigos" class="wp-block-heading">Correção pode demorar em sistemas e dispositivos antigos</h2>
+
+
+
+<p class="wp-block-paragraph">O principal problema agora está fora dos navegadores. Distribuições Linux, aplicativos e dispositivos conectados podem continuar confiando nas credenciais comprometidas até receberem atualizações. O engenheiro de criptografia Filippo Valsorda disse ao <em>Ars Technica</em> que o trabalho de limpeza pode ser maior do que o provocado <a href="https://tecnoblog.net/noticias/falha-heartbleed-openssl-o-que-e/" target="_blank" rel="noreferrer noopener">pelo Heartbleed</a>, grave vulnerabilidade descoberta em 2014, pela variedade de sistemas que precisam ser atualizados.</p>
+
+
+
+<p class="wp-block-paragraph">Para usuários comuns, a principal recomendação é manter navegador, sistema operacional e aplicativos atualizados. Serviços como Signal e WhatsApp não dependem do TLS para proteger o conteúdo das mensagens e, por isso, não são afetados da mesma forma.</p>
+<p><a href="https://tecnoblog.net/noticias/falha-em-certificados-digitais-coloca-internet-em-alerta/">Falha em certificados digitais coloca internet em alerta</a></p>
+]]></content:encoded>
+					
+					<wfw:commentRss></wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+		
+		<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-7-340x191.png" />
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-7.png" medium="image">
+			<media:title type="html">Seguranca-Capa-7</media:title>
+			<media:description type="html">(Imagem: Vitor Pádua/Tecnoblog)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2023/01/seguranca-capa-7-340x191.png" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2025/07/tbr-man-in-the-middle.png" medium="image">
+			<media:title type="html">TBR-Man-In-The-Middle</media:title>
+			<media:description type="html">Entenda como funciona o ataque que intercepta a comunicação por meio da internet (imagem: Vitor Pádua/Tecnoblog)</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2025/07/tbr-man-in-the-middle-340x191.png" />
+		</media:content>
+	</item>
+		<item>
+		<title>Galaxy S23 do Brasil recebe Android 17/One UI 9</title>
+		<link>https://tecnoblog.net/noticias/galaxy-s23-do-brasil-recebe-android-17-one-ui-9/</link>
+					<comments>https://tecnoblog.net/noticias/galaxy-s23-do-brasil-recebe-android-17-one-ui-9/#respond</comments>
+		
+		<dc:creator><![CDATA[Yuri Hildebrand]]></dc:creator>
+		<pubDate>Wed, 21 Oct 2026 09:55:28 +0000</pubDate>
+				<category><![CDATA[Celulares]]></category>
+		<category><![CDATA[Android]]></category>
+		<category><![CDATA[Apple Intelligence]]></category>
+		<category><![CDATA[Galaxy AI]]></category>
+		<category><![CDATA[Galaxy S23]]></category>
+		<category><![CDATA[iOS 18]]></category>
+		<category><![CDATA[iPhone]]></category>
+		<category><![CDATA[My FanCam]]></category>
+		<category><![CDATA[Now Brief]]></category>
+		<category><![CDATA[Now Nudge]]></category>
+		<category><![CDATA[One UI]]></category>
+		<category><![CDATA[One UI 8]]></category>
+		<category><![CDATA[One UI 9]]></category>
+		<category><![CDATA[Photo Assist]]></category>
+		<category><![CDATA[Samsung]]></category>
+		<guid isPermaLink="false">https://tecnoblog.net/?post_type=noticias&#038;p=942290</guid>
+
+					<description><![CDATA[<p>Empresa libera update no modelo lançado em 2023. Software baseado no Android 17 tem expansão do Galaxy AI como principal novidade.</p>
+<p><a href="https://tecnoblog.net/noticias/galaxy-s23-do-brasil-recebe-android-17-one-ui-9/">Galaxy S23 do Brasil recebe Android 17/One UI 9</a></p>
+]]></description>
+										<content:encoded><![CDATA[
+<figure data-wp-context="{&quot;imageId&quot;:&quot;6ad89ad79ac22&quot;}" data-wp-interactive="core/image" data-wp-key="6ad89ad79ac22" class="wp-block-image size-large wp-lightbox-container"><img decoding="async" width="1060" height="597" data-wp-class--hide="state.isContentHidden" data-wp-class--show="state.isContentVisible" data-wp-init="callbacks.setButtonStyles" data-wp-on--click="actions.showLightbox" data-wp-on--load="callbacks.setButtonStyles" data-wp-on--pointerdown="actions.preloadImage" data-wp-on--pointerenter="actions.preloadImageWithDelay" data-wp-on--pointerleave="actions.cancelPreload" data-wp-on-window--resize="callbacks.setButtonStyles" src="https://files.tecnoblog.net/wp-content/uploads/2026/09/20260916_110200-1060x597.jpg" alt="" class="wp-image-933052"/><button
+			class="lightbox-trigger"
+			type="button"
+			aria-haspopup="dialog"
+			data-wp-bind--aria-label="state.thisImage.triggerButtonAriaLabel"
+			data-wp-init="callbacks.initTriggerButton"
+			data-wp-on--click="actions.showLightbox"
+			data-wp-style--right="state.thisImage.buttonRight"
+			data-wp-style--top="state.thisImage.buttonTop"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 12 12">
+				<path fill="#fff" d="M2 0a2 2 0 0 0-2 2v2h1.5V2a.5.5 0 0 1 .5-.5h2V0H2Zm2 10.5H2a.5.5 0 0 1-.5-.5V8H0v2a2 2 0 0 0 2 2h2v-1.5ZM8 12v-1.5h2a.5.5 0 0 0 .5-.5V8H12v2a2 2 0 0 1-2 2H8Zm2-12a2 2 0 0 1 2 2v2h-1.5V2a.5.5 0 0 0-.5-.5H8V0h2Z" />
+			</svg>
+		</button><figcaption class="wp-element-caption">One UI 9 chega para linha Galaxy S23 com expansão do Galaxy AI (foto: Thássius Veloso/Tecnoblog)</figcaption></figure>
+
+
+<details class="tb-resumo tb-callout padrao">
+    <summary class="tb-callout-titulo">Resumo</summary>
+    <div class="tb-resumo-topicos tb-callout-texto"><ul>
+<li>A Samsung liberou o sistema operacional One UI 9 para o Galaxy S23 no Brasil, baseado no Android 17.</li>
+<li>O update traz a expansão do Galaxy AI como principal novidade, com recursos como Now Nudge e Now Brief.</li>
+<li>A atualização também oferece melhorias na interface, com transições mais suaves, e novas funcionalidades na câmera, como o Photo Assist e o My FanCam.</li>
+</ul>
+</div>
+</details>
+
+
+
+<p class="wp-block-paragraph">Donos de celulares Galaxy S23 vendidos no Brasil já podem atualizar o sistema operacional para a nova One UI 9, que tem o Android 17 como base. A linha faz parte da quarta leva de updates da Samsung, seguindo o <a href="https://tecnoblog.net/noticias/os-primeiros-celulares-do-brasil-com-a-one-ui-9/">cronograma</a> obtido com exclusividade pelo <strong>Tecnoblog</strong>.</p>
+
+
+
+<p class="wp-block-paragraph">O software traz a expansão do Galaxy AI como principal novidade, além de suavizar a transição entre janelas e oferecer em detalhes informações sobre garantia e cuidados dos produtos registrados na sua conta.</p>
+
+
+
+<p class="wp-block-paragraph">Alguns usuários já receberam a notificação para baixar a One UI 9. Também é possível checar a disponibilidade nas Configurações do telefone. Como já é de se esperar, a novidade chega ao S23 depois de aparecer para donos de S24, S25 e S26, além dos dobráveis e modelos mais básicos, como o A57.</p>
+
+
+
+<h2 id="h-novidades-da-one-ui-9" class="wp-block-heading"><strong>Novidades da One UI 9</strong></h2>
+
+
+
+<p class="wp-block-paragraph">A expansão do Galaxy AI traz as principais novidades da One UI 9. A IA mantém recursos apresentados na One UI 8, como resumo de informações relevantes para o seu dia a dia com o Now Brief e sugestões baseadas na sua rotina via Now Nudge, a exemplo do que <a href="https://tecnoblog.net/noticias/apple-intelligente-e-revelado-sistema-de-ia-estara-em-todos-os-produtos-da-maca/">já acontecia com o Apple Intelligence</a> nos iPhones desde o iOS 18. A Samsung garante que os trabalhos de IA terão melhores resultados com a atualização.</p>
+
+
+
+<figure class="wp-block-image size-large"><img decoding="async" width="489" height="1060" src="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-22-489x1060.png" alt="" class="wp-image-942293"/><figcaption class="wp-element-caption">Atualização do One UI 9 já aparece em dispositivos Galaxy S23 (imagem: Everton Favretto/Tecnoblog)</figcaption></figure>
+
+
+
+<p class="wp-block-paragraph">A fabricante também traz otimizações no app de câmera, com o Photo Assist, que realiza edições rápidas com IA a partir de prompts simplificados. O My FanCam também é um recurso recente da Samsung, permitindo separar cortes de vídeos feitos no celular de maneira automática.</p>
+
+
+
+<p class="wp-block-paragraph">A One UI 9 oferece melhorias na interface, com transições mais suaves ao alternar entre janelas abertas no smartphone. Outras atualizações menos visíveis também ficam disponíveis, como a seção de Garantia e Cuidados, onde usuários podem acompanhar o estado de saúde dos seus dispositivos Samsung. A privacidade também foi atualizada no sistema, mostrando em detalhes a atividade das suas IAs ao checar informações dos seus apps e contas.</p>
+<p><a href="https://tecnoblog.net/noticias/galaxy-s23-do-brasil-recebe-android-17-one-ui-9/">Galaxy S23 do Brasil recebe Android 17/One UI 9</a></p>
+]]></content:encoded>
+					
+					<wfw:commentRss></wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+		
+		<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/09/20260916_110200-340x191.jpg" />
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2026/09/20260916_110200.jpg" medium="image">
+			<media:title type="html">Galaxy S26 FE já vem com a One UI 9.0 (imagem: Thássius Veloso/Tecnoblog</media:title>
+			<media:description type="html">Galaxy S26 FE já vem com a One UI 9.0 (imagem: Thássius Veloso/Tecnoblog</media:description>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/09/20260916_110200-340x191.jpg" />
+		</media:content>
+		<media:content url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-22.png" medium="image">
+			<media:title type="html">image</media:title>
+			<media:thumbnail url="https://files.tecnoblog.net/wp-content/uploads/2026/10/image-22-340x191.png" />
+		</media:content>
+	</item>
+</channel>
+</rss>

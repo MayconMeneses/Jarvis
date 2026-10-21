@@ -1,0 +1,20 @@
+/* Aba Notícias: caixas (Clima, Vagas, Notícias), leitor e Radar. Usa só as variáveis dos temas. */
+#noticias { gap: 8px; }
+#noticias-caixas { display: grid; gap: 12px; margin-top: 8px; }
+.caixa { padding: 10px 12px; background: var(--painel); border: 1px solid var(--linha); border-radius: 14px; overflow-wrap: anywhere; }
+.caixa h3 { margin: 0; font-size: 1rem; flex: 1; }
+.caixa .linha { align-items: center; margin: 0 0 4px; }
+.caixa[data-estado="carregando"] { border-color: var(--ciano); }
+.caixa[data-estado="erro"] { border-color: var(--laranja); }
+.caixa-estado { margin: 0 0 6px; }
+.caixa-destaque { font-size: 1.4rem; margin: 0 0 4px; color: var(--ciano); }
+.caixa-lista { margin: 4px 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.caixa-lista a { color: var(--ciano); }
+.caixa-lista small { display: block; }
+.caixa button.mini { font-size: .8rem; padding: 6px 12px; min-height: 44px; }
+.caixa input { margin-right: 8px; flex: 1; min-width: 0; }
+#leitor .linha { margin: 0; }
+#radar-saida { max-width: 100%; }
+#radar-saida h2 { font-size: 1rem; margin: 10px 0 2px; }
+@media (min-width: 720px) { #noticias-caixas { grid-template-columns: 1fr 1fr; } }
+@media (prefers-reduced-motion: reduce) { .caixa { transition: none; } }

@@ -82,6 +82,11 @@ def test_page_is_installable_safe_and_runs_no_inline_script():
     assert "16px" in (MOVEL / "css" / "app.css").read_text(encoding="utf-8")  # o iPhone não dá zoom em campos de 16px
 
 
+# Hosts do pacote de notícias, cada um com motivo: news.google.com = notícias por assunto (só pelo Worker do dono, /rss); translate.googleapis.com
+# (gtx, não oficial) e api.mymemory.translated.net = tradução de reserva do "Ler para mim" quando não há cérebro de IA; ambos aceitam CORS e não levam chave.
+HOSTS_NOTICIAS = {"news.google.com", "translate.googleapis.com", "api.mymemory.translated.net"}
+
+
 def test_everything_runs_on_the_phone_without_the_pc():
     """Nada no app do celular aponta para o PC, para um servidor próprio ou para a API do Jarvis do PC."""
     for arquivo in (MOVEL / "js").glob("*.js"):
@@ -91,7 +96,7 @@ def test_everything_runs_on_the_phone_without_the_pc():
     destinos = set()
     for arquivo in (MOVEL / "js").glob("*.js"):
         destinos |= set(re.findall(r"https://([a-z0-9.\-]+)", arquivo.read_text(encoding="utf-8")))
-    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev", "seu-pc.tailnet.ts.net", "geocoding-api.open-meteo.com", "api.open-meteo.com", "api.rss2json.com", "hacker-news.firebaseio.com", "news.ycombinator.com", "api.github.com", "remotive.com", "g1.globo.com", "feeds.bbci.co.uk", "agenciabrasil.ebc.com.br", "tecnoblog.net", "canaltech.com.br", "olhardigital.com.br", "github.com"}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
+    assert destinos <= {"pt.wikipedia.org", "cdn.jsdelivr.net", "generativelanguage.googleapis.com", "api.openai.com", "api.groq.com", "openrouter.ai", "seu-proxy.workers.dev", "seu-pc.tailnet.ts.net", "geocoding-api.open-meteo.com", "api.open-meteo.com", "api.rss2json.com", "hacker-news.firebaseio.com", "news.ycombinator.com", "api.github.com", "remotive.com", "g1.globo.com", "feeds.bbci.co.uk", "agenciabrasil.ebc.com.br", "tecnoblog.net", "canaltech.com.br", "olhardigital.com.br", "github.com", *HOSTS_NOTICIAS}, destinos  # só Wikipédia, a biblioteca do cérebro e os provedores que o usuário cadastrar
 
 
 def test_stack_and_habilidades_text_matches_the_pc():

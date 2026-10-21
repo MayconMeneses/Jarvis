@@ -4,7 +4,7 @@ import { validarResposta } from "./pc-validar.js";
 const CHAVE = "pc:pareado";
 const MAX_RESPOSTA = 2_000_000;
 const CACHE = "pc:cache:";
-const ROTAS = { agenda: "/api/agenda", emails: "/api/emails", briefing: "/api/briefing", agentes: "/api/agents" };
+const ROTAS = { agenda: "/api/agenda", emails: "/api/emails", briefing: "/api/briefing", agentes: "/api/agents", vitais: "/api/vitais", sessoes: "/api/sessoes", tarefas: "/api/tarefas", uso: "/api/uso", radar: "/api/radar" };
 export const OFFLINE = "PC desligado ou fora da rede.";
 
 // Só https (o app é https; http seria bloqueado pelo navegador e passaria o token sem criptografia). Devolve só a origem.

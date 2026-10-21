@@ -1,0 +1,477 @@
+{
+ "normalizar": [
+  [
+   "às 14:30",
+   "às catorze e trinta"
+  ],
+  [
+   "às 9:05",
+   "às nove e cinco"
+  ],
+  [
+   "14:00",
+   "catorze horas"
+  ],
+  [
+   "1:00",
+   "uma hora"
+  ],
+  [
+   "2h",
+   "duas horas"
+  ],
+  [
+   "8h30",
+   "oito e trinta"
+  ],
+  [
+   "12:00",
+   "meio-dia"
+  ],
+  [
+   "00:00",
+   "meia-noite"
+  ],
+  [
+   "25:99",
+   "vinte e cinco:noventa e nove"
+  ],
+  [
+   "20/10/2026",
+   "vinte de outubro de dois mil e vinte e seis"
+  ],
+  [
+   "01/05",
+   "primeiro de maio"
+  ],
+  [
+   "5/3/26",
+   "cinco de março de dois mil e vinte e seis"
+  ],
+  [
+   "R$ 1.234,56",
+   "mil duzentos e trinta e quatro reais e cinquenta e seis centavos"
+  ],
+  [
+   "R$ 5",
+   "cinco reais"
+  ],
+  [
+   "R$ 1",
+   "um real"
+  ],
+  [
+   "R$ 0,50",
+   "cinquenta centavos"
+  ],
+  [
+   "R$ 2 milhões",
+   "dois milhões de reais"
+  ],
+  [
+   "95%",
+   "noventa e cinco por cento"
+  ],
+  [
+   "12,5%",
+   "doze vírgula cinco por cento"
+  ],
+  [
+   "3,14",
+   "três vírgula catorze"
+  ],
+  [
+   "0,05",
+   "zero vírgula zero cinco"
+  ],
+  [
+   "8 GB",
+   "oito gigabytes"
+  ],
+  [
+   "1 GB",
+   "um gigabyte"
+  ],
+  [
+   "2,4 GHz",
+   "dois vírgula quatro gigahertz"
+  ],
+  [
+   "120 ms",
+   "cento e vinte milissegundos"
+  ],
+  [
+   "5km",
+   "cinco quilômetros"
+  ],
+  [
+   "36°C",
+   "trinta e seis graus Celsius"
+  ],
+  [
+   "-3°C",
+   "menos três graus Celsius"
+  ],
+  [
+   "1º lugar",
+   "primeiro lugar"
+  ],
+  [
+   "2ª vez",
+   "segunda vez"
+  ],
+  [
+   "1.500 itens",
+   "mil e quinhentos itens"
+  ],
+  [
+   "tel 99999-0000",
+   "tel nove nove nove nove nove, zero zero zero zero"
+  ],
+  [
+   "000123",
+   "zero zero zero um dois três"
+  ],
+  [
+   "o PC e a CPU",
+   "o pê cê e a cê pê u"
+  ],
+  [
+   "8 GB de RAM",
+   "oito gigabytes de rám"
+  ],
+  [
+   "uma IA no SSD",
+   "uma i á no ésse ésse dê"
+  ],
+  [
+   "Dr. Silva",
+   "doutor Silva"
+  ],
+  [
+   "Sra. Lima, Av. Brasil nº 45",
+   "senhora Lima, avenida Brasil número quarenta e cinco"
+  ],
+  [
+   "ex.: isso",
+   "por exemplo: isso"
+  ],
+  [
+   "e/ou",
+   "e ou"
+  ],
+  [
+   "A & B",
+   "A e B"
+  ],
+  [
+   "2 + 2 = 4",
+   "dois mais dois igual a quatro"
+  ],
+  [
+   "BRL",
+   "B R L"
+  ],
+  [
+   "ATENÇÃO agora",
+   "ATENÇÃO agora"
+  ],
+  [
+   "wi-fi e e-mail",
+   "uaifai e i-meio"
+  ],
+  [
+   "São 14:30 do dia 20/10/2026, R$ 1.234,56 (12,5%)",
+   "São catorze e trinta do dia vinte de outubro de dois mil e vinte e seis, mil duzentos e trinta e quatro reais e cinquenta e seis centavos, doze vírgula cinco por cento,"
+  ],
+  [
+   "RAM 8 GB, CPU 45%, 3 e-mails",
+   "rám oito gigabytes, cê pê u quarenta e cinco por cento, três i-meios"
+  ],
+  [
+   "Dr. Silva 1º lugar",
+   "doutor Silva primeiro lugar"
+  ],
+  [
+   "vc viu? pq não",
+   "você viu? porque não"
+  ],
+  [
+   "Prof. Ana e a Profa. Bia",
+   "professor Ana e a professora Bia"
+  ],
+  [
+   "1 hora e 2 horas",
+   "um hora e dois horas"
+  ],
+  [
+   "1,5 h",
+   "um,cinco horas"
+  ],
+  [
+   "10 min",
+   "dez minutos"
+  ],
+  [
+   "versão 2.0 vs 3.1",
+   "versão dois.0 versus três.1"
+  ],
+  [
+   "café às 7h",
+   "café às sete horas"
+  ],
+  [
+   "o pão custa R$ 12,90 hoje",
+   "o pão custa doze reais e noventa centavos hoje"
+  ],
+  [
+   "dia 1/12 às 23:59",
+   "dia primeiro de dezembro às vinte e três e cinquenta e nove"
+  ],
+  [
+   "em 2026, 1.000.000 de pessoas",
+   "em dois mil e vinte e seis, um milhão de pessoas"
+  ],
+  [
+   "C:\\pasta\\arquivo.txt",
+   "um caminho de arquivo"
+  ],
+  [
+   "e.g. teste",
+   "por exemplo teste"
+  ],
+  [
+   "ação rápida: 5% a mais",
+   "ação rápida: cinco por cento a mais"
+  ],
+  [
+   "ônibus 2 às 18h",
+   "ônibus dois às dezoito horas"
+  ],
+  [
+   "R$ 3 bilhões",
+   "três bilhões de reais"
+  ],
+  [
+   "R$ 1,05",
+   "um real e cinco centavos"
+  ],
+  [
+   "10.000 km",
+   "dez mil quilômetros"
+  ],
+  [
+   "o IP é 192.168.0.1",
+   "o IP é cento e noventa e dois mil cento e sessenta e oito.0.1"
+  ]
+ ],
+ "falar_radar": [
+  [
+   "O dólar subiu 2,5% e fechou a R$ 5,43 em 20/10.",
+   "O dólar subiu dois vírgula cinco por cento e fechou a cinco reais e quarenta e três centavos em vinte de outubro."
+  ],
+  [
+   "A ONU e o PIX têm 3 mil usuários.",
+   "A ONU e o PIX têm três mil usuários."
+  ],
+  [
+   "Lucro de R$ 1,2 bilhão em 2026 (alta de 30%).",
+   "Lucro de um vírgula dois bilhão de reais em dois mil e vinte e seis (alta de trinta por cento)."
+  ],
+  [
+   "A IA da OMS chegou ao 1º lugar. https://x.org/a 🙂",
+   "A i-a da o-m-s chegou ao primeiro lugar."
+  ],
+  [
+   "- item um\n- item dois [link] #tag",
+   "item um item dois tag"
+  ],
+  [
+   "Foram 1.234.567 casos e 0,05% de queda.",
+   "Foram um milhão duzentos e trinta e quatro mil quinhentos e sessenta e sete casos e zero vírgula zero cinco por cento de queda."
+  ],
+  [
+   "Bom dia, 14/10: R$ 2 milhões, 7º andar!",
+   "Bom dia, catorze de outubro: dois milhões de reais, sete andar!"
+  ],
+  [
+   "A NASA anunciou 12 missões.",
+   "A NASA anunciou doze missões."
+  ],
+  [
+   "Selic a 10,5% ao ano; PIB cresce 2%.",
+   "Selic a dez vírgula cinco por cento ao ano; p-i-b cresce dois por cento."
+  ]
+ ],
+ "limpar_para_fala": [
+  [
+   "# Título\n- primeiro item\n- segundo item\n1. passo um\n**negrito** e _itálico_ 🙂🚀\nveja [o site](https://exemplo.com/a?b=1) ou https://x.org e escreva a fulano@exemplo.com\n```py\nprint(1)\n```\narquivo C:\\Users\\a\\b.txt",
+   "Título. primeiro item. segundo item. passo um. negrito e itálico. veja o site ou link e escreva a um endereço de i-meio. código na janela. arquivo um caminho de arquivo"
+  ],
+  [
+   "A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. A RAM está em 95% agora. ",
+   "A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. A rám está em noventa e cinco por cento agora. Os detalhes estão na janela."
+  ],
+  [
+   "Oi, tudo bem? Estou olhando a sua agenda de hoje, incluindo as reuniões. Depois eu aviso.",
+   "Oi, tudo bem? Estou olhando a sua agenda de hoje, incluindo as reuniões. Depois eu aviso."
+  ]
+ ],
+ "dividir_para_fala": [
+  [
+   "Claro, Maycon, vou olhar isso agora mesmo e te conto tudo que encontrar na sua agenda de hoje, incluindo as reuniões. Depois eu aviso.",
+   [
+    "Claro, Maycon,",
+    "vou olhar isso agora mesmo e te conto tudo que encontrar na sua agenda de hoje, incluindo as reuniões.",
+    "Depois eu aviso."
+   ]
+  ],
+  [
+   "Oi.",
+   [
+    "Oi."
+   ]
+  ],
+  [
+   "",
+   []
+  ]
+ ],
+ "por_extenso": [
+  [
+   0,
+   "zero"
+  ],
+  [
+   1,
+   "um"
+  ],
+  [
+   15,
+   "quinze"
+  ],
+  [
+   21,
+   "vinte e um"
+  ],
+  [
+   100,
+   "cem"
+  ],
+  [
+   101,
+   "cento e um"
+  ],
+  [
+   200,
+   "duzentos"
+  ],
+  [
+   999,
+   "novecentos e noventa e nove"
+  ],
+  [
+   1000,
+   "mil"
+  ],
+  [
+   1001,
+   "mil e um"
+  ],
+  [
+   1100,
+   "mil e cem"
+  ],
+  [
+   1234,
+   "mil duzentos e trinta e quatro"
+  ],
+  [
+   2026,
+   "dois mil e vinte e seis"
+  ],
+  [
+   21000,
+   "vinte e um mil"
+  ],
+  [
+   100000,
+   "cem mil"
+  ],
+  [
+   1000000,
+   "um milhão"
+  ],
+  [
+   1001000,
+   "um milhão e mil"
+  ],
+  [
+   2500000,
+   "dois milhões e quinhentos mil"
+  ],
+  [
+   3000000000,
+   "três bilhões"
+  ],
+  [
+   -5,
+   "menos cinco"
+  ]
+ ],
+ "idioma": [
+  [
+   "O governo anunciou hoje que a taxa de juros vai subir nesta semana, segundo o ministro.",
+   "pt"
+  ],
+  [
+   "The company said on Tuesday that it will launch the new product after the review of the plan.",
+   "en"
+  ],
+  [
+   "La empresa dijo que el nuevo producto llegará pronto y que los precios serán más bajos.",
+   "es"
+  ],
+  [
+   "Le gouvernement a annoncé que les prix vont baisser dans les prochains mois pour tous.",
+   "fr"
+  ],
+  [
+   "Die Regierung hat angekündigt, dass die Preise nicht mehr steigen werden und das ist gut.",
+   "de"
+  ],
+  [
+   "oi",
+   "pt"
+  ],
+  [
+   "Il governo ha detto che i prezzi non sono più alti e che la situazione è stata risolta.",
+   "it"
+  ]
+ ],
+ "partes": [
+  [
+   "Primeira frase curta. Segunda frase também. Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra fim. Última!\n\nOutro bloco aqui.",
+   [
+    "Primeira frase curta. Segunda frase também.",
+    "Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra",
+    "Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra Palavra fim. Última!",
+    "Outro bloco aqui."
+   ]
+  ],
+  [
+   "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   [
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   ]
+  ],
+  [
+   "Uma. Duas. Três.",
+   [
+    "Uma. Duas. Três."
+   ]
+  ]
+ ]
+}
