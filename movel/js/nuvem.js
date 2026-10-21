@@ -40,6 +40,9 @@ export class Nuvem {
   // Chave e proxy do Brave Search, se o usuário cadastrou.
   async brave() { const s = await this.armazem.ler(SEGREDO + "brave"); return s ? { chave: s.chave, base: s.base } : null; }
 
+  // Chave do Gemini cadastrada (para a voz do Gemini em voz-gemini.js), ou null. Nunca vai para log nem para a cópia de segurança.
+  async chaveGemini() { const s = await this.armazem.ler(SEGREDO + "gemini"); return s?.chave || null; }
+
   _cabecalhos(chave) { return { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" }; }
 
   async _listar(base, chave) {

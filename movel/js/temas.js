@@ -1,7 +1,7 @@
 // Temas visuais (data-tema no <html>) e o eixo Efeitos. As cores ficam em css/tema.css; aqui só a lista, a escolha guardada e a aplicação.
 // Efeitos usa a MESMA chave do orbe (meta "orbe_modo"): "completo" liga o orbe animado e o fundo de aurora; "suave" e "desligado" cortam os dois.
 export const TEMAS = [
-  { id: "hud", rotulo: "HUD (padrão)", barra: "#04070c" },
+  { id: "hud", rotulo: "HUD (padrão)", barra: "#040a14" },
   { id: "ambar", rotulo: "Âmbar", barra: "#0c0803" },
   { id: "esmeralda", rotulo: "Esmeralda", barra: "#03100b" },
   { id: "contraste", rotulo: "Alto contraste", barra: "#000000" },

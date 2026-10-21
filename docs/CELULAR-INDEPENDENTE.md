@@ -176,3 +176,42 @@ Limites: não testei com Tailscale real nem no Safari do iPhone (testei com Chro
 - **Agentes** (`js/agentes.js`, `painel-agentes.js`): estado de Avisos ao abrir, Aprender sozinha, Avaliação semanal, Cérebro do aparelho e Oficina, a partir de
   batimentos em `meta` (`agente:<id>:ultimo` e `agente:<id>:estado`). Estados: OK, Atrasado (mais de 2,5 ciclos sem batimento), Erro, Ocioso, Desligado e
   "App estava fechado" (estado neutro: no iPhone nada roda com o app fechado).
+
+## Escuta por "Jarvis" e voz (pacote D)
+
+**O que existe:** escuta contínua *enquanto o app está aberto, em primeiro plano e com a tela ligada* (`escuta.js`), por TEXTO: `webkitSpeechRecognition` contínuo, só ativa se a frase
+**começa** com "Jarvis" / "ei Jarvis" / "hey Jarvis" (`voz-ativacao.js`, porte de `jarvis/voice/ativacao.py`, com os mesmos casos conferidos por
+`tests/test_ativacao_compartilhado.py`). Tolera "javis", "arvis", "jarvi", "garvis"; rejeita "o Jarvis é legal", Travis e Jarbas. O comando vem na mesma frase ou na seguinte (janela de 6 s).
+Estados: desligado, aguardando, ouvindo, processando, falando. Uma barra "Microfone ligado" fica sempre visível enquanto a escuta está ativa, com botão **Desligar**.
+Ligada por padrão **só no modo foco** (opção `voz_foco_auto`, em Cérebro > Voz) e opcional na conversa. A casca usa `Escuta.iniciar() / parar() / estado / aoMudar(fn) / entrarFoco() / sairFoco()`.
+
+**Anti-eco:** o microfone é ignorado enquanto a Jarvis fala e por 0,5 s depois, e a sessão é reaberta (descarta o que o eco deixou pendente). Dizer "Jarvis, ..." durante a fala a corta
+(só se o que foi ouvido não for a própria fala dela). O ditado e a "Conversar por voz" soltam o reconhecimento da escuta e o devolvem depois (o iOS só dá UM reconhecimento por vez).
+
+**Reinícios:** o Safari encerra a sessão sozinho; cada fim abre uma sessão nova com espera crescente (0,15 a 4 s). Depois de 8 falhas seguidas a escuta se desliga e avisa. Permissão negada
+desliga na hora, com a instrução de onde liberar. A escuta fecha com a aba oculta e religa ao voltar.
+
+**Privacidade:** nenhum áudio é gravado nem guardado pelo app. O reconhecimento é o do navegador (no iPhone a Apple processa a fala). O indicador laranja do iOS e a barra do app mostram quando o microfone está aberto.
+
+**Voz de saída (Cérebro > Voz):** voz do aparelho (padrão) ou voz do Gemini (opcional, com a sua chave Gemini). A do Gemini manda o TEXTO que será falado para o Google (aviso e confirmação antes de ligar),
+frase a frase (até 350 caracteres, com a normalização pt-BR de `voz-normalizar.js`), cache curto em memória, toque por Web Audio e **reserva automática** na voz do aparelho em qualquer falha.
+O aparelho usa a melhor voz pt-BR instalada (Aprimorada/Premium > Luciana > Felipe > outras); para melhorar: Ajustes > Acessibilidade > Conteúdo falado > Vozes > Português (Brasil).
+
+**Fora de escopo, de propósito:**
+- **Wake word offline** (openWakeWord/Porcupine em WebAssembly): exigiria modelo (~MB) + onnxruntime-web rodando o tempo todo, com microfone aberto (bateria alta) e **em conflito** com o `SpeechRecognition` e com o ditado
+  (o iOS só deixa uma captura por vez). Ganho pequeno, porque o limite real é o do iOS e não o do modelo. A alternativa adotada é a detecção por texto acima, que o PC também usa.
+- **Escuta com a tela bloqueada ou o app fechado:** o iOS suspende a página e corta o microfone; não existe API web para isso. Nenhuma versão deste app ouve nesses casos.
+  Para chamar a Jarvis, o app precisa estar aberto e a tela ligada (use o modo foco com o carregador).
+
+**NÃO testado em iPhone real:** a escuta contínua (estabilidade do Safari e do app da Tela de Início), o conflito entre microfone e `speechSynthesis` na rota de áudio, o toque do Gemini por Web Audio
+(o Web Audio obedece ao botão de silêncio do iPhone; a voz do aparelho não), a TTS do Gemini com chave real (modelo e formato conferidos só na documentação) e as vozes instaladas. Os testes em Node usam reconhecimento e fala FALSOS.
+
+## Casca nova: Início (HUD), menu ☰, caixas e modo foco (pacote E, cache `jarvis-movel-12`)
+
+- **Início** (aba padrão): orbe de filamentos no centro (mesma paleta e estados do PC: EM ESPERA, OUVINDO, PROCESSANDO, FALANDO), com o cartão de briefing em cima (abas AGENDA, E-MAILS, NOTÍCIAS; sem PC pareado a agenda mostra os lembretes de hoje). Abaixo, a rolagem traz as caixas: Clima, Vagas, Notícias, Notícias de tecnologia (cada item com "Ler para mim"), Seu PC (cartões somente leitura, só aparecem com o PC pareado), Uso de IA e Agentes.
+- **Barra de baixo** (alcance do polegar): Início, Conversa, Foco, Menu. O **Menu** abre de baixo com os grupos Ver, Saber e fazer, Ajustes e Conversa, todas as abas e painéis, e o botão **Restaurar layout**.
+- **Reordenar caixas**: botão Reordenar no Início mostra ▲ ▼ em cada caixa; a ordem fica na meta `hud_ordem` do aparelho. Escolhi botões e não arrastar livre porque, no iPhone, segurar e arrastar briga com a rolagem e com o menu de pressionar longo do Safari; os botões funcionam com VoiceOver e teclado.
+- **Modo foco**: orbe em tela cheia, o que a Jarvis está dizendo e um botão de microfone grande. Usa a Fullscreen API se o navegador tiver (no iPhone não há para elementos: só cobre a casca) e o Wake Lock (tela acesa) quando o navegador deixa.
+  Ponto de ligação para a voz (`js/foco-estado.js`): `Foco.definirEstado(...)`, `Foco.definirFala(texto)`, `Foco.definirMicrofone(ativo)`, `Foco.ligarMicrofone(async ({ ativo }) => ...)` (devolva `false` se não conseguiu) e `Foco.aoMudar(fn)`. Sem ouvinte, o botão usa o "Conversar por voz" da conversa.
+- O orbe respeita o seletor Efeitos (meta `orbe_modo`), "reduzir movimento", pausa com a aba oculta ou fora da tela, roda a 30 fps (15 parado) e corta os filamentos se o quadro custar mais de 9 ms.
+- **NÃO testado em iPhone/Safari real:** Wake Lock, Fullscreen, desempenho do canvas em A15, teclado virtual com a barra de baixo, VoiceOver.

@@ -14,6 +14,7 @@ import { Avaliador } from "./avaliar.js";
 import { Cerebro } from "./cerebro.js";
 import { Nuvem } from "./nuvem.js";
 import { ligarNuvem } from "./painel-nuvem.js";
+import { ligarVoz } from "./voz.js";
 import { PcPareado } from "./pc-pareado.js";
 import { ligarPc } from "./painel-pc.js";
 import { Conversa } from "./conversa.js";
@@ -34,6 +35,10 @@ import { ligarNoticias } from "./painel-noticias.js";
 import { executar as rodarNoSandbox } from "./sandbox.js";
 import { Saber } from "./saber.js";
 import { ligarNavegacao } from "./navegacao.js";
+import { ligarHud } from "./hud-central.js";
+import { ligarFoco } from "./foco.js";
+import { Foco } from "./foco-estado.js";
+import { ligarFocoVoz } from "./foco-voz.js";
 import { ligarRetomada } from "./rascunho.js";
 import { ligarTeclado } from "./teclado.js";
 import { ligarAtualizacao } from "./atualizacao.js";
@@ -181,9 +186,11 @@ async function main() {
 
   $("form").addEventListener("submit", (ev) => { ev.preventDefault(); enviar($("texto").value); });
   document.querySelectorAll("#atalhos button").forEach((b) => b.addEventListener("click", () => enviar(b.dataset.texto)));
-  usarOrbe(await ligarOrbe(memoria));
+  const orbe = await ligarOrbe(memoria);
+  usarOrbe(orbe);
   ligarDitado(enviar);
   ligarConversaPorVoz(responder);
+  await ligarVoz({ memoria, nuvem, responder, adicionar, avisar: (t) => adicionar(t, "aviso"), painel: $("cerebro") });  // escuta por "Jarvis", voz do aparelho/Gemini, Cérebro > Voz
 
   // A leitura em voz alta vem ligada (lembra a escolha): a Jarvis "conversa", não só escreve.
   $("falar").checked = (await memoria.meta("falar")) !== false;
@@ -208,7 +215,8 @@ async function main() {
   motor.noticiasCtx = noticiasCtx;
   ligarAgentes({ agentes, autonomo, avaliador, cerebro });
   ligarUso({ uso, avisar: (t) => adicionar(t, "aviso") });
-  const aoAbrirAgenda = ligarPc({ pc, avisar: (t) => adicionar(t, "aviso") });
+  const hud = ligarHud({ memoria, ctx: noticiasCtx, pc, uso, agentes, autonomo, avaliador, cerebro, avisar: (t) => adicionar(t, "aviso") });  // Início: orbe, briefing e caixas
+  ligarPc({ pc, avisar: (t) => adicionar(t, "aviso"), painel: hud.painelPc, ativo: hud.visivel });
   const aoAbrirInstagram = ligarInstagram({ instagram, avisar: (t) => adicionar(t, "aviso") });
   const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, agentes, avisar: (t) => adicionar(t, "aviso") });
   aoAbrirAutonomo();
@@ -221,7 +229,7 @@ async function main() {
   ligarCriarComIA({ conversa: conversaOficina, oficina, avisar: (t) => adicionar(t, "aviso") });
   motor.documentos = new Documentos({ memoria, conversa: conversaOficina, nuvem, buscar: buscarMedido, brave: () => nuvem.brave() });  // anexos, criar documentos e pesquisa em níveis
   montarDocumentos($("documentos"), { documentos: motor.documentos, avisar: (t) => adicionar(t, "aviso") });
-  const aoAbrirNoticias = ligarNoticias(noticiasCtx);
+  const aoAbrirNoticias = ligarNoticias(noticiasCtx, { semCaixas: true });  // as caixas moram no Início
   const abas = [...document.querySelectorAll("#abas button[data-aba]")];
   abas.forEach((b) => b.addEventListener("click", () => {
     abas.forEach((x) => { if (x === b) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
@@ -229,11 +237,14 @@ async function main() {
     document.querySelectorAll(".aba").forEach((a) => { a.hidden = a.id !== b.dataset.aba; });
     if (b.dataset.aba === "memoria") aoAbrirMemoria();
     if (b.dataset.aba === "instagram") aoAbrirInstagram();
-    if (b.dataset.aba === "agenda") aoAbrirAgenda();
+    if (b.dataset.aba === "hud") hud.aoAbrir();
     if (b.dataset.aba === "noticias") aoAbrirNoticias();
     if (b.dataset.aba === "oficina") oficina.aoAbrir().catch((e) => adicionar("Não consegui abrir a Oficina: " + e.message, "jarvis erro"));
   }));
-  ligarNavegacao();
+  ligarFoco({ orbe, foco: Foco });
+  ligarFocoVoz();  // entrar/sair do foco, botão de microfone grande e estado do orbe seguem a escuta contínua
+  $("abrir-foco").addEventListener("click", () => Foco.abrir());
+  ligarNavegacao({ aoFoco: () => Foco.alternar(), aoRestaurar: () => hud.restaurar() });
   ligarRetomada({ campo: $("texto"), abas });
   ligarTeclado();
 

@@ -1,0 +1,39 @@
+/* Barra rápida de baixo, menu ☰ agrupado (folha que sobe) e tela do modo foco. Só variáveis dos temas. */
+#barra-rapida { order: 9; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; align-items: end; margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--linha); }
+.rapido { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 4px 2px; border-color: transparent; background: transparent;
+  border-radius: 14px; font-size: .7rem; color: var(--suave); }
+.rapido-icone { font-size: 1.3rem; line-height: 1; }
+.rapido[aria-current="page"] { color: var(--ciano); background: var(--sel); }
+.rapido:active { transform: scale(.96); }
+.rapido-foco { min-height: 64px; margin-top: -14px; border-radius: 999px; border: 1px solid var(--ciano); background: var(--sel); color: var(--ciano); box-shadow: 0 0 18px color-mix(in srgb, var(--ciano) 35%, transparent); }
+
+#menu-fundo { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, .6); animation: surge 160ms var(--ease); }
+#menu { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; max-width: 760px; margin: 0 auto; max-height: 86dvh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 12px 16px calc(var(--base) + 16px); background: color-mix(in srgb, var(--painel) 96%, transparent); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--linha); border-bottom: 0; border-radius: 20px 20px 0 0; box-shadow: 0 -12px 32px rgba(0, 0, 0, .5); animation: sobe 220ms var(--ease); }
+.menu-topo { display: flex; align-items: center; justify-content: space-between; }
+.menu-topo h2 { margin: 0; font: 600 .8rem var(--mono); letter-spacing: .3em; text-transform: uppercase; color: var(--ciano); }
+.menu-grupo { margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--suave); }
+.menu-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.menu-item { display: block; width: 100%; min-height: 48px; text-align: left; border-radius: 12px; border-color: transparent; background: transparent; }
+.menu-item[aria-current="page"] { color: var(--ciano); background: var(--sel); border-color: var(--sel-borda); }
+.menu-restaurar { margin-top: 4px; border-color: var(--linha); text-align: center; }
+html[data-menu] #app { pointer-events: none; }
+@keyframes sobe { from { transform: translateY(24px); opacity: 0; } }
+@keyframes surge { from { opacity: 0; } }
+
+/* Modo foco: o orbe ocupa a tela; a casca fica escondida (e fora do alcance do leitor de tela) */
+html[data-foco] #app, html[data-foco] #nova-versao { visibility: hidden; }
+#foco { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px;
+  padding: calc(var(--topo) + 12px) 16px calc(var(--base) + 20px); background: radial-gradient(70% 55% at 50% 45%, color-mix(in srgb, var(--ciano) 14%, var(--fundo)), var(--fundo) 75%); }
+#foco-fechar { align-self: flex-end; }
+.menu-fechar { min-height: 44px; padding: 6px 16px; font-size: .85rem; }
+#foco-orbe { width: min(94vw, 58dvh); aspect-ratio: 1 / 1; }
+#foco-orbe canvas { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
+.foco-fala { margin: 0; max-width: 34em; min-height: 3.9em; max-height: 4.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-align: center; color: var(--texto); font-size: 1.05rem; line-height: 1.4; overflow-wrap: anywhere; }
+.foco-mic { width: 92px; height: 92px; padding: 0; border-radius: 50%; border: 2px solid var(--ciano); background: var(--sel); color: var(--ciano); font-weight: 700; font-size: .95rem;
+  box-shadow: 0 0 28px color-mix(in srgb, var(--ciano) 40%, transparent); }
+.foco-mic[aria-pressed="true"] { background: var(--ciano); color: #00131a; }
+@media (max-height: 640px) { #foco-orbe { width: min(70vw, 46dvh); } .foco-fala { min-height: 2.8em; } .foco-mic { width: 72px; height: 72px; } }
+@media (prefers-reduced-motion: reduce) { #menu, #menu-fundo { animation: none; } }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) { #menu { background: var(--painel); -webkit-backdrop-filter: none; backdrop-filter: none; } }

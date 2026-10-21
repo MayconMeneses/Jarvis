@@ -28,10 +28,11 @@ function montarPareamento() {
   $("cerebro").insertBefore(bloco, alvo);
 }
 
-export function ligarPc({ pc, avisar, intervaloMs = 30000 }) {
-  const secao = montarAba();
+// painel: se vier de fora (o Início do HUD), não cria a aba "PC"; ativo(): quando a atualização leve pode rodar.
+export function ligarPc({ pc, avisar, intervaloMs = 30000, painel: externo = null, ativo = null }) {
+  const secao = externo ? null : montarAba();
   montarPareamento();
-  const painel = montarPainel(secao, { pc });
+  const painel = externo || montarPainel(secao, { pc });
 
   async function estado() {
     const p = await pc.pareamento();
@@ -42,7 +43,7 @@ export function ligarPc({ pc, avisar, intervaloMs = 30000 }) {
 
   const atualizar = async () => { await estado(); return painel.atualizar(); };
   // Atualização leve: só com a aba PC aberta, página visível e PC pareado.
-  const auto = new Atualizador({ atualizar: painel.atualizar, visivel: () => document.visibilityState === "visible", ativo: () => !secao.hidden, pareado: () => pc.pareado(), intervaloMs });
+  const auto = new Atualizador({ atualizar: painel.atualizar, visivel: () => document.visibilityState === "visible", ativo: ativo || (() => !secao.hidden), pareado: () => pc.pareado(), intervaloMs });
   auto.iniciar();
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") auto.tick(); });
 
