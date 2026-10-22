@@ -22,9 +22,16 @@
       <label class="modes"><span style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
         <input type="checkbox" id="llm-local" style="margin-top:3px;accent-color:var(--cyan)">
         <span><b>Cérebro generativo local</b> <small id="st-llm"></small>
-          <small>Um modelo de linguagem pequeno rodando no seu PC (sem API e sem nuvem): conversa livre e cria sistemas pensando. É lento e bem menos capaz que o Claude. Para instalar, diga à Jarvis: "instalar cérebro local" e aprove o cartão (download de cerca de 1,1 GB).</small></span>
+          <small>Um modelo de linguagem pequeno rodando no seu PC (sem API e sem nuvem): conversa livre e cria sistemas pensando. É lento e menos capaz que o Claude. Para instalar, diga à Jarvis: "instalar cérebro local" (modelo pequeno, ~1,1 GB) ou "instalar cérebro local melhor" (conversa melhor, ~2,4 GB) e aprove o cartão; o download é conferido por SHA-256.</small></span>
       </span></label>
       <p class="feedback" id="fb-llm" role="status"></p>
+      <div class="key-row">
+        <label for="llm-modelo" class="sr-only">Modelo do cérebro local</label>
+        <select id="llm-modelo"></select>
+        <button type="button" class="ghost" id="llm-voltar">Voltar ao modelo antigo</button>
+      </div>
+      <small id="info-llm-modelo"></small>
+      <p class="feedback" id="fb-llm-modelo" role="status"></p>
     </section>
 
     <section class="brain">

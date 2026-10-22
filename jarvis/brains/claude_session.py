@@ -54,6 +54,7 @@ class ClaudeSession:
         self._proc = None
         self._lines: queue.Queue = queue.Queue()
         self._system: str | None = None
+        self._mcp_sig: str | None = None  # impressão digital do mcp.json com que o processo abriu
         self._last_seen: Message | None = None
         self._lock = threading.Lock()
 
@@ -72,13 +73,24 @@ class ClaudeSession:
         ]
         allowed = [WEB_TOOLS] if self.cfg.web else []
         if self.mcp_config:
+            from jarvis.mcp_catalogo import instalados
+
             cmd += ["--mcp-config", str(self.mcp_config)]
-            allowed.append("mcp__jarvis")
+            allowed += ["mcp__jarvis", *instalados.permitidas(self.mcp_config)]
         if allowed:
             cmd += ["--allowedTools", ",".join(allowed)]
         if self.cfg.model:
             cmd += ["--model", self.cfg.model]
         return cmd
+
+    def _mcp_assinatura(self) -> str | None:
+        """Impressão digital do mcp.json: muda quando uma ferramenta externa é instalada, desativada ou removida."""
+        import hashlib
+
+        try:
+            return hashlib.sha256(Path(self.mcp_config).read_bytes()).hexdigest() if self.mcp_config else None
+        except OSError:
+            return None
 
     def _alive(self) -> bool:
         return self._proc is not None and self._proc.poll() is None
@@ -95,6 +107,7 @@ class ClaudeSession:
         except FileNotFoundError as exc:
             raise BrainUnavailable("Claude Code não está instalado ou fora do PATH") from exc
         self._system, self._last_seen = system, None
+        self._mcp_sig = self._mcp_assinatura()
         self._lines = queue.Queue()
         threading.Thread(target=self._pump, args=(self._proc, self._lines), daemon=True).start()
         threading.Thread(target=self._drain_stderr, args=(self._proc,), daemon=True).start()
@@ -149,9 +162,10 @@ class ClaudeSession:
 
     def ask(self, messages: list[Message], system: str) -> Answer:
         with self._lock:
-            new = self._pending(messages) if self._alive() and system == self._system else None
+            igual = self._alive() and system == self._system and self._mcp_sig == self._mcp_assinatura()  # ferramenta externa mudou: recomeça
+            new = self._pending(messages) if igual else None
             if new is None:
-                if not (self._alive() and system == self._system and self._last_seen is None):
+                if not (igual and self._last_seen is None):
                     self._start(system)
                 text = render_new(messages) if len(messages) == 1 else (
                     f"[Agora: {datetime.now():%d/%m/%Y %H:%M}]\n" + render_prompt(messages))

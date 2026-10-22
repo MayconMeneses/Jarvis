@@ -20,8 +20,43 @@
     document.getElementById("llm-local").checked = !!s.llm_local;
     document.getElementById("voz-online").checked = !!s.voz_online;
     setStatus("st-llm", s.llm_pronto, "● instalado", "● não instalado");
+    refreshModelos();
     return true;
   }
+
+  async function refreshModelos() {
+    const sel = document.getElementById("llm-modelo");
+    let lista = [];
+    try { lista = await window.pywebview.api.llm_modelos(); } catch (e) { return; }
+    sel.replaceChildren();
+    lista.forEach((m) => {
+      const o = document.createElement("option");
+      o.value = m.id;
+      o.textContent = m.nome + (m.instalado ? "" : " (não instalado)") + (m.recomendado ? " ★" : "");
+      o.title = m.aviso;
+      sel.appendChild(o);
+    });
+    const ativo = lista.find((m) => m.ativo);
+    if (ativo) sel.value = ativo.id;
+    const mostrar = () => { const m = lista.find((x) => x.id === sel.value); document.getElementById("info-llm-modelo").textContent = m ? m.descricao + " " + m.aviso : ""; };
+    sel.onchange = async () => {
+      mostrar();
+      const res = await window.pywebview.api.set_llm_modelo(sel.value);
+      const fb = document.getElementById("fb-llm-modelo");
+      fb.textContent = res.mensagem;
+      fb.className = "feedback " + (res.ok ? "on-ok" : "on-no");
+      if (!res.ok && ativo) sel.value = ativo.id;
+    };
+    mostrar();
+  }
+
+  document.getElementById("llm-voltar").addEventListener("click", async () => {
+    const res = await window.pywebview.api.llm_voltar_antigo();
+    const fb = document.getElementById("fb-llm-modelo");
+    fb.textContent = res.mensagem;
+    fb.className = "feedback " + (res.ok ? "on-ok" : "on-no");
+    refreshModelos();
+  });
 
   document.getElementById("autonomo-on").addEventListener("change", async (ev) => {
     const res = await window.pywebview.api.set_autonomo(ev.target.checked);

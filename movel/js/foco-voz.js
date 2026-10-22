@@ -15,7 +15,9 @@ export function ligarFocoVoz({ foco = Foco, escuta = Escuta } = {}) {
   });
   foco.ligarMicrofone(({ ativo }) => {
     if (!ativo) { escuta.parar(); return true; }
-    return escuta.iniciar() !== false;  // false = sem suporte ou sem permissão: o botão não acende
+    const ok = escuta.iniciar() !== false;  // false = sem suporte ou sem permissão: o botão não acende
+    if (ok) escuta.escutarAgora?.();  // tocou em "Falar": a primeira frase vale mesmo sem dizer "Jarvis"
+    return ok;
   });
   escuta.aoMudar((estado) => {
     foco.definirMicrofone(estado !== "desligado");

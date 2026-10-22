@@ -149,6 +149,7 @@ export class Nuvem {
 
   // Tenta os provedores salvos, um a um; erro ou limite de uso passa para o próximo. Devolve { texto, provedor, modelo }.
   async perguntar(mensagens, aoReceber) {
+    if (this.bloqueio?.()) throw new Error("modo aprender: a nuvem está bloqueada. Mude em Cérebro > Como pensar");  // nada sai do aparelho
     const falhas = [];
     for (const s of await this._segredos()) {
       try {

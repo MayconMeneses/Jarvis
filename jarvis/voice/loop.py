@@ -286,4 +286,4 @@ class VoiceLoop(threading.Thread):
         self.notify({"answer": result})
         if self.speak_answers:
             self.notify({"status": "Falando…"})
-            self._falar(result.get("text") or "Não consegui responder agora.")
+            self._falar(result.get("falado") or result.get("text") or "Não consegui responder agora.")

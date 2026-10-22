@@ -3,7 +3,7 @@ import { MODELOS, RECOMENDADO } from "./cerebro.js";
 
 const $ = (id) => document.getElementById(id);
 
-export function ligarCerebro(cerebro, memoria, avisar) {
+export function ligarCerebro(cerebro, memoria, avisar, aoMudar = () => {}) {
   $("suporte").textContent = cerebro.suportado()
     ? "Este aparelho tem WebGPU: o cérebro de IA pode rodar aqui."
     : "Este navegador não tem WebGPU. No iPhone é preciso o iOS 26 ou mais novo (Safari). O motor de regras continua funcionando.";
@@ -29,6 +29,7 @@ export function ligarCerebro(cerebro, memoria, avisar) {
       $("cerebro-status").textContent = "Cérebro de IA ligado. Converse na aba Conversa.";
       estado(true);
       avisar("Cérebro de IA ligado neste celular.");
+      aoMudar(true);
     } catch (e) {
       $("cerebro-status").textContent = "Não consegui ligar: " + e.message;
     } finally {
@@ -46,6 +47,7 @@ export function ligarCerebro(cerebro, memoria, avisar) {
     await memoria.definirMeta("cerebro", null);
     estado(false);
     $("cerebro-status").textContent = "Cérebro de IA desligado. O motor de regras continua.";
+    aoMudar(false);
   });
 
   // Se já estava ligado da última vez, tenta religar sozinho (o modelo já está no aparelho, não baixa de novo).

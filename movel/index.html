@@ -27,6 +27,7 @@
     <header id="topo">
       <h1>Jarvis</h1>
       <span id="estado" role="status">pronta</span>
+      <small id="cerebro-ativo" class="nota" aria-live="off"></small>
       <time id="hora" aria-label="Hora"></time>
     </header>
     <nav id="abas" hidden aria-label="Seções">
@@ -107,6 +108,10 @@
     </section>
 
     <section id="cerebro" class="aba" hidden>
+      <h2>Como pensar</h2>
+      <label for="como-pensar">Quem responde quando as regras não bastam</label>
+      <select id="como-pensar"></select>
+      <p id="como-pensar-nota" class="nota"></p>
       <h2>Cérebro de IA no celular</h2>
       <p>Um modelo de linguagem pequeno roda <b>dentro do seu iPhone</b>, sem servidor e sem enviar suas conversas para fora. Sem ele, o motor de regras já responde a tudo que está na Ajuda.</p>
       <p id="suporte" class="aviso"></p>
@@ -258,6 +263,7 @@
     <p id="foco-rotulo" class="rotulo-estado" role="status" aria-live="off">EM ESPERA</p>
     <div id="foco-orbe"></div>
     <p id="foco-fala" class="foco-fala" aria-live="off"></p>
+    <p id="foco-cerebro" class="rotulo-estado" aria-live="off"></p>
     <button type="button" id="foco-mic" class="foco-mic" aria-pressed="false">Falar</button>
   </div>
   <script type="module" src="js/main.js"></script>

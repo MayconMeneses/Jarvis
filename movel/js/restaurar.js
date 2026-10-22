@@ -25,7 +25,7 @@ const usoMesOk = (v) => simples(v) && limitado(200_000)(v);
 // Chave exata ou prefixo+padrão => validador do valor. Valor nulo/undefined nunca é gravado.
 const EXATAS = {
   nome: texto(60, 1), cidade: texto(80, 1), tema: token(30), orbe_modo: opcao("auto", "completo", "suave", "desligado"),
-  falar: booleano, nuvem_ordem: opcao("aparelho", "nuvem"),
+  falar: booleano, nuvem_ordem: opcao("aparelho", "nuvem"), cerebro_modo: opcao("automatico", "aprender", "nuvem"),
   voz_foco_auto: booleano, voz_escuta_conversa: booleano, voz_navegador_voz: texto(200),  // voz_provedor (Gemini) fica de fora de propósito: o aviso de privacidade é por aparelho
   conversa: (v) => Array.isArray(v) && v.length <= 200 && v.every(mensagemOk), avaliacoes: (v) => Array.isArray(v) && v.length <= 30 && v.every(avaliacaoOk),
   instagram: instagramOk, "oficina:projetos": (v) => Array.isArray(v) && v.length <= 200 && v.every((p) => typeof p === "string" && p.length > 0 && p.length <= 60),

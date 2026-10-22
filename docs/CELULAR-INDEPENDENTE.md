@@ -215,3 +215,23 @@ O aparelho usa a melhor voz pt-BR instalada (Aprimorada/Premium > Luciana > Feli
   Ponto de ligação para a voz (`js/foco-estado.js`): `Foco.definirEstado(...)`, `Foco.definirFala(texto)`, `Foco.definirMicrofone(ativo)`, `Foco.ligarMicrofone(async ({ ativo }) => ...)` (devolva `false` se não conseguiu) e `Foco.aoMudar(fn)`. Sem ouvinte, o botão usa o "Conversar por voz" da conversa.
 - O orbe respeita o seletor Efeitos (meta `orbe_modo`), "reduzir movimento", pausa com a aba oculta ou fora da tela, roda a 30 fps (15 parado) e corta os filamentos se o quadro custar mais de 9 ms.
 - **NÃO testado em iPhone/Safari real:** Wake Lock, Fullscreen, desempenho do canvas em A15, teclado virtual com a barra de baixo, VoiceOver.
+
+## Chamar a Jarvis, saudações e "Como pensar" (versão do celular depois da 0.28.0)
+
+**Por que ela ficava muda no modo foco.** A escuta só ativava se a frase COMEÇASSE com "Jarvis". Quem diz "oi, boa noite, Jarvis" (o nome no fim, como se cumprimenta em português) era ignorado em silêncio. Além disso, "oi" e "boa noite" sozinhos caíam em "não entendi" (ou, sem IA, no "bom dia" do resumo do PC).
+
+**Regra de ativação (`extrairChamada`, em `movel/js/voz-ativacao.js`).**
+- Nome no começo: igual ao PC (até 2 palavras antes: "hey", "e aí"...). "oi Jarvis" e "e aí Jarvis" valem como cumprimento: o comando passa a ser "oi" / "e aí".
+- Nome no FIM de frase curta (até 8 palavras; "por favor"/"pfv" pode vir depois): "oi, boa noite, Jarvis" vira o comando "oi, boa noite".
+- Menções não ativam: palavra antes do nome que indica falar DO Jarvis (o, a, do, com, é, sou, filme, falei, conheço...), Travis/Jarbas/Marvin/Harvey, frases longas, e os "ouvidos errados" (avós/aves) só valem no começo.
+- Ao tocar em "Falar" no foco, a PRIMEIRA frase vale mesmo sem o nome (janela de 10 s); depois volta a exigir "Jarvis".
+- Casos compartilhados (o PC pode reutilizar): `movel/testes/dados/ativacao_vocativo.json`.
+
+**Saudações puras** (`movel/js/saudacao.js`): frase inteira só de saudação (até 6 palavras, ignorando o nome) é respondida pelo motor local, sem IA, com a hora real ("Bom dia/Boa tarde/Boa noite[, nome]! Estou aqui. Em que posso ajudar?"). Com o PC pareado, "bom dia" sozinho continua sendo o resumo do dia. Casos: `movel/testes/dados/saudacoes.json`.
+
+**Silêncio nunca** (`movel/js/pensar.js`): todo pedido termina com UMA resposta ou um erro claro em português. Cada tentativa de IA tem prazo de 25 s (`limite.js`); falha, resposta vazia ou prazo viram aviso e passam ao próximo caminho; no fim, resposta só com as regras explicando que a IA não respondeu. A fala da escuta também tem prazo (60 s) para o estado "processando" nunca ficar preso.
+
+**Cérebro > Como pensar** (meta `cerebro_modo`; rótulo "cérebro: aparelho/nuvem/regras" no foco e no topo da conversa):
+- **Automático** (padrão): regras -> cérebro do aparelho (se ligado e saudável) -> nuvem (se houver chave; respeita a ordem de Cérebro > Nuvem) -> só regras. Desligar o cérebro do aparelho faz a nuvem assumir com o aviso único "Cérebro do aparelho desligado: usando a nuvem." Duas falhas seguidas do aparelho o põem 10 min de molho quando há nuvem.
+- **Aprender**: só aparelho e regras. A nuvem fica bloqueada em `Nuvem.perguntar` (conversa, Oficina, documentos, notícias): nada de conteúdo vai a um provedor de IA. Frases não entendidas vão para o aprendizado local ("o que você aprendeu"). Pedidos explícitos de pesquisa na internet (Wikipédia/Brave) e a voz do Gemini seguem as suas próprias configurações.
+- **Só nuvem**: só a nuvem; sem chave, mensagem dizendo para cadastrar em Cérebro > Nuvem.

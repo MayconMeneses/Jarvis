@@ -1,0 +1,29 @@
+{
+ "_doc": "Casos compartilhados (celular e PC) de saudação pura. 'sim': a frase inteira é só saudação (responder com saudação calorosa, hora certa, sem IA). 'nao': tem pedido junto ou não é saudação.",
+ "sim": [
+  "oi",
+  "olá",
+  "Oi, boa noite, Jarvis",
+  "boa noite",
+  "bom dia",
+  "boa tarde",
+  "e aí",
+  "e aí Jarvis, tudo bem?",
+  "opa",
+  "hey Jarvis",
+  "oi tudo bem",
+  "Jarvis, boa noite"
+ ],
+ "nao": [
+  "oi, que horas são",
+  "boa noite, abre a agenda",
+  "dia",
+  "noite",
+  "bom",
+  "qual o dia de hoje",
+  "oi me conta uma piada",
+  "pesquise sobre o oi",
+  "",
+  "tudo bem"
+ ]
+}

@@ -40,7 +40,7 @@ def build_voice(cfg: Config, api: Api, window):
                       modelo_local=cfg.voz.voz_modelo, threads=cfg.voz.voz_threads)
     speaker.preparar(lambda text: push(window, {"status": text}))
     return VoiceLoop(
-        respond=api.send,
+        respond=lambda texto: api.send(texto, canal="voz"),
         notify=lambda payload: push(window, payload),
         speaker=speaker,
         transcriber=Transcriber(

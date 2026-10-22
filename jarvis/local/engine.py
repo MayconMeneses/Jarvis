@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 from jarvis.brains.base import Answer, Message
-from jarvis.local import agenda_skills, dev_skills, ensino, entendimento, evolucao, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, radar_skills, skills, uso_skills, websearch
+from jarvis.local import agenda_skills, dev_skills, ensino, entendimento, evolucao, engenharia_skills, habilidades_skills, instagram_skills, llm_skills, mcp_skills, perfil_usuario_skills, radar_skills, skills, uso_skills, websearch
 from jarvis.local.padroes import PATTERNS
 from jarvis.local.ajuda import HELP  # noqa: F401 (o texto mora em ajuda.py; outros módulos importam daqui)
 
@@ -57,6 +57,7 @@ class LocalEngine:
 
         self._load_config = load_config or config.load
         self._brave_key = brave_key or (lambda: keys.get_key("brave"))
+        self._generico = False  # a última resposta caiu no fallback genérico (ver ask)
         self._pendente = None  # opções de um "Você quis dizer" aguardando 1, 2 ou 3 (ver entendimento.py)
 
     # ── classificação ────────────────────────────────────────────────────
@@ -64,8 +65,8 @@ class LocalEngine:
     MODULOS = {**agenda_skills.MODULOS, "padrao": lambda t, c: engenharia_skills.padrao(t), "ux_ferramenta": lambda t, c: engenharia_skills.ux_ferramenta(t),
                "gerar": lambda t, c: engenharia_skills.gerar_artefato(t), "criar_com_ia": llm_skills.criar,
                "llm_instalar": llm_skills.instalar, "llm_status": llm_skills.status, "avaliar_llm": llm_skills.avaliar,
-               "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), "radar": radar_skills.comando, **instagram_skills.MODULOS}
-    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil", "radar", "vocabulario", "evolucao_relatorio", "ensinar", "esquecer_aprendizado"} | instagram_skills.INTENTS | agenda_skills.DIRETOS
+               "aprender": llm_skills.aprender, "uso_ia": uso_skills.responder, "perfil_usuario": perfil_usuario_skills.responder, "revisar": lambda t, c: engenharia_skills.revisar(t), "radar": radar_skills.comando, **instagram_skills.MODULOS, **mcp_skills.MODULOS}
+    DIRECT = {"uso_ia", "abrir", "hora", "data", "processos", "pc", "clima", "noticias", "sessoes", "dashboard", "ficha", "projetos", "perfil", "perfil_usuario", "radar", "vocabulario", "evolucao_relatorio", "ensinar", "esquecer_aprendizado"} | instagram_skills.INTENTS | agenda_skills.DIRETOS | mcp_skills.INTENTS
 
     def classify(self, text: str) -> tuple[str, dict] | None:
         low = clean(text)
@@ -78,15 +79,22 @@ class LocalEngine:
     def is_direct_command(self, text: str) -> bool:
         """Comando curto que o motor local resolve sozinho (vai antes da IA, sem gastar limite)."""
         found = self.classify(text)
-        if not found or found[0] not in self.DIRECT or (len(text) > 80 and found[0] not in instagram_skills.INTENTS and found[0] != "radar"):
+        if not found or found[0] not in self.DIRECT or (len(text) > 80 and found[0] not in instagram_skills.INTENTS and found[0] not in ("radar", "perfil_usuario")):
             return False
         # "abre X e analisa Y" fica com a IA; em "meu nível é pleno" o "é" faz parte do comando.
-        return found[0] in ("perfil", "agenda_proximo", "radar") or found[0] in instagram_skills.INTENTS or " e " not in clean(text)
+        return found[0] in ("perfil", "perfil_usuario", "agenda_proximo", "radar") or found[0] in instagram_skills.INTENTS or " e " not in clean(text)
 
     # ── execução ─────────────────────────────────────────────────────────
     def ask(self, messages: list[Message], system: str = "") -> Answer:
         text = messages[-1]["content"] if messages else ""
-        return Answer(text=self.handle(text) + NOTE, brain="local")
+        self._generico = False  # entendimento.fallback liga se só restou o bloco "não entendi"
+        resposta = self.handle(text)
+        if self._generico:  # conversa aberta e nenhum cérebro generativo: o caminho para ligar um, não o bloco genérico
+            from jarvis.conversa import sem_cerebro
+
+            self._pendente = None  # as opções do bloco trocado não aparecem mais: "1" não pode executar nada escondido
+            resposta = sem_cerebro.texto(text, getattr(self._load_config(), "somente_independente", False))
+        return Answer(text=resposta + NOTE, brain="local")
 
     # Pedidos genéricos (algoritmo, pesquisa...) que podem, na verdade, ser uma pergunta sobre a própria Jarvis.
     GENERICOS = {"algoritmo", "tecnologia", "pesquisa"}

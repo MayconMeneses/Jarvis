@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from jarvis.brains.base import Answer, BrainUnavailable, Message
-from jarvis.llm import catalogo, cliente, contexto, ferramentas
+from jarvis.llm import catalogo, cliente, contexto, ferramentas, ferramentas_cinto, ferramentas_laco
 from jarvis.llm.servidor import Servidor
 
 
@@ -36,7 +36,7 @@ class LLMLocal:
         from jarvis.local.engine import LocalEngine
 
         motor = self._motor or LocalEngine(self._load_config)
-        com_ferramentas = ferramentas.modelo_usa_ferramentas(catalogo.modelo(cfg.llm_modelo).id)
+        com_ferramentas = ferramentas.modelo_usa_ferramentas(catalogo.modelo(cfg.llm_modelo).id) and getattr(cfg, "ferramentas_ia", True)
         dados = ferramentas.consultar_antes(pergunta, motor) or ""
         prompt = [{"role": "system", "content": contexto.sistema(system, pergunta, cfg, dados, com_ferramentas)},
                   *contexto.historico(list(messages))]
@@ -45,10 +45,17 @@ class LLMLocal:
         def conversa(mensagens: list[dict]) -> str:
             return cliente.conversar(url, mensagens, modelo=cfg.llm_modelo)
 
-        if com_ferramentas:
-            texto, _ = ferramentas.rodar(conversa, prompt, motor)
+        if com_ferramentas:  # cinto de ferramentas seguras (jarvis/llm/ferramentas_cinto.py), modo ReAct simples
+            cinto = ferramentas_cinto.padrao(pergunta)
+            prompt[0] = {"role": "system", "content": prompt[0]["content"] + "\n\n" + cinto.instrucao()}
+            texto = ferramentas_laco.rodar(conversa, prompt, cinto).texto
         else:
             texto = conversa(prompt)
+        if texto:
+            from jarvis.conversa import critica
+
+            anterior = next((m["content"] for m in reversed(messages[:-1]) if m["role"] == "assistant"), "")
+            texto = critica.melhorar(texto, pergunta, prompt, conversa, anterior)  # curta, vaga ou repetida: tenta de novo uma vez
         servidor.marcar_uso()
         if not texto:
             raise BrainUnavailable("o modelo local não gerou resposta")

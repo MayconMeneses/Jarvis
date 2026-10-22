@@ -165,6 +165,7 @@ def fallback(motor, texto: str, cfg=None) -> str:
         motor._pendente = {"quando": time.monotonic(), "frase": low, "opcoes": opcoes}
         return (f"Você quis dizer:\n{_opcoes_texto(opcoes)}\n"
                 "Responda 1, 2 ou 3 (ou “não”). Se preferir a internet, diga “pesquisa " + low[:60] + "”.")
+    motor._generico = True  # LocalEngine.ask troca este bloco pela orientação de como ligar um cérebro generativo
     partes = [f"Não entendi “{texto.strip()[:80]}”."]
     if opcoes:
         motor._pendente = {"quando": time.monotonic(), "frase": low, "opcoes": opcoes}

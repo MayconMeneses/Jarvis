@@ -78,10 +78,10 @@ test("tempo esgotado vira offline; 401 pede novo pareamento", async () => {
   assert.match((await d.pc.obter("agenda")).erro, /Pareie de novo/);
 });
 
-test("sem PC pareado: comandos explicam, e 'bom dia' cai no comportamento de sempre (null)", async () => {
+test("sem PC pareado: comandos explicam, e 'bom dia' vira só uma saudação local (sem rede)", async () => {
   const c = cenario();
   for (const t of ["minha agenda", "próximo compromisso", "meus e-mails"]) assert.match(await c.motor.responder(t), /precisa do PC pareado/);
-  assert.equal(await c.motor.responder("bom dia"), null);
+  assert.match(await c.motor.responder("bom dia"), /^(Bom dia|Boa tarde|Boa noite)!.*Em que posso ajudar/);  // saudação local: nunca silêncio
   assert.equal(c.chamadas.length, 0);  // nenhum pedido de rede
   assert.match(await c.motor.responder("que horas são"), /Agora são/);  // o resto do motor segue igual
 });

@@ -14,9 +14,14 @@ def medir() -> dict:
             "nvidia": shutil.which("nvidia-smi") is not None}
 
 
-def recomendado(ram_gb: float | None = None) -> str:
-    """Escolhe o maior modelo que cabe com folga: o sistema e a Jarvis também precisam de memória."""
+def recomendado(ram_gb: float | None = None, conversa: bool = False) -> str:
+    """Escolhe o maior modelo que cabe com folga: o sistema e a Jarvis também precisam de memória.
+
+    `conversa=True` escolhe o melhor para CONVERSAR (Qwen3); o padrão continua sendo o de código, pequeno e rápido.
+    """
     ram = medir()["ram_gb"] if ram_gb is None else ram_gb
+    if conversa:
+        return "qwen3-4b" if ram >= 7 else "qwen3-1.7b" if ram >= 5 else "qwen2.5-coder-1.5b"
     if ram >= 28:
         return "qwen2.5-coder-7b"
     if ram >= 12:

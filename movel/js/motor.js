@@ -11,6 +11,7 @@ import { instalarInstagram } from "./instagram-motor.js";
 import { instalarPc } from "./motor-pc.js";
 import { instalarUso } from "./motor-uso.js";
 import { instalarRadar } from "./radar-motor.js";
+import { responderSaudacao } from "./saudacao.js";
 import { Stack } from "./stack.js";
 import { dataPorExtenso, dois, fold, isoData } from "./util.js";
 
@@ -59,11 +60,19 @@ export class Motor {
     return achado ? achado[0] : null;
   }
 
+  // Saudação pura ("oi, boa noite, Jarvis"): resposta calorosa local, com a hora certa. Antes de tudo, para nunca cair em "não entendi".
+  async _saudar(texto) {
+    if (this.classificar(texto) === "pc_bomdia" && this.pc && await this.pc.pareado()) return null;  // com o PC pareado, "bom dia" continua sendo o resumo do dia
+    return responderSaudacao(texto, this.agora(), (await this.memoria.meta("nome")) || "");
+  }
+
   async responder(texto) {
     const e = this.entendimento;
-    if (!e) return this._porRegex(texto);
+    if (!e) return (await this._saudar(texto)) ?? this._porRegex(texto);
     const prep = await e.preparar(texto);  // "sim"/"2" ao "você quis dizer", atalhos ensinados e apelidos do usuário
     if (prep.resposta !== undefined) return prep.resposta;
+    const saudou = await this._saudar(prep.texto);
+    if (saudou) { e.aprend.contar("ok").catch(() => {}); return saudou; }
     const intencao = this.classificar(prep.texto);
     if (!intencao || AMPLOS.has(intencao)) {
       const via = await e.entender(prep.texto, { amplo: Boolean(intencao) });

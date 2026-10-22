@@ -184,9 +184,9 @@ test("a casca nunca monta HTML a partir de texto (sem innerHTML) e todo id usado
   assert.ok(html.includes('data-aba="hud"') && html.includes('id="barra-rapida"') === false, "a barra rápida nasce por JS");
 });
 
-test("service worker (cache 13) lista os arquivos novos da casca", () => {
+test("service worker (cache 14) lista os arquivos novos da casca", () => {
   const sw = arq("sw.js");
-  assert.ok(sw.includes('"jarvis-movel-13"'));
+  assert.ok(sw.includes('"jarvis-movel-14"'));
   for (const f of ["css/hud.css", "css/hud-menu.css", "js/orbe-fil.js", "js/orbe-filamentos.js", "js/hud-central.js", "js/hud-grade.js", "js/hud-ordem.js", "js/hud-briefing.js", "js/hud-cartao.js", "js/menu-grupos.js", "js/foco.js", "js/foco-estado.js", "js/caixas-celular.js"]) assert.ok(sw.includes(`"${f}"`), f);
 });
 

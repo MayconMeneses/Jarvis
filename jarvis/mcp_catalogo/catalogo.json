@@ -1,0 +1,217 @@
+{
+ "versao_catalogo": 1,
+ "pesquisado_em": "2026-10-21",
+ "politica": "Só entra o que é de mantenedor oficial, tem versão FIXADA, não executa comandos, não lê e-mail nem arquivos do usuário e grava, no máximo, um arquivo na pasta de dados da Jarvis. Instalar exige cartão aprovado; nada é baixado automaticamente.",
+ "itens": [
+  {
+   "id": "tempo",
+   "nome": "Hora e fusos horários",
+   "gerenciador": "uvx",
+   "pacote": "mcp-server-time",
+   "versao": "2026.8.18",
+   "integridade": {
+    "tipo": "sha256",
+    "arquivos": {
+     "mcp_server_time-2026.8.18-py3-none-any.whl": "1407583af42dc0163909d855c9ef20114a12b4981c3975033721a7906cdd212a",
+     "mcp_server_time-2026.8.18.tar.gz": "ec1313feb558a848838217d922bd218e9f7ca217cb0f7b890ee75ab94bf962e0"
+    }
+   },
+   "fonte": "https://github.com/modelcontextprotocol/servers/tree/main/src/time",
+   "registro": "https://pypi.org/project/mcp-server-time/2026.8.18/",
+   "mantenedor": "modelcontextprotocol (organização oficial do protocolo MCP)",
+   "licenca": "MIT (pacote); repositório em transição de MIT para Apache-2.0",
+   "publicado_em": "2026-08-18",
+   "dependencias_diretas": 4,
+   "estrelas_repositorio": 91454,
+   "ultimo_commit_repositorio": "2026-10-19",
+   "descricao": "Consulta a hora atual em qualquer fuso e converte horários entre fusos.",
+   "ferramentas_esperadas": [
+    "get_current_time",
+    "convert_time"
+   ],
+   "permissoes": [
+    "nenhuma: não acessa a rede, arquivos nem programas"
+   ],
+   "rede": [],
+   "escreve_em_disco": false,
+   "risco": "baixo",
+   "riscos": [
+    "Mais uma dependência de terceiros rodando no seu PC (4 pacotes diretos).",
+    "A Jarvis já tem a ferramenta interna data_hora; esta só amplia o Claude CLI.",
+    "O npx e o uvx confirmam o hash só do pacote principal; as dependências dele (faixas ^ ou >=) são resolvidas na hora da instalação e não estão fixadas."
+   ],
+   "motivo": "Pacote oficial, sem rede e sem disco: o menor risco possível para um ganho real em conversão de fusos.",
+   "env": {},
+   "args": []
+  },
+  {
+   "id": "pensamento",
+   "nome": "Pensamento passo a passo",
+   "gerenciador": "npx",
+   "pacote": "@modelcontextprotocol/server-sequential-thinking",
+   "versao": "1.0.0",
+   "integridade": {
+    "tipo": "sha512",
+    "valor": "sha512-ykTmeS4Eejs+FESDrD73mDBNYCkb+cCZJ1MWuv7/vwucbVgGfEbBL5HVt2nVw0/vNF8jz+o9sO/WmxxfXt0J6w=="
+   },
+   "fonte": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking",
+   "registro": "https://www.npmjs.com/package/@modelcontextprotocol/server-sequential-thinking/v/1.0.0",
+   "mantenedor": "modelcontextprotocol (organização oficial; publicado por GitHub Actions, com proveniência SLSA)",
+   "licenca": "MIT (pacote); repositório em transição de MIT para Apache-2.0",
+   "publicado_em": "2026-10-11",
+   "dependencias_diretas": 4,
+   "estrelas_repositorio": 91454,
+   "ultimo_commit_repositorio": "2026-10-19",
+   "descricao": "Dá ao Claude um bloco de anotações para dividir problemas difíceis em etapas, revisar e ramificar o raciocínio.",
+   "ferramentas_esperadas": [
+    "sequentialthinking"
+   ],
+   "permissoes": [
+    "nenhuma: só guarda os pensamentos na memória do processo; não acessa rede nem arquivos"
+   ],
+   "rede": [],
+   "escreve_em_disco": false,
+   "risco": "baixo",
+   "riscos": [
+    "Gasta mais tokens da assinatura em problemas complexos.",
+    "Exige Node.js no PC.",
+    "As versões com data (2026.x) foram marcadas como descontinuadas no npm; a 1.0.0 (11/10/2026) é a mais antiga sem aviso, e a 2.0.0 tem só 2 dias.",
+    "O npx e o uvx confirmam o hash só do pacote principal; as dependências dele (faixas ^ ou >=) são resolvidas na hora da instalação e não estão fixadas."
+   ],
+   "motivo": "Melhora o raciocínio em tarefas longas sem tocar em nada do PC; mantenedor oficial com proveniência verificável.",
+   "env": {},
+   "args": []
+  },
+  {
+   "id": "memoria_grafo",
+   "nome": "Memória em grafo de conhecimento",
+   "gerenciador": "npx",
+   "pacote": "@modelcontextprotocol/server-memory",
+   "versao": "1.0.0",
+   "integridade": {
+    "tipo": "sha512",
+    "valor": "sha512-UDMtMrw2xeI16mcn7O4fesp9Pf3hYh91thuU5KSz0BxKqwnTwEytZKjHfkrqxxmKp0r4QHoiEkMV99UmadmODw=="
+   },
+   "fonte": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory",
+   "registro": "https://www.npmjs.com/package/@modelcontextprotocol/server-memory/v/1.0.0",
+   "mantenedor": "modelcontextprotocol (organização oficial; publicado por GitHub Actions, com proveniência SLSA)",
+   "licenca": "MIT (pacote); repositório em transição de MIT para Apache-2.0",
+   "publicado_em": "2026-10-11",
+   "dependencias_diretas": 2,
+   "estrelas_repositorio": 91454,
+   "ultimo_commit_repositorio": "2026-10-19",
+   "descricao": "Guarda entidades, relações e observações entre conversas do Claude CLI, num arquivo próprio.",
+   "ferramentas_esperadas": [
+    "create_entities",
+    "create_relations",
+    "add_observations",
+    "search_nodes",
+    "read_graph"
+   ],
+   "permissoes": [
+    "grava um único arquivo (mcp-memoria.jsonl) na pasta de dados da Jarvis",
+    "sem acesso à rede"
+   ],
+   "rede": [],
+   "escreve_em_disco": true,
+   "risco": "baixo",
+   "riscos": [
+    "É uma segunda memória, separada da memória da Jarvis: o que o Claude guarda ali não passa pelo cartão de aprovação de lembranças.",
+    "Se o Claude for enganado por um e-mail ou site, o conteúdo pode ser gravado ali; apagar o arquivo esquece tudo.",
+    "As versões com data (2026.x) foram marcadas como descontinuadas no npm; a 1.0.0 (11/10/2026) é a mais antiga sem aviso, e a 2.0.0 tem só 2 dias.",
+    "O npx e o uvx confirmam o hash só do pacote principal; as dependências dele (faixas ^ ou >=) são resolvidas na hora da instalação e não estão fixadas."
+   ],
+   "motivo": "Um arquivo só, sem rede, 1 dependência direta e mantenedor oficial; o caminho do arquivo é fixado pela Jarvis.",
+   "env": {
+    "MEMORY_FILE_PATH": "{dados}/mcp-memoria.jsonl"
+   },
+   "args": []
+  },
+  {
+   "id": "leitura_pagina",
+   "nome": "Leitura de páginas da web (fetch)",
+   "gerenciador": "uvx",
+   "pacote": "mcp-server-fetch",
+   "versao": "2026.10.10",
+   "integridade": {
+    "tipo": "sha256",
+    "arquivos": {
+     "mcp_server_fetch-2026.10.10-py3-none-any.whl": "d722c48bdc1de3e2a81727853bc490cf55c6c935e2038cdcad3c111b1d85db77",
+     "mcp_server_fetch-2026.10.10.tar.gz": "797b345dcd9180be6eb6381d7ab95cdf82ad8fd17a5ce916ad03731bc4131ba8"
+    }
+   },
+   "fonte": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch",
+   "registro": "https://pypi.org/project/mcp-server-fetch/2026.10.10/",
+   "mantenedor": "modelcontextprotocol (organização oficial do protocolo MCP)",
+   "licenca": "MIT (pacote); repositório em transição de MIT para Apache-2.0",
+   "publicado_em": "2026-10-11",
+   "dependencias_diretas": 7,
+   "estrelas_repositorio": 91454,
+   "ultimo_commit_repositorio": "2026-10-19",
+   "descricao": "Baixa uma página pública e devolve o texto em Markdown para o Claude ler.",
+   "ferramentas_esperadas": [
+    "fetch"
+   ],
+   "permissoes": [
+    "acessa a internet (qualquer site público que o Claude pedir)",
+    "recusa endereços privados e da rede local por padrão (conferido no código da versão fixada)"
+   ],
+   "rede": [
+    "qualquer site público"
+   ],
+   "escreve_em_disco": false,
+   "risco": "medio",
+   "riscos": [
+    "A página lida é conteúdo de terceiros e pode tentar dar ordens ao Claude (injeção de prompt); esta ferramenta externa não tem o filtro de ordens da Jarvis.",
+    "A versão 2026.8.18 e as anteriores NÃO bloqueiam endereços locais (SSRF): por isso a versão fixada é a 2026.10.10, que tem menos de 14 dias de idade.",
+    "7 dependências diretas; o endereço pedido pelo Claude sai do seu PC para o site.",
+    "O npx e o uvx confirmam o hash só do pacote principal; as dependências dele (faixas ^ ou >=) são resolvidas na hora da instalação e não estão fixadas."
+   ],
+   "motivo": "Pedido explícito do dono (leitura de página). Escolhida a versão mais antiga que já recusa rede local por padrão. A Jarvis já tem a ferramenta interna ler_pagina, mais restrita (só endereços citados pelo usuário ou vindos de pesquisa).",
+   "env": {},
+   "args": []
+  }
+ ],
+ "recusados": [
+  {
+   "pacote": "@modelcontextprotocol/server-filesystem",
+   "versao_vista": "2.0.0",
+   "motivo": "Lê, cria, edita e move arquivos no disco: é o acesso amplo que a regra do projeto proíbe. A Jarvis já tem ferramentas próprias, com cartão de aprovação."
+  },
+  {
+   "pacote": "@wonderwhy-er/desktop-commander",
+   "versao_vista": "0.3.0",
+   "motivo": "Executa comandos de terminal e edita arquivos: dá ao modelo o controle do PC sem cartão de aprovação."
+  },
+  {
+   "pacote": "@playwright/mcp",
+   "versao_vista": "0.0.83",
+   "motivo": "Controla um navegador de verdade (cliques, formulários, JavaScript de páginas hostis); superfície de ataque grande e versão ainda 0.x."
+  },
+  {
+   "pacote": "@modelcontextprotocol/server-github, server-slack, server-gdrive, server-puppeteer",
+   "versao_vista": "2025.x",
+   "motivo": "Marcados como descontinuados no registro do npm (Package no longer supported); além disso escrevem em contas externas sem escopo mínimo."
+  },
+  {
+   "pacote": "@modelcontextprotocol/server-brave-search",
+   "versao_vista": "0.6.2",
+   "motivo": "Descontinuado no npm; a Jarvis já pesquisa com Brave pela chave do próprio usuário (ferramenta interna pesquisar_web)."
+  },
+  {
+   "pacote": "@modelcontextprotocol/server-everything",
+   "versao_vista": "2.0.0",
+   "motivo": "Servidor de demonstração e teste do protocolo; expõe ferramentas de exemplo sem valor para um assistente pessoal."
+  },
+  {
+   "pacote": "@upstash/context7-mcp",
+   "versao_vista": "4.4.4",
+   "motivo": "Adiado: sete versões em 12 dias (nenhuma com 14 dias de idade), 13 dependências diretas (express, jose, OpenTelemetry...) e as consultas vão a um serviço de terceiros (Upstash). Reavaliar quando uma versão estável completar 2 semanas."
+  },
+  {
+   "pacote": "qualquer servidor de e-mail, calendário ou rede social com escrita",
+   "versao_vista": "-",
+   "motivo": "Escrever em contas reais sem escopo mínimo e sem cartão de aprovação viola a regra de que a IA só propõe; e-mail e agenda já têm ferramentas internas de leitura."
+  }
+ ]
+}

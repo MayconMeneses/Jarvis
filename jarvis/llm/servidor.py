@@ -6,7 +6,6 @@ O PC tem pouca memória: o modelo só fica carregado enquanto é usado. Se o usu
 
 from __future__ import annotations
 
-import os
 import socket
 import subprocess
 import threading
@@ -15,7 +14,7 @@ import time
 from jarvis import proc as processos
 from jarvis.agentes import registro as agentes
 from jarvis.brains.base import BrainUnavailable
-from jarvis.llm import catalogo, cliente
+from jarvis.llm import catalogo, cliente, parametros
 
 OCIOSO_SEGUNDOS = 300
 ESPERA_CARGA = 180
@@ -39,8 +38,7 @@ class Servidor:
         motor, modelo = catalogo.caminho_motor(), catalogo.caminho_modelo(self.id_modelo)
         if motor is None or modelo is None:
             raise BrainUnavailable("o cérebro local não está instalado (peça: \"instalar cérebro local\")")
-        return [str(motor), "-m", str(modelo), "--host", "127.0.0.1", "--port", str(porta), "-c", "4096",
-                "-t", str(max(1, (os.cpu_count() or 2) - 1))]
+        return [str(motor), *parametros.argumentos(porta, str(modelo), catalogo.modelo(self.id_modelo))]
 
     def garantir(self) -> str:
         """URL pronta para uso; inicia o servidor se preciso (a primeira carga leva de 10 a 60 segundos)."""
@@ -62,11 +60,22 @@ class Servidor:
                 if cliente.no_ar(self._url):
                     threading.Thread(target=self._vigiar, daemon=True).start()
                     agentes.marcar("llm_local", agentes.OK, "carregado")
+                    threading.Thread(target=self._aquecer, args=(self._url,), daemon=True).start()
                     return self._url
                 time.sleep(1)
             self.parar()
             agentes.marcar("llm_local", agentes.ERRO, "demorou para carregar")
             raise BrainUnavailable("o modelo local demorou demais para carregar")
+
+    def _aquecer(self, url: str) -> None:
+        """Processa a persona uma vez, já na carga: a 1ª pergunta do usuário reaproveita esse cache e responde mais rápido."""
+        try:
+            from jarvis.llm import contexto
+
+            cliente.conversar(url, [{"role": "system", "content": contexto.sistema("", "")}, {"role": "user", "content": "oi"}],
+                              max_tokens=1, timeout=120)
+        except Exception:  # aquecer é só otimização: se falhar, a conversa segue normal
+            pass
 
     def _vigiar(self) -> None:
         while True:

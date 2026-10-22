@@ -36,7 +36,7 @@
       if (foco) return;
       foco = true; antes = document.activeElement;
       document.body.classList.add("foco"); barra.hidden = false;
-      $("face-legenda").textContent = legenda;
+      if (window.FocoResposta) window.FocoResposta.mostrar(legenda);
       ligar();
       if (window.FocoMic) window.FocoMic.entrar();
       $("face-fechar").focus();
@@ -46,11 +46,13 @@
       foco = false; document.body.classList.remove("foco"); barra.hidden = true;
       if (telaCheia && api()) { api().face_tela_cheia(); telaCheia = false; }
       if (window.FocoMic) window.FocoMic.sair();
+      if (window.FocoResposta) window.FocoResposta.recolher();
       ligar();
       if (antes && antes.focus && antes.offsetParent) antes.focus(); else $("tb-mais-btn").focus();
     }
     const digitando = (a) => !!a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable);
     document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && foco && window.FocoResposta && window.FocoResposta.aberta() && !document.querySelector("dialog[open]")) { ev.preventDefault(); window.FocoResposta.recolher(); return; }  // 1º Esc recolhe a resposta
       if (ev.key === "Escape" && foco && !document.querySelector("dialog[open]") && $("tb-mais-menu").hidden) { ev.preventDefault(); fechar(); return; }
       if ((ev.key === "f" || ev.key === "F") && !ev.ctrlKey && !ev.altKey && !ev.metaKey && !digitando(ev.target) && !document.querySelector("dialog[open]")) {
         ev.preventDefault();
@@ -76,10 +78,10 @@
     });
     ligar();
 
-    // Legenda: o que a Jarvis está dizendo (chamada por window.onVoice, em results.js). Texto puro, truncado.
+    // Resposta: o que a Jarvis está dizendo (chamada por window.onVoice, em results.js). Markdown formatado por DOM em FocoResposta.
     function falar(texto) {
-      legenda = String(texto || "").replace(/\s+/g, " ").trim().slice(0, 400);
-      if (foco) $("face-legenda").textContent = legenda;
+      legenda = String(texto || "").trim().slice(0, 6000);
+      if (foco && window.FocoResposta) window.FocoResposta.mostrar(legenda);
     }
     return { abrir, fechar, legenda: falar, aberta: () => foco };
   })();

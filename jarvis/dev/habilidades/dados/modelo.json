@@ -1,0 +1,14 @@
+{
+  "id": "habilidade_modelo",
+  "nome": "Habilidade-modelo (copie e adapte)",
+  "medida": false,
+  "resumo": "Uma frase dizendo o que esta habilidade faz o programador conseguir.",
+  "niveis": [
+    "Iniciante: o que já faz sozinho com ajuda de exemplos.",
+    "Intermediário: o que faz com autonomia e bons hábitos.",
+    "Avançado: o que ensina, mede e decide com critério."
+  ],
+  "praticas": ["Uma prática pequena e verificável", "Outra prática que dá para fazer hoje"],
+  "estudar": ["topico_da_base_curada", "outro_topico"],
+  "treino": "Um exercício curto, com resultado que dá para conferir."
+}

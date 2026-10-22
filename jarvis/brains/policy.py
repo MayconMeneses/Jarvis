@@ -1,5 +1,9 @@
 """Qual cérebro tenta primeiro, de acordo com a necessidade.
 
+Política de conversa: comando exato e pergunta sobre a própria Jarvis com resposta certa ficam no motor local (build_router);
+TODA conversa aberta vai ao melhor cérebro generativo disponível, na ordem de `cfg.brains` (Claude, Gemini, NVIDIA), depois o
+modelo local e, por último, o motor de regras com a orientação de como ligar um cérebro (jarvis/conversa/sem_cerebro.py).
+
 - Pedido explícito ("Gemini, ...", "pergunte ao Gemini ...") vai para o Gemini.
 - No modo "simples", conversa curta sem ferramentas vai para o Gemini, economizando o
   limite do Claude. Tudo que precisa de ferramentas (PC, e-mail, arquivos, internet,
@@ -19,9 +23,9 @@ _EXPLICIT = re.compile(
 # Pedidos que precisam das ferramentas do Claude.
 _NEEDS_TOOLS = re.compile(
     r"\b(pc|computador|ram|cpu|disco|memoria|processo|e-?mails?|gmail|outlook|abr\w+|tela|"
-    r"vagas?|projetos?|codigo|pesquis\w*|internet|sites?|clima|tempo|noticias?|arquivos?|"
+    r"vagas?|projetos?|codigo|pesquis\w*|internet|sites?|clima|previsao|noticias?|arquivos?|"
     r"documentos?|planilha|word|excel|pdf|powerpoint|lembr\w*|anex\w*|obsidian|notas?|"
-    r"limp\w*|inicializa\w*|instal\w*|cidade|perfil|hoje|agora|atual\w*)\b"
+    r"limp\w*|inicializa\w*|instal\w*|cidade|hoje|agora|atual\w*)\b"
 )
 
 

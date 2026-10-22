@@ -2,7 +2,6 @@
 import { avisos } from "./proativo.js";
 import { adicionar, atualizar, destravarFala, falar, ligarConversaPorVoz, ligarDitado, pensando, usarOrbe } from "./chat.js";
 import { mostrarCartao } from "./cartao-memoria.js";
-import { extrair, semProposta } from "./memoria-viva.js";
 import { ligarOrbe } from "./orbe-ui.js";
 import { ligarAparencia } from "./painel-aparencia.js";
 import { Agentes } from "./agentes.js";
@@ -26,6 +25,9 @@ import { carregar as carregarAutoconhecimento, detectarAparelho } from "./autoco
 import { montarWidget } from "./entendimento-ui.js";
 import { ligarAutonomo } from "./painel-autonomo.js";
 import { ligarCerebro } from "./painel-cerebro.js";
+import { ligarPensar } from "./painel-pensar.js";
+import { criarCaminhos } from "./ia-caminhos.js";
+import { Pensador } from "./pensar.js";
 import { ligarMemoria } from "./painel-memoria.js";
 import { Instagram } from "./instagram.js";
 import { ligarInstagram } from "./painel-instagram.js";
@@ -97,65 +99,11 @@ async function main() {
     for (const proposta of propostas) await mostrarCartao({ proposta, memoria, dadosExternos: Boolean(dados), onde: $("mensagens") });
   };
 
-  async function perguntarIA(texto) {
-    const dados = (await motor.consultarAntes(texto)) || "";
-    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados, app: motor.entendimento?.contextoApp(texto) || "" });
-    const mensagens = [{ role: "system", content: sistema }, ...conversa.paraPrompt()];  // cabe no contexto do modelo, sempre
-    const bolha = adicionar("…", "jarvis", cerebro.modelo);
-    pensando(true, "IA pensando…");
-    try {
-      const resposta = await cerebro.perguntar(mensagens, (parcial) => atualizar(bolha, semProposta(parcial)), (aviso) => atualizar(bolha, aviso));
-      agentes.marcar("cerebro", "ok");
-      const { texto: limpo, propostas } = extrair(resposta || "");
-      atualizar(bolha, limpo || "Não consegui responder.");
-      await cartoes(propostas, dados);
-      return limpo;
-    } catch (e) {
-      agentes.marcar("cerebro", "erro");
-      atualizar(bolha, `Não consegui responder agora (${e.message}). A conversa continua: pode perguntar de novo.`);
-      bolha.classList.add("erro");
-      return "";
-    } finally { pensando(false); }
-  }
-
-  // Nuvem (as chaves do usuário): histórico maior, porque esses modelos aguentam bem mais contexto.
-  async function perguntarNuvem(texto) {
-    const dados = (await motor.consultarAntes(texto)) || "";
-    const sistema = await contexto.sistema({ saber, memoria, pergunta: texto, nome: await nome(), dados, app: motor.entendimento?.contextoApp(texto) || "" });
-    const bolha = adicionar("…", "jarvis");
-    pensando(true, "consultando a nuvem…");
-    try {
-      const r = await nuvem.perguntar([{ role: "system", content: sistema }, ...conversa.paraPrompt(9000)], (parcial) => atualizar(bolha, semProposta(parcial)));
-      const { texto: limpo, propostas } = extrair(r.texto);
-      atualizar(bolha, limpo);
-      const nota = document.createElement("small");
-      nota.textContent = r.provedor;
-      bolha.appendChild(nota);
-      await cartoes(propostas, dados);
-      return limpo;
-    } catch (e) {
-      bolha.remove();
-      throw e;
-    } finally { pensando(false); }
-  }
-
-  // Ordem escolhida pelo usuário: aparelho primeiro (padrão, privado) ou nuvem primeiro (mais capaz). Se um falha, tenta o outro.
-  async function responderComIA(texto) {
-    const nuvemPrimeiro = (await memoria.meta("nuvem_ordem")) === "nuvem";
-    const opcoes = [];
-    if (cerebro.ligado()) opcoes.push(["aparelho", perguntarIA]);
-    if (await nuvem.configurada()) opcoes[nuvemPrimeiro ? "unshift" : "push"](["nuvem", perguntarNuvem]);
-    for (const [, tentar] of opcoes) {
-      try { const r = await tentar(texto); if (r) return r; } catch (e) { adicionar("Não consegui por esse caminho (" + e.message + ").", "jarvis aviso"); }
-    }
-    return opcoes.length ? "" : null;
-  }
-
   // A Oficina usa o mesmo cérebro e a mesma ordem da conversa (aparelho ou nuvem), mas sem mexer na conversa nem falar.
   async function conversaOficina(mensagens) {
     const nuvemPrimeiro = (await memoria.meta("nuvem_ordem")) === "nuvem";
     const opcoes = [];
-    if (cerebro.ligado()) opcoes.push(() => cerebro.perguntar(mensagens));
+    if (cerebro.ligado() && pensador.modoAtual !== "nuvem") opcoes.push(() => cerebro.perguntar(mensagens));
     if (await nuvem.configurada()) opcoes[nuvemPrimeiro ? "unshift" : "push"](async () => (await nuvem.perguntar(mensagens, () => {})).texto);
     if (!opcoes.length) throw new Error("ligue o cérebro do aparelho ou cadastre uma chave de nuvem na aba Cérebro");
     let ultimo;
@@ -164,7 +112,12 @@ async function main() {
   }
 
   // Mostra uma resposta da Jarvis com os botões/cartão do entendimento (se houver).
-  const mostrar = (texto, widget) => montarWidget(widget, adicionar(texto, "jarvis"), acoesEntendimento);
+  const mostrar = (texto, widget, classe = "jarvis") => montarWidget(widget, adicionar(texto, classe), acoesEntendimento);
+  // Quem responde (aparelho, nuvem ou só regras) e o que fazer quando algo falha: pensar.js. Nunca deixa um pedido sem resposta.
+  const caminhos = criarCaminhos({ saber, memoria, motor, cerebro, nuvem, conversa, contexto, nome, cartoes, agentes, adicionar, atualizar, pensando });
+  const pensador = new Pensador({ motor, cerebro, nuvem, memoria, caminhos, mostrar, erro: (t) => adicionar(t, "jarvis erro"), avisar: (t) => adicionar(t, "aviso") });
+  nuvem.bloqueio = () => pensador.modoAtual === "aprender";  // modo aprender: nada vai para a nuvem (conversa, Oficina, documentos, notícias)
+  await pensador.iniciar();
   const abrirPainel = ({ aba, foco }) => {
     document.querySelector(`#abas button[data-aba="${aba}"]`)?.click();
     if (foco) setTimeout(() => $(foco)?.focus?.(), 50);
@@ -175,25 +128,13 @@ async function main() {
     apagarAprendizado: async () => { await motor.entendimento.aprend.apagarTudo(); return "Apaguei tudo que aprendi sobre como você fala."; },
   };
 
-  // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou).
+  // Um turno de conversa: devolve o texto da resposta (a fala fica por conta de quem chamou). Sempre devolve algo para dizer.
   async function responder(texto) {
-    await conversa.adicionar("user", texto);
-    await memoria.diario(`Pedido: ${texto.slice(0, 200)}`);
+    await conversa.adicionar("user", texto).catch(() => {});
+    await memoria.diario(`Pedido: ${texto.slice(0, 200)}`).catch(() => {});
     pensando(true);
-    let resposta = "";
-    try {
-      motor.entendimento?.tomarWidget();
-      resposta = await motor.responder(texto);  // regras e entendimento (sem IA) primeiro: dados exatos, instantâneo, sem gastar bateria
-      const comIA = resposta === null && (cerebro.ligado() || await nuvem.configurada());
-      if (comIA) { pensando(false); await motor.entendimento?.registrarIA(texto); resposta = await responderComIA(texto); }
-      if (!comIA || resposta === null) {
-        if (resposta === null || resposta === undefined) resposta = await motor.fallback(texto);
-        mostrar(resposta, motor.entendimento?.tomarWidget());
-      }
-    } catch (e) {
-      adicionar("Algo deu errado: " + e.message + ". A conversa continua: pode perguntar de novo.", "jarvis erro");
-    } finally { pensando(false); }
-    await conversa.adicionar("assistant", resposta);
+    const resposta = await pensador.pensar(texto).finally(() => pensando(false));
+    await conversa.adicionar("assistant", resposta).catch(() => {});
     return resposta;
   }
 
@@ -243,7 +184,8 @@ async function main() {
   const aoAbrirAutonomo = ligarAutonomo({ autonomo, avaliador, agentes, avisar: (t) => adicionar(t, "aviso") });
   aoAbrirAutonomo();
   const aoAbrirMemoria = ligarMemoria(memoria, (t) => adicionar(t, "aviso"));
-  const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"));
+  const religar = ligarCerebro(cerebro, memoria, (t) => adicionar(t, "aviso"), (ligado) => pensador.cerebroMudou(ligado));
+  ligarPensar(pensador);
   const aoAbrirNuvem = ligarNuvem(nuvem, memoria, (t) => adicionar(t, "aviso"));
   aoAbrirNuvem();
   let modelosProntos = null;

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import http.client
 import json
+import time
 import urllib.request
 import zipfile
 from collections.abc import Callable
@@ -14,26 +17,58 @@ RELEASES = "https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=8"
 Progresso = Callable[[str], None]
 
 
-def _abrir(url: str, timeout: int = 60):
-    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "SuperJarvis"}), timeout=timeout)
+def _abrir(url: str, timeout: int = 60, inicio: int = 0):
+    cabecalhos = {"User-Agent": "SuperJarvis"}
+    if inicio:
+        cabecalhos["Range"] = f"bytes={inicio}-"
+    return urllib.request.urlopen(urllib.request.Request(url, headers=cabecalhos), timeout=timeout)
 
 
-def baixar_arquivo(url: str, destino: Path, on_status: Progresso | None = None, abrir=_abrir) -> Path:
-    """Baixa para destino.part e só renomeia se o tamanho bater com o anunciado (sem arquivo pela metade)."""
+def sha256_de(caminho: Path) -> str:
+    h = hashlib.sha256()
+    with caminho.open("rb") as f:
+        while bloco := f.read(1 << 20):
+            h.update(bloco)
+    return h.hexdigest()
+
+
+def _copiar(resposta, saida, destino: Path, base: int, total: int, on_status: Progresso | None) -> None:
+    feito, marco = base, base
+    while bloco := resposta.read(1 << 20):
+        saida.write(bloco)
+        feito += len(bloco)
+        if on_status and feito - marco >= 50 << 20:
+            marco = feito
+            on_status(f"Baixando {destino.name}: {feito >> 20} de {total >> 20 if total else '?'} MB")
+
+
+def baixar_arquivo(url: str, destino: Path, on_status: Progresso | None = None, abrir=_abrir, sha256: str = "",
+                   tentativas: int = 6, esperar=time.sleep) -> Path:
+    """Baixa para destino.part (retoma de onde parou se a conexão cair) e só renomeia se o tamanho e,
+    quando informado, o SHA-256 baterem. Arquivo pela metade ou adulterado nunca fica no lugar do bom."""
     destino.parent.mkdir(parents=True, exist_ok=True)
     parcial = destino.with_name(destino.name + ".part")
-    with abrir(url) as resposta, parcial.open("wb") as saida:
-        total = int(resposta.headers.get("Content-Length") or 0)
-        feito, marco = 0, 0
-        while bloco := resposta.read(1 << 20):
-            saida.write(bloco)
-            feito += len(bloco)
-            if on_status and feito - marco >= 50 << 20:
-                marco = feito
-                on_status(f"Baixando {destino.name}: {feito >> 20} de {total >> 20 if total else '?'} MB")
+    total = 0
+    for tentativa in range(tentativas):
+        base = parcial.stat().st_size if parcial.exists() else 0
+        try:
+            with (abrir(url, inicio=base) if base else abrir(url)) as resposta:
+                retomou = base and getattr(resposta, "status", 200) == 206
+                base = base if retomou else 0
+                total = base + int(resposta.headers.get("Content-Length") or 0)
+                with parcial.open("ab" if retomou else "wb") as saida:
+                    _copiar(resposta, saida, destino, base, total, on_status)
+            break
+        except (OSError, http.client.HTTPException):
+            if tentativa == tentativas - 1:
+                raise RuntimeError(f"a conexão caiu ao baixar {destino.name}; tente de novo (o que veio é retomado)") from None
+            esperar(min(30, 2 ** tentativa))
     if total and parcial.stat().st_size != total:
         parcial.unlink(missing_ok=True)
         raise RuntimeError(f"download incompleto de {destino.name}; tente de novo")
+    if sha256 and sha256_de(parcial) != sha256.lower():
+        parcial.unlink(missing_ok=True)
+        raise RuntimeError(f"verificação SHA-256 falhou em {destino.name}: arquivo descartado (corrompido ou adulterado)")
     parcial.replace(destino)
     return destino
 
@@ -74,7 +109,7 @@ def instalar(id_modelo: str, on_status: Progresso | None = None, abrir=_abrir) -
         feito.append("motor llama.cpp")
     if catalogo.caminho_modelo(id_modelo) is None:
         dito(f"Baixando o modelo {item.nome} (cerca de {item.mb} MB)…")
-        baixar_arquivo(item.url, catalogo.raiz() / "modelos" / item.arquivo, on_status, abrir)
+        baixar_arquivo(item.url, catalogo.raiz() / "modelos" / item.arquivo, on_status, abrir, sha256=item.sha256)
         feito.append(f"modelo {item.nome}")
     return ("Instalei: " + " e ".join(feito) + ".") if feito else "O cérebro local já estava instalado."
 

@@ -1,0 +1,75 @@
+{
+ "_doc": "Casos compartilhados (celular e PC) do vocativo no fim da frase. 'aceitar': [frase ouvida, comando sem o nome]. 'rejeitar': frases que NÃO chamam a Jarvis. Regras em docs/CELULAR-INDEPENDENTE.md.",
+ "aceitar": [
+  [
+   "oi, boa noite, Jarvis",
+   "oi, boa noite"
+  ],
+  [
+   "boa noite Jarvis",
+   "boa noite"
+  ],
+  [
+   "Jarvis, boa noite",
+   "boa noite"
+  ],
+  [
+   "e aí Jarvis",
+   "e aí"
+  ],
+  [
+   "ei Jarvis que horas são",
+   "que horas são"
+  ],
+  [
+   "que horas são, Jarvis?",
+   "que horas são"
+  ],
+  [
+   "me diz a hora Jarvis",
+   "me diz a hora"
+  ],
+  [
+   "tudo bem, Jarvis?",
+   "tudo bem"
+  ],
+  [
+   "abre a agenda Jarvis por favor",
+   "abre a agenda por favor"
+  ],
+  [
+   "oi Jarvis",
+   "oi"
+  ],
+  [
+   "Jarvis",
+   ""
+  ],
+  [
+   "bom dia, Garvis",
+   "bom dia"
+  ],
+  [
+   "hey Jarvis",
+   ""
+  ]
+ ],
+ "rejeitar": [
+  "o Jarvis é legal",
+  "falei com o Jarvis ontem",
+  "eu vi o Jarvis",
+  "quem é o Jarvis",
+  "o nome dele é Jarvis",
+  "conheço Jarvis",
+  "meu amigo falou do filme Jarvis",
+  "boa noite Travis",
+  "oi Jarbas",
+  "visitei meus avós",
+  "ontem a gente conversou bastante sobre a ideia de chamar o assistente de Jarvis mesmo",
+  "Jarvis é um filme",
+  "abre o jarvis",
+  "que horas são",
+  "oi, boa noite",
+  ""
+ ]
+}
