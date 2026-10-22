@@ -60,8 +60,10 @@ class ClaudeCLI:
             "--system-prompt", system,
         ]
         if self.mcp_config:
-            # Só as ferramentas da própria Jarvis ficam liberadas.
-            cmd += ["--mcp-config", str(self.mcp_config), "--allowedTools", "mcp__jarvis"]
+            # Só as ferramentas da própria Jarvis e as externas APROVADAS (mcp.json, ver jarvis/mcp_catalogo) ficam liberadas.
+            from jarvis.mcp_catalogo import instalados
+
+            cmd += ["--mcp-config", str(self.mcp_config), "--allowedTools", ",".join(["mcp__jarvis", *instalados.permitidas(self.mcp_config)])]
         if self.cfg.model:
             cmd += ["--model", self.cfg.model]
         return cmd

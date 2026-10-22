@@ -20,8 +20,10 @@ from jarvis.pc import actions
 from jarvis.ui.api_agents import AgentsMixin
 from jarvis.ui.api_agenda import AgendaMixin
 from jarvis.ui.api_brains import BrainsMixin
+from jarvis.ui.api_conversa import ConversaMixin
 from jarvis.ui.api_escuta import EscutaMixin
 from jarvis.ui.api_face import FaceMixin
+from jarvis.ui.api_ferramentas import FerramentasMixin
 from jarvis.ui.api_files import FilesMixin
 from jarvis.ui.api_info import InfoMixin
 from jarvis.ui.api_layout import LayoutMixin
@@ -41,7 +43,7 @@ from jarvis.ui.api_visual import VisualMixin
 log = logging.getLogger(__name__)
 
 
-class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, RadarMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin, VisualMixin, FaceMixin, TemaMixin, AgentsMixin, UsoMixin, LeituraMixin, InfoMixin, EscutaMixin, LayoutMixin):
+class Api(FerramentasMixin, ConversaMixin, AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, MemoryMixin, RadarMixin, ReviewMixin, LearningMixin, SelfUpdateMixin, UpdateMixin, VisualMixin, FaceMixin, TemaMixin, AgentsMixin, UsoMixin, LeituraMixin, InfoMixin, EscutaMixin, LayoutMixin):
     """Métodos chamados pelo JavaScript da janela (window.pywebview.api.*)."""
 
     def __init__(
@@ -105,7 +107,7 @@ class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, Memor
         if self._voice is not None:
             self._voice.listen_now()
 
-    def send(self, text: str, attachments: list | None = None) -> dict:
+    def send(self, text: str, attachments: list | None = None, canal: str = "texto") -> dict:
         started = self._ultimo_pedido = time.time()
         text = str(text)
         if attachments:
@@ -120,21 +122,27 @@ class Api(AgendaMixin, FilesMixin, OficinaMixin, MobileMixin, BrainsMixin, Memor
                 "\n\n[Arquivos anexados pelo usuário — leia com ler_anexo(id):]\n" + "\n".join(listed))
         self._diary(f"Pedido: {text[:300]}")
         try:
-            answer = self._conversation.ask(text)
+            answer = self._conversation.ask(text, canal=canal)
         except NoBrainAvailable as exc:
             self._note_idea(f"Responder mesmo quando nenhum cérebro está disponível: \"{text[:120]}\"", "falha")
-            return {"error": str(exc)}
+            from jarvis.conversa import sem_cerebro
+
+            return {"error": str(exc), "atalhos": sem_cerebro.ATALHOS}
         except Exception:  # a janela nunca deve travar por um erro inesperado
             log.exception("erro ao responder")
             return {"error": "Erro inesperado. Detalhes no log da Jarvis."}
         self._memoria_viva(answer, text)  # tira a linha [[SAVE]] da tela e da voz e cria o cartão (nunca grava)
+        self._fatos_da_conversa(text)  # o que o usuário contou de durável vira proposta de memória (cartão)
         proposals = [
             {"id": a.id, "descricao": a.descricao, "motivo": a.motivo}
             for a in self._store.pending_since(started)
         ]
         result = self._evaluate(text, answer, time.time() - started)
         self._learn_from(text, answer, result)
-        return {"text": answer.text, "brain": answer.brain, "actions": proposals, "qualidade": result}
+        from jarvis.conversa import fala
+
+        return {"text": answer.text, "brain": answer.brain, "actions": proposals, "qualidade": result,
+                "falado": fala.falado(answer.text)}  # resumo curto para a voz; o texto completo fica na tela
 
     def reset(self) -> None:
         self._conversation.reset()

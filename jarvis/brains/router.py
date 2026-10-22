@@ -16,7 +16,8 @@ class NoBrainAvailable(RuntimeError):
 
 class Router:
     def __init__(self, brains: Sequence[Brain], prefer: Callable[[str], str | None] | None = None,
-                 visible: Callable[[Brain], bool] | None = None, contexto: Callable[[str], str] | None = None) -> None:
+                 visible: Callable[[Brain], bool] | None = None, contexto: Callable[[str], str] | None = None,
+                 preparar: Callable[[list[Message], str], list[Message]] | None = None) -> None:
         if not brains:
             raise ValueError("é preciso ao menos um cérebro")
         self.brains = list(brains)
@@ -26,6 +27,8 @@ class Router:
         self.prefer = prefer
         # Recebe o texto do pedido e devolve fatos extras para o prompt de sistema das IAs (RAG do autoconhecimento da Jarvis).
         self.contexto = contexto
+        # Recebe (mensagens, nome do cérebro) e devolve as mensagens com o contexto rico da conversa (jarvis/conversa/montador.py).
+        self.preparar = preparar
 
     def order(self, messages: list[Message]) -> list[Brain]:
         brains = [b for b in self.brains if self.visible is None or self.visible(b)]
@@ -33,6 +36,15 @@ class Router:
         if first is None:
             return brains
         return sorted(brains, key=lambda b: b.name != first)  # estável: o resto mantém a ordem
+
+    def _para(self, brain: Brain, messages: list[Message]) -> list[Message]:
+        if self.preparar is None:
+            return messages
+        try:
+            return self.preparar(messages, brain.name)
+        except Exception:  # o contexto é um extra: sem ele a pergunta ainda segue
+            log.info("não foi possível preparar o contexto para %s", brain.name, exc_info=True)
+            return messages
 
     def warm_up(self, system: str) -> None:
         """Prepara os cérebros que suportam isso (ex.: abre a sessão do Claude)."""
@@ -59,7 +71,7 @@ class Router:
                 log.info("contexto extra indisponível", exc_info=True)
         for brain in self.order(messages):
             try:
-                resposta = brain.ask(messages, system)
+                resposta = brain.ask(self._para(brain, messages), system)
                 from jarvis.uso import servico
 
                 servico.registrar_resposta(resposta)  # uso de IA: melhor esforço, nunca atrapalha a resposta
@@ -67,4 +79,6 @@ class Router:
             except BrainUnavailable as exc:
                 log.info("cérebro %s indisponível: %s", brain.name, exc)
                 failures.append(f"{brain.name}: {exc}")
-        raise NoBrainAvailable("nenhum cérebro respondeu (" + "; ".join(failures) + ")")
+        from jarvis.conversa import sem_cerebro
+
+        raise NoBrainAvailable(sem_cerebro.erro(failures))

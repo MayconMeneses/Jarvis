@@ -4,12 +4,16 @@ A ORDEM IMPORTA: o primeiro padrão que casar vence. Comandos mais específicos 
 ("pesquisa", "noticias"). Cada nome corresponde a um método `_nome` do LocalEngine ou a uma entrada em MODULOS.
 """
 
-from jarvis.local import agenda_skills, ensino, instagram_skills
+from jarvis.local import agenda_skills, ensino, instagram_skills, mcp_skills, perfil_usuario_skills
 from jarvis.local.radar_skills import PADRAO as _RADAR
 
 PATTERNS = [
+    # Ferramentas externas do catálogo curado (mcp_skills.py): comandos bem específicos, antes de tudo.
+    *mcp_skills.PADROES,
     # Radar de Notícias (radar_skills.py): ANTES de "noticias" e "pesquisa", que também casariam com "radar notícias".
     ("radar", _RADAR),
+    # Perfil do usuário (perfil_usuario_skills.py): ver, atualizar e apagar com cartão de aprovação; antes de "vocabulario" e "perfil".
+    ("perfil_usuario", perfil_usuario_skills.PADRAO),
     # Aprendizado do jeito de falar do usuário (ensino.py / evolucao.py): antes de "llm_status", que também casa "o que você aprendeu".
     ("esquecer_aprendizado", r"^(apag\w+|esquec\w+|limp\w+|zer\w+)\s+(tudo\s+)?(o que\s+)?(voce\s+)?(aprendeu\s+)?(sobre\s+)?(como eu falo|meu jeito de falar|meu vocabulario|meus apelidos|os meus apelidos)$"),
     ("vocabulario", r"^(meu vocabulario|meus apelidos|o que (voce )?aprendeu (sobre|com|de) (como eu falo|meu jeito( de falar)?|mim|eu)|o que (voce )?aprendeu comigo|aprendeu alguma coisa (sobre|com) (mim|eu)|quais (frases|apelidos) (voce )?aprendeu)$"),

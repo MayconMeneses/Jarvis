@@ -163,7 +163,12 @@
         </div>
         <p id="foco-mic-rotulo" class="foco-mic-rotulo" role="status" aria-live="polite">Microfone desligado</p>
       </div>
-      <p id="face-legenda" class="legenda"></p>
+      <section class="foco-resp" id="foco-resp" aria-label="Resposta da Jarvis" hidden>
+        <div id="face-legenda" class="legenda md"></div>
+        <div id="foco-resp-painel" class="foco-resp-painel md" tabindex="0" role="region" aria-label="Resposta completa (role para ler tudo)" hidden></div>
+        <button type="button" id="foco-resp-mais" class="foco-resp-mais" aria-expanded="false" aria-controls="foco-resp-painel" hidden>Ver mais</button>
+      </section>
+      <p id="foco-resp-anuncio" class="sr-only" role="status" aria-live="polite"></p>
       <section class="caixas" aria-label="Informações">
         <article class="caixa" id="cx-clima" data-cx="clima" aria-labelledby="cx-clima-t" aria-busy="true">
           <header><h2 id="cx-clima-t" class="rot">Clima</h2><button type="button" class="cx-atualizar" data-cx="clima" aria-label="Atualizar clima" title="Atualizar clima">↻</button></header>

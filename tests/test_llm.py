@@ -1,5 +1,7 @@
 """Cérebro generativo local: tudo testado com um servidor falso e downloads simulados (nada é baixado de verdade)."""
 
+import dataclasses
+import hashlib
 import io
 import json
 import threading
@@ -160,7 +162,14 @@ def _abrir_falso(url, timeout=60):
     return Resposta(_zip() if url.endswith("motor.zip") else b"GGUF" * 10)
 
 
-def test_install_downloads_engine_and_model_only_once():
+def _sha_do_arquivo_falso(monkeypatch, id_="qwen2.5-coder-1.5b"):
+    """O catálogo confere o SHA-256 real; nos testes o 'arquivo' é falso, então o SHA esperado é o dele."""
+    falso = dataclasses.replace(catalogo.MODELOS[id_], sha256=hashlib.sha256(b"GGUF" * 10).hexdigest())
+    monkeypatch.setitem(catalogo.MODELOS, id_, falso)
+
+
+def test_install_downloads_engine_and_model_only_once(monkeypatch):
+    _sha_do_arquivo_falso(monkeypatch)
     texto = baixar.instalar("qwen2.5-coder-1.5b", abrir=_abrir_falso)
     assert "motor llama.cpp" in texto and "Qwen2.5 Coder" in texto
     assert catalogo.caminho_motor().name == "llama-server.exe"
@@ -185,7 +194,8 @@ def test_zip_slip_is_blocked(tmp_path):
     assert not (tmp_path / "fora.txt").exists()
 
 
-def test_background_install_turns_the_brain_on():
+def test_background_install_turns_the_brain_on(monkeypatch):
+    _sha_do_arquivo_falso(monkeypatch)
     tarefas._estado["instalacao"] = ""
     assert tarefas.instalar("qwen2.5-coder-1.5b", abrir=_abrir_falso)
     assert esperar("instalacao").startswith("✔") and config.load().llm_local

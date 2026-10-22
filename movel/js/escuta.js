@@ -1,9 +1,9 @@
 // Escuta contínua por TEXTO enquanto o app está aberto e em primeiro plano (iPhone/Safari). Nada de áudio é guardado: o reconhecimento é o do
-// navegador (no iPhone, a Apple processa a fala) e aqui só passa texto. Ativa só se a frase COMEÇA com "Jarvis" (voz-ativacao.js).
+// navegador (no iPhone, a Apple processa a fala) e aqui só passa texto. Ativa se a frase COMEÇA com "Jarvis" ou o chama no FIM ("oi, boa noite, Jarvis"): voz-ativacao.js.
 // Estados: desligado, aguardando, ouvindo, processando, falando. API para a casca/modo foco: iniciar(), parar(), estado, aoMudar(fn).
 // Reinício robusto: o Safari encerra a sessão sozinho (silêncio/tempo); cada fim abre uma sessão NOVA, com espera crescente, e para de vez
 // depois de muitas falhas seguidas ou se o microfone foi negado. Anti-eco: ignora o microfone enquanto a Jarvis fala e ~0,5 s depois.
-import { eEcoDe, extrairComando } from "./voz-ativacao.js";
+import { eEcoDe, extrairChamada as extrairComando } from "./voz-ativacao.js";
 
 export const ESTADOS = ["desligado", "aguardando", "ouvindo", "processando", "falando"];
 export const JANELA_COMANDO_MS = 6000;  // "Jarvis" sozinho: o comando pode vir na frase seguinte, até este prazo
@@ -44,6 +44,9 @@ export class EscutaContinua {
     this._fechar();
     this._definir("desligado", { evento: "parou", motivo });
   }
+
+  // Tocou em "Falar" (foco): a PRIMEIRA frase vale como comando mesmo sem o nome, por `ms`. Depois volta a exigir "Jarvis".
+  escutarAgora(ms = 10000) { if (this._quer) this._abrirJanela(ms); }
 
   // Modo foco: liga ao entrar (se voz_foco_auto) e devolve ao estado anterior ao sair.
   entrarFoco() {
@@ -164,10 +167,10 @@ export class EscutaContinua {
     if (comando === "") this._abrirJanela(); else this._despachar(comando);
   }
 
-  _abrirJanela() {
+  _abrirJanela(ms = JANELA_COMANDO_MS) {
     this._janela = true;
     this.cancelar(this._tJanela);
-    this._tJanela = this.esperar(() => { this._fecharJanela(); if (this._quer) this._definir(this._base()); }, JANELA_COMANDO_MS);
+    this._tJanela = this.esperar(() => { this._fecharJanela(); if (this._quer) this._definir(this._base()); }, ms);
     this._definir("ouvindo", { evento: "chamada" });
   }
 

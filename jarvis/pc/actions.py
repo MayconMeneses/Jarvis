@@ -21,7 +21,7 @@ from jarvis.config import data_dir
 from jarvis.pc import startup
 
 KINDS = ("encerrar_processo", "limpar_temporarios", "desativar_inicializacao", "organizar_emails",
-         "executar_tarefa", "criar_projeto", "guardar_memoria", "instagram_apagar", "instagram_lembrete", "aprender_apelido")
+         "executar_tarefa", "criar_projeto", "guardar_memoria", "instagram_apagar", "instagram_lembrete", "aprender_apelido", "atualizar_perfil")
 
 # Encerrar estes derruba o Windows ou a sessão.
 CRITICAL = {
@@ -268,15 +268,16 @@ def execute(action: Action, temp: Path | None = None, reg=None, folders=None, ma
                     "O README.md explica como instalar, rodar e testar.")
         return f"Projeto '{p['nome']}' criado em {target} e cadastrado."
 
-    if action.kind == "guardar_memoria":  # a IA só sugeriu; gravar é consequência do Aprovar
-        return __import__("jarvis.llm.memoria_viva", fromlist=["executar"]).executar(action.params)
+    if action.kind in ("guardar_memoria", "atualizar_perfil"):  # a IA só sugeriu; gravar é consequência do Aprovar
+        return __import__("jarvis.llm.memoria_viva" if action.kind == "guardar_memoria" else "jarvis.conversa.perfil", fromlist=["executar"]).executar(action.params)
 
     if action.kind in ("instagram_apagar", "instagram_lembrete"):  # a IA só propôs; apagar/agendar é consequência do Aprovar
         return __import__("jarvis.instagram.cartoes", fromlist=["executar"]).executar(action)
 
     if action.kind == "aprender_apelido":  # a IA só propôs; gravar o apelido é consequência do Aprovar
         return __import__("jarvis.local.ensino", fromlist=["executar"]).executar(action.params)
-
+    if action.kind in ("criar_lembrete", "abrir_app", "instalar_mcp", "remover_mcp"):  # ver acoes_extra.py
+        return __import__("jarvis.pc.acoes_extra", fromlist=["x"]).executar(action)
     if action.kind == "instalar_llm":
         __import__("jarvis.llm.tarefas", fromlist=["instalar"]).instalar(action.params["modelo"])
         return "Comecei a instalar o cérebro local em segundo plano. Pergunte \"status do cérebro local\" para acompanhar."

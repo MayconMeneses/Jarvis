@@ -5,7 +5,7 @@ from pathlib import Path
 from jarvis.brains.base import Answer, Brain, BrainUnavailable, Message
 from jarvis.brains.claude_cli import ClaudeCLI
 from jarvis.brains.claude_session import ClaudeSession
-from jarvis.brains import perfis, policy
+from jarvis.brains import com_ferramentas, perfis, policy
 from jarvis.brains.openai_compat import OpenAICompat
 from jarvis.brains.router import NoBrainAvailable, Router
 from jarvis.config import Config, data_dir
@@ -29,9 +29,19 @@ def write_mcp_config(path: Path | None = None) -> Path:
     path = path or data_dir() / "mcp.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     command, args = mcp_server_command()
-    config = {"mcpServers": {"jarvis": {"command": command, "args": args}}}
+    from jarvis.mcp_catalogo import instalados
+
+    # Só a Jarvis e as ferramentas externas APROVADAS no catálogo curado (jarvis/mcp_catalogo).
+    config = {"mcpServers": {"jarvis": {"command": command, "args": args}, **instalados.servidores()}}
     path.write_text(json.dumps(config, indent=2), encoding="utf-8")
     return path
+
+
+def _ferramentas_ligadas() -> bool:
+    """O cinto de ferramentas seguras (Gemini/NVIDIA) vale na hora: lê a configuração a cada pedido."""
+    from jarvis import config
+
+    return config.load().ferramentas_ia
 
 
 def build_router(cfg: Config) -> Router:
@@ -40,8 +50,8 @@ def build_router(cfg: Config) -> Router:
     claude_kind = ClaudeSession if cfg.claude.sessao_continua else ClaudeCLI
     available = {
         "claude": lambda: claude_kind(claude_cfg, mcp_config=mcp),
-        "gemini": lambda: OpenAICompat("gemini", cfg.gemini, get_key),
-        "nvidia": lambda: OpenAICompat("nvidia", cfg.nvidia, get_key),
+        "gemini": lambda: com_ferramentas.ComFerramentas(OpenAICompat("gemini", cfg.gemini, get_key), _ferramentas_ligadas),
+        "nvidia": lambda: com_ferramentas.ComFerramentas(OpenAICompat("nvidia", cfg.nvidia, get_key), _ferramentas_ligadas),
     }
     brains = [available[name]() for name in cfg.brains if name in available]
     from jarvis import config as config_module
@@ -83,9 +93,11 @@ def build_router(cfg: Config) -> Router:
             return current.modo_independente or current.somente_independente
         return not current.somente_independente
 
-    from jarvis.local import entendimento
+    from jarvis.conversa import montador
 
-    return Router(brains, prefer=prefer, visible=visible, contexto=entendimento.contexto_para_ia)
+    # O autoconhecimento da Jarvis (RAG) agora entra no bloco de contexto de cada pergunta (montador.py), não no prompt de sistema:
+    # assim a sessão do Claude não reinicia quando a pergunta muda de assunto.
+    return Router(brains, prefer=prefer, visible=visible, preparar=montador.preparar)
 
 
 __all__ = [

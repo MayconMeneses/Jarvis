@@ -112,6 +112,7 @@ class Config:
     brains: list[str] = field(default_factory=lambda: ["claude", "gemini", "nvidia"])
     # Ferramentas do PC (leitura + propostas com aprovação). Só o Claude as usa.
     ferramentas_pc: bool = True
+    ferramentas_ia: bool = True  # cinto de ferramentas seguras (jarvis/llm/ferramentas_cinto.py) para Gemini, NVIDIA e o modelo local
     # Quando usar o Gemini: "reserva" (só se o Claude falhar) ou "simples" (conversa curta
     # sem ferramentas vai para o Gemini). Pedir "Gemini, ..." funciona nos dois modos.
     uso_gemini: str = "reserva"

@@ -49,6 +49,40 @@ export function extrairComando(texto) {
   return null;
 }
 
+// ── Vocativo no FIM da frase ("oi, boa noite, Jarvis"): como se cumprimenta em português. Não existe no Python: as regras são as de
+// docs/CELULAR-INDEPENDENTE.md e os casos compartilhados estão em testes/dados/ativacao_vocativo.json (o PC pode reutilizá-los).
+export const MAX_PALAVRAS_VOCATIVO = 8;
+// Palavra logo antes do nome que mostra que se fala DO Jarvis ("o Jarvis", "filme Jarvis", "falei com Jarvis"), não COM ele.
+const MENCAO_ANTES = new Set(["o", "a", "os", "as", "um", "uma", "do", "da", "dos", "das", "no", "na", "nos", "nas", "ao", "aos", "pelo", "pela", "com", "de", "para", "pra", "pro",
+  "sobre", "e", "eh", "sou", "foi", "era", "seria", "somos", "chama", "chamo", "chamado", "chamada", "nome", "meu", "minha", "seu", "sua", "esse", "essa", "este", "esta", "aquele",
+  "que", "como", "tipo", "filme", "personagem", "falei", "falou", "disse", "amo", "adoro", "odeio", "conheco", "vi", "ouvi", "li", "assisti"]);
+const SO_FIM = /[\s,.:;!?\-–—…]+$/, INICIO_PONTUACAO = /^[\s,.:;!?\-–—…]+/;
+
+const CUMPRIMENTOS = new Set(["oi", "ola", "opa"]);
+function saudacaoAntesDoNome(texto) {
+  const palavras = [...String(texto).matchAll(PALAVRA)].map((m) => ({ p: semAcento(m[0]), ini: m.index }));
+  const i = palavras.findIndex(({ p }) => eJarvis(p));
+  const antes = palavras.slice(0, i).map(({ p }) => p);
+  if (i < 1 || !(antes.some((p) => CUMPRIMENTOS.has(p)) || antes.join(" ") === "e ai")) return null;
+  return texto.slice(0, palavras[i].ini).replace(SO_FIM, "").trim();
+}
+
+// Como extrairComando, mas também aceita o nome no FIM de uma frase curta (até 8 palavras), com "por favor" depois dele. Devolve o comando SEM o nome.
+export function extrairChamada(texto) {
+  const inicio = extrairComando(texto);
+  if (inicio === "") return saudacaoAntesDoNome(texto) ?? "";  // "oi Jarvis" não é só uma chamada: é um cumprimento e merece resposta
+  if (inicio !== null) return inicio;
+  texto = String(texto ?? "");
+  const palavras = [...texto.matchAll(PALAVRA)].map((m) => ({ p: semAcento(m[0]), ini: m.index, fim: m.index + m[0].length }));
+  if (palavras.length < 2 || palavras.length > MAX_PALAVRAS_VOCATIVO) return null;
+  const k = palavras.length - 1;
+  const cortesia = palavras[k].p === "pfv" ? 1 : palavras[k - 1]?.p === "por" && palavras[k].p === "favor" ? 2 : 0;
+  const i = k - cortesia, nome = palavras[i];
+  if (i < 1 || OUVIDO_ERRADO.has(nome.p) || !eJarvis(nome.p) || MENCAO_ANTES.has(palavras[i - 1].p)) return null;
+  const cabeca = texto.slice(0, nome.ini).replace(SO_FIM, ""), cauda = texto.slice(nome.fim).replace(INICIO_PONTUACAO, "");
+  return `${cabeca} ${cauda}`.replace(SO_FIM, "").trim();
+}
+
 // Letras minúsculas sem acento nem pontuação: para comparar o que foi ouvido com o que a própria Jarvis está falando (eco).
 export const forma = (txt) => semAcento(txt).replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 export const eEcoDe = (ouvido, falado) => { const o = forma(ouvido); return Boolean(o) && forma(falado).includes(o); };

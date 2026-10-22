@@ -111,5 +111,5 @@ test("service worker: cache cheio não derruba a resposta e o cache tem nome nov
   const boa = { ok: true, status: 200, type: "basic", clone: () => "c" };
   const sw = carregarSw({ rede: async () => boa, put: async () => { throw new Error("QuotaExceededError"); } });
   assert.equal(await sw(pedido("b")), boa);
-  assert.match(readFileSync(new URL("../sw.js", import.meta.url), "utf8"), /jarvis-movel-13/);
+  assert.match(readFileSync(new URL("../sw.js", import.meta.url), "utf8"), /jarvis-movel-14/);
 });

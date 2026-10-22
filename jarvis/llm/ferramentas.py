@@ -1,4 +1,6 @@
-"""O modelo local usa as habilidades da Jarvis como ferramentas (só leitura), em poucos passos.
+"""LEGADO (protocolo [[jarvis: ...]]; o cérebro local agora usa o cinto em ferramentas_cinto.py e o laço em ferramentas_laco.py).
+
+O modelo local usa as habilidades da Jarvis como ferramentas (só leitura), em poucos passos.
 
 Modelos pequenos erram JSON de ferramentas; aqui o protocolo é uma linha simples: `[[jarvis: pedido em português]]`.
 O pedido passa pelo motor próprio, que só aceita as habilidades da lista abaixo (nada que abra programas, grave
@@ -17,9 +19,8 @@ MAX_PASSOS = 3
 MAX_RESULTADO = 1500
 _CHAMADA = re.compile(r"\[\[\s*jarvis\s*:\s*(.+?)\s*\]\]", re.I | re.S)
 INSTRUCAO = (
-    "Você pode consultar a Jarvis para dados reais (clima, notícias, vagas, memória, projetos, pesquisa na internet, "
-    "conhecimento de programação). Para isso escreva SOMENTE uma linha assim: [[jarvis: pedido curto em português]] "
-    "e espere o resultado. Exemplo: [[jarvis: clima em Fortaleza]]. Nunca invente esses dados."
+    "Você pode consultar ferramentas seguras da Jarvis para dados reais (pesquisa na internet, clima, notícias, agenda, memória, "
+    "conhecimento de programação, contas) e propor ações que o usuário aprova. Nunca invente esses dados."
 )
 
 

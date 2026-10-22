@@ -5,8 +5,11 @@ import { montarIndicador } from "./escuta-ui.js";
 import { montarPainelVoz } from "./painel-voz.js";
 import { comandoDeControle } from "./voz-ativacao.js";
 import { criarGemini } from "./voz-gemini.js";
+import { limite } from "./limite.js";
 import { saida } from "./voz-saida.js";
 import { criarTocador } from "./voz-tocador.js";
+
+export const FALA_MAX_MS = 60000;
 
 // deps: { memoria, nuvem, responder(texto) -> resposta, adicionar(texto, quem), avisar(texto), painel (elemento onde entra o bloco Voz) }
 export async function ligarVoz({ memoria, nuvem, responder, adicionar, avisar, painel, doc = globalThis.document }) {
@@ -23,7 +26,10 @@ export async function ligarVoz({ memoria, nuvem, responder, adicionar, avisar, p
       if (controle === "parar-fala") { saida.parar(); return; }
       if (controle === "desligar") { saida.parar(); Escuta.parar(); adicionar("Escuta por voz desligada.", "jarvis aviso"); return; }
       adicionar(comando, "eu");
-      await saida.falar(await responder(comando));  // a escuta fala a resposta mesmo com "Falar as respostas" desmarcado: foi um pedido por voz
+      try {
+        const resposta = await responder(comando);
+        await limite(saida.falar(resposta), FALA_MAX_MS, "a fala não terminou");  // a escuta fala a resposta mesmo com "Falar as respostas" desmarcado; se a voz travar, o estado destrava
+      } catch (e) { adicionar(`Não consegui responder por voz agora (${e.message}). A resposta, quando houver, aparece na conversa.`, "jarvis erro"); saida.parar(); }
     },
   });
   montarIndicador(Escuta, { doc });

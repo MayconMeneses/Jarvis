@@ -77,6 +77,26 @@ class BrainsMixin:
         self._diary("Cérebro local " + ("ligado" if on else "desligado"))
         return {"ok": True, "ligado": cfg.llm_local, "mensagem": "Ligado: a Jarvis conversa e cria com o modelo local." if on else "Desligado."}
 
+    def llm_modelos(self) -> list[dict]:
+        """Modelos do cérebro local com estado (instalado/ativo) e o aviso de espaço, memória e velocidade."""
+        from jarvis.llm import escolha
+
+        return escolha.listar(config.load())
+
+    def set_llm_modelo(self, id_modelo: str) -> dict:
+        """Troca para um modelo já instalado (o download é por cartão: peça "instalar cérebro local <modelo>")."""
+        from jarvis.llm import escolha
+
+        res = escolha.trocar(config.load(), str(id_modelo))
+        if res["ok"]:
+            self._diary("Cérebro local: " + res["modelo"])
+        return res
+
+    def llm_voltar_antigo(self) -> dict:
+        from jarvis.llm import escolha
+
+        return escolha.voltar_antigo(config.load())
+
     def environment_notices(self) -> list[str]:
         """Avisos de coisas externas que faltam (Claude Code, git), mostrados ao abrir a janela."""
         from jarvis import environment, keys

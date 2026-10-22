@@ -11,21 +11,27 @@ _PASTA = re.compile(r"\b(?:em|na pasta|dentro de)\s+(?P<p>[A-Za-z]:\\[^:]+?)\s*(
 
 
 def _modelo(texto: str) -> str:
-    """O pedido escolhe ("7b", "3b", "maior"); sem escolha, o melhor para este aparelho (mais memória, modelo maior)."""
+    """O pedido escolhe (id do catálogo, "7b", "3b", "maior", "melhor"/"conversa"); sem escolha, o padrão do aparelho."""
     from jarvis.llm import perfil
 
     baixo = texto.lower()
+    for id_ in sorted(catalogo.MODELOS, key=len, reverse=True):
+        if id_ in baixo:
+            return id_
     if re.search(r"\b7\s*b\b", baixo):
         return "qwen2.5-coder-7b"
-    if re.search(r"\b3\s*b\b|maior|melhor", baixo):
+    if re.search(r"\bmelhor\b|conversa|generativ", baixo):
+        return perfil.recomendado(conversa=True)
+    if re.search(r"\b3\s*b\b|maior", baixo):
         return "qwen2.5-coder-3b" if perfil.recomendado() == "qwen2.5-coder-1.5b" else perfil.recomendado()
     return perfil.recomendado()
 
 
-def instalar(texto: str, cfg) -> str:
+def propor(id_modelo: str, cfg) -> str:
+    """Liga o modelo se já está instalado; senão cria o cartão de download (nada é baixado antes de aprovar)."""
     from jarvis.pc import actions
 
-    item = catalogo.modelo(_modelo(texto))
+    item = catalogo.modelo(id_modelo)
     est = catalogo.estado(item.id, cfg.llm_endpoint)
     if est["pronto"]:
         cfg.llm_local = True
@@ -36,11 +42,16 @@ def instalar(texto: str, cfg) -> str:
         return f"O cérebro local ({item.nome}) já está instalado e agora está ligado."
     acao = actions.ActionStore().save(actions.Action(
         "instalar_llm", {"modelo": item.id},
-        f"Baixar o motor llama.cpp (cerca de {catalogo.MOTOR_MB} MB, de github.com/ggml-org/llama.cpp) e o modelo {item.nome} "
-        f"(cerca de {item.mb} MB, de huggingface.co/{item.repo}) para a pasta da Jarvis em AppData/Local. "
-        f"Usa cerca de {item.ram_gb:g} GB de memória enquanto responde. {item.descricao}",
+        f"Baixar {'o motor llama.cpp (cerca de %d MB, de github.com/ggml-org/llama.cpp) e ' % catalogo.MOTOR_MB if not est['motor'] else ''}"
+        f"o modelo {item.nome} (cerca de {item.mb} MB, de huggingface.co/{item.repo}; confirmado por SHA-256, licença {item.licenca}) "
+        f"para a pasta da Jarvis em AppData/Local. Usa cerca de {item.ram_gb:g} GB de memória enquanto responde. {item.descricao} "
+        "O modelo anterior continua guardado e dá para voltar a ele quando quiser.",
         "pedido do usuário: ter uma IA generativa própria, sem depender de ninguém"))
     return "Preparei a instalação. Confira e aprove o cartão abaixo para eu baixar:\n" + acao.descricao
+
+
+def instalar(texto: str, cfg) -> str:
+    return propor(_modelo(texto), cfg)
 
 
 def avaliar(texto: str, cfg) -> str:
@@ -91,6 +102,10 @@ def status(texto: str, cfg) -> str:
     achado = autonomo(texto, cfg)
     if achado is not None:
         return achado
+    if re.search(r"\bvolt\w+\b.*\b(antigo|anterior|padr[aã]o|pequeno)\b", texto.lower()):
+        from jarvis.llm import escolha
+
+        return escolha.voltar_antigo(cfg)["mensagem"]
     if re.search(r"\b(desliga\w*|desativ\w*)\b", texto.lower()):
         from jarvis import config
 

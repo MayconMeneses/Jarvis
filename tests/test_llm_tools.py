@@ -63,9 +63,10 @@ def test_big_model_gets_the_tool_protocol_and_answers_with_real_data(api):
     from jarvis.llm.cerebro import LLMLocal
 
     grande = Config(llm_local=True, llm_endpoint=api, llm_modelo="qwen2.5-coder-3b")
-    RESPOSTAS[:] = ["[[jarvis: que horas são]]", "Agora são 10h00."]
-    resposta = LLMLocal(lambda: grande, motor=Motor()).ask([{"role": "user", "content": "me diga a hora certinha"}], "")
-    assert resposta.text == "Agora são 10h00." and "[[jarvis:" in PEDIDOS[0]["messages"][0]["content"]
+    RESPOSTAS[:] = ['FERRAMENTA: calculadora {"expressao": "6*7"}', "Deu 42."]
+    resposta = LLMLocal(lambda: grande, motor=Motor()).ask([{"role": "user", "content": "quanto é 6 vezes 7?"}], "")
+    assert resposta.text == "Deu 42." and "FERRAMENTA:" in PEDIDOS[0]["messages"][0]["content"]
+    assert "= 42" in PEDIDOS[1]["messages"][-1]["content"] and "<dados_externos" in PEDIDOS[1]["messages"][-1]["content"]
 
 
 def test_small_model_receives_real_data_up_front_instead_of_tools(cfg):
