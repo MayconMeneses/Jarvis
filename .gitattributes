@@ -1,1 +1,6 @@
 jarvis/dashboard/painel.html -text -diff
+
+# O teste do worker compara o arquivo gerado byte a byte; sem isso o Windows converte para CRLF e o teste falha.
+movel/proxy/*.js text eol=lf
+movel/proxy/fonte/*.js text eol=lf
+movel/proxy/montar.mjs text eol=lf
