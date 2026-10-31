@@ -1,6 +1,6 @@
 "use strict";
 // Guarda a casca do app e o conhecimento para abrir sem rede. Chamadas a outros sites (Wikipédia, modelos) nunca passam pelo cache daqui.
-const CACHE = "jarvis-movel-14";
+const CACHE = "jarvis-movel-15";
 const CASCA = ["./", "index.html", "css/app.css", "css/tema.css", "css/mobile.css", "css/hud.css", "css/hud-menu.css", "dados/saber.json", "dados/modelos.json", "manifest.webmanifest", "icones/icone-180.png", "icones/icone-512.png",
   "js/main.js", "js/temas.js", "js/painel-aparencia.js", "js/uso.js", "js/uso-grafico.js", "js/painel-uso.js", "js/motor-uso.js", "js/agentes.js", "js/painel-agentes.js", "js/util.js", "js/memoria.js", "js/saber.js", "js/design.js", "js/gerar.js", "js/aprender.js", "js/motor.js", "js/contexto.js",
   "js/cerebro.js", "js/leque.js", "js/zip.js", "js/oficina-espaco.js", "js/nuvem.js", "js/painel-nuvem.js", "js/habilidades.js", "js/revisao.js", "js/stack.js", "js/info.js", "js/motor-extra.js", "js/proativo.js", "js/md.js", "js/conversa.js", "js/cripto.js", "js/chat.js", "js/painel-memoria.js", "js/painel-cerebro.js",
@@ -11,7 +11,7 @@ const CASCA = ["./", "index.html", "css/app.css", "css/tema.css", "css/mobile.cs
   "js/voz-numeros.js", "js/voz-normalizar.js", "js/voz-texto.js", "js/radar-numeros.js", "js/radar-texto.js", "js/radar-sanear.js", "js/radar-dedup.js", "js/radar-pontuar.js", "js/radar-curadoria.js", "js/radar-resumo.js", "js/radar-roteiro.js", "js/radar-render.js", "js/radar-fontes.js", "js/radar-historico.js", "js/radar-ia.js", "js/radar.js", "js/radar-motor.js", "js/noticias-feed.js", "js/noticias-fontes.js", "js/noticias-ctx.js", "js/rede-proxy.js", "js/leitor-idioma.js", "js/leitor-partes.js", "js/leitor-traducao.js", "js/leitor-fala.js", "js/leitor.js", "js/caixa-base.js", "js/caixa-clima.js", "js/caixa-vagas.js", "js/caixa-noticias.js", "js/caixa-tecnologia.js", "js/painel-noticias.js", "css/noticias.css", "dados/radar-fontes.json",
   "js/texto-win1252.js", "js/documentos.js", "js/painel-documentos.js", "js/motor-documentos.js", "js/anexos.js", "js/anexo-zip.js", "js/anexo-xml.js", "js/anexo-docx.js", "js/anexo-xlsx.js", "js/anexo-pptx.js", "js/anexo-pdf.js", "js/anexo-imagem.js", "js/anexo-busca.js",
   "js/doc-markdown.js", "js/doc-criar-docx.js", "js/doc-criar-xlsx.js", "js/doc-criar-pptx.js", "js/doc-pptx-base.js", "js/doc-criar-pdf.js", "js/doc-proposta.js", "js/doc-baixar.js", "js/pesquisa-niveis.js",
-  "js/escuta-ui.js", "js/escuta.js", "js/painel-voz.js", "js/voz-ativacao.js", "js/voz-escolha.js", "js/voz-gemini.js", "js/voz-saida.js", "js/voz-tocador.js", "js/voz.js", "js/limite.js", "js/saudacao.js", "js/pensar.js", "js/ia-caminhos.js", "js/painel-pensar.js", 
+  "js/escuta-ui.js", "js/escuta.js", "js/limitador-ativacao.js", "js/perfil-usuario.js", "js/painel-perfil.js", "js/painel-voz.js", "js/voz-ativacao.js", "js/voz-escolha.js", "js/voz-gemini.js", "js/voz-saida.js", "js/voz-tocador.js", "js/voz.js", "js/limite.js", "js/saudacao.js", "js/pensar.js", "js/ia-caminhos.js", "js/painel-pensar.js", 
   "sandbox/js.html", "sandbox/py.html", "sandbox/host.js"];
 
 self.addEventListener("install", (ev) => ev.waitUntil(caches.open(CACHE).then((c) => c.addAll(CASCA)).then(() => self.skipWaiting())));

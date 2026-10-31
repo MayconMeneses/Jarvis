@@ -3,6 +3,7 @@
 // Estados: desligado, aguardando, ouvindo, processando, falando. API para a casca/modo foco: iniciar(), parar(), estado, aoMudar(fn).
 // Reinício robusto: o Safari encerra a sessão sozinho (silêncio/tempo); cada fim abre uma sessão NOVA, com espera crescente, e para de vez
 // depois de muitas falhas seguidas ou se o microfone foi negado. Anti-eco: ignora o microfone enquanto a Jarvis fala e ~0,5 s depois.
+import { LimitadorAtivacao } from "./limitador-ativacao.js";
 import { eEcoDe, extrairChamada as extrairComando } from "./voz-ativacao.js";
 
 export const ESTADOS = ["desligado", "aguardando", "ouvindo", "processando", "falando"];
@@ -15,7 +16,7 @@ const ESPERAS = [150, 300, 600, 1200, 2500, 4000];
 export class EscutaContinua {
   constructor({ Reconhecimento = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition, agora = () => Date.now(), esperar = (f, ms) => setTimeout(f, ms),
     cancelar = (t) => clearTimeout(t), idioma = "pt-BR", seguro = globalThis.isSecureContext !== false } = {}) {
-    Object.assign(this, { Reconhecimento, agora, esperar, cancelar, idioma, seguro });
+    Object.assign(this, { Reconhecimento, agora, esperar, cancelar, idioma, seguro, _limite: new LimitadorAtivacao({ agora }) });
     Object.assign(this, { _estado: "desligado", _quer: false, _suspensos: 0, _oculta: false, _rec: null, _falhas: 0, _inicio: 0, _recebeu: false, _sessaoRuim: false,
       _tReinicio: null, _tJanela: null, _janela: false, _falando: false, _bloqueadoAte: 0, _ouvintes: new Set(), _processando: false, _fila: null,
       _motivo: null, _antesFoco: null, _cfg: { focoAuto: true } });
@@ -158,12 +159,14 @@ export class EscutaContinua {
 
   _tratar(texto) {
     let comando = extrairComando(texto);
+    const nomeado = comando !== null;
     if (this._janela) {  // "Jarvis" veio sozinho antes: a frase seguinte é o comando, com ou sem o nome
       this._fecharJanela();
       if (comando === null) comando = texto;
       else if (comando === "") { this._abrirJanela(); return; }
     }
     if (comando === null) { if (this._estado === "ouvindo") this._definir(this._base()); return; }  // não era com ela
+    if (nomeado && !this._limite.permite()) { this._definir(this._base()); return; }  // rajada de ativações (áudio de fundo): ignora
     if (comando === "") this._abrirJanela(); else this._despachar(comando);
   }
 

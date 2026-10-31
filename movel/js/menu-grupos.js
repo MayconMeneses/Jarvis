@@ -18,6 +18,7 @@ export const GRUPOS = [
   ] },
   { id: "ajustes", rotulo: "Ajustes", itens: [
     { id: "aparencia", rotulo: "Aparência e efeitos", aba: "cerebro", abrir: "painel-aparencia" },
+    { id: "perfil", rotulo: "Meu perfil", aba: "cerebro", abrir: "painel-perfil" },
     { id: "uso", rotulo: "Uso de IA", aba: "cerebro", abrir: "painel-uso" },
     { id: "agentes", rotulo: "Agentes", aba: "cerebro", abrir: "painel-agentes" },
     { id: "pareado", rotulo: "PC pareado", aba: "cerebro", abrir: "pc-bloco" },

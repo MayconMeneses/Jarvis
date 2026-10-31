@@ -54,6 +54,7 @@ html[data-tema="contraste"] #aurora { display: none; }
 
 /* Painéis Aparência, Uso de IA e Agentes */
 .painel-extra { margin-top: var(--esp-3); }
+.pf-campo { margin: var(--esp-3) 0; }
 .painel-extra summary { color: var(--texto); font-weight: 600; }
 #uso-lista, #ag-lista { list-style: none; margin: var(--esp-2) 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 #uso-lista li, #ag-lista li { padding: 10px 12px; background: var(--painel); border: 1px solid var(--linha); border-radius: var(--radius); overflow-wrap: anywhere; }

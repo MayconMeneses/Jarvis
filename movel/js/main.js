@@ -8,6 +8,7 @@ import { Agentes } from "./agentes.js";
 import { ligarAgentes } from "./painel-agentes.js";
 import { Uso } from "./uso.js";
 import { ligarUso } from "./painel-uso.js";
+import { ligarPerfil } from "./painel-perfil.js";
 import { Autonomo } from "./autonomo.js";
 import { Avaliador } from "./avaliar.js";
 import { Cerebro } from "./cerebro.js";
@@ -177,6 +178,7 @@ async function main() {
   const noticiasCtx = criarContexto({ memoria, nuvem, ia: conversaOficina, buscar: buscarMedido, avisar: (t) => adicionar(t, "aviso") });  // caixas, Radar e Ler para mim
   motor.noticiasCtx = noticiasCtx;
   ligarAgentes({ agentes, autonomo, avaliador, cerebro });
+  ligarPerfil({ memoria, avisar: (t) => adicionar(t, "aviso") });
   ligarUso({ uso, avisar: (t) => adicionar(t, "aviso") });
   const hud = ligarHud({ memoria, ctx: noticiasCtx, pc, uso, agentes, autonomo, avaliador, cerebro, avisar: (t) => adicionar(t, "aviso") });  // Início: orbe, briefing e caixas
   ligarPc({ pc, avisar: (t) => adicionar(t, "aviso"), painel: hud.painelPc, ativo: hud.visivel });
