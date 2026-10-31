@@ -9,8 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 BASE = Path(__file__).parent
-CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'toolbar', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'radar', 'central', 'ondas', 'foco-mic', 'foco-tela', 'caixas', 'arrastar', 'design']
-JS = ['core', 'cores', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe-filamentos', 'orbe', 'ondas', 'results', 'inputs', 'menu-nav', 'toolbar', 'brains', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'md', 'face-paineis', 'foco-mic', 'foco-resposta', 'face', 'radar', 'briefing', 'leitura', 'caixas', 'layout-salvo', 'arrastar', 'main']
+CSS = ['base', 'hud', 'buttons', 'chat', 'composer', 'toolbar', 'brains', 'review', 'attachments', 'memory', 'memory-grafo', 'oficina', 'uso', 'agents', 'radar', 'central', 'ondas', 'foco-mic', 'foco-tela', 'caixas', 'arrastar', 'perfil', 'ferramentas', 'atalhos', 'design']
+JS = ['core', 'cores', 'render', 'actions', 'review', 'selfupdate', 'update', 'messages', 'composer', 'attachments', 'orbe-estado', 'orbe-filamentos', 'orbe', 'ondas', 'results', 'atalhos', 'opcoes', 'inputs', 'menu-nav', 'toolbar', 'brains', 'ferramentas', 'perfil', 'memory-grafo', 'memory', 'mobile', 'oficina', 'uso-graficos', 'uso', 'uso-config', 'agents-estado', 'agents-desenho', 'agents', 'agenda-email', 'tema', 'md', 'face-paineis', 'foco-mic', 'foco-resposta', 'face', 'radar', 'briefing', 'leitura', 'caixas', 'layout-salvo', 'arrastar', 'main']
 
 
 def _join(folder: str, ext: str, names: list[str]) -> str:
@@ -26,6 +26,6 @@ def page(cfg=None) -> str:
     html = html.replace('<html lang="pt-BR">', f'<html lang="pt-BR" data-tema="{tema}" data-efeitos="{efeitos}">', 1)
     html = html.replace("<!--ESTILOS-->", "<style>\n" + _join("css", "css", CSS) + "</style>")
     html = html.replace("<!--SCRIPTS-->", (BASE / "uso.html").read_text(encoding="utf-8") + "<!--SCRIPTS-->")  # diálogo "Uso de IA"
-    for dialogo in ("brains", "agents", "agenda-email", "radar"):  # Cérebros, painel de agentes e "Agenda e e-mail"
+    for dialogo in ("brains", "perfil", "agents", "agenda-email", "radar"):  # Cérebros, painel de agentes e "Agenda e e-mail"
         html = html.replace("<!--SCRIPTS-->", (BASE / f"{dialogo}.html").read_text(encoding="utf-8") + "<!--SCRIPTS-->")
     return html.replace("<!--SCRIPTS-->", "<script>\n" + _join("js", "js", JS) + "</script>")

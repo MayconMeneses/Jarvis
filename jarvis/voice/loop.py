@@ -1,7 +1,6 @@
 """Ciclo de voz: "Hey Jarvis" (ou botão) → gravar → transcrever → responder → falar.
 
-Roda numa thread própria. Enquanto a Jarvis fala ou pensa, o microfone é
-ignorado para ela não ouvir a si mesma.
+Roda numa thread própria; enquanto ela fala ou pensa, o microfone é ignorado.
 """
 
 from __future__ import annotations
@@ -16,6 +15,7 @@ import numpy as np
 from jarvis.agentes import registro as agentes
 from jarvis.voice.ativacao import (FALANDO, OUVINDO, PROCESSANDO, LimitadorTranscricao, Segmentador, estado_base,
                                    extrair_comando)
+from jarvis.voice.chamada import LimitadorAtivacao, extrair_chamada, responder_saudacao
 from jarvis.voice.gravador import FRAME, PreRoll, Recorder, rms  # noqa: F401  (FRAME/Recorder também importados daqui)
 from jarvis.voice.nivel import LimitadorTaxa, nivel_mic
 from jarvis.voice.stt import SAMPLE_RATE, Transcriber
@@ -55,6 +55,7 @@ class VoiceLoop(threading.Thread):
         self._por_texto = threading.Event()   # "Jarvis, ..." lido na transcrição: só ligado no modo foco
         self._pre = PreRoll()
         self._limite = LimitadorTranscricao()
+        self._limite_chamadas = LimitadorAtivacao()  # ativações por texto por minuto
         self.estado = estado_base(False, ligado=False)  # o que o botão do microfone mostra
 
     def _estado(self, estado: str) -> None:
@@ -198,11 +199,11 @@ class VoiceLoop(threading.Thread):
                     seg.reiniciar()
 
     def _chamada_por_texto(self, audio) -> bool:
-        """Transcreve uma frase ouvida ao fundo; só age se ela COMEÇA chamando "Jarvis". O texto não é guardado."""
+        """Transcreve uma frase ouvida ao fundo; só age se ela chama "Jarvis" (no começo ou, em frase curta, no fim). O texto não é guardado."""
         if audio is None or not self._limite.permite():
             return False
-        comando = extrair_comando(self.transcriber.transcribe(audio))
-        if comando is None:
+        comando = extrair_chamada(self.transcriber.transcribe(audio))
+        if comando is None or not self._limite_chamadas.permite():
             return False
         self._turno_com_comando(comando)
         return True
@@ -213,7 +214,10 @@ class VoiceLoop(threading.Thread):
 
     def _turno_com_comando(self, comando: str) -> None:
         self._pre.take()
-        if comando:
+        saudacao = responder_saudacao(comando) if comando else None
+        if saudacao:  # "oi", "boa noite": cumprimento puro nunca fica sem resposta, e não gasta IA
+            self._responder_pronto(comando, saudacao)
+        elif comando:
             self._responder(comando)
         else:
             self._handle_turn()
@@ -278,6 +282,13 @@ class VoiceLoop(threading.Thread):
             self.notify({"status": "Não entendi. Tente de novo."})
             return
         self._responder(text)
+
+    def _responder_pronto(self, pedido: str, resposta: str) -> None:
+        """Responde sem IA (saudação pura): mostra e fala."""
+        self.notify({"user": pedido})
+        self.notify({"answer": {"text": resposta, "falado": resposta, "brain": "local"}})
+        if self.speak_answers:
+            self._falar(resposta)
 
     def _responder(self, text: str) -> None:
         self.notify({"user": text, "status": "Pensando…"})

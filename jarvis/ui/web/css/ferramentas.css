@@ -1,0 +1,10 @@
+  /* Ferramentas externas (MCP) no painel Cérebros */
+  .ft-aviso { margin: 0 0 8px; padding: 6px 10px; font-size: 12.5px; color: var(--text); border-left: 2px solid var(--orange); overflow-wrap: anywhere; }
+  .ft-lista { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
+  .ft-item { padding: 8px 10px; border: 1px solid var(--line); border-radius: 2px; overflow-wrap: anywhere; }
+  .ft-item h4 { display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: space-between; margin: 0 0 4px; font: 600 13px var(--mono); }
+  .ft-item p { margin: 0 0 4px; font-size: 12.5px; color: var(--muted); }
+  .ft-item ul { margin: 0 0 6px; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+  .ft-risco-medio { color: var(--orange); } .ft-risco-baixo { color: var(--ok); }
+  .ft-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ft-botoes button { min-height: 36px; }

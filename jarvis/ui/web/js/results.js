@@ -1,7 +1,7 @@
   const CRITERIA = { coerencia: "coerência", clareza: "clareza", relevancia: "relevância", fidelidade: "fidelidade", fluidez: "fluidez" };
 
   function showResult(res, originalText, files = []) {
-    if (res.error) addError(res.error, originalText, files);
+    if (res.error) { addError(res.error, originalText, files); addAtalhos(res.atalhos); }
     else {
       const q = res.qualidade;
       const el = add("jarvis", res.text, "via " + res.brain + (q && q.media != null ? ` · qualidade ${q.media.toFixed(1).replace(".", ",")}/10` : ""));
@@ -10,6 +10,7 @@
           .map(([k, v]) => `${CRITERIA[k] || k}: ${v == null ? "—" : v.toFixed(1).replace(".", ",")} (${q.motivos[k]})`).join("\n");
       }
       (res.actions || []).forEach(addActionCard);
+      addOpcoes(res.text, originalText);
     }
   }
 

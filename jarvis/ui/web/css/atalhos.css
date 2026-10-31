@@ -1,0 +1,4 @@
+  /* botões de opção no chat (Você quis dizer, atalhos) */
+  .opcoes { display: flex; flex-wrap: wrap; gap: var(--sp-2, 8px); margin: 6px 0 10px; max-width: 100%; }
+  .opcoes button { min-height: 36px; max-width: 100%; text-align: left; text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  .opcoes button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }

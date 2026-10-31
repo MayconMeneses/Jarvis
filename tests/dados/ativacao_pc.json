@@ -1,0 +1,23 @@
+{
+ "_doc": "Casos so do PC: erros de escuta do Whisper small medidos com voz sintetica. 'aceitar': [frase ouvida, comando]. 'rejeitar': nao chama a Jarvis.",
+ "aceitar": [
+  ["Aviso que horas são", "que horas são"],
+  ["Avise que horas são.", "que horas são."],
+  ["É viz que horas são", "que horas são"],
+  ["Boa noite, Caviso.", "Boa noite"],
+  ["Oi, boa noite, Caviso.", "Oi, boa noite"],
+  ["Avos, que horas são", "que horas são"],
+  ["Veja Jarvis, que dia é hoje", "que dia é hoje"],
+  ["Garvis, abre o bloco de notas", "abre o bloco de notas"],
+  ["boa noite, Javis", "boa noite"]
+ ],
+ "rejeitar": [
+  "Aviso que vou sair",
+  "Aviso que o Jarvis é legal",
+  "Foi uma noite com o Caviz.",
+  "Eu assisti ao filme com o Caviso",
+  "vis a vis",
+  "Boa noite, Aviso",
+  "visitei meus avós"
+ ]
+}

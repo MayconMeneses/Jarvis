@@ -28,11 +28,11 @@ PATTERNS = [
     ("ficha", r"^(ficha|anotacoes)\s+(do\s+)?projeto\s+.+$"),
     ("projetos", r"^(meus projetos|quais (sao )?(os )?(meus )?projetos|lista\w*\s+(os\s+)?(meus\s+)?projetos)$"),
     ("perfil", r"^((meu|minha)\s+(stack|nivel|modalidade|ingles|cidade)\s*(e|eh|sao|:|=)\s*.+|(quero\s+)?evit\w+\s+.+)$"),
-    ("memoria", r"^(o que voce (sabe|lembra)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
-    ("lembrar", r"^(lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?.{3,}$"),
+    ("memoria", r"^(o que voce (sabe|lembra)(?! fazer)( sobre| de| do| da)?\b.*|(busqu\w*|procur\w*|pesquis\w*)\s+(na|nas|em)\s+(minha\s+)?(memoria|notas)\b.*)$"),
+    ("lembrar", r"^((lembr\w*|anot\w*|guard\w*|memoriz\w*)\s+(de\s+)?(que\s+)?|registr\w*\s+que\s+).{3,}$"),
     # Habilidades de programador (jarvis/local/habilidades_skills.py): avaliar projetos, evoluir, checklists.
     ("revisar", r"^(revis\w+|analis\w+|avali\w+)\s+(este|esse|o|a)\s+(diff|patch|trecho|pull request|codigo abaixo|codigo a seguir)\b[\s\S]*$"),
-    ("avaliar_projeto", r"^(avali\w+|revis\w+|analis\w+|audit\w+)\s+(o\s+|a\s+)?(projeto|codigo|repositorio|sistema|[a-z]:\\).*$|"
+    ("avaliar_projeto", r"^(avali\w+|revis\w+|analis\w+|audit\w+)\s+(o\s+|a\s+)?(projeto|codigo(?!\s+d[aeo]s?\s+(?!projeto|repositorio|sistema))|repositorio|sistema|[a-z]:\\).*$|"
                         r"^(avali\w+|revis\w+)\s+(o\s+|a\s+)?(voce mesma|a si mesma|si mesma|seu proprio codigo|seu codigo|proprio codigo)\b.*$"),
     ("habilidades", r"^(quais (sao )?(as )?(minhas |suas )?habilidades.*|minhas habilidades|suas habilidades|habilidades de programador.*|"
                     r"que habilidades.*|lista de habilidades)$"),
@@ -47,6 +47,8 @@ PATTERNS = [
     ("llm_instalar", r"^(instal\w+|baix\w+|lig\w+|ativ\w+)\s+(o |a )?(cerebro|modelo|ia|llm)( generativ\w+)? (local|proprio|proprio)\b.*$"),
     ("llm_status", r"(cerebro|modelo|llm) local|o que (voce )?(aprendeu|estudou)|aprendizado (automatico|autonomo)|(aprenda|estude) sozinha"),
     ("criar_sistema", r"^(cri[ae]|faca|fazer|faz|mont[ae]|ger[ae]|gerar|inici[ae]|comec[ae]|desenvolv\w+)\s+(um|uma)?\s*(novo\s+|nova\s+)?(sistema|projeto|app|aplicacao|site|api)\b.*$"),
+    # "abre o VS Code": comando de abrir vem ANTES de "comparar" (o "vs" de "VS Code" não é uma comparação).
+    ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
     ("comparar", r"^(compar\w+|diferenca entr[ae]|qual (e )?a diferenca entr[ae]|qual (e )?melhor|o que (e )?melhor)\b.+|\b(vs|versus)\b"),
     ("recomendar", r"^(qual|que|quais)\s+(stack|tecnologia|tecnologias|linguagem|linguagens|framework|frameworks|banco|bancos)\b.*|"
                    r"^(recomend\w+|sugir\w+|indic\w+)\s+(uma?\s+)?(stack|tecnologia|linguagem|framework)\b.*|"
@@ -54,19 +56,20 @@ PATTERNS = [
     ("padrao", r"\b(padroes? de projeto|design patterns?|padrao (strategy|observer|factory|decorator|adapter|repository|command|builder))\b"),
     ("ux_ferramenta", r"^(?=.*(#[0-9a-f]{3}|\b[0-9a-f]{6}\b)).*\b(contraste|paleta|tokens?)\b|\b(escala tipografica|escala de tipos)\b"),
     ("gerar", r"^(cri[ae]|ger[ae]|gerar|faca|escrev\w+|mont[ae])\s+(um|uma|o|a)?\s*(tabela|esquema sql|adr|registro de decisao|historia de usuario|openapi|swagger|workflow|pipeline|dockerfile|editorconfig)\b.*$"),
-    ("algoritmo", r"^(como (fazer|faco|escrever|implementar|programar|criar|calcular)|escreva|escrever|mostre|mostra|me mostre|me de|exemplo de|algoritmo (de|para)|codigo (de|para)|implemente|programa (de|para))\b.+$"),
+    ("algoritmo", r"^(?!(escrev\w+|mostr\w+|me mostr\w+|me de)\s+(um |uma |o |a |meu |minha |as |os )?(e-?mails?|mensagem|poema|carta|texto|redacao|resumo|historia|musica|post|artigo|discurso|descricao|relatorio|curriculo|resposta|noticias?|clima|vagas?|hora|data)\b)(como (fazer|faco|escrever|implementar|programar|criar|calcular)|escreva|escrever|mostre|mostra|me mostre|me de|exemplo de|algoritmo (de|para)|codigo (de|para)|implemente|programa (de|para))\b.+$"),
     ("logica", r"^(como (resolver|resolvo|pensar|raciocinar)\b.*|me ajuda(r)? a (resolver|pensar)\b.*|logica de programacao|quais (conceitos|algoritmos)\b.*|que (conceitos|algoritmos)\b.*)$"),
-    ("tecnologia", r"^(o que (e|sao)|que (e|sao)|fale sobre|me fale sobre|explique|explica|me explica|descreva|conte sobre)\s+(?P<tema>.+)$"),
-    ("abrir", r"^(abr[ae]|abrir|abre pra mim|inici[ae]|execut[ae]|entr[ae] n[oa])\s+(?P<alvo>.+)$"),
-    ("hora", r"\b(que horas?|hora atual|horas sao)\b"), ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e)\b"),
+    ("tecnologia", r"^(o que (e|sao)|que (e|sao)|explique|explica|me explica|descreva)\s+(?P<tema>.+)$"),
+    ("hora", r"\b(que horas?|hora atual|horas sao|(fal\w+|diz\w*|diga|mostr\w+|informe|da)\s+(a|as)\s+horas?)\b"),
+    ("data", r"\b(que dia e hoje|data de hoje|qual (a|e a) data|que dia e|hoje e que dia|qual e o dia( de hoje)?$)\b"),
     ("processos", r"\b(processos|programas)\b.*\b(pesad\w*|mais us\w*|consum\w*)\b"),
     ("pc", r"\b(como (esta|ta) (o\s+)?(meu\s+)?(pc|computador)|status do (pc|computador)|uso de (ram|cpu|memoria|disco)|"
            r"memoria ram|quanto de (ram|memoria|disco))\b"),
-    ("clima", r"\b(clima|previsao do tempo|vai chover|temperatura)\b(\s+(em|de|no|na)\s+(?P<cidade>.+))?"),
+    ("clima", r"\b(clima|previsao do tempo|vai chover|temperatura|vai fazer (sol|calor|frio)|como (esta|ta) o tempo)\b(\s+(em|de|no|na)\s+(?P<cidade>.+))?"),
     ("noticias", r"\bnoticias?\b"),
     # Só pedidos de vagas ("lembre que prefiro vagas remotas" não é um pedido).
     ("vagas", r"^((tem|ha|existe\w*|quero|ver|mostr\w*|me mostr\w*|procur\w*|busc\w*|busqu\w*|lista\w*|quais)\b.{0,25}\bvagas?\b|vagas?\b)"),
-    ("ajuda", r"^(ajuda|o que voce (faz|sabe fazer)|comandos|me ajuda)$"),
-    ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|me fale sobre|fale sobre)\s+"
+    ("ajuda", r"^(ajuda|o que voce (faz|sabe fazer|consegue fazer|pode fazer)|(quais (sao )?)?(os )?(seus )?comandos|me ajuda)$"),
+    # "fale/me fala/me conta sobre X": assunto geral vai para a pesquisa (a tecnologia conhecida é explicada em _pesquisa).
+    ("pesquisa", r"^(pesquis\w*|procur\w*|busc\w*|busqu\w*|(me )?fal[ae]\s+sobre|(me )?cont[ae]\s+sobre)\s+"
                  r"(informac\w+\s+)?(sobre\s+|de\s+)?(?P<tema>.+)$"),
 ]

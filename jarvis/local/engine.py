@@ -25,7 +25,7 @@ NOTE = "\n\n_(modo independente: respondido sem IA)_"
 # Palavras que disparam comandos: corrigidas por semelhança se vierem com erro de digitação.
 VOCABULARY = """abre abra abrir inicia executa entra horas hora dia data hoje programas processos pesados
 consumindo computador memoria disco clima previsao chover temperatura noticias tecnologia vagas pesquise
-pesquisa procure busque ajuda comandos como esta status""".split()
+pesquisa procure busque ajuda comandos como esta status diga fala fale""".split()
 _POLITE = re.compile(r"^((por favor|pfv|pf)[\s,]+|((voce|vc)\s+)?(pode|poderia|consegue|conseguiria)\s+(me\s+)?)+")
 
 
@@ -73,7 +73,10 @@ class LocalEngine:
         for intent, pattern in self.PATTERNS:
             match = re.search(pattern, low)
             if match:
-                return intent, {k: v for k, v in match.groupdict().items() if v}
+                args = {k: v for k, v in match.groupdict().items() if v}
+                if intent == "pesquisa" and re.match(r"(me )?(fal|cont)[ae]\s+sobre", low) and dev_skills.info(args.get("tema", "")):
+                    intent = "tecnologia"  # "fale sobre Docker": tecnologia conhecida é explicada; assunto geral segue para a pesquisa
+                return intent, args
         return None
 
     def is_direct_command(self, text: str) -> bool:
