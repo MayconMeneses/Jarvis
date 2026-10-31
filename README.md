@@ -1,5 +1,24 @@
 # Super Jarvis
 
+<!-- portfolio-quick-view:start -->
+## Visão rápida para recrutadores | Recruiter overview
+
+**Problema:** tarefas repetitivas no computador exigem alternar entre aplicativos, pesquisa, código e ferramentas de assistência.  
+**Solução:** assistente pessoal para Windows com interface por texto e voz, integração com ferramentas externas e rotinas de automação.  
+**Stack:** Python · SQLite · interfaces web · integração com modelos de IA e ferramentas locais.
+
+**O que demonstra no código**
+- Orquestração de ferramentas e múltiplos modos de resposta, incluindo alternativa sem IA.
+- Automação com confirmação humana: alterações no sistema, e-mail ou código dependem de aprovação.
+- Transcrição de voz local, gerenciamento de credenciais fora do código e empacotamento para Windows.
+
+**Status:** projeto pessoal em evolução; algumas integrações dependem de serviços e credenciais configurados pelo usuário.  
+**Veja rapidamente:** [instalação e execução](#instalar-e-rodar) · [plano de evolução](PLANO-SUPER-JARVIS.md).  
+**EN:** Python-based Windows assistant for voice/text interaction, AI-tool integration and user-approved automation.
+
+<!-- portfolio-quick-view:end -->
+
+
 Assistente pessoal para **Windows** que conversa por texto e por voz (em português), abre programas, cuida do PC
 e do e-mail, pesquisa na internet, escreve código com o Claude Code e **continua funcionando mesmo sem nenhuma IA**.
 
